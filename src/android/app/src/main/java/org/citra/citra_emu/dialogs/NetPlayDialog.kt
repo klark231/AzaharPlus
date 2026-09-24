@@ -268,7 +268,9 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
         dialog.show()
         wifiDirectManager.startDiscovery()
     }
-    data class NetPlayItems(val option: Int, val name: String, val type: Int, val id: Int = 0) {
+    data class NetPlayItems(val option: Int, val name: String, val type: Int,
+        val id: Int = 0,
+        val subtitle: String = "") {
         companion object {
             const val MULTIPLAYER_ROOM_TEXT = 1
             const val MULTIPLAYER_ROOM_MEMBER = 2
@@ -359,6 +361,8 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
             override fun bind(item: NetPlayItems) {
                 netPlayItems = item
                 binding.itemButtonNetplayName.text = netPlayItems.name
+                binding.itemButtonNetplaySubtitle.text = netPlayItems.subtitle
+                binding.itemButtonNetplaySubtitle.visibility = if (netPlayItems.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
             }
         }
 
@@ -397,11 +401,13 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
                     )
                 )
                 for (i in 1 until infos.size) {
+                    val parts = infos[i].split("|")
                     netPlayItems.add(
                         NetPlayItems(
                             NetPlayItems.MULTIPLAYER_ROOM_MEMBER,
-                            infos[i],
-                            NetPlayItems.TYPE_BUTTON
+                            parts.getOrElse(0) { "" }, // nickname
+                            NetPlayItems.TYPE_BUTTON,
+                            subtitle = parts.getOrElse(2) { "" } // game name
                         )
                     )
                 }

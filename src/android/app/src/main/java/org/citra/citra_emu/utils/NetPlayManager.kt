@@ -223,7 +223,7 @@ object NetPlayManager {
         }
 
         Handler(Looper.getMainLooper()).post {
-            if (!isChatOpen) {
+            if (!isChatOpen && message.isNotEmpty()) {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         }
@@ -285,6 +285,7 @@ object NetPlayManager {
             NetPlayStatus.ROOM_JOINED -> context.getString(R.string.multiplayer_room_joined)
 
             NetPlayStatus.ROOM_MODERATOR -> context.getString(R.string.multiplayer_room_moderator)
+            NetPlayStatus.ROOM_INFORMATION_UPDATED -> ""
 
             NetPlayStatus.MEMBER_JOIN -> context.getString(R.string.multiplayer_member_join, msg)
 
@@ -382,5 +383,6 @@ object NetPlayManager {
         const val MEMBER_BANNED = 25
         const val ADDRESS_UNBANNED = 26
         const val CHAT_MESSAGE = 27
+        const val ROOM_INFORMATION_UPDATED = 28
     }
 }

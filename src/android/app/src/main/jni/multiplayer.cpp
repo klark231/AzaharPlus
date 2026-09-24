@@ -140,6 +140,9 @@ bool AndroidMultiplayer::NetworkInit() {
             msg += chat.message;
             AddNetPlayMessage(static_cast<int>(status), msg);
         });
+        member->BindOnRoomInformationChanged([this](const Network::RoomInformation&) {
+            AddNetPlayMessage(static_cast<int>(NetPlayStatus::ROOM_INFORMATION_UPDATED), "");
+        });
     }
 
     return true;
@@ -274,9 +277,11 @@ std::vector<std::string> AndroidMultiplayer::NetPlayRoomInfo() {
     if (auto room = Network::GetRoomMember().lock()) {
         auto members = room->GetMemberInformation();
         if (!members.empty()) {
-            // name and max players
+            // name, max players, address, and port
             auto room_info = room->GetRoomInformation();
-            info_list.push_back(room_info.name + "|" + std::to_string(room_info.member_slots));
+            const auto& address = room->GetServerAddress();
+            info_list.push_back(room_info.name + "|" + std::to_string(room_info.member_slots) +
+                                "|" + address + "|" + std::to_string(room_info.port));
             // all members
             for (const auto& member : members) {
                 info_list.push_back(member.nickname);

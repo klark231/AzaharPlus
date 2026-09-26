@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/Widget.Azahar.TouchInput.Card.Row"
+    app:cardBackgroundColor="?attr/colorSecondaryContainer">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/inspectorLabel"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_touch_input_badge"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="A" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/inspectorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                tools:text="Button A" />
+
+            <TextView
+                android:id="@+id/inspectorPosition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                tools:text="X 25% &#183; Y 70%" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/nudgeLeft"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/touch_input_nudge_left"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_left_small"
+            app:tint="?attr/colorOnSecondaryContainer" />
+
+        <ImageView
+            android:id="@+id/nudgeUp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/touch_input_nudge_up"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_up"
+            app:tint="?attr/colorOnSecondaryContainer" />
+
+        <ImageView
+            android:id="@+id/nudgeDown"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/touch_input_nudge_down"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_down"
+            app:tint="?attr/colorOnSecondaryContainer" />
+
+        <ImageView
+            android:id="@+id/nudgeRight"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/touch_input_nudge_right"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_right_small"
+            app:tint="?attr/colorOnSecondaryContainer" />
+
+        <ImageView
+            android:id="@+id/inspectorDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete"
+            android:padding="9dp"
+            android:src="@drawable/ic_delete_outline"
+            app:tint="?attr/colorError" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

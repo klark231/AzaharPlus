@@ -1072,4 +1072,41 @@
     <string name="update_check_channel_stable">Stabile</string>
     <string name="update_check_channel_prerelease">Anteprima</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Associazioni di input tattile</string>
+    <string name="touch_input_bindings_description">Associa pulsanti e levette del controller a posizioni sullo schermo tattile inferiore del 3DS.</string>
+    <string name="bind_touch_input">Associa input tattile</string>
+    <string name="bind_touch_input_message">Premi un pulsante o muovi una levetta per associarlo.</string>
+    <string name="bind_touch_input_cancel">Annulla</string>
+    <string name="touch_input_empty_title">Nessuna associazione ancora</string>
+    <string name="touch_input_empty_message">Tocca l\'anteprima per scegliere un punto, poi premi un pulsante o muovi una levetta sul controller.</string>
+    <string name="touch_input_hint_empty">Tocca per posizionare la prima associazione</string>
+    <string name="touch_input_hint_test">Premi un pulsante o muovi una levetta per testare</string>
+    <string name="touch_input_mode_edit">Modifica</string>
+    <string name="touch_input_mode_test">Testa</string>
+    <string name="more_options">Altre opzioni</string>
+    <string name="touch_input_nudge_left">Sposta a sinistra</string>
+    <string name="touch_input_nudge_right">Sposta a destra</string>
+    <string name="touch_input_nudge_up">Sposta in alto</string>
+    <string name="touch_input_nudge_down">Sposta in basso</string>
+    <string name="touch_input_binding_options">Opzioni associazione</string>
+    <string name="delete_all">Elimina tutto</string>
+    <string name="delete_all_touch_input_confirm">Eliminare tutte le associazioni di input tattile per questo profilo? L\'azione è irreversibile.</string>
+    <string name="delete_touch_input_confirm">Eliminare questa associazione di input tattile?</string>
+    <string name="create_profile">Crea profilo</string>
+    <string name="create_new_profile">Nuovo profilo</string>
+    <string name="profile_action_rename_format">Rinomina «%1$s»</string>
+    <string name="profile_manage_format">Gestisci «%1$s»</string>
+    <string name="profile_action_delete_format">Elimina «%1$s»</string>
+    <string name="delete_profile">Elimina profilo</string>
+    <string name="profile_name">Nome profilo</string>
+    <string name="edit_profile_name">Modifica nome profilo</string>
+    <string name="profile_already_exists">Il profilo esiste già</string>
+    <string name="profile_name_already_exists">Esiste già un profilo con questo nome.</string>
+    <string name="delete_profile_confirm">Eliminare il profilo «%1$s»? L\'azione è irreversibile.</string>
+    <string name="profile_deleted">Profilo eliminato</string>
+    <string name="edit">Modifica</string>
+    <string name="x_coordinate">Posizione X</string>
+    <string name="y_coordinate">Posizione Y</string>
+    <string name="invalid_coordinates">Le coordinate devono essere comprese tra 0.0 e 1.0</string>
 </resources>

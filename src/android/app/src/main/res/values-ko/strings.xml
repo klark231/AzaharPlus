@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">터치 입력 바인딩</string>
+    <string name="touch_input_bindings_description">컨트롤러 버튼과 스틱을 3DS 하단 화면의 위치에 매핑합니다.</string>
+    <string name="bind_touch_input">터치 입력 바인딩</string>
+    <string name="bind_touch_input_message">버튼을 누르거나 스틱을 움직여 바인딩하세요.</string>
+    <string name="bind_touch_input_cancel">취소</string>
+    <string name="touch_input_empty_title">아직 바인딩이 없습니다</string>
+    <string name="touch_input_empty_message">미리보기를 탭하여 위치를 선택한 다음 컨트롤러의 버튼을 누르거나 스틱을 움직이세요.</string>
+    <string name="touch_input_hint_empty">탭하여 첫 바인딩을 배치하세요</string>
+    <string name="touch_input_hint_test">버튼을 누르거나 스틱을 움직여 테스트하세요</string>
+    <string name="touch_input_mode_edit">편집</string>
+    <string name="touch_input_mode_test">테스트</string>
+    <string name="more_options">추가 옵션</string>
+    <string name="touch_input_nudge_left">왼쪽으로 이동</string>
+    <string name="touch_input_nudge_right">오른쪽으로 이동</string>
+    <string name="touch_input_nudge_up">위로 이동</string>
+    <string name="touch_input_nudge_down">아래로 이동</string>
+    <string name="touch_input_binding_options">바인딩 옵션</string>
+    <string name="delete_all">모두 삭제</string>
+    <string name="delete_all_touch_input_confirm">이 프로필의 모든 터치 입력 바인딩을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="delete_touch_input_confirm">이 터치 입력 바인딩을 삭제하시겠습니까?</string>
+    <string name="create_profile">프로필 생성</string>
+    <string name="create_new_profile">새 프로필</string>
+    <string name="profile_action_rename_format">\"%1$s\" 이름 변경</string>
+    <string name="profile_manage_format">\"%1$s\" 관리</string>
+    <string name="profile_action_delete_format">\"%1$s\" 삭제</string>
+    <string name="delete_profile">프로필 삭제</string>
+    <string name="profile_name">프로필 이름</string>
+    <string name="edit_profile_name">프로필 이름 편집</string>
+    <string name="profile_already_exists">프로필이 이미 존재합니다</string>
+    <string name="profile_name_already_exists">이 이름의 프로필이 이미 존재합니다.</string>
+    <string name="delete_profile_confirm">프로필 \"%1$s\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="profile_deleted">프로필이 삭제되었습니다</string>
+    <string name="edit">편집</string>
+    <string name="x_coordinate">X 좌표</string>
+    <string name="y_coordinate">Y 좌표</string>
+    <string name="invalid_coordinates">좌표는 0.0에서 1.0 사이여야 합니다</string>
+</resources>

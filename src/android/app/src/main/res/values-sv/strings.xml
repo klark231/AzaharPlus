@@ -1071,4 +1071,41 @@
     <string name="update_check_channel_stable">Stabil</string>
     <string name="update_check_channel_prerelease">Förutgåva</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Bindningar för pekinmatning</string>
+    <string name="touch_input_bindings_description">Kopplar kontrollerns knappar och spakar till positioner på 3DS undre skärm.</string>
+    <string name="bind_touch_input">Bind pekinmatning</string>
+    <string name="bind_touch_input_message">Tryck på en knapp eller flytta en spak för att binda den.</string>
+    <string name="bind_touch_input_cancel">Avbryt</string>
+    <string name="touch_input_empty_title">Inga bindningar ännu</string>
+    <string name="touch_input_empty_message">Tryck på förhandsgranskningen för att välja en plats, tryck sedan på en knapp eller flytta en spak på din kontroller.</string>
+    <string name="touch_input_hint_empty">Tryck för att placera din första bindning</string>
+    <string name="touch_input_hint_test">Tryck på en knapp eller flytta en spak för att testa</string>
+    <string name="touch_input_mode_edit">Redigera</string>
+    <string name="touch_input_mode_test">Testa</string>
+    <string name="more_options">Fler alternativ</string>
+    <string name="touch_input_nudge_left">Flytta vänster</string>
+    <string name="touch_input_nudge_right">Flytta höger</string>
+    <string name="touch_input_nudge_up">Flytta upp</string>
+    <string name="touch_input_nudge_down">Flytta ner</string>
+    <string name="touch_input_binding_options">Bindningsalternativ</string>
+    <string name="delete_all">Ta bort alla</string>
+    <string name="delete_all_touch_input_confirm">Ta bort alla bindningar för pekinmatning i den här profilen? Detta kan inte ångras.</string>
+    <string name="delete_touch_input_confirm">Ta bort den här bindningen för pekinmatning?</string>
+    <string name="create_profile">Skapa profil</string>
+    <string name="create_new_profile">Ny profil</string>
+    <string name="profile_action_rename_format">Byt namn på ”%1$s”</string>
+    <string name="profile_manage_format">Hantera ”%1$s”</string>
+    <string name="profile_action_delete_format">Ta bort ”%1$s”</string>
+    <string name="delete_profile">Ta bort profil</string>
+    <string name="profile_name">Profilnamn</string>
+    <string name="edit_profile_name">Redigera profilnamn</string>
+    <string name="profile_already_exists">Profilen finns redan</string>
+    <string name="profile_name_already_exists">En profil med det här namnet finns redan.</string>
+    <string name="delete_profile_confirm">Ta bort profilen ”%1$s”? Detta kan inte ångras.</string>
+    <string name="profile_deleted">Profil borttagen</string>
+    <string name="edit">Redigera</string>
+    <string name="x_coordinate">X-position</string>
+    <string name="y_coordinate">Y-position</string>
+    <string name="invalid_coordinates">Koordinaterna måste vara mellan 0.0 och 1.0</string>
 </resources>

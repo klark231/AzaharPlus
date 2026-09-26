@@ -889,4 +889,41 @@
     <string name="update_check_channel_stable">Kararlı</string>
     <string name="update_check_channel_prerelease">Ön sürüm</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Dokunmatik Girdi Bağlamaları</string>
+    <string name="touch_input_bindings_description">Denetleyici düğmelerini ve analog kollarını 3DS alt ekranındaki konumlarla eşleştirir.</string>
+    <string name="bind_touch_input">Dokunmatik Girdi Bağla</string>
+    <string name="bind_touch_input_message">Bağlamak için bir düğmeye basın veya bir analog kolu hareket ettirin.</string>
+    <string name="bind_touch_input_cancel">İptal</string>
+    <string name="touch_input_empty_title">Henüz bağlama yok</string>
+    <string name="touch_input_empty_message">Bir konum seçmek için önizlemeye dokunun, ardından denetleyicinizde bir düğmeye basın veya kolu hareket ettirin.</string>
+    <string name="touch_input_hint_empty">İlk bağlamanızı yerleştirmek için dokunun</string>
+    <string name="touch_input_hint_test">Test etmek için bir düğmeye basın veya kolu hareket ettirin</string>
+    <string name="touch_input_mode_edit">Düzenle</string>
+    <string name="touch_input_mode_test">Test Et</string>
+    <string name="more_options">Diğer seçenekler</string>
+    <string name="touch_input_nudge_left">Sola kaydır</string>
+    <string name="touch_input_nudge_right">Sağa kaydır</string>
+    <string name="touch_input_nudge_up">Yukarı kaydır</string>
+    <string name="touch_input_nudge_down">Aşağı kaydır</string>
+    <string name="touch_input_binding_options">Bağlama seçenekleri</string>
+    <string name="delete_all">Tümünü sil</string>
+    <string name="delete_all_touch_input_confirm">Bu profildeki tüm dokunmatik girdi bağlamaları silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="delete_touch_input_confirm">Bu dokunmatik girdi bağlaması silinsin mi?</string>
+    <string name="create_profile">Profil Oluştur</string>
+    <string name="create_new_profile">Yeni Profil</string>
+    <string name="profile_action_rename_format">“%1$s” yeniden adlandır</string>
+    <string name="profile_manage_format">“%1$s” yönet</string>
+    <string name="profile_action_delete_format">“%1$s” sil</string>
+    <string name="delete_profile">Profili Sil</string>
+    <string name="profile_name">Profil Adı</string>
+    <string name="edit_profile_name">Profil Adını Düzenle</string>
+    <string name="profile_already_exists">Profil zaten mevcut</string>
+    <string name="profile_name_already_exists">Bu adla bir profil zaten mevcut.</string>
+    <string name="delete_profile_confirm">“%1$s” profili silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="profile_deleted">Profil silindi</string>
+    <string name="edit">Düzenle</string>
+    <string name="x_coordinate">X Konumu</string>
+    <string name="y_coordinate">Y Konumu</string>
+    <string name="invalid_coordinates">Koordinatlar 0.0 ile 1.0 arasında olmalıdır</string>
 </resources>

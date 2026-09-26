@@ -1009,6 +1009,30 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onTouchEvent([[maybe_unused]] J
         window->OnTouchEvent(static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), pressed));
 }
 
+
+jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getFramebufferLayout(JNIEnv* env,
+                                                                         [[maybe_unused]] jobject obj) {
+    jfloatArray result = env->NewFloatArray(6);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    if (window == nullptr) {
+        return result;
+    }
+
+    const auto& layout = window->GetFramebufferLayout();
+    const jfloat values[6] = {
+        static_cast<jfloat>(layout.width),
+        static_cast<jfloat>(layout.height),
+        static_cast<jfloat>(layout.bottom_screen.left),
+        static_cast<jfloat>(layout.bottom_screen.top),
+        static_cast<jfloat>(layout.bottom_screen.right),
+        static_cast<jfloat>(layout.bottom_screen.bottom),
+    };
+    env->SetFloatArrayRegion(result, 0, 6, values);
+    return result;
+}
+
 void Java_org_citra_citra_1emu_NativeLibrary_onTouchMoved([[maybe_unused]] JNIEnv* env,
                                                           [[maybe_unused]] jobject obj, jfloat x,
                                                           jfloat y) {

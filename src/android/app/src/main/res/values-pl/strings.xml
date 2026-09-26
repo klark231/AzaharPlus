@@ -929,4 +929,41 @@
     <string name="decompress_failed">Dekompresja nie powiodła się.</string>
     <string name="compress_decompress_installed_app">Aplikacje, które są już zainstalowane, nie mogą być kompresowane ani dekompresowane.</string>
 
-  </resources>
+      <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Przypisania wejścia dotykowego</string>
+    <string name="touch_input_bindings_description">Mapuje przyciski i gałki kontrolera na pozycje na dolnym ekranie 3DS.</string>
+    <string name="bind_touch_input">Przypisz wejście dotykowe</string>
+    <string name="bind_touch_input_message">Naciśnij przycisk lub poruszaj gałką, aby je przypisać.</string>
+    <string name="bind_touch_input_cancel">Anuluj</string>
+    <string name="touch_input_empty_title">Brak przypisań</string>
+    <string name="touch_input_empty_message">Dotknij podglądu, aby wybrać miejsce, a następnie naciśnij przycisk lub poruszaj gałką kontrolera.</string>
+    <string name="touch_input_hint_empty">Dotknij, aby umieścić pierwsze przypisanie</string>
+    <string name="touch_input_hint_test">Naciśnij przycisk lub poruszaj gałką, aby przetestować</string>
+    <string name="touch_input_mode_edit">Edytuj</string>
+    <string name="touch_input_mode_test">Testuj</string>
+    <string name="more_options">Więcej opcji</string>
+    <string name="touch_input_nudge_left">Przesuń w lewo</string>
+    <string name="touch_input_nudge_right">Przesuń w prawo</string>
+    <string name="touch_input_nudge_up">Przesuń w górę</string>
+    <string name="touch_input_nudge_down">Przesuń w dół</string>
+    <string name="touch_input_binding_options">Opcje przypisania</string>
+    <string name="delete_all">Usuń wszystko</string>
+    <string name="delete_all_touch_input_confirm">Usunąć wszystkie przypisania wejścia dotykowego dla tego profilu? Tej czynności nie można cofnąć.</string>
+    <string name="delete_touch_input_confirm">Usunąć to przypisanie wejścia dotykowego?</string>
+    <string name="create_profile">Utwórz profil</string>
+    <string name="create_new_profile">Nowy profil</string>
+    <string name="profile_action_rename_format">Zmień nazwę „%1$s”</string>
+    <string name="profile_manage_format">Zarządzaj „%1$s”</string>
+    <string name="profile_action_delete_format">Usuń „%1$s”</string>
+    <string name="delete_profile">Usuń profil</string>
+    <string name="profile_name">Nazwa profilu</string>
+    <string name="edit_profile_name">Edytuj nazwę profilu</string>
+    <string name="profile_already_exists">Profil już istnieje</string>
+    <string name="profile_name_already_exists">Profil o tej nazwie już istnieje.</string>
+    <string name="delete_profile_confirm">Usunąć profil „%1$s”? Tej czynności nie można cofnąć.</string>
+    <string name="profile_deleted">Profil usunięty</string>
+    <string name="edit">Edytuj</string>
+    <string name="x_coordinate">Pozycja X</string>
+    <string name="y_coordinate">Pozycja Y</string>
+    <string name="invalid_coordinates">Współrzędne muszą mieścić się w zakresie od 0.0 do 1.0</string>
+</resources>

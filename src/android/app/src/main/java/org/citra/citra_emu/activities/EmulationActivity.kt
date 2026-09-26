@@ -40,6 +40,7 @@ import org.citra.citra_emu.dialogs.NetPlayDialog
 import org.citra.citra_emu.display.ScreenAdjustmentUtil
 import org.citra.citra_emu.display.SecondaryDisplay
 import org.citra.citra_emu.features.hotkeys.HotkeyUtility
+import org.citra.citra_emu.features.touchinput.TouchInputBindingManager
 import org.citra.citra_emu.features.settings.model.BooleanSetting
 import org.citra.citra_emu.features.settings.model.IntSetting
 import org.citra.citra_emu.features.settings.model.SettingsViewModel
@@ -361,6 +362,21 @@ class EmulationActivity : AppCompatActivity() {
             return false
         }
 
+        // Handle custom touch input bindings first.
+        when (event.action) {
+            KeyEvent.ACTION_DOWN -> {
+                if (TouchInputBindingManager.handleKeyDown(event)) {
+                    return true
+                }
+            }
+
+            KeyEvent.ACTION_UP -> {
+                if (TouchInputBindingManager.handleKeyUp(event)) {
+                    return true
+                }
+            }
+        }
+
         if (emulationFragment.isDrawerOpen()) {
             return super.dispatchKeyEvent(event)
         }
@@ -415,6 +431,12 @@ class EmulationActivity : AppCompatActivity() {
         if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
             return true
         }
+
+        // Custom touch-input axis bindings
+        if (TouchInputBindingManager.handleAxisMotion(event)) {
+            return true
+        }
+
         val input = event.device
         val motions = input.motionRanges
         val axisValuesCirclePad = floatArrayOf(0.0f, 0.0f)

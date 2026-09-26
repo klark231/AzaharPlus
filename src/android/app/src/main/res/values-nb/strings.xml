@@ -110,4 +110,41 @@
     <!-- Camera -->
     <string name="camera_select_image">Velg Bilde</string>
     <string name="camera">Kamera</string>
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Berøringsinngangsbindinger</string>
+    <string name="touch_input_bindings_description">Knytter kontrollerknapper og spaker til posisjoner på 3DS\' nedre skjerm.</string>
+    <string name="bind_touch_input">Bind berøringsinngang</string>
+    <string name="bind_touch_input_message">Trykk en knapp eller beveg en spak for å binde den.</string>
+    <string name="bind_touch_input_cancel">Avbryt</string>
+    <string name="touch_input_empty_title">Ingen bindinger ennå</string>
+    <string name="touch_input_empty_message">Trykk på forhåndsvisningen for å velge et sted, trykk deretter en knapp eller beveg en spak på kontrolleren.</string>
+    <string name="touch_input_hint_empty">Trykk for å plassere din første binding</string>
+    <string name="touch_input_hint_test">Trykk en knapp eller beveg en spak for å teste</string>
+    <string name="touch_input_mode_edit">Rediger</string>
+    <string name="touch_input_mode_test">Test</string>
+    <string name="more_options">Flere valg</string>
+    <string name="touch_input_nudge_left">Flytt venstre</string>
+    <string name="touch_input_nudge_right">Flytt høyre</string>
+    <string name="touch_input_nudge_up">Flytt opp</string>
+    <string name="touch_input_nudge_down">Flytt ned</string>
+    <string name="touch_input_binding_options">Bindingsvalg</string>
+    <string name="delete_all">Slett alle</string>
+    <string name="delete_all_touch_input_confirm">Slette alle berøringsinngangsbindinger for denne profilen? Dette kan ikke angres.</string>
+    <string name="delete_touch_input_confirm">Slette denne berøringsinngangsbindingen?</string>
+    <string name="create_profile">Opprett profil</string>
+    <string name="create_new_profile">Ny profil</string>
+    <string name="profile_action_rename_format">Endre navn på «%1$s»</string>
+    <string name="profile_manage_format">Administrer «%1$s»</string>
+    <string name="profile_action_delete_format">Slett «%1$s»</string>
+    <string name="delete_profile">Slett profil</string>
+    <string name="profile_name">Profilnavn</string>
+    <string name="edit_profile_name">Rediger profilnavn</string>
+    <string name="profile_already_exists">Profilen finnes allerede</string>
+    <string name="profile_name_already_exists">En profil med dette navnet finnes allerede.</string>
+    <string name="delete_profile_confirm">Slette profilen «%1$s»? Dette kan ikke angres.</string>
+    <string name="profile_deleted">Profil slettet</string>
+    <string name="edit">Rediger</string>
+    <string name="x_coordinate">X-posisjon</string>
+    <string name="y_coordinate">Y-posisjon</string>
+    <string name="invalid_coordinates">Koordinatene må være mellom 0.0 og 1.0</string>
+</resources>

@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Asocieri de intrare tactilă</string>
+    <string name="touch_input_bindings_description">Mapează butoanele și manetele controlerului la poziții pe ecranul inferior al 3DS.</string>
+    <string name="bind_touch_input">Asociază intrare tactilă</string>
+    <string name="bind_touch_input_message">Apasă un buton sau mișcă o manetă pentru a o asocia.</string>
+    <string name="bind_touch_input_cancel">Anulează</string>
+    <string name="touch_input_empty_title">Nicio asociere încă</string>
+    <string name="touch_input_empty_message">Atinge previzualizarea pentru a alege o poziție, apoi apasă un buton sau mișcă o manetă pe controler.</string>
+    <string name="touch_input_hint_empty">Atinge pentru a plasa prima asociere</string>
+    <string name="touch_input_hint_test">Apasă un buton sau mișcă o manetă pentru a testa</string>
+    <string name="touch_input_mode_edit">Editează</string>
+    <string name="touch_input_mode_test">Testează</string>
+    <string name="more_options">Mai multe opțiuni</string>
+    <string name="touch_input_nudge_left">Mută la stânga</string>
+    <string name="touch_input_nudge_right">Mută la dreapta</string>
+    <string name="touch_input_nudge_up">Mută în sus</string>
+    <string name="touch_input_nudge_down">Mută în jos</string>
+    <string name="touch_input_binding_options">Opțiuni asociere</string>
+    <string name="delete_all">Șterge tot</string>
+    <string name="delete_all_touch_input_confirm">Ștergi toate asocierile de intrare tactilă pentru acest profil? Această acțiune nu poate fi anulată.</string>
+    <string name="delete_touch_input_confirm">Ștergi această asociere de intrare tactilă?</string>
+    <string name="create_profile">Creează profil</string>
+    <string name="create_new_profile">Profil nou</string>
+    <string name="profile_action_rename_format">Redenumește „%1$s”</string>
+    <string name="profile_manage_format">Gestionează „%1$s”</string>
+    <string name="profile_action_delete_format">Șterge „%1$s”</string>
+    <string name="delete_profile">Șterge profilul</string>
+    <string name="profile_name">Nume profil</string>
+    <string name="edit_profile_name">Editează numele profilului</string>
+    <string name="profile_already_exists">Profilul există deja</string>
+    <string name="profile_name_already_exists">Există deja un profil cu acest nume.</string>
+    <string name="delete_profile_confirm">Ștergi profilul „%1$s”? Această acțiune nu poate fi anulată.</string>
+    <string name="profile_deleted">Profil șters</string>
+    <string name="edit">Editează</string>
+    <string name="x_coordinate">Poziția X</string>
+    <string name="y_coordinate">Poziția Y</string>
+    <string name="invalid_coordinates">Coordonatele trebuie să fie între 0.0 și 1.0</string>
+</resources>

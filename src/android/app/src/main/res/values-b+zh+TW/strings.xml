@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">觸控輸入綁定</string>
+    <string name="touch_input_bindings_description">將控制器按鍵與搖桿對應到3DS下螢幕上的位置。</string>
+    <string name="bind_touch_input">綁定觸控輸入</string>
+    <string name="bind_touch_input_message">按下按鍵或移動搖桿以進行綁定。</string>
+    <string name="bind_touch_input_cancel">取消</string>
+    <string name="touch_input_empty_title">尚無綁定</string>
+    <string name="touch_input_empty_message">點按預覽以選擇位置,然後在控制器上按下按鍵或移動搖桿。</string>
+    <string name="touch_input_hint_empty">點按以放置您的第一個綁定</string>
+    <string name="touch_input_hint_test">按下按鍵或移動搖桿以測試</string>
+    <string name="touch_input_mode_edit">編輯</string>
+    <string name="touch_input_mode_test">測試</string>
+    <string name="more_options">更多選項</string>
+    <string name="touch_input_nudge_left">向左移動</string>
+    <string name="touch_input_nudge_right">向右移動</string>
+    <string name="touch_input_nudge_up">向上移動</string>
+    <string name="touch_input_nudge_down">向下移動</string>
+    <string name="touch_input_binding_options">綁定選項</string>
+    <string name="delete_all">全部刪除</string>
+    <string name="delete_all_touch_input_confirm">刪除此設定檔的所有觸控輸入綁定?此動作無法復原。</string>
+    <string name="delete_touch_input_confirm">刪除此觸控輸入綁定?</string>
+    <string name="create_profile">建立設定檔</string>
+    <string name="create_new_profile">新增設定檔</string>
+    <string name="profile_action_rename_format">重新命名「%1$s」</string>
+    <string name="profile_manage_format">管理「%1$s」</string>
+    <string name="profile_action_delete_format">刪除「%1$s」</string>
+    <string name="delete_profile">刪除設定檔</string>
+    <string name="profile_name">設定檔名稱</string>
+    <string name="edit_profile_name">編輯設定檔名稱</string>
+    <string name="profile_already_exists">設定檔已存在</string>
+    <string name="profile_name_already_exists">已存在同名的設定檔。</string>
+    <string name="delete_profile_confirm">刪除設定檔「%1$s」?此動作無法復原。</string>
+    <string name="profile_deleted">設定檔已刪除</string>
+    <string name="edit">編輯</string>
+    <string name="x_coordinate">X 座標</string>
+    <string name="y_coordinate">Y 座標</string>
+    <string name="invalid_coordinates">座標必須介於 0.0 到 1.0 之間</string>
+</resources>

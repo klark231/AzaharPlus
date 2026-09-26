@@ -126,6 +126,12 @@ object NativeLibrary {
      */
     external fun onSecondaryTouchMoved(xAxis: Float, yAxis: Float)
 
+    /**
+     * Current framebuffer layout as a float array:
+     * [width, height, bottomScreen.left, bottomScreen.top, bottomScreen.right, bottomScreen.bottom]
+     */
+    external fun getFramebufferLayout(): FloatArray
+
     external fun reloadSettings()
 
     external fun getTitleId(filename: String): Long

@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Ràng buộc đầu vào cảm ứng</string>
+    <string name="touch_input_bindings_description">Ánh xạ các nút và cần analog của tay cầm đến các vị trí trên màn hình dưới của 3DS.</string>
+    <string name="bind_touch_input">Ràng buộc đầu vào cảm ứng</string>
+    <string name="bind_touch_input_message">Nhấn một nút hoặc di chuyển cần analog để ràng buộc.</string>
+    <string name="bind_touch_input_cancel">Hủy</string>
+    <string name="touch_input_empty_title">Chưa có ràng buộc nào</string>
+    <string name="touch_input_empty_message">Chạm vào bản xem trước để chọn vị trí, sau đó nhấn một nút hoặc di chuyển cần analog trên tay cầm của bạn.</string>
+    <string name="touch_input_hint_empty">Chạm để đặt ràng buộc đầu tiên của bạn</string>
+    <string name="touch_input_hint_test">Nhấn một nút hoặc di chuyển cần analog để kiểm tra</string>
+    <string name="touch_input_mode_edit">Chỉnh sửa</string>
+    <string name="touch_input_mode_test">Kiểm tra</string>
+    <string name="more_options">Tùy chọn khác</string>
+    <string name="touch_input_nudge_left">Dịch trái</string>
+    <string name="touch_input_nudge_right">Dịch phải</string>
+    <string name="touch_input_nudge_up">Dịch lên</string>
+    <string name="touch_input_nudge_down">Dịch xuống</string>
+    <string name="touch_input_binding_options">Tùy chọn ràng buộc</string>
+    <string name="delete_all">Xóa tất cả</string>
+    <string name="delete_all_touch_input_confirm">Xóa tất cả ràng buộc đầu vào cảm ứng cho hồ sơ này? Hành động này không thể hoàn tác.</string>
+    <string name="delete_touch_input_confirm">Xóa ràng buộc đầu vào cảm ứng này?</string>
+    <string name="create_profile">Tạo hồ sơ</string>
+    <string name="create_new_profile">Hồ sơ mới</string>
+    <string name="profile_action_rename_format">Đổi tên “%1$s”</string>
+    <string name="profile_manage_format">Quản lý “%1$s”</string>
+    <string name="profile_action_delete_format">Xóa “%1$s”</string>
+    <string name="delete_profile">Xóa hồ sơ</string>
+    <string name="profile_name">Tên hồ sơ</string>
+    <string name="edit_profile_name">Chỉnh sửa tên hồ sơ</string>
+    <string name="profile_already_exists">Hồ sơ đã tồn tại</string>
+    <string name="profile_name_already_exists">Đã tồn tại hồ sơ với tên này.</string>
+    <string name="delete_profile_confirm">Xóa hồ sơ “%1$s”? Hành động này không thể hoàn tác.</string>
+    <string name="profile_deleted">Đã xóa hồ sơ</string>
+    <string name="edit">Chỉnh sửa</string>
+    <string name="x_coordinate">Vị trí X</string>
+    <string name="y_coordinate">Vị trí Y</string>
+    <string name="invalid_coordinates">Tọa độ phải nằm trong khoảng từ 0.0 đến 1.0</string>
+</resources>

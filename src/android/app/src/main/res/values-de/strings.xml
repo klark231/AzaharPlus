@@ -818,4 +818,41 @@
     <string name="decompress">Dekomprimiere</string>
     <string name="decompressing">Wird dekomprimiert...</string>
     <string name="compress_success">Alle Dateien wurden erfolgreich komprimiert.</string>
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Touch-Eingabebelegungen</string>
+    <string name="touch_input_bindings_description">Ordnet Controller-Tasten und -Sticks Positionen auf dem unteren 3DS-Bildschirm zu.</string>
+    <string name="bind_touch_input">Touch-Eingabe zuweisen</string>
+    <string name="bind_touch_input_message">Drücke eine Taste oder bewege einen Stick, um sie zuzuweisen.</string>
+    <string name="bind_touch_input_cancel">Abbrechen</string>
+    <string name="touch_input_empty_title">Noch keine Belegungen</string>
+    <string name="touch_input_empty_message">Tippe auf die Vorschau, um eine Stelle zu wählen, und drücke dann eine Taste oder bewege einen Stick auf deinem Controller.</string>
+    <string name="touch_input_hint_empty">Tippen, um die erste Belegung zu platzieren</string>
+    <string name="touch_input_hint_test">Taste drücken oder Stick bewegen, um zu testen</string>
+    <string name="touch_input_mode_edit">Bearbeiten</string>
+    <string name="touch_input_mode_test">Testen</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="touch_input_nudge_left">Nach links verschieben</string>
+    <string name="touch_input_nudge_right">Nach rechts verschieben</string>
+    <string name="touch_input_nudge_up">Nach oben verschieben</string>
+    <string name="touch_input_nudge_down">Nach unten verschieben</string>
+    <string name="touch_input_binding_options">Belegungsoptionen</string>
+    <string name="delete_all">Alle löschen</string>
+    <string name="delete_all_touch_input_confirm">Alle Touch-Eingabebelegungen für dieses Profil löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_touch_input_confirm">Diese Touch-Eingabebelegung löschen?</string>
+    <string name="create_profile">Profil erstellen</string>
+    <string name="create_new_profile">Neues Profil</string>
+    <string name="profile_action_rename_format">„%1$s“ umbenennen</string>
+    <string name="profile_manage_format">„%1$s“ verwalten</string>
+    <string name="profile_action_delete_format">„%1$s“ löschen</string>
+    <string name="delete_profile">Profil löschen</string>
+    <string name="profile_name">Profilname</string>
+    <string name="edit_profile_name">Profilnamen bearbeiten</string>
+    <string name="profile_already_exists">Profil existiert bereits</string>
+    <string name="profile_name_already_exists">Ein Profil mit diesem Namen existiert bereits.</string>
+    <string name="delete_profile_confirm">Profil „%1$s“ löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="profile_deleted">Profil gelöscht</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="x_coordinate">X-Position</string>
+    <string name="y_coordinate">Y-Position</string>
+    <string name="invalid_coordinates">Koordinaten müssen zwischen 0.0 und 1.0 liegen</string>
+</resources>

@@ -1073,4 +1073,41 @@ Se esperan fallos gráficos temporales cuando ésta esté activado.</string>
     <string name="update_check_channel_stable">Estable</string>
     <string name="update_check_channel_prerelease">Prelanzamiento</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Asignaciones de entrada táctil</string>
+    <string name="touch_input_bindings_description">Asigna botones y sticks del mando a posiciones en la pantalla táctil inferior de la 3DS.</string>
+    <string name="bind_touch_input">Asignar entrada táctil</string>
+    <string name="bind_touch_input_message">Presiona un botón o mueve un stick para asignarlo.</string>
+    <string name="bind_touch_input_cancel">Cancelar</string>
+    <string name="touch_input_empty_title">Aún no hay asignaciones</string>
+    <string name="touch_input_empty_message">Toca la vista previa para elegir un punto y luego presiona un botón o mueve un stick en tu mando.</string>
+    <string name="touch_input_hint_empty">Toca para colocar tu primera asignación</string>
+    <string name="touch_input_hint_test">Presiona un botón o mueve un stick para probar</string>
+    <string name="touch_input_mode_edit">Editar</string>
+    <string name="touch_input_mode_test">Probar</string>
+    <string name="more_options">Más opciones</string>
+    <string name="touch_input_nudge_left">Desplazar a la izquierda</string>
+    <string name="touch_input_nudge_right">Desplazar a la derecha</string>
+    <string name="touch_input_nudge_up">Desplazar hacia arriba</string>
+    <string name="touch_input_nudge_down">Desplazar hacia abajo</string>
+    <string name="touch_input_binding_options">Opciones de la asignación</string>
+    <string name="delete_all">Eliminar todo</string>
+    <string name="delete_all_touch_input_confirm">¿Eliminar todas las asignaciones táctiles de este perfil? Esta acción no se puede deshacer.</string>
+    <string name="delete_touch_input_confirm">¿Eliminar esta asignación táctil?</string>
+    <string name="create_profile">Crear perfil</string>
+    <string name="create_new_profile">Nuevo perfil</string>
+    <string name="profile_action_rename_format">Renombrar «%1$s»</string>
+    <string name="profile_manage_format">Administrar «%1$s»</string>
+    <string name="profile_action_delete_format">Eliminar «%1$s»</string>
+    <string name="delete_profile">Eliminar perfil</string>
+    <string name="profile_name">Nombre del perfil</string>
+    <string name="edit_profile_name">Editar nombre del perfil</string>
+    <string name="profile_already_exists">El perfil ya existe</string>
+    <string name="profile_name_already_exists">Ya existe un perfil con este nombre.</string>
+    <string name="delete_profile_confirm">¿Eliminar el perfil «%1$s»? Esta acción no se puede deshacer.</string>
+    <string name="profile_deleted">Perfil eliminado</string>
+    <string name="edit">Editar</string>
+    <string name="x_coordinate">Posición X</string>
+    <string name="y_coordinate">Posición Y</string>
+    <string name="invalid_coordinates">Las coordenadas deben estar entre 0.0 y 1.0</string>
 </resources>

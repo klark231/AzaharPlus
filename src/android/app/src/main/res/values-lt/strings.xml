@@ -207,4 +207,41 @@
     <string name="march">Kovas</string>
     <string name="april">Balandis</string>
     <string name="may">Gegužė</string>
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Lietimo įvesties susiejimai</string>
+    <string name="touch_input_bindings_description">Susieja valdiklio mygtukus ir svirteles su pozicijomis 3DS apatiniame ekrane.</string>
+    <string name="bind_touch_input">Susieti lietimo įvestį</string>
+    <string name="bind_touch_input_message">Paspauskite mygtuką arba pajudinkite svirtelę, kad ją susietumėte.</string>
+    <string name="bind_touch_input_cancel">Atšaukti</string>
+    <string name="touch_input_empty_title">Kol kas nėra susiejimų</string>
+    <string name="touch_input_empty_message">Bakstelėkite peržiūrą, kad pasirinktumėte vietą, tada paspauskite mygtuką arba pajudinkite svirtelę valdiklyje.</string>
+    <string name="touch_input_hint_empty">Bakstelėkite, kad įdėtumėte pirmąjį susiejimą</string>
+    <string name="touch_input_hint_test">Paspauskite mygtuką arba pajudinkite svirtelę, kad išbandytumėte</string>
+    <string name="touch_input_mode_edit">Redaguoti</string>
+    <string name="touch_input_mode_test">Bandyti</string>
+    <string name="more_options">Daugiau parinkčių</string>
+    <string name="touch_input_nudge_left">Perkelti kairėn</string>
+    <string name="touch_input_nudge_right">Perkelti dešinėn</string>
+    <string name="touch_input_nudge_up">Perkelti aukštyn</string>
+    <string name="touch_input_nudge_down">Perkelti žemyn</string>
+    <string name="touch_input_binding_options">Susiejimo parinktys</string>
+    <string name="delete_all">Ištrinti viską</string>
+    <string name="delete_all_touch_input_confirm">Ištrinti visus šio profilio lietimo įvesties susiejimus? Šio veiksmo anuliuoti negalima.</string>
+    <string name="delete_touch_input_confirm">Ištrinti šį lietimo įvesties susiejimą?</string>
+    <string name="create_profile">Sukurti profilį</string>
+    <string name="create_new_profile">Naujas profilis</string>
+    <string name="profile_action_rename_format">Pervadinti „%1$s“</string>
+    <string name="profile_manage_format">Tvarkyti „%1$s“</string>
+    <string name="profile_action_delete_format">Ištrinti „%1$s“</string>
+    <string name="delete_profile">Ištrinti profilį</string>
+    <string name="profile_name">Profilio pavadinimas</string>
+    <string name="edit_profile_name">Redaguoti profilio pavadinimą</string>
+    <string name="profile_already_exists">Profilis jau egzistuoja</string>
+    <string name="profile_name_already_exists">Profilis tokiu pavadinimu jau egzistuoja.</string>
+    <string name="delete_profile_confirm">Ištrinti profilį „%1$s“? Šio veiksmo anuliuoti negalima.</string>
+    <string name="profile_deleted">Profilis ištrintas</string>
+    <string name="edit">Redaguoti</string>
+    <string name="x_coordinate">X pozicija</string>
+    <string name="y_coordinate">Y pozicija</string>
+    <string name="invalid_coordinates">Koordinatės turi būti tarp 0.0 ir 1.0</string>
+</resources>

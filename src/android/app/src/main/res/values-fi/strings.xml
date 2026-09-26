@@ -63,4 +63,41 @@
     <string name="i_forgot">Unohdin</string>
     <string name="fixed_length_required">Tekstin pituus ei ole oikein (pitäisi olla %d merkkiä) </string>
     <string name="max_length_exceeded">Teksti on liian pitkä (ei pitäisi olla enempää kuin %d merkkiä)</string>
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Kosketussyötteen sidonnat</string>
+    <string name="touch_input_bindings_description">Yhdistää ohjaimen painikkeet ja sauvat sijainteihin 3DS:n alaruudulla.</string>
+    <string name="bind_touch_input">Sido kosketussyöte</string>
+    <string name="bind_touch_input_message">Paina painiketta tai liikuta sauvaa sitoaksesi sen.</string>
+    <string name="bind_touch_input_cancel">Peruuta</string>
+    <string name="touch_input_empty_title">Ei vielä sidontoja</string>
+    <string name="touch_input_empty_message">Napauta esikatselua valitaksesi kohdan ja paina sitten painiketta tai liikuta sauvaa ohjaimellasi.</string>
+    <string name="touch_input_hint_empty">Napauta asettaaksesi ensimmäisen sidonnan</string>
+    <string name="touch_input_hint_test">Paina painiketta tai liikuta sauvaa testataksesi</string>
+    <string name="touch_input_mode_edit">Muokkaa</string>
+    <string name="touch_input_mode_test">Testaa</string>
+    <string name="more_options">Lisää valintoja</string>
+    <string name="touch_input_nudge_left">Siirrä vasemmalle</string>
+    <string name="touch_input_nudge_right">Siirrä oikealle</string>
+    <string name="touch_input_nudge_up">Siirrä ylös</string>
+    <string name="touch_input_nudge_down">Siirrä alas</string>
+    <string name="touch_input_binding_options">Sidonnan asetukset</string>
+    <string name="delete_all">Poista kaikki</string>
+    <string name="delete_all_touch_input_confirm">Poistetaanko kaikki tämän profiilin kosketussyötesidonnat? Tätä ei voi kumota.</string>
+    <string name="delete_touch_input_confirm">Poistetaanko tämä kosketussyötesidonta?</string>
+    <string name="create_profile">Luo profiili</string>
+    <string name="create_new_profile">Uusi profiili</string>
+    <string name="profile_action_rename_format">Nimeä ”%1$s” uudelleen</string>
+    <string name="profile_manage_format">Hallitse ”%1$s”</string>
+    <string name="profile_action_delete_format">Poista ”%1$s”</string>
+    <string name="delete_profile">Poista profiili</string>
+    <string name="profile_name">Profiilin nimi</string>
+    <string name="edit_profile_name">Muokkaa profiilin nimeä</string>
+    <string name="profile_already_exists">Profiili on jo olemassa</string>
+    <string name="profile_name_already_exists">Tämän niminen profiili on jo olemassa.</string>
+    <string name="delete_profile_confirm">Poistetaanko profiili ”%1$s”? Tätä ei voi kumota.</string>
+    <string name="profile_deleted">Profiili poistettu</string>
+    <string name="edit">Muokkaa</string>
+    <string name="x_coordinate">X-sijainti</string>
+    <string name="y_coordinate">Y-sijainti</string>
+    <string name="invalid_coordinates">Koordinaattien tulee olla välillä 0.0–1.0</string>
+</resources>

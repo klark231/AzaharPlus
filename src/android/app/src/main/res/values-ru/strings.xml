@@ -532,4 +532,41 @@
     <string name="november">Ноябрь</string>
     <string name="december">Декабрь</string>
 
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Привязки сенсорного ввода</string>
+    <string name="touch_input_bindings_description">Сопоставляет кнопки и стики контроллера с позициями на нижнем экране 3DS.</string>
+    <string name="bind_touch_input">Привязать сенсорный ввод</string>
+    <string name="bind_touch_input_message">Нажмите кнопку или сдвиньте стик, чтобы привязать её.</string>
+    <string name="bind_touch_input_cancel">Отмена</string>
+    <string name="touch_input_empty_title">Пока нет привязок</string>
+    <string name="touch_input_empty_message">Коснитесь предпросмотра, чтобы выбрать место, затем нажмите кнопку или сдвиньте стик на контроллере.</string>
+    <string name="touch_input_hint_empty">Нажмите, чтобы добавить первую привязку</string>
+    <string name="touch_input_hint_test">Нажмите кнопку или сдвиньте стик для проверки</string>
+    <string name="touch_input_mode_edit">Изменить</string>
+    <string name="touch_input_mode_test">Проверить</string>
+    <string name="more_options">Ещё</string>
+    <string name="touch_input_nudge_left">Сдвинуть влево</string>
+    <string name="touch_input_nudge_right">Сдвинуть вправо</string>
+    <string name="touch_input_nudge_up">Сдвинуть вверх</string>
+    <string name="touch_input_nudge_down">Сдвинуть вниз</string>
+    <string name="touch_input_binding_options">Параметры привязки</string>
+    <string name="delete_all">Удалить все</string>
+    <string name="delete_all_touch_input_confirm">Удалить все привязки сенсорного ввода для этого профиля? Это действие необратимо.</string>
+    <string name="delete_touch_input_confirm">Удалить эту привязку сенсорного ввода?</string>
+    <string name="create_profile">Создать профиль</string>
+    <string name="create_new_profile">Новый профиль</string>
+    <string name="profile_action_rename_format">Переименовать «%1$s»</string>
+    <string name="profile_manage_format">Управление «%1$s»</string>
+    <string name="profile_action_delete_format">Удалить «%1$s»</string>
+    <string name="delete_profile">Удалить профиль</string>
+    <string name="profile_name">Имя профиля</string>
+    <string name="edit_profile_name">Изменить имя профиля</string>
+    <string name="profile_already_exists">Профиль уже существует</string>
+    <string name="profile_name_already_exists">Профиль с таким именем уже существует.</string>
+    <string name="delete_profile_confirm">Удалить профиль «%1$s»? Это действие необратимо.</string>
+    <string name="profile_deleted">Профиль удалён</string>
+    <string name="edit">Изменить</string>
+    <string name="x_coordinate">Координата X</string>
+    <string name="y_coordinate">Координата Y</string>
+    <string name="invalid_coordinates">Координаты должны быть в диапазоне от 0.0 до 1.0</string>
+</resources>

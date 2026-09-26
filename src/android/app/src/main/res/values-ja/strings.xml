@@ -298,4 +298,41 @@
     <string name="multiplayer_room_name">ルーム名</string>
     <string name="update_available"> アップデートがあります</string>
     <string name="update_check_channel">アップデートチャネル</string>
-    </resources>
+        <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">タッチ入力バインディング</string>
+    <string name="touch_input_bindings_description">コントローラーのボタンとスティックを3DS下画面上の位置に割り当てます。</string>
+    <string name="bind_touch_input">タッチ入力を割り当て</string>
+    <string name="bind_touch_input_message">ボタンを押すかスティックを動かして割り当ててください。</string>
+    <string name="bind_touch_input_cancel">キャンセル</string>
+    <string name="touch_input_empty_title">バインディングがありません</string>
+    <string name="touch_input_empty_message">プレビューをタップして位置を選び、コントローラーのボタンを押すかスティックを動かしてください。</string>
+    <string name="touch_input_hint_empty">タップして最初のバインディングを配置</string>
+    <string name="touch_input_hint_test">ボタンを押すかスティックを動かしてテスト</string>
+    <string name="touch_input_mode_edit">編集</string>
+    <string name="touch_input_mode_test">テスト</string>
+    <string name="more_options">その他のオプション</string>
+    <string name="touch_input_nudge_left">左に移動</string>
+    <string name="touch_input_nudge_right">右に移動</string>
+    <string name="touch_input_nudge_up">上に移動</string>
+    <string name="touch_input_nudge_down">下に移動</string>
+    <string name="touch_input_binding_options">バインディングのオプション</string>
+    <string name="delete_all">すべて削除</string>
+    <string name="delete_all_touch_input_confirm">このプロファイルのすべてのタッチ入力バインディングを削除しますか?この操作は元に戻せません。</string>
+    <string name="delete_touch_input_confirm">このタッチ入力バインディングを削除しますか?</string>
+    <string name="create_profile">プロファイルを作成</string>
+    <string name="create_new_profile">新規プロファイル</string>
+    <string name="profile_action_rename_format">「%1$s」を変更</string>
+    <string name="profile_manage_format">「%1$s」を管理</string>
+    <string name="profile_action_delete_format">「%1$s」を削除</string>
+    <string name="delete_profile">プロファイルを削除</string>
+    <string name="profile_name">プロファイル名</string>
+    <string name="edit_profile_name">プロファイル名を編集</string>
+    <string name="profile_already_exists">プロファイルは既に存在します</string>
+    <string name="profile_name_already_exists">この名前のプロファイルは既に存在します。</string>
+    <string name="delete_profile_confirm">プロファイル「%1$s」を削除しますか?この操作は元に戻せません。</string>
+    <string name="profile_deleted">プロファイルを削除しました</string>
+    <string name="edit">編集</string>
+    <string name="x_coordinate">X座標</string>
+    <string name="y_coordinate">Y座標</string>
+    <string name="invalid_coordinates">座標は0.0〜1.0の範囲で指定してください</string>
+</resources>

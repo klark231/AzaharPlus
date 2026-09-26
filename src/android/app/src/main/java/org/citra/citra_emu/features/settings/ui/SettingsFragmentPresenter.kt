@@ -46,6 +46,7 @@ import org.citra.citra_emu.features.settings.model.view.SubmenuSetting
 import org.citra.citra_emu.features.settings.model.view.SwitchSetting
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.fragments.ResetSettingsDialogFragment
+import org.citra.citra_emu.fragments.TouchInputBindingFragment
 import org.citra.citra_emu.utils.BirthdayMonth
 import org.citra.citra_emu.utils.BuildUtil
 import org.citra.citra_emu.utils.GraphicsUtil
@@ -847,6 +848,25 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.drawable.ic_controller,
                     { settingsAdapter.onClickAutoMap() },
                     onLongClick = { settingsAdapter.onLongClickAutoMap() }
+                )
+            )
+
+            add(
+                RunnableSetting(
+                    R.string.touch_input_bindings,
+                    R.string.touch_input_bindings_description,
+                    true,
+                    R.drawable.ic_controller,
+                    {
+                        settingsActivity.supportFragmentManager
+                            .beginTransaction()
+                            .replace(
+                                R.id.frame_content,
+                                TouchInputBindingFragment()
+                            )
+                            .addToBackStack(null)
+                            .commit()
+                    }
                 )
             )
 

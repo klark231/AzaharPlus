@@ -1061,4 +1061,41 @@
     <string name="update_check_channel_stable">Estável</string>
     <string name="update_check_channel_prerelease">Pré-lançamento</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Vínculos de Entrada por Toque</string>
+    <string name="touch_input_bindings_description">Mapeia botões e analógicos do controle para posições na tela inferior do 3DS.</string>
+    <string name="bind_touch_input">Vincular Entrada por Toque</string>
+    <string name="bind_touch_input_message">Pressione um botão ou mova um analógico para vinculá-lo.</string>
+    <string name="bind_touch_input_cancel">Cancelar</string>
+    <string name="touch_input_empty_title">Nenhum vínculo ainda</string>
+    <string name="touch_input_empty_message">Toque na pré-visualização para escolher um ponto e então pressione um botão ou mova um analógico no seu controle.</string>
+    <string name="touch_input_hint_empty">Toque para posicionar seu primeiro vínculo</string>
+    <string name="touch_input_hint_test">Pressione um botão ou mova um analógico para testar</string>
+    <string name="touch_input_mode_edit">Editar</string>
+    <string name="touch_input_mode_test">Testar</string>
+    <string name="more_options">Mais opções</string>
+    <string name="touch_input_nudge_left">Mover para a esquerda</string>
+    <string name="touch_input_nudge_right">Mover para a direita</string>
+    <string name="touch_input_nudge_up">Mover para cima</string>
+    <string name="touch_input_nudge_down">Mover para baixo</string>
+    <string name="touch_input_binding_options">Opções do vínculo</string>
+    <string name="delete_all">Excluir tudo</string>
+    <string name="delete_all_touch_input_confirm">Excluir todos os vínculos de entrada por toque deste perfil? Essa ação não pode ser desfeita.</string>
+    <string name="delete_touch_input_confirm">Excluir este vínculo de entrada por toque?</string>
+    <string name="create_profile">Criar Perfil</string>
+    <string name="create_new_profile">Novo Perfil</string>
+    <string name="profile_action_rename_format">Renomear “%1$s”</string>
+    <string name="profile_manage_format">Gerenciar “%1$s”</string>
+    <string name="profile_action_delete_format">Excluir “%1$s”</string>
+    <string name="delete_profile">Excluir Perfil</string>
+    <string name="profile_name">Nome do Perfil</string>
+    <string name="edit_profile_name">Editar Nome do Perfil</string>
+    <string name="profile_already_exists">O perfil já existe</string>
+    <string name="profile_name_already_exists">Já existe um perfil com esse nome.</string>
+    <string name="delete_profile_confirm">Excluir o perfil “%1$s”? Essa ação não pode ser desfeita.</string>
+    <string name="profile_deleted">Perfil excluído</string>
+    <string name="edit">Editar</string>
+    <string name="x_coordinate">Posição X</string>
+    <string name="y_coordinate">Posição Y</string>
+    <string name="invalid_coordinates">As coordenadas devem estar entre 0.0 e 1.0</string>
 </resources>

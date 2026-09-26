@@ -929,4 +929,41 @@
     <string name="decompress_failed">Dekomprimeringen mislykkedes.</string>
     <string name="compress_decompress_installed_app">Allerede installerede programmer kan ikke komprimeres eller dekomprimeres.</string>
 
-  </resources>
+      <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Berøringsindgangsbindinger</string>
+    <string name="touch_input_bindings_description">Knytter controllerknapper og stick til positioner på 3DS\' nederste skærm.</string>
+    <string name="bind_touch_input">Bind berøringsindgang</string>
+    <string name="bind_touch_input_message">Tryk på en knap, eller bevæg et stick for at binde det.</string>
+    <string name="bind_touch_input_cancel">Annuller</string>
+    <string name="touch_input_empty_title">Ingen bindinger endnu</string>
+    <string name="touch_input_empty_message">Tryk på forhåndsvisningen for at vælge et sted, og tryk derefter på en knap eller bevæg et stick på din controller.</string>
+    <string name="touch_input_hint_empty">Tryk for at placere din første binding</string>
+    <string name="touch_input_hint_test">Tryk på en knap, eller bevæg et stick for at teste</string>
+    <string name="touch_input_mode_edit">Rediger</string>
+    <string name="touch_input_mode_test">Test</string>
+    <string name="more_options">Flere valgmuligheder</string>
+    <string name="touch_input_nudge_left">Ryk til venstre</string>
+    <string name="touch_input_nudge_right">Ryk til højre</string>
+    <string name="touch_input_nudge_up">Ryk op</string>
+    <string name="touch_input_nudge_down">Ryk ned</string>
+    <string name="touch_input_binding_options">Bindingsindstillinger</string>
+    <string name="delete_all">Slet alle</string>
+    <string name="delete_all_touch_input_confirm">Slet alle berøringsindgangsbindinger for denne profil? Dette kan ikke fortrydes.</string>
+    <string name="delete_touch_input_confirm">Slet denne berøringsindgangsbinding?</string>
+    <string name="create_profile">Opret profil</string>
+    <string name="create_new_profile">Ny profil</string>
+    <string name="profile_action_rename_format">Omdøb “%1$s”</string>
+    <string name="profile_manage_format">Administrer “%1$s”</string>
+    <string name="profile_action_delete_format">Slet “%1$s”</string>
+    <string name="delete_profile">Slet profil</string>
+    <string name="profile_name">Profilnavn</string>
+    <string name="edit_profile_name">Rediger profilnavn</string>
+    <string name="profile_already_exists">Profilen findes allerede</string>
+    <string name="profile_name_already_exists">Der findes allerede en profil med dette navn.</string>
+    <string name="delete_profile_confirm">Slet profilen “%1$s”? Dette kan ikke fortrydes.</string>
+    <string name="profile_deleted">Profil slettet</string>
+    <string name="edit">Rediger</string>
+    <string name="x_coordinate">X-position</string>
+    <string name="y_coordinate">Y-position</string>
+    <string name="invalid_coordinates">Koordinater skal være mellem 0.0 og 1.0</string>
+</resources>

@@ -16,4 +16,6 @@
     <dimen name="spacing_fab">24dp</dimen>
 
     <dimen name="dialog_margin">20dp</dimen>
+    <dimen name="touch_input_margin">16dp</dimen>
+    <dimen name="touch_input_card_gap">12dp</dimen>
 </resources>

@@ -1072,4 +1072,41 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="update_check_channel_stable">Estable</string>
     <string name="update_check_channel_prerelease">Prellançament</string>
 
+    <!-- Touch Input Bindings -->
+    <string name="touch_input_bindings">Vinculacions d\'entrada tàctil</string>
+    <string name="touch_input_bindings_description">Assigna botons i palanques del controlador a posicions de la pantalla inferior de la 3DS.</string>
+    <string name="bind_touch_input">Vincular entrada tàctil</string>
+    <string name="bind_touch_input_message">Prem un botó o mou una palanca per vincular-lo.</string>
+    <string name="bind_touch_input_cancel">Cancel·lar</string>
+    <string name="touch_input_empty_title">Encara no hi ha vinculacions</string>
+    <string name="touch_input_empty_message">Toca la previsualització per triar un punt i després prem un botó o mou una palanca al controlador.</string>
+    <string name="touch_input_hint_empty">Toca per col·locar la teua primera vinculació</string>
+    <string name="touch_input_hint_test">Prem un botó o mou una palanca per provar</string>
+    <string name="touch_input_mode_edit">Edita</string>
+    <string name="touch_input_mode_test">Prova</string>
+    <string name="more_options">Més opcions</string>
+    <string name="touch_input_nudge_left">Desplaça a l\'esquerra</string>
+    <string name="touch_input_nudge_right">Desplaça a la dreta</string>
+    <string name="touch_input_nudge_up">Desplaça amunt</string>
+    <string name="touch_input_nudge_down">Desplaça avall</string>
+    <string name="touch_input_binding_options">Opcions de la vinculació</string>
+    <string name="delete_all">Elimina-ho tot</string>
+    <string name="delete_all_touch_input_confirm">Vols eliminar totes les vinculacions d\'entrada tàctil d\'este perfil? Esta acció no es pot desfer.</string>
+    <string name="delete_touch_input_confirm">Vols eliminar esta vinculació d\'entrada tàctil?</string>
+    <string name="create_profile">Crea un perfil</string>
+    <string name="create_new_profile">Perfil nou</string>
+    <string name="profile_action_rename_format">Canvia el nom de «%1$s»</string>
+    <string name="profile_manage_format">Gestiona «%1$s»</string>
+    <string name="profile_action_delete_format">Elimina «%1$s»</string>
+    <string name="delete_profile">Elimina el perfil</string>
+    <string name="profile_name">Nom del perfil</string>
+    <string name="edit_profile_name">Edita el nom del perfil</string>
+    <string name="profile_already_exists">El perfil ja existeix</string>
+    <string name="profile_name_already_exists">Ja existeix un perfil amb este nom.</string>
+    <string name="delete_profile_confirm">Vols eliminar el perfil «%1$s»? Esta acció no es pot desfer.</string>
+    <string name="profile_deleted">Perfil eliminat</string>
+    <string name="edit">Edita</string>
+    <string name="x_coordinate">Posició X</string>
+    <string name="y_coordinate">Posició Y</string>
+    <string name="invalid_coordinates">Les coordenades han d\'estar entre 0.0 i 1.0</string>
 </resources>

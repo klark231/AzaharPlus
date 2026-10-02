@@ -13,6 +13,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <queue>
 #include <unordered_map>
 #include <vector>
 #include <boost/optional.hpp>
@@ -517,6 +518,13 @@ private:
 
     void BeaconBroadcastCallback(std::uintptr_t user_data, s64 cycles_late);
 
+    // Signal an event from any thread. On the core-timing thread this signals
+    // immediately; otherwise it queues the signal and schedules the timing thread.
+    void SignalEventAsync(std::shared_ptr<Kernel::Event> event);
+
+    // Delivers one queued async event signal. Runs on the core-timing thread.
+    void DispatchQueuedAsyncEventSignals();
+
     /**
      * Returns a list of received 802.11 beacon frames from the specified sender since the last
      * call.
@@ -588,14 +596,6 @@ private:
     std::chrono::steady_clock::time_point last_packet_time;
     int reconnect_attempts = 0;
     
-    // Timing constants
-    static constexpr s64 HEARTBEAT_INTERVAL_MS = 500;
-    static constexpr s64 HEALTH_CHECK_INTERVAL_MS = 5000;
-    static constexpr s64 CONNECTION_TIMEOUT_MS = 10000;
-    static constexpr s64 RECONNECT_DELAY_MS = 2000;
-    static constexpr int MAX_RECONNECT_ATTEMPTS = 3;
-    static constexpr u8 HEARTBEAT_CHANNEL = 0xF;
-    
     // ============================================================
 
     // Event that is signaled every time the connection status changes.
@@ -665,6 +665,9 @@ private:
     Core::TimingEventType* heartbeat_event = nullptr;
     Core::TimingEventType* health_check_event = nullptr;
     Core::TimingEventType* reconnect_event = nullptr;
+    Core::TimingEventType* handle_async_event_signals_event = nullptr;
+    std::queue<std::shared_ptr<Kernel::Event>> pending_async_event_signals;
+    std::mutex pending_async_event_signals_mutex;
     // Keepalive enabled flag (used by enhanced anti-disconnection system)
     bool keepalive_enabled = true;
 

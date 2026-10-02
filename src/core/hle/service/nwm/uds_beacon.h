@@ -21,7 +21,6 @@ constexpr std::array<u8, 3> NintendoOUI = {0x00, 0x1F, 0x32};
  * VendorSpecific blocks in the Beacon frames.
  */
 enum class NintendoTagId : u8 {
-    Probe = 0,
     Dummy = 20,
     NetworkInfo = 21,
     EncryptedData0 = 24,
@@ -77,15 +76,6 @@ struct DummyTag {
 };
 
 static_assert(sizeof(DummyTag) == 9, "DummyTag has incorrect size.");
-
-struct ProbeTag {
-    TagHeader header;
-    std::array<u8, 3> oui;
-    u8 oui_type;
-    u8 data;
-};
-
-static_assert(sizeof(ProbeTag) == 7, "ProbeTag has incorrect size.");
 
 struct NetworkInfoTag {
     TagHeader header;
@@ -143,7 +133,6 @@ void DecryptBeacon(const NetworkInfo& network_info, std::vector<u8>& buffer);
  * This frame contains information about the network and its connected clients.
  * @returns The generated frame.
  */
-std::vector<u8> GenerateBeaconFrame(const NetworkInfo& network_info, const NodeList& nodes,
-                                    u32 probe_oui, u8 probe_data);
+std::vector<u8> GenerateBeaconFrame(const NetworkInfo& network_info, const NodeList& nodes);
 
 } // namespace Service::NWM

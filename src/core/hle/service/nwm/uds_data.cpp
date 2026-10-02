@@ -1,4 +1,4 @@
-// Copyright 2017-2026 Citra Emulator Project / Azahar Emulator Project
+// Copyright Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
@@ -381,6 +381,39 @@ EAPoLStartPacket DeserializeEAPolStartPacket(std::span<const u8> frame) {
 
     std::memcpy(&eapol_start, frame.data() + sizeof(LLCHeader), sizeof(eapol_start));
     return eapol_start;
+}
+
+ParsedEAPoLStart ParseCompatibleEAPoLStart(std::span<const u8> frame) {
+    ParsedEAPoLStart result{};
+
+    // Step 1: raw safe memcpy (NOT strict parser)
+    EAPoLStartPacket raw{};
+    std::memcpy(&raw, frame.data() + sizeof(LLCHeader), sizeof(raw));
+
+    result.packet = raw;
+
+    // Step 2: compatibility normalization
+    u8 raw_type = static_cast<u8>(raw.connection_type);
+
+    switch (raw_type) {
+        case 0:
+        case 1:
+            result.packet.connection_type = ConnectionType::Client;
+            result.legacy = true;
+            break;
+
+        case 2:
+            result.packet.connection_type = ConnectionType::Spectator;
+            result.legacy = true;
+            break;
+
+        default:
+            result.packet.connection_type = ConnectionType::Client;
+            result.legacy = true;
+            break;
+    }
+
+    return result;
 }
 
 } // namespace Service::NWM

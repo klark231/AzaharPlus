@@ -1,4 +1,4 @@
-// Copyright 2017-2026 Citra Emulator Project / Azahar Emulator Project
+// Copyright Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
@@ -115,6 +115,15 @@ struct EAPoLLogoffPacket {
 
 static_assert(sizeof(EAPoLLogoffPacket) == 0x298, "EAPoLLogoffPacket has the wrong size");
 
+/*
+ * Returns a deserialized EAPoLStartPacket representing the specified
+ * 802.11-encapsulated EAPoL-Start frame.
+ */
+struct ParsedEAPoLStart {
+    EAPoLStartPacket packet;
+    bool legacy = false;
+};
+
 /**
  * Generates an unencrypted 802.11 data payload.
  * @returns The generated frame payload.
@@ -153,6 +162,15 @@ u16 GetEAPoLFrameType(std::span<const u8> frame);
 NodeInfo DeserializeNodeInfoFromFrame(std::span<const u8> frame);
 
 EAPoLStartPacket DeserializeEAPolStartPacket(std::span<const u8> frame);
+
+/*
+ * Parses an EAPoL-Start frame and automatically detects whether it uses
+ * the standard Azahar/Citra packet format or the legacy-compatible format.
+ *
+ * @returns A ParsedEAPoLStart containing the decoded packet and a flag
+ *          indicating whether the legacy parser was used.
+ */
+ParsedEAPoLStart ParseCompatibleEAPoLStart(std::span<const u8> frame);
 
 /*
  * Returns a NodeInfo constructed from the data in the specified EAPoLNodeInfo.

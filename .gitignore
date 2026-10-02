@@ -62,3 +62,11 @@ GIT-COMMIT
 GIT-TAG
 *.orig
 *.orig
+
+# Editor / backup artifacts — never commit these into res/ or anywhere else
+*.bak
+*.orig
+*.rej
+*~
+*.swp
+*.tmp

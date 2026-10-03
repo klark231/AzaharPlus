@@ -58,6 +58,7 @@ add_library(video_core STATIC EXCLUDE_FROM_ALL
     rasterizer_cache/surface_base.h
     rasterizer_cache/surface_params.cpp
     rasterizer_cache/surface_params.h
+    rasterizer_cache/etc_native.h
     rasterizer_cache/texture_codec.h
     rasterizer_cache/texture_cube.h
     rasterizer_cache/utils.cpp

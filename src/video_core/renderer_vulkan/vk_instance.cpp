@@ -10,6 +10,7 @@
 #include "common/settings.h"
 #include "core/frontend/emu_window.h"
 #include "video_core/custom_textures/custom_format.h"
+#include "video_core/rasterizer_cache/etc_native.h" // [etc-native]
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
 
@@ -307,6 +308,28 @@ void Instance::CreateFormatTable() {
         }
 
         const u32 index = static_cast<u32>(pixel_format);
+        // [etc-native] Opaque ETC1 -> native ETC2 (superset of ETC1) when supported.
+        if (pixel_format == VideoCore::PixelFormat::ETC1 && VideoCore::NativeEtc1Requested() &&
+            features.textureCompressionETC2) {
+            constexpr vk::Format etc_format = vk::Format::eEtc2R8G8B8UnormBlock;
+            const vk::FormatFeatureFlags etc_need =
+                vk::FormatFeatureFlagBits::eSampledImage |
+                vk::FormatFeatureFlagBits::eSampledImageFilterLinear;
+            const vk::FormatProperties etc_props = physical_device.getFormatProperties(etc_format);
+            if ((etc_props.optimalTilingFeatures & etc_need) == etc_need) {
+                traits = FormatTraits{
+                    .transfer_support = true,
+                    // Forces Reinterpret() to refuse copies to/from other formats.
+                    .needs_conversion = true,
+                    .usage = vk::ImageUsageFlagBits::eSampled |
+                             vk::ImageUsageFlagBits::eTransferDst |
+                             vk::ImageUsageFlagBits::eTransferSrc,
+                    .aspect = vk::ImageAspectFlagBits::eColor,
+                    .native = etc_format,
+                };
+                LOG_INFO(Render_Vulkan, "Native ETC1 textures enabled");
+            }
+        }
         format_table[index] = traits;
     }
 }
@@ -520,6 +543,7 @@ bool Instance::CreateDevice() {
                 .geometryShader = features.geometryShader,
                 .logicOp = features.logicOp,
                 .samplerAnisotropy = features.samplerAnisotropy,
+                .textureCompressionETC2 = features.textureCompressionETC2, // [etc-native]
                 .fragmentStoresAndAtomics = features.fragmentStoresAndAtomics,
                 .shaderClipDistance = features.shaderClipDistance,
             },

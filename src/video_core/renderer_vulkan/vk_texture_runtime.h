@@ -161,6 +161,9 @@ public:
     /// Returns true if the provided pixel format needs convertion
     bool NeedsConversion(const Surface& surface) const;
 
+    /// [etc-native] Returns true if the surface stores native ETC1 blocks
+    bool UsesNativeETC1(const Surface& surface) const;
+
 private:
     /// Clears a partial texture rect using a clear rectangle
     void ClearTextureWithRenderpass(Surface& surface, const VideoCore::TextureClear& clear);

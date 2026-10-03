@@ -16,6 +16,7 @@
 #include "video_core/custom_textures/custom_tex_manager.h"
 #include "video_core/pica/regs_external.h"
 #include "video_core/pica/regs_internal.h"
+#include "video_core/rasterizer_cache/etc_native.h" // [etc-native]
 #include "video_core/rasterizer_cache/rasterizer_cache_base.h"
 #include "video_core/rasterizer_cache/surface_base.h"
 #include "video_core/renderer_base.h"
@@ -1052,8 +1053,15 @@ void RasterizerCache<T>::UploadSurface(Surface& surface, SurfaceInterval interva
     }
 
     const auto upload_data = source_ptr.GetWriteBytes(load_info.end - load_info.addr);
-    DecodeTexture(load_info, load_info.addr, load_info.end, upload_data, staging.mapped,
-                  runtime.NeedsConversion(surface));
+    // [etc-native] opaque ETC1 can be uploaded as native blocks
+    if (surface.pixel_format == PixelFormat::ETC1 && load_info.is_tiled &&
+        runtime.UsesNativeETC1(surface)) {
+        ConvertETC1ToNative(load_info.width, load_info.height, 0,
+                            load_info.end - load_info.addr, staging.mapped, upload_data);
+    } else {
+        DecodeTexture(load_info, load_info.addr, load_info.end, upload_data, staging.mapped,
+                      runtime.NeedsConversion(surface));
+    }
 
     const bool should_dump = False(surface.flags & SurfaceFlagBits::Custom) &&
                              False(surface.flags & SurfaceFlagBits::RenderTarget);

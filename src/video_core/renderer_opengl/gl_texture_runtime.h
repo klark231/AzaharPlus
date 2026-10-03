@@ -57,6 +57,11 @@ public:
     /// Returns true if the provided pixel format cannot be used natively by the runtime.
     bool NeedsConversion(const Surface& surface) const;
 
+    /// [etc-native] Native ETC1 uploads are Vulkan only.
+    bool UsesNativeETC1(const Surface&) const {
+        return false;
+    }
+
     /// Maps an internal staging buffer of the provided size of pixel uploads/downloads
     VideoCore::StagingData FindStaging(u32 size, bool upload);
 

@@ -345,6 +345,9 @@ bool TextureRuntime::Reinterpret(Surface& source, Surface& dest,
 }
 
 bool TextureRuntime::ClearTexture(Surface& surface, const VideoCore::TextureClear& clear) {
+    if (surface.traits.native == vk::Format::eEtc2R8G8B8UnormBlock) { // [etc-native]
+        return false; // compressed images cannot be cleared
+    }
     renderpass_cache.EndRendering();
 
     const RecordParams params = {
@@ -731,6 +734,11 @@ void TextureRuntime::GenerateMipmaps(Surface& surface) {
     }
 }
 
+bool TextureRuntime::UsesNativeETC1(const Surface& surface) const { // [etc-native]
+    return surface.pixel_format == VideoCore::PixelFormat::ETC1 &&
+           surface.traits.native == vk::Format::eEtc2R8G8B8UnormBlock;
+}
+
 bool TextureRuntime::NeedsConversion(const Surface& surface) const {
     const FormatTraits& traits = surface.traits;
     return traits.needs_conversion &&
@@ -746,6 +754,13 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
 
     if (pixel_format == VideoCore::PixelFormat::Invalid || !traits.transfer_support) {
         return;
+    }
+
+    // [etc-native] Native ETC1 surfaces cannot be blitted/scaled or used as shadow sources,
+    // fall back to the regular RGBA8 backing (ETC1A4 traits are plain RGBA8).
+    if (traits.native == vk::Format::eEtc2R8G8B8UnormBlock &&
+        (res_scale != 1 || True(flags & VideoCore::SurfaceFlagBits::ShadowSource))) {
+        traits = instance.GetTraits(VideoCore::PixelFormat::ETC1A4);
     }
 
     bool is_mutable = traits.native == vk::Format::eR8G8B8A8Unorm;
@@ -779,7 +794,7 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
     auto usage = traits.usage;
     const bool is_color =
         (traits.aspect & vk::ImageAspectFlagBits::eColor) != vk::ImageAspectFlags{};
-    if (is_color) {
+    if (is_color && traits.native != vk::Format::eEtc2R8G8B8UnormBlock) { // [etc-native]
         usage |= vk::ImageUsageFlagBits::eColorAttachment;
     }
     if (traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support) {
@@ -1113,7 +1128,8 @@ void Surface::Download(const VideoCore::BufferTextureCopy& download,
 }
 
 void Surface::ScaleUp(u32 new_scale) {
-    if (res_scale == new_scale || new_scale == 1) {
+    if (res_scale == new_scale || new_scale == 1 ||
+        traits.native == vk::Format::eEtc2R8G8B8UnormBlock) { // [etc-native]
         return;
     }
 

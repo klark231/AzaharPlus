@@ -28,7 +28,7 @@ inline bool NativeEtc1Requested() {
     return requested;
 }
 
-namespace detail {
+namespace etc_native_detail {
 
 /// Reverses the y order of a 16-bit ETC1 index plane (bit = 4 * x + y).
 constexpr u32 FlipPlaneVertically(u32 plane) {
@@ -96,7 +96,7 @@ constexpr u64 FlipETC1BlockVertically(u64 raw) {
     return out;
 }
 
-} // namespace detail
+} // namespace etc_native_detail
 
 /**
  * Converts tiled 3DS ETC1 data into a linear grid of standard ETC1 blocks.
@@ -147,7 +147,7 @@ inline void ConvertETC1ToNative(u32 width, u32 height, u32 start_offset, u32 end
             for (u32 i = 0; i < 8; i++) { // little endian read, endian independent
                 raw |= static_cast<u64>(tiled_buffer[src_offset + i]) << (8 * i);
             }
-            raw = detail::FlipETC1BlockVertically(raw);
+            raw = etc_native_detail::FlipETC1BlockVertically(raw);
 
             // Standard ETC1 stores the same 64 bits big endian.
             u8* dst = linear_buffer.data() + dst_offset;

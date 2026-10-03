@@ -1269,8 +1269,12 @@ ResultStatus NWM_UDS::SendToHLE(u32 dest_node_id, u8 data_channel, u32 data_size
 
     auto dest_address = GetNodeMacAddress(dest_node_id, flags);
     if (!dest_address) {
-        LOG_ERROR(Service_NWM, "Destination address was 0");
-        return ResultStatus::SendError_BadMacAddress;
+        // The destination node is no longer in node_map — the peer left or
+        // timed out. Real UDS hardware drops the packet silently; surfacing
+        // this as NotFound makes MH4U treat it as a session loss.
+        LOG_WARNING(Service_NWM,
+                    "[UDS-TRACE] dropping SendTo to vanished node 0x{:04X}", dest_node_id);
+        return ResultStatus::ResultSuccess;
     }
 
     constexpr std::size_t MaxSize = 0x5C6;

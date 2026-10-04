@@ -363,12 +363,16 @@ void PipelineCache::SwitchDiskCache(u64 title_id, const std::atomic_bool& stop_l
     }
 }
 
-bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
-    MICROPROFILE_SCOPE(Vulkan_Bind);
-
+void PipelineCache::UpdateShaderIds(PipelineInfo& info) const { // [draw-batch]
     for (u32 i = 0; i < MAX_SHADER_STAGES; i++) {
         info.state.shader_ids[i] = shader_hashes[i];
     }
+}
+
+bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
+    MICROPROFILE_SCOPE(Vulkan_Bind);
+
+    UpdateShaderIds(info);
 
     GraphicsPipeline* const pipeline = curr_disk_cache->GetPipeline(info);
     if (!pipeline->IsDone() && !pipeline->TryBuild(wait_built)) {

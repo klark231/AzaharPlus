@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector> // [draw-batch]
 #include "video_core/rasterizer_accelerated.h"
 #include "video_core/renderer_vulkan/vk_descriptor_update_queue.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
@@ -95,6 +96,21 @@ private:
     /// Internal implementation for AccelerateDrawBatch
     bool AccelerateDrawBatchInternal(bool is_indexed);
 
+    /// [draw-batch] Records all deferred draws as a single scheduler command
+    void FlushDrawBatch();
+
+    struct BatchedDraw {
+        u32 vertex_count;
+        s32 vertex_offset;
+        u32 binding_count;
+        bool is_indexed;
+        vk::IndexType index_type;
+        vk::DeviceSize index_offset;
+        std::array<u32, 16> bindings;
+        PipelineCache::DescriptorSetArray descriptor_sets;
+        PipelineCache::DynamicOffsetArray dynamic_offsets;
+    };
+
     /// Setup index array for AccelerateDrawBatch
     void SetupIndexArray();
 
@@ -141,6 +157,15 @@ private:
     u32 uniform_size_aligned_vs;
     u32 uniform_size_aligned_fs;
     bool async_shaders{false};
+
+    // [draw-batch]
+    std::vector<BatchedDraw> draw_batch;
+    PipelineInfo batch_info{};
+    bool batch_active{false};
+    PipelineCache::DescriptorSetArray batch_bound_sets{};
+    PipelineCache::DynamicOffsetArray batch_bound_offsets{};
+    vk::DeviceSize pending_index_offset{};
+    vk::IndexType pending_index_type{};
 };
 
 } // namespace Vulkan

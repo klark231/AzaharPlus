@@ -39,6 +39,13 @@ constexpr u64 TEXTURE_BUFFER_SIZE = 2_MiB;
 constexpr vk::BufferUsageFlags BUFFER_USAGE =
     vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer;
 
+// [draw-batch] set to 0 to compile the batching out (every draw is flushed immediately)
+#ifndef AZAHAR_VK_DRAW_BATCH
+#define AZAHAR_VK_DRAW_BATCH 1
+#endif
+constexpr bool kDrawBatching = AZAHAR_VK_DRAW_BATCH != 0;
+constexpr std::size_t kMaxBatchedDraws = 256;
+
 struct DrawParams {
     u32 vertex_count;
     s32 vertex_offset;
@@ -111,6 +118,12 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
 
     scheduler.RegisterOnSubmit([&renderpass_cache] { renderpass_cache.EndRendering(); });
 
+    // [draw-batch] draws must be recorded before the renderpass ends
+    renderpass_cache.SetBeforeEndRendering([this] {
+        FlushDrawBatch();
+        batch_active = false;
+    });
+
     // Prepare the static buffer descriptor set.
     const auto buffer_set = pipeline_cache.Acquire(DescriptorHeapType::Buffer);
     update_queue.AddBuffer(buffer_set, 0, uniform_buffer.Handle(), 0, sizeof(VSPicaUniformData));
@@ -137,7 +150,10 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
     update_queue.Flush();
 }
 
-RasterizerVulkan::~RasterizerVulkan() = default;
+RasterizerVulkan::~RasterizerVulkan() { // [draw-batch]
+    FlushDrawBatch();
+    renderpass_cache.SetBeforeEndRendering({});
+}
 
 void RasterizerVulkan::TickFrame() {
     scheduler.WaitWorker();
@@ -462,39 +478,113 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
     return Draw(true, is_indexed);
 }
 
-bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
+bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) { // [draw-batch]
     if (is_indexed) {
         SetupIndexArray();
     }
 
     const bool wait_built = !async_shaders || regs.pipeline.num_vertices <= 6;
-    if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
-        return true;
+
+    // Shader ids are part of the state comparison below.
+    pipeline_cache.UpdateShaderIds(pipeline_info);
+
+    const bool joined = kDrawBatching && batch_active && pipeline_info == batch_info &&
+                        pipeline_info.dynamic_info == batch_info.dynamic_info;
+    if (!joined) {
+        // The previous batch has to be recorded BEFORE the new state is bound.
+        FlushDrawBatch();
+        if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
+            batch_active = false;
+            return true;
+        }
+        batch_info = pipeline_info;
+        batch_active = kDrawBatching;
+        batch_bound_sets = pipeline_cache.GetDescriptorSets();
+        batch_bound_offsets = pipeline_cache.GetDynamicOffsets();
     }
 
-    const DrawParams params = {
-        .vertex_count = regs.pipeline.num_vertices,
-        .vertex_offset = -static_cast<s32>(vertex_info.vs_input_index_min),
-        .binding_count = pipeline_info.state.vertex_layout.binding_count,
-        .bindings = binding_offsets,
-        .is_indexed = is_indexed,
-    };
+    BatchedDraw draw{};
+    draw.vertex_count = regs.pipeline.num_vertices;
+    draw.vertex_offset = -static_cast<s32>(vertex_info.vs_input_index_min);
+    draw.binding_count = pipeline_info.state.vertex_layout.binding_count;
+    draw.bindings = binding_offsets;
+    draw.is_indexed = is_indexed;
+    draw.index_offset = pending_index_offset;
+    draw.index_type = pending_index_type;
+    draw.descriptor_sets = pipeline_cache.GetDescriptorSets();
+    draw.dynamic_offsets = pipeline_cache.GetDynamicOffsets();
+    draw_batch.push_back(draw);
 
-    scheduler.Record([this, params](vk::CommandBuffer cmdbuf) {
-        std::array<vk::DeviceSize, 16> offsets;
-        std::transform(params.bindings.begin(), params.bindings.end(), offsets.begin(),
-                       [](u32 offset) { return static_cast<vk::DeviceSize>(offset); });
-        cmdbuf.bindVertexBuffers(0, params.binding_count, vertex_buffers.data(), offsets.data());
-        if (params.is_indexed) {
-            cmdbuf.drawIndexed(params.vertex_count, 1, 0, params.vertex_offset, 0);
-        } else {
-            cmdbuf.draw(params.vertex_count, 1, 0, 0);
-        }
-    });
-
+    if (!kDrawBatching || draw_batch.size() >= kMaxBatchedDraws) {
+        FlushDrawBatch();
+    }
     return true;
 }
 
+void RasterizerVulkan::FlushDrawBatch() { // [draw-batch]
+    if (draw_batch.empty()) {
+        return;
+    }
+
+    // State the command buffer will have bound when the recorded draws start executing.
+    const auto initial_sets = batch_bound_sets;
+    const auto initial_offsets = batch_bound_offsets;
+    batch_bound_sets = draw_batch.back().descriptor_sets;
+    batch_bound_offsets = draw_batch.back().dynamic_offsets;
+
+    scheduler.Record([draws = std::move(draw_batch), layout = pipeline_cache.GetPipelineLayout(),
+                      stream = stream_buffer.Handle(), initial_sets,
+                      initial_offsets](vk::CommandBuffer cmdbuf) {
+        auto cur_sets = initial_sets;
+        auto cur_offsets = initial_offsets;
+        bool have_vertex_buffers = false;
+        u32 cur_binding_count = 0;
+        std::array<u32, 16> cur_bindings{};
+        bool have_index_buffer = false;
+        vk::DeviceSize cur_index_offset = 0;
+        vk::IndexType cur_index_type{};
+
+        std::array<vk::Buffer, 16> buffers;
+        buffers.fill(stream);
+
+        for (const BatchedDraw& draw : draws) {
+            if (draw.descriptor_sets != cur_sets || draw.dynamic_offsets != cur_offsets) {
+                cmdbuf.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, layout, 0,
+                                          draw.descriptor_sets, draw.dynamic_offsets);
+                cur_sets = draw.descriptor_sets;
+                cur_offsets = draw.dynamic_offsets;
+            }
+
+            bool vertex_changed = !have_vertex_buffers || draw.binding_count != cur_binding_count;
+            for (u32 i = 0; !vertex_changed && i < draw.binding_count; i++) {
+                vertex_changed = draw.bindings[i] != cur_bindings[i];
+            }
+            if (vertex_changed) {
+                std::array<vk::DeviceSize, 16> offsets;
+                std::transform(draw.bindings.begin(), draw.bindings.end(), offsets.begin(),
+                               [](u32 offset) { return static_cast<vk::DeviceSize>(offset); });
+                cmdbuf.bindVertexBuffers(0, draw.binding_count, buffers.data(), offsets.data());
+                have_vertex_buffers = true;
+                cur_binding_count = draw.binding_count;
+                cur_bindings = draw.bindings;
+            }
+
+            if (draw.is_indexed) {
+                if (!have_index_buffer || draw.index_offset != cur_index_offset ||
+                    draw.index_type != cur_index_type) {
+                    cmdbuf.bindIndexBuffer(stream, draw.index_offset, draw.index_type);
+                    have_index_buffer = true;
+                    cur_index_offset = draw.index_offset;
+                    cur_index_type = draw.index_type;
+                }
+                cmdbuf.drawIndexed(draw.vertex_count, 1, 0, draw.vertex_offset, 0);
+            } else {
+                cmdbuf.draw(draw.vertex_count, 1, 0, 0);
+            }
+        }
+    });
+    draw_batch.clear();
+}
 void RasterizerVulkan::SetupIndexArray() {
     const bool index_u8 = regs.pipeline.index_array.format == 0;
     const bool native_u8 = index_u8 && instance.IsIndexTypeUint8Supported();
@@ -518,10 +608,9 @@ void RasterizerVulkan::SetupIndexArray() {
 
     stream_buffer.Commit(index_buffer_size);
 
-    scheduler.Record(
-        [this, index_offset = index_offset, index_type = index_type](vk::CommandBuffer cmdbuf) {
-            cmdbuf.bindIndexBuffer(stream_buffer.Handle(), index_offset, index_type);
-        });
+    // [draw-batch] bound later, inside FlushDrawBatch()
+    pending_index_offset = index_offset;
+    pending_index_type = index_type;
 }
 
 void RasterizerVulkan::DrawTriangles() {
@@ -610,6 +699,8 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     if (accelerate) {
         succeeded = AccelerateDrawBatchInternal(is_indexed);
     } else {
+        FlushDrawBatch(); // [draw-batch]
+        batch_active = false;
         pipeline_cache.BindPipeline(pipeline_info, true);
 
         const u32 vertex_count = static_cast<u32>(vertex_batch.size());

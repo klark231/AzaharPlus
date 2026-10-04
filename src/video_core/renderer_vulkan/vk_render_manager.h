@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <functional> // [draw-batch]
+
 #include <mutex>
 
 #include "common/math_util.h"
@@ -51,6 +53,11 @@ public:
     /// Exits from any currently active renderpass instance
     void EndRendering();
 
+    /// [draw-batch] Called right before an active renderpass is ended
+    void SetBeforeEndRendering(std::function<void()>&& callback) {
+        before_end_rendering = std::move(callback);
+    }
+
     /// Returns the renderpass associated with the color-depth format pair
     vk::RenderPass GetRenderpass(VideoCore::PixelFormat color, VideoCore::PixelFormat depth,
                                  bool is_clear);
@@ -70,6 +77,7 @@ private:
     bool shadow_rendering{};
     RenderPass pass{};
     u32 num_draws{};
+    std::function<void()> before_end_rendering;
 };
 
 } // namespace Vulkan

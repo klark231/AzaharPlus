@@ -41,6 +41,25 @@ class PipelineCache {
     static constexpr u32 NumDynamicOffsets = 3;
 
 public:
+    // [draw-batch]
+    using DescriptorSetArray = std::array<vk::DescriptorSet, NumRasterizerSets>;
+    using DynamicOffsetArray = std::array<u32, NumDynamicOffsets>;
+
+    /// Fills the shader ids of the info with the currently selected shaders
+    void UpdateShaderIds(PipelineInfo& info) const;
+
+    DescriptorSetArray GetDescriptorSets() const {
+        return bound_descriptor_sets;
+    }
+
+    DynamicOffsetArray GetDynamicOffsets() const {
+        return offsets;
+    }
+
+    vk::PipelineLayout GetPipelineLayout() const {
+        return *pipeline_layout;
+    }
+
     explicit PipelineCache(const Instance& instance, Scheduler& scheduler,
                            RenderManager& renderpass_cache, DescriptorUpdateQueue& update_queue);
     ~PipelineCache();

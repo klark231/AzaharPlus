@@ -72,6 +72,10 @@ void RenderManager::EndRendering() {
         return;
     }
 
+    if (before_end_rendering) { // [draw-batch]
+        before_end_rendering();
+    }
+
     scheduler.Record([images = images, aspects = aspects,
                       shadow_rendering = shadow_rendering](vk::CommandBuffer cmdbuf) {
         u32 num_barriers = 0;

@@ -72,6 +72,11 @@ public:
         return descriptor_set;
     }
 
+    /// [tex-reuse] Binds an already populated descriptor set instead of acquiring a new one
+    void SetDescriptorSet(DescriptorHeapType type, vk::DescriptorSet descriptor_set) {
+        bound_descriptor_sets[static_cast<u32>(type)] = descriptor_set;
+    }
+
     /// Sets the dynamic offset for the uniform buffer at binding
     void UpdateRange(u8 binding, u32 offset) {
         offsets[binding] = offset;

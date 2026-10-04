@@ -720,10 +720,82 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     return succeeded;
 }
 
+// [tex-reuse] Texture unit sync that re-binds the previous descriptor set when nothing changed.
+// Returns false (having done nothing) when cube maps are involved.
+bool RasterizerVulkan::SyncTextureUnitsReusable(
+    const Framebuffer* framebuffer,
+    const std::array<Pica::TexturingRegs::FullTextureConfig, 3>& pica_textures) {
+    using TextureType = Pica::TexturingRegs::TextureConfig::TextureType;
+    const auto is_cube = [](TextureType type) {
+        return type == TextureType::TextureCube || type == TextureType::ShadowCube;
+    };
+
+    for (u32 i = 0; i < pica_textures.size(); ++i) {
+        const auto& texture = pica_textures[i];
+        const TextureType type = texture.config.type.Value();
+        if ((!texture.enabled && is_cube(type)) || (i == 0 && texture.enabled && is_cube(type))) {
+            return false;
+        }
+    }
+
+    std::array<vk::ImageView, 3> views{};
+    std::array<vk::Sampler, 3> samplers{};
+
+    for (u32 texture_index = 0; texture_index < pica_textures.size(); ++texture_index) {
+        const auto& texture = pica_textures[texture_index];
+
+        if (!texture.enabled) {
+            Surface& null_surface = res_cache.GetSurface(VideoCore::NULL_SURFACE_ID);
+            const Sampler& null_sampler = res_cache.GetSampler(VideoCore::NULL_SURFACE_ID);
+            views[texture_index] = null_surface.ImageView();
+            samplers[texture_index] = null_sampler.Handle();
+            continue;
+        }
+
+        if (texture_index == 0 && texture.config.type.Value() == TextureType::Shadow2D) {
+            Surface& surface = res_cache.GetTextureSurface(texture);
+            Sampler& sampler = res_cache.GetSampler(texture.config);
+            surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
+            views[texture_index] = surface.StorageView();
+            samplers[texture_index] = sampler.Handle();
+            continue;
+        }
+
+        Surface& surface = res_cache.GetTextureSurface(texture);
+        Sampler& sampler = res_cache.GetSampler(texture.config);
+        const vk::ImageView color_view = framebuffer->ImageView(SurfaceType::Color);
+        const bool is_feedback_loop = color_view == surface.FramebufferView();
+        views[texture_index] = is_feedback_loop ? surface.CopyImageView() : surface.ImageView();
+        samplers[texture_index] = sampler.Handle();
+    }
+
+    // The tick is read after all surfaces were resolved, they may have flushed the scheduler.
+    const u64 tick = scheduler.CurrentTick();
+    if (texture_set_cache.valid && texture_set_cache.tick == tick &&
+        texture_set_cache.views == views && texture_set_cache.samplers == samplers) {
+        pipeline_cache.SetDescriptorSet(DescriptorHeapType::Texture, texture_set_cache.set);
+        return true;
+    }
+
+    const auto texture_set = pipeline_cache.Acquire(DescriptorHeapType::Texture);
+    for (u32 i = 0; i < pica_textures.size(); ++i) {
+        update_queue.AddImageSampler(texture_set, i, 0, views[i], samplers[i]);
+    }
+    texture_set_cache.views = views;
+    texture_set_cache.samplers = samplers;
+    texture_set_cache.set = texture_set;
+    texture_set_cache.tick = tick;
+    texture_set_cache.valid = true;
+    return true;
+}
+
 void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
     using TextureType = Pica::TexturingRegs::TextureConfig::TextureType;
 
     const auto pica_textures = regs.texturing.GetTextures();
+    if (SyncTextureUnitsReusable(framebuffer, pica_textures)) { // [tex-reuse]
+        return;
+    }
     const bool use_cube_heap =
         pica_textures[0].enabled && pica_textures[0].config.type == TextureType::ShadowCube;
     const auto texture_set = pipeline_cache.Acquire(use_cube_heap ? DescriptorHeapType::Texture
@@ -799,22 +871,36 @@ void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
         shadow_reading &= shadow_texture.enabled;
     }
 
-    const auto utility_set = pipeline_cache.Acquire(DescriptorHeapType::Utility);
-
     // Reading and writing are mutually exclusive
     assert(!(shadow_writing && shadow_reading));
 
+    vk::ImageView storage_view;
     if (shadow_writing) {
-        update_queue.AddStorageImage(utility_set, 0, framebuffer->ImageView(SurfaceType::Color));
+        storage_view = framebuffer->ImageView(SurfaceType::Color);
     } else if (shadow_reading) {
         const u32 shadow_texture_unit = regs.lighting.config0.shadow_selector.Value();
         const auto shadow_texture = regs.texturing.GetTextures()[shadow_texture_unit];
         Surface& shadow_surface = res_cache.GetTextureSurface(shadow_texture);
-        update_queue.AddStorageImage(utility_set, 0, shadow_surface.StorageView());
+        storage_view = shadow_surface.StorageView();
     } else {
         Surface& null_surface = res_cache.GetSurface(VideoCore::NULL_SURFACE_ID);
-        update_queue.AddStorageImage(utility_set, 0, null_surface.StorageView());
+        storage_view = null_surface.StorageView();
     }
+
+    // [tex-reuse] Same view in the same scheduler tick: the previous set is still valid.
+    const u64 tick = scheduler.CurrentTick();
+    if (utility_set_cache.valid && utility_set_cache.tick == tick &&
+        utility_set_cache.view == storage_view) {
+        pipeline_cache.SetDescriptorSet(DescriptorHeapType::Utility, utility_set_cache.set);
+        return;
+    }
+
+    const auto utility_set = pipeline_cache.Acquire(DescriptorHeapType::Utility);
+    update_queue.AddStorageImage(utility_set, 0, storage_view);
+    utility_set_cache.view = storage_view;
+    utility_set_cache.set = utility_set;
+    utility_set_cache.tick = tick;
+    utility_set_cache.valid = true;
 }
 
 void RasterizerVulkan::BindShadowCube(const Pica::TexturingRegs::FullTextureConfig& texture,

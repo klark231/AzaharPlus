@@ -93,6 +93,11 @@ private:
     /// Generic draw function for DrawTriangles and AccelerateDrawBatch
     bool Draw(bool accelerate, bool is_indexed);
 
+    /// [tex-reuse] Texture sync with descriptor set reuse (returns false for cube maps)
+    bool SyncTextureUnitsReusable(
+        const Framebuffer* framebuffer,
+        const std::array<Pica::TexturingRegs::FullTextureConfig, 3>& pica_textures);
+
     /// Internal implementation for AccelerateDrawBatch
     bool AccelerateDrawBatchInternal(bool is_indexed);
 
@@ -157,6 +162,21 @@ private:
     u32 uniform_size_aligned_vs;
     u32 uniform_size_aligned_fs;
     bool async_shaders{false};
+
+    // [tex-reuse]
+    struct TextureSetCache {
+        std::array<vk::ImageView, 3> views{};
+        std::array<vk::Sampler, 3> samplers{};
+        vk::DescriptorSet set{};
+        u64 tick{};
+        bool valid{};
+    } texture_set_cache;
+    struct UtilitySetCache {
+        vk::ImageView view{};
+        vk::DescriptorSet set{};
+        u64 tick{};
+        bool valid{};
+    } utility_set_cache;
 
     // [draw-batch]
     std::vector<BatchedDraw> draw_batch;

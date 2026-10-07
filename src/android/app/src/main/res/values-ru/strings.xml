@@ -541,6 +541,7 @@
     <string name="touch_input_empty_title">Пока нет привязок</string>
     <string name="touch_input_empty_message">Коснитесь предпросмотра, чтобы выбрать место, затем нажмите кнопку или сдвиньте стик на контроллере.</string>
     <string name="touch_input_hint_empty">Нажмите, чтобы добавить первую привязку</string>
+    <string name="touch_input_hint_select">Нажмите на превью, чтобы добавить или выбрать привязку</string>
     <string name="touch_input_hint_test">Нажмите кнопку или сдвиньте стик для проверки</string>
     <string name="touch_input_mode_edit">Изменить</string>
     <string name="touch_input_mode_test">Проверить</string>

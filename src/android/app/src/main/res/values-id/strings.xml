@@ -49,6 +49,7 @@
     <string name="touch_input_empty_title">Belum ada pengikatan</string>
     <string name="touch_input_empty_message">Ketuk pratinjau untuk memilih posisi, lalu tekan tombol atau gerakkan analog pada kontroler Anda.</string>
     <string name="touch_input_hint_empty">Ketuk untuk menempatkan pengikatan pertama Anda</string>
+    <string name="touch_input_hint_select">Ketuk pratinjau untuk menambahkan atau memilih pengikatan</string>
     <string name="touch_input_hint_test">Tekan tombol atau gerakkan analog untuk menguji</string>
     <string name="touch_input_mode_edit">Edit</string>
     <string name="touch_input_mode_test">Uji</string>

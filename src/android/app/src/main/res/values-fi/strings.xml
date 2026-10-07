@@ -72,6 +72,7 @@
     <string name="touch_input_empty_title">Ei vielä sidontoja</string>
     <string name="touch_input_empty_message">Napauta esikatselua valitaksesi kohdan ja paina sitten painiketta tai liikuta sauvaa ohjaimellasi.</string>
     <string name="touch_input_hint_empty">Napauta asettaaksesi ensimmäisen sidonnan</string>
+    <string name="touch_input_hint_select">Napauta esikatselua lisätäksesi tai valitaksesi sidonnan</string>
     <string name="touch_input_hint_test">Paina painiketta tai liikuta sauvaa testataksesi</string>
     <string name="touch_input_mode_edit">Muokkaa</string>
     <string name="touch_input_mode_test">Testaa</string>

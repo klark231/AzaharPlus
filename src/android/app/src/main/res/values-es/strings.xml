@@ -1082,6 +1082,7 @@ Se esperan fallos gráficos temporales cuando ésta esté activado.</string>
     <string name="touch_input_empty_title">Aún no hay asignaciones</string>
     <string name="touch_input_empty_message">Toca la vista previa para elegir un punto y luego presiona un botón o mueve un stick en tu mando.</string>
     <string name="touch_input_hint_empty">Toca para colocar tu primera asignación</string>
+    <string name="touch_input_hint_select">Toca la vista previa para añadir o seleccionar una asignación</string>
     <string name="touch_input_hint_test">Presiona un botón o mueve un stick para probar</string>
     <string name="touch_input_mode_edit">Editar</string>
     <string name="touch_input_mode_test">Probar</string>

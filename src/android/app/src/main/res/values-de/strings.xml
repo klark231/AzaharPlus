@@ -827,6 +827,7 @@
     <string name="touch_input_empty_title">Noch keine Belegungen</string>
     <string name="touch_input_empty_message">Tippe auf die Vorschau, um eine Stelle zu wählen, und drücke dann eine Taste oder bewege einen Stick auf deinem Controller.</string>
     <string name="touch_input_hint_empty">Tippen, um die erste Belegung zu platzieren</string>
+    <string name="touch_input_hint_select">Auf die Vorschau tippen, um eine Belegung hinzuzufügen oder auszuwählen</string>
     <string name="touch_input_hint_test">Taste drücken oder Stick bewegen, um zu testen</string>
     <string name="touch_input_mode_edit">Bearbeiten</string>
     <string name="touch_input_mode_test">Testen</string>

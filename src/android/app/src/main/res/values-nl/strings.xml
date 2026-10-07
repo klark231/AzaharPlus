@@ -137,6 +137,7 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="touch_input_empty_title">Nog geen bindingen</string>
     <string name="touch_input_empty_message">Tik op de voorbeeldweergave om een plek te kiezen en druk dan op een knop of beweeg een stick op je controller.</string>
     <string name="touch_input_hint_empty">Tik om je eerste binding te plaatsen</string>
+    <string name="touch_input_hint_select">Tik op de voorbeeldweergave om een binding toe te voegen of te selecteren</string>
     <string name="touch_input_hint_test">Druk op een knop of beweeg een stick om te testen</string>
     <string name="touch_input_mode_edit">Bewerken</string>
     <string name="touch_input_mode_test">Testen</string>

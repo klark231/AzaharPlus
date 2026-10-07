@@ -24,10 +24,14 @@ import kotlin.math.min
 import com.google.android.material.R as MaterialR
 
 /**
- * Full-width preview of the 3DS bottom screen, always 4:3. Each binding is drawn as a labeled
- * pill at its position; the selected one gets crosshair guides and can be dragged. A tap on empty
- * space is reported through [onEmptySpotTapped] so the host can start binding a new input there;
- * a tap on an existing pill is reported through [onBindingTapped] so the host can select it.
+ * Full-width preview of the 3DS bottom screen, always 4:3. An unselected binding is a small,
+ * fixed-size numbered dot — always the same size no matter its name, so it never hides more of
+ * the preview underneath it than it has to. The selected one (and, in test mode, whichever one
+ * just fired) additionally gets crosshair guides and a label that floats above its dot rather
+ * than sitting on top of it, so the dot itself — the exact touch point that gets sent to the
+ * game — is always visible and unambiguous. A tap on empty space is reported through
+ * [onEmptySpotTapped] so the host can start binding a new input there; a tap on an existing dot
+ * is reported through [onBindingTapped] so the host can select it.
  *
  * In [testMode] the canvas ignores touch entirely and only shows whichever binding is passed to
  * [setTestHighlight], so a controller or keyboard press can be confirmed without risk of moving
@@ -62,7 +66,8 @@ class TouchInputBindingView @JvmOverloads constructor(
     private val inset = INSET_DP * density
 
     private val screenRect = RectF()
-    private val pillRect = RectF()
+    private val pointRect = RectF()
+    private val bubbleRect = RectF()
 
     private val bindings = mutableListOf<TouchInputBinding>()
     private var selectedBinding: TouchInputBinding? = null
@@ -116,11 +121,10 @@ class TouchInputBindingView @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
 
-    // Reused across the several concentric rects drawPillGlow() draws each frame.
-    private val pillGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    // Reused across the several concentric circles drawDotGlow() draws each frame.
+    private val dotGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
-    private val pillGlowRect = RectF()
 
     private val pillOutlinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -173,17 +177,17 @@ class TouchInputBindingView @JvmOverloads constructor(
         canvas.drawRoundRect(screenRect, corner, corner, outlinePaint)
 
         hitRects.clear()
-        bindings.forEach { binding ->
+        bindings.forEachIndexed { index, binding ->
             val isSelected = !testMode && binding == selected
-            if (!isSelected) {
-                val isTestHit = testMode && binding == testHighlight
-                hitRects.add(drawPill(canvas, binding, selected = false, testHit = isTestHit))
-            } else {
-                // Placeholder so hitRects stays index-aligned with bindings; replaced below
-                hitRects.add(RectF())
+            val isTestHit = testMode && binding == testHighlight
+            val rect = when {
+                isSelected -> RectF() // placeholder so hitRects stays index-aligned; replaced below
+                isTestHit -> drawPointWithLabel(canvas, binding, testHit = true, liveOverride = null)
+                else -> drawPoint(canvas, binding, number = index + 1)
             }
+            hitRects.add(rect)
         }
-        // The selected pill is drawn last so it ends up on top of its neighbors
+        // The selected point is drawn last so its label ends up on top of its neighbors
         if (selected != null && !testMode) {
             val index = bindings.indexOf(selected)
             val liveOverride = if (draggingBinding == selected && dragMoved) {
@@ -191,7 +195,7 @@ class TouchInputBindingView @JvmOverloads constructor(
             } else {
                 null
             }
-            val rect = drawPill(canvas, selected, selected = true, testHit = false, liveOverride)
+            val rect = drawPointWithLabel(canvas, selected, testHit = false, liveOverride)
             if (index >= 0) hitRects[index] = rect
         }
     }
@@ -346,58 +350,100 @@ class TouchInputBindingView @JvmOverloads constructor(
     }
 
     /**
-     * Draws [binding]'s pill and returns its hit rectangle in view coordinates. [liveOverride], if
-     * given, is a view-space (x, y) to draw at instead of the binding's stored position, used
-     * while the pill is being dragged and the host hasn't pushed the new position back yet.
+     * An unselected binding: a small, fixed-size numbered dot at its exact position, matching the
+     * number shown for it in the bindings list. Always the same size regardless of the binding's
+     * name, so it never covers more of the preview than a small round dot has to.
      */
-    private fun drawPill(
+    private fun drawPoint(canvas: Canvas, binding: TouchInputBinding, number: Int): RectF {
+        val x = screenRect.left + binding.x * screenRect.width()
+        val y = screenRect.top + binding.y * screenRect.height()
+
+        val radius = DOT_RADIUS_DP * density
+        pointRect.set(x - radius, y - radius, x + radius, y + radius)
+        pullOutOfRoundedCorners(pointRect, SCREEN_CORNER_RADIUS_DP * density)
+
+        pillPaint.color = primaryContainerColor
+        canvas.drawOval(pointRect, pillPaint)
+
+        pillTextPaint.color = onPrimaryContainerColor
+        val baseline = pointRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
+        canvas.drawText(number.toString(), pointRect.centerX(), baseline, pillTextPaint)
+
+        return inflateForHit(pointRect)
+    }
+
+    /**
+     * The selected binding in edit mode, or whichever one just fired in test mode: a small dot
+     * marks its exact position — the literal coordinate sent to the game — and its name floats in
+     * a label bubble above that dot (below it, if the dot is too close to the top edge for the
+     * label to fit), so the label is never what you're looking at when aligning the dot itself.
+     * [liveOverride], if given, is a view-space (x, y) to draw the dot at instead of the binding's
+     * stored position, used while it's being dragged and the host hasn't pushed the new position
+     * back yet. Returns the dot's hit rectangle — the label itself isn't a separate tap target.
+     */
+    private fun drawPointWithLabel(
         canvas: Canvas,
         binding: TouchInputBinding,
-        selected: Boolean,
         testHit: Boolean,
-        liveOverride: Pair<Float, Float>? = null
+        liveOverride: Pair<Float, Float>?
     ): RectF {
         val x = liveOverride?.first ?: (screenRect.left + binding.x * screenRect.width())
         val y = liveOverride?.second ?: (screenRect.top + binding.y * screenRect.height())
 
+        val dotRadius = SELECTED_DOT_RADIUS_DP * density
+        pointRect.set(x - dotRadius, y - dotRadius, x + dotRadius, y + dotRadius)
+        pullOutOfRoundedCorners(pointRect, SCREEN_CORNER_RADIUS_DP * density)
+        val dotCenterX = pointRect.centerX()
+        val dotCenterY = pointRect.centerY()
+
+        val accentColor = if (testHit) successColor else primaryColor
+        val onAccentColor = if (testHit) onSuccessColor else onPrimaryColor
+
+        drawDotGlow(canvas, dotCenterX, dotCenterY, dotRadius)
+        pillPaint.color = accentColor
+        canvas.drawOval(pointRect, pillPaint)
+        canvas.drawOval(pointRect, pillOutlinePaint)
+
         val label = binding.shortLabel()
         val textWidth = pillTextPaint.measureText(label)
-        val height = PILL_HEIGHT_DP * density
-        val width = (textWidth + 2 * PILL_PADDING_DP * density).coerceAtLeast(height)
+        val bubbleHeight = PILL_HEIGHT_DP * density
+        val bubbleWidth = (textWidth + 2 * PILL_PADDING_DP * density).coerceAtLeast(bubbleHeight)
+        val gap = LABEL_GAP_DP * density
 
-        pillRect.set(x - width / 2f, y - height / 2f, x + width / 2f, y + height / 2f)
-        // Keep the pill fully inside the screen even when its anchor point is near an edge
-        val dx = (screenRect.left - pillRect.left).coerceAtLeast(0f) +
-            (screenRect.right - pillRect.right).coerceAtMost(0f)
-        val dy = (screenRect.top - pillRect.top).coerceAtLeast(0f) +
-            (screenRect.bottom - pillRect.bottom).coerceAtMost(0f)
-        pillRect.offset(dx, dy)
-        pullOutOfRoundedCorners(pillRect, SCREEN_CORNER_RADIUS_DP * density)
-
-        pillPaint.color = when {
-            testHit -> successColor
-            selected -> primaryColor
-            else -> primaryContainerColor
-        }
-        val textColor = when {
-            testHit -> onSuccessColor
-            selected -> onPrimaryColor
-            else -> onPrimaryContainerColor
+        // Prefer floating the label above the dot; flip below only if there's no room above.
+        val bubbleCenterY = if (dotCenterY - dotRadius - gap - bubbleHeight >= screenRect.top) {
+            dotCenterY - dotRadius - gap - bubbleHeight / 2f
+        } else {
+            dotCenterY + dotRadius + gap + bubbleHeight / 2f
         }
 
-        val corner = pillRect.height() / 2f
-        if (selected) drawPillGlow(canvas, pillRect, corner)
-        canvas.drawRoundRect(pillRect, corner, corner, pillPaint)
-        if (selected || testHit) {
-            canvas.drawRoundRect(pillRect, corner, corner, pillOutlinePaint)
-        }
+        bubbleRect.set(
+            dotCenterX - bubbleWidth / 2f,
+            bubbleCenterY - bubbleHeight / 2f,
+            dotCenterX + bubbleWidth / 2f,
+            bubbleCenterY + bubbleHeight / 2f
+        )
+        val dx = (screenRect.left - bubbleRect.left).coerceAtLeast(0f) +
+            (screenRect.right - bubbleRect.right).coerceAtMost(0f)
+        val dy = (screenRect.top - bubbleRect.top).coerceAtLeast(0f) +
+            (screenRect.bottom - bubbleRect.bottom).coerceAtMost(0f)
+        bubbleRect.offset(dx, dy)
+        pullOutOfRoundedCorners(bubbleRect, SCREEN_CORNER_RADIUS_DP * density)
 
-        pillTextPaint.color = textColor
-        val baseline = pillRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
-        canvas.drawText(label, pillRect.centerX(), baseline, pillTextPaint)
+        val bubbleCorner = bubbleRect.height() / 2f
+        pillPaint.color = accentColor
+        canvas.drawRoundRect(bubbleRect, bubbleCorner, bubbleCorner, pillPaint)
 
-        // A comfortable touch target even for a very short label like "A"
-        val hitRect = RectF(pillRect)
+        pillTextPaint.color = onAccentColor
+        val baseline = bubbleRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
+        canvas.drawText(label, bubbleRect.centerX(), baseline, pillTextPaint)
+
+        return inflateForHit(pointRect)
+    }
+
+    /** Pads [rect] up to a comfortable touch target, even for a dot much smaller than that. */
+    private fun inflateForHit(rect: RectF): RectF {
+        val hitRect = RectF(rect)
         val minHit = MIN_HIT_DP * density
         if (hitRect.width() < minHit) hitRect.inset(-(minHit - hitRect.width()) / 2f, 0f)
         if (hitRect.height() < minHit) hitRect.inset(0f, -(minHit - hitRect.height()) / 2f)
@@ -405,7 +451,7 @@ class TouchInputBindingView @JvmOverloads constructor(
     }
 
     /**
-     * The straight-edge clamp in drawPill() can still leave a pill's own corner poking into one
+     * The straight-edge clamp above can still leave a shape's own corner poking into one
      * of the screen's four rounded corners, where it paints over — and visually breaks — the
      * curve. This nudges the whole rect inward along the diagonal for whichever corner it crowds.
      */
@@ -440,21 +486,15 @@ class TouchInputBindingView @JvmOverloads constructor(
     }
 
     /**
-     * A soft halo behind the selected pill: a few concentric rounded rects, each a little bigger
-     * and fainter than the last. Cheaper and crisper under hardware acceleration than a real blur
+     * A soft halo around the exact-point dot: a few concentric circles, each a little bigger and
+     * fainter than the last. Cheaper and crisper under hardware acceleration than a real blur
      * (Paint.setShadowLayer / BlurMaskFilter), and looks the same at this size.
      */
-    private fun drawPillGlow(canvas: Canvas, pill: RectF, corner: Float) {
+    private fun drawDotGlow(canvas: Canvas, cx: Float, cy: Float, radius: Float) {
         for (step in GLOW_STEPS downTo 1) {
             val expand = step * GLOW_STEP_DP * density
-            pillGlowRect.set(
-                pill.left - expand,
-                pill.top - expand,
-                pill.right + expand,
-                pill.bottom + expand
-            )
-            pillGlowPaint.color = ColorUtils.setAlphaComponent(primaryColor, GLOW_MAX_ALPHA / step)
-            canvas.drawRoundRect(pillGlowRect, corner + expand, corner + expand, pillGlowPaint)
+            dotGlowPaint.color = ColorUtils.setAlphaComponent(primaryColor, GLOW_MAX_ALPHA / step)
+            canvas.drawCircle(cx, cy, radius + expand, dotGlowPaint)
         }
     }
 
@@ -481,11 +521,19 @@ class TouchInputBindingView @JvmOverloads constructor(
         private const val CROSSHAIR_WIDTH_DP = 1f
         private const val CROSSHAIR_ALPHA = 130
 
+        // The floating label bubble shown above the selected (or test-hit) point
         private const val PILL_HEIGHT_DP = 26f
         private const val PILL_PADDING_DP = 9f
         private const val PILL_TEXT_SIZE_SP = 12f
         private const val PILL_OUTLINE_WIDTH_DP = 1.5f
         private const val PILL_OUTLINE_ALPHA = 200
+        private const val LABEL_GAP_DP = 8f
+
+        // The dots themselves: a bigger one at rest (room for a 1-2 digit number), a small
+        // precise one once a label is floating above it so it reads as "the exact point"
+        private const val DOT_RADIUS_DP = 11f
+        private const val SELECTED_DOT_RADIUS_DP = 6f
+
         private const val MIN_HIT_DP = 40f
 
         private const val GLOW_STEPS = 4

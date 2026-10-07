@@ -18,20 +18,18 @@
         android:paddingEnd="8dp"
         android:paddingBottom="@dimen/touch_input_margin">
 
-        <LinearLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:clipToPadding="false"
+            android:scrollbars="none">
 
-            <HorizontalScrollView
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clipToPadding="false"
-                android:paddingEnd="8dp"
-                android:scrollbars="none">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/profileChipGroup"
@@ -41,19 +39,20 @@
                     app:singleLine="true"
                     app:singleSelection="true" />
 
-            </HorizontalScrollView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addProfileButton"
+                    style="@style/Widget.Material3.Button.IconButton.Tonal"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/create_profile"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addProfileButton"
-                style="@style/Widget.Material3.Button.IconButton.Tonal"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:contentDescription="@string/create_profile"
-                app:icon="@drawable/ic_add"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp" />
+            </LinearLayout>
 
-        </LinearLayout>
+        </HorizontalScrollView>
 
         <!-- The canvas is scaled to fit whatever height this card gets, pinned to the top -->
         <com.google.android.material.card.MaterialCardView
@@ -64,43 +63,51 @@
             android:clipToOutline="true"
             android:minHeight="200dp">
 
-            <org.citra.citra_emu.features.touchinput.TouchInputBindingView
-                android:id="@+id/touchInputBindingView"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <!-- Padding above keeps the preview from touching the card's own edges -->
+                <org.citra.citra_emu.features.touchinput.TouchInputBindingView
+                    android:id="@+id/touchInputBindingView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- Hint, shown while nothing is selected -->
+                <LinearLayout
+                    android:id="@+id/hintRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_touch_input"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/hintText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/touch_input_hint_empty"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Hint, shown while nothing is selected -->
-        <LinearLayout
-            android:id="@+id/hintRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingTop="8dp">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_touch_input"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                android:id="@+id/hintText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:text="@string/touch_input_hint_empty"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
-        </LinearLayout>
 
     </LinearLayout>
 

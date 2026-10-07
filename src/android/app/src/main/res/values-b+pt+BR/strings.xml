@@ -1070,6 +1070,7 @@
     <string name="touch_input_empty_title">Nenhum vínculo ainda</string>
     <string name="touch_input_empty_message">Toque na pré-visualização para escolher um ponto e então pressione um botão ou mova um analógico no seu controle.</string>
     <string name="touch_input_hint_empty">Toque para posicionar seu primeiro vínculo</string>
+    <string name="touch_input_hint_select">Toque na pré-visualização para adicionar ou selecionar um vínculo</string>
     <string name="touch_input_hint_test">Pressione um botão ou mova um analógico para testar</string>
     <string name="touch_input_mode_edit">Editar</string>
     <string name="touch_input_mode_test">Testar</string>

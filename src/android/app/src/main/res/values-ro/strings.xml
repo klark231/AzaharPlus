@@ -10,6 +10,7 @@
     <string name="touch_input_empty_title">Nicio asociere încă</string>
     <string name="touch_input_empty_message">Atinge previzualizarea pentru a alege o poziție, apoi apasă un buton sau mișcă o manetă pe controler.</string>
     <string name="touch_input_hint_empty">Atinge pentru a plasa prima asociere</string>
+    <string name="touch_input_hint_select">Atinge previzualizarea pentru a adăuga sau selecta o asociere</string>
     <string name="touch_input_hint_test">Apasă un buton sau mișcă o manetă pentru a testa</string>
     <string name="touch_input_mode_edit">Editează</string>
     <string name="touch_input_mode_test">Testează</string>

@@ -140,6 +140,16 @@
                 app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/menu_button_settings"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/per_game_settings"
+                app:icon="@drawable/ic_settings"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/menu_button_uninstall"
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                 android:layout_width="48dp"

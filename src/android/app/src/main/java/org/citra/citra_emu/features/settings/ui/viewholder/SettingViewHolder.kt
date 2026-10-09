@@ -4,7 +4,10 @@
 
 package org.citra.citra_emu.features.settings.ui.viewholder
 
+import android.graphics.Typeface
 import android.view.View
+import android.widget.TextView
+import com.google.android.material.color.MaterialColors
 import androidx.recyclerview.widget.RecyclerView
 import org.citra.citra_emu.features.settings.model.view.SettingsItem
 import org.citra.citra_emu.features.settings.ui.SettingsAdapter
@@ -36,4 +39,25 @@ abstract class SettingViewHolder(itemView: View, protected val adapter: Settings
     abstract override fun onClick(clicked: View)
 
     abstract override fun onLongClick(clicked: View): Boolean
+
+    private var defaultTitleColors: android.content.res.ColorStateList? = null
+
+    /**
+     * When editing the settings of a single game, highlight the ones that have their own value
+     * (as opposed to following the global settings). Long press resets them to global.
+     */
+    protected fun markOverride(item: SettingsItem, title: TextView) {
+        if (defaultTitleColors == null) {
+            defaultTitleColors = title.textColors
+        }
+        if (adapter.isOverridden(item)) {
+            title.setTypeface(null, Typeface.BOLD)
+            title.setTextColor(
+                MaterialColors.getColor(title, androidx.appcompat.R.attr.colorPrimary)
+            )
+        } else {
+            title.setTypeface(null, Typeface.NORMAL)
+            title.setTextColor(defaultTitleColors)
+        }
+    }
 }

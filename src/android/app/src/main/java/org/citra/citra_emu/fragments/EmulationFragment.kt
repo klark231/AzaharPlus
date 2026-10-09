@@ -78,6 +78,7 @@ import org.citra.citra_emu.features.settings.model.BooleanSetting
 import org.citra.citra_emu.features.settings.model.IntSetting
 import org.citra.citra_emu.features.settings.model.SettingsViewModel
 import org.citra.citra_emu.features.settings.ui.SettingsActivity
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.model.Game
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos
@@ -431,6 +432,15 @@ class EmulationFragment :
                         ""
                     )
 
+                    true
+                }
+
+                R.id.menu_game_settings -> {
+                    SettingsActivity.launch(
+                        requireContext(),
+                        SettingsFile.FILE_NAME_CONFIG,
+                        PerGameSettings.fileName(NativeLibrary.getRunningTitleId())
+                    )
                     true
                 }
 

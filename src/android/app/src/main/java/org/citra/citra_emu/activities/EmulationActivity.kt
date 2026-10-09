@@ -33,6 +33,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.R
 import org.citra.citra_emu.camera.StillImageCameraHelper.onFilePickerResult
 import org.citra.citra_emu.contracts.OpenFileResultContract
@@ -125,6 +126,9 @@ class EmulationActivity : AppCompatActivity() {
         }
 
         settingsViewModel.settings.loadSettings()
+        // Per game overrides of the settings only the frontend uses (orientation, cutout, ...)
+        intent.extras?.let { BundleCompat.getParcelable(it, "game", Game::class.java) }
+            ?.let { PerGameSettings.applyOverlay(it.titleId) }
 
         screenAdjustmentUtil = ScreenAdjustmentUtil(this, windowManager, settingsViewModel.settings)
 
@@ -202,6 +206,8 @@ class EmulationActivity : AppCompatActivity() {
         }
         if (game != null) {
             NativeLibrary.playTimeManagerStart(game.titleId)
+            PerGameSettings.restoreGlobal()
+            PerGameSettings.applyOverlay(game.titleId)
         }
 
         val navHostFragment =
@@ -264,6 +270,10 @@ class EmulationActivity : AppCompatActivity() {
         }
         EmulationLifecycleUtil.removeHook(onShutdown)
         NativeLibrary.playTimeManagerStop()
+        if (isFinishing) {
+            // Don't leave the overrides of this game in the shared setting objects
+            PerGameSettings.restoreGlobal()
+        }
         isEmulationRunning = false
         instance = null
         secondaryDisplayManager.releasePresentation()

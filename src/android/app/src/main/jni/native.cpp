@@ -248,6 +248,21 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
         }
     });
 
+    // Forces a config reload on game boot, if the user changed settings in the UI
+    Config{};
+    // Apply the per application overrides (config/custom/<title id>.ini) on top of the global
+    // config that was just loaded. This has to happen before the graphics API is picked below,
+    // since the API itself can be overridden per application.
+    u64 program_id{};
+    FileUtil::SetCurrentRomPath(filepath);
+    auto app_loader = Loader::GetLoader(filepath);
+    if (app_loader) {
+        app_loader->ReadProgramId(program_id);
+        system.RegisterAppLoaderEarly(app_loader);
+    }
+    // Read the config again with the overrides of this application merged in
+    Config{program_id};
+
     const auto graphics_api = Settings::GetWorkingGraphicsAPI();
     EGLContext* shared_context;
     switch (graphics_api) {
@@ -287,16 +302,6 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
         break;
     }
 
-    // Forces a config reload on game boot, if the user changed settings in the UI
-    Config{};
-    // Replace with game-specific settings
-    u64 program_id{};
-    FileUtil::SetCurrentRomPath(filepath);
-    auto app_loader = Loader::GetLoader(filepath);
-    if (app_loader) {
-        app_loader->ReadProgramId(program_id);
-        system.RegisterAppLoaderEarly(app_loader);
-    }
     system.ApplySettings();
     Settings::LogSettings();
 
@@ -1112,9 +1117,12 @@ void Java_org_citra_citra_1emu_NativeLibrary_reloadSettings([[maybe_unused]] JNI
     Core::System& system{Core::System::GetInstance()};
 
     // Replace with game-specific settings
+    // Config{} above resets everything to the global state, so the overrides of the running
+    // application have to be applied again.
     if (system.IsPoweredOn()) {
         u64 program_id{};
         system.GetAppLoader().ReadProgramId(program_id);
+        Config{program_id};
     }
 
     if (multiplayer) {

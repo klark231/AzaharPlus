@@ -19,6 +19,7 @@ class SwitchSettingViewHolder(val binding: ListItemSettingSwitchBinding, adapter
     override fun bind(item: SettingsItem) {
         setting = item as SwitchSetting
         binding.textSettingName.setText(item.nameId)
+        markOverride(item, binding.textSettingName)
         if (item.descriptionId != 0) {
             binding.textSettingDescription.setText(item.descriptionId)
             binding.textSettingDescription.visibility = View.VISIBLE

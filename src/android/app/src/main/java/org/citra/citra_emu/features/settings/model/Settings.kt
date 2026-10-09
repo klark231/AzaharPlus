@@ -9,12 +9,22 @@ import java.util.TreeMap
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.R
 import org.citra.citra_emu.features.settings.ui.SettingsActivityView
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 
 class Settings {
     private var gameId: String? = null
 
     var isLoaded = false
+
+    /** True while the settings of a single application (not the global ones) are being edited. */
+    val isPerGame: Boolean get() = !TextUtils.isEmpty(gameId)
+
+    /** Global value (as written in the ini file) of every switchable setting, by key. */
+    private val globalValues = HashMap<String, String>()
+
+    /** Keys of the settings that the loaded per application config file overrides. */
+    private val overriddenKeys = HashSet<String>()
 
     /**
      * A HashMap<String></String>, SettingSection> that constructs a new SettingSection instead of returning null
@@ -41,8 +51,8 @@ class Settings {
     fun loadSettings(view: SettingsActivityView? = null) {
         sections = SettingsSectionMap()
         loadCitraSettings(view)
-        if (!TextUtils.isEmpty(gameId)) {
-            loadCustomGameSettings(gameId!!, view)
+        if (isPerGame) {
+            loadCustomGameSettings(gameId!!)
         }
         isLoaded = true
     }
@@ -53,20 +63,78 @@ class Settings {
         }
     }
 
-    private fun loadCustomGameSettings(gameId: String, view: SettingsActivityView?) {
-        // Custom game settings
-        mergeSections(SettingsFile.readCustomGameSettings(gameId, view))
+    /**
+     * Remembers the global values of everything that can be overridden, then applies the
+     * overrides stored for the application on top of them.
+     */
+    private fun loadCustomGameSettings(gameId: String) {
+        globalValues.clear()
+        overriddenKeys.clear()
+        for (setting in PerGameSettings.allOverridableSettings()) {
+            globalValues[setting.key!!] = setting.valueAsString
+        }
+
+        for (entry in SettingsFile.readPerGameSettings(gameId)) {
+            if (!PerGameSettings.isOverridable(entry.key)) {
+                continue
+            }
+            val setting = SettingsFile.settingFromLine("${entry.key}=${entry.value}") ?: continue
+            sections[entry.section]!!.putSetting(setting)
+            overriddenKeys.add(entry.key)
+        }
     }
 
-    private fun mergeSections(updatedSections: HashMap<String, SettingSection?>) {
-        for ((key, updatedSection) in updatedSections) {
-            if (sections.containsKey(key)) {
-                val originalSection = sections[key]
-                originalSection!!.mergeSection(updatedSection!!)
-            } else {
-                sections[key] = updatedSection
+    /** Whether the setting currently has its own value for this application. */
+    fun isOverridden(setting: AbstractSetting?): Boolean {
+        val key = setting?.key ?: return false
+        if (!isPerGame || !PerGameSettings.isOverridable(key)) {
+            return false
+        }
+        return key in overriddenKeys || setting.valueAsString != globalValues[key]
+    }
+
+    /** Puts a single setting back to the global value (the "use global" state). */
+    fun resetToGlobal(setting: AbstractSetting) {
+        val key = setting.key ?: return
+        for (k in listOfNotNull(key, PerGameSettings.linkedKey(key))) {
+            globalValues[k]?.let { SettingsFile.settingFromLine("$k=$it") }
+            overriddenKeys.remove(k)
+        }
+    }
+
+    /** Drops every override of this application, both in memory and on disk. */
+    fun resetAllToGlobal() {
+        if (!isPerGame) {
+            return
+        }
+        for (setting in PerGameSettings.allOverridableSettings()) {
+            globalValues[setting.key!!]?.let { SettingsFile.settingFromLine("${setting.key}=$it") }
+        }
+        overriddenKeys.clear()
+        SettingsFile.deletePerGameSettings(gameId!!)
+    }
+
+    /**
+     * The settings objects are process wide singletons, so after editing an application they
+     * still hold its values. Reload the global config so nothing leaks into other screens.
+     */
+    fun restoreGlobalValues() {
+        if (isPerGame) {
+            loadCitraSettings(null)
+        }
+    }
+
+    private fun collectOverrides(): List<SettingsFile.PerGameEntry> {
+        val overridden = HashSet<String>()
+        for (setting in PerGameSettings.allOverridableSettings()) {
+            if (isOverridden(setting)) {
+                overridden.add(setting.key!!)
+                PerGameSettings.linkedKey(setting.key!!)?.let { overridden.add(it) }
             }
         }
+        return PerGameSettings.allOverridableSettings()
+            .filter { it.key in overridden }
+            .map { SettingsFile.PerGameEntry(it.section!!, it.key!!, it.valueAsString) }
     }
 
     fun loadSettings(gameId: String, view: SettingsActivityView) {
@@ -88,7 +156,12 @@ class Settings {
                 SettingsFile.saveFile(fileName, iniSections, view)
             }
         } else {
-            // TODO: Implement per game settings
+            val entries = collectOverrides()
+            SettingsFile.savePerGameSettings(gameId!!, entries, view)
+            view.showToastMessage(
+                CitraApplication.appContext.getString(R.string.ini_saved),
+                false
+            )
         }
     }
 
@@ -235,6 +308,9 @@ class Settings {
         const val PREF_STATIC_THEME_COLOR = "StaticThemeColor"
 
         private val configFileSectionsMap: MutableMap<String, List<String>> = HashMap()
+
+        /** Names of the ini files (without extension) that hold the global settings. */
+        val configFileNames: Set<String> get() = configFileSectionsMap.keys
 
         init {
             configFileSectionsMap[SettingsFile.FILE_NAME_CONFIG] =

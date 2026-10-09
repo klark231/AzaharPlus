@@ -596,7 +596,28 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
         }
     }
 
+    /** True if the item has its own value for the game that is being edited. */
+    fun isOverridden(item: SettingsItem): Boolean =
+        fragmentView.activityView?.settings?.isOverridden(item.setting) ?: false
+
     fun onLongClick(setting: AbstractSetting, position: Int): Boolean {
+        val activitySettings = fragmentView.activityView?.settings
+        if (activitySettings != null && activitySettings.isPerGame) {
+            if (!activitySettings.isOverridden(setting)) {
+                return true
+            }
+            MaterialAlertDialogBuilder(context)
+                .setMessage(R.string.per_game_use_global_confirmation)
+                .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
+                    activitySettings.resetToGlobal(setting)
+                    notifyItemChanged(position)
+                    fragmentView.onSettingChanged()
+                    fragmentView.loadSettingsList()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return true
+        }
         MaterialAlertDialogBuilder(context)
             .setMessage(R.string.reset_setting_confirmation)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->

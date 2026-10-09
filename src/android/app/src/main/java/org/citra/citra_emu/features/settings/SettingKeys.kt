@@ -12,6 +12,10 @@ object SettingKeys {
     external fun use_artic_base_controller(): String
     external fun use_cpu_jit(): String
     external fun cpu_clock_percentage(): String
+    external fun reduce_downcount_slice(): String
+    external fun priority_boost_starved_threads(): String
+    external fun use_fastmem(): String
+    external fun adreno_gpu_boost(): String
     external fun is_new_3ds(): String
     external fun lle_applets(): String
     external fun deterministic_async_operations(): String
@@ -148,4 +152,8 @@ object SettingKeys {
     external fun performance_overlay_position(): String
     external fun enable_secondary_display(): String
     external fun combo_button_buttons(): String
+    external fun combo_button_buttons_2(): String
+    external fun combo_button_buttons_3(): String
+    external fun combo_button_buttons_4(): String
+    external fun combo_button_buttons_5(): String
 }

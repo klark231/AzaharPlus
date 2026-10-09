@@ -172,7 +172,26 @@
     <string name="button_home">HOME</string>
     <string name="button_swap">Swap Screens</string>
     <string name="button_turbo">Turbo</string>
-    <string name="button_combo">Combo Button</string>
+    <string name="button_combo">Combo Button 1</string>
+    <string name="button_combo_2">Combo Button 2</string>
+    <string name="button_combo_3">Combo Button 3</string>
+    <string name="button_combo_4">Combo Button 4</string>
+    <string name="button_combo_5">Combo Button 5</string>
+    <string name="combo_button_n_1">Combo Button 1</string>
+    <string name="combo_button_n_2">Combo Button 2</string>
+    <string name="combo_button_n_3">Combo Button 3</string>
+    <string name="combo_button_n_4">Combo Button 4</string>
+    <string name="combo_button_n_5">Combo Button 5</string>
+    <string name="combo_none">None</string>
+    <string name="combo_button_n">Combo Button %1$d</string>
+    <string name="combo_circle_left">Circle Pad Left</string>
+    <string name="combo_circle_up">Circle Pad Up</string>
+    <string name="combo_circle_right">Circle Pad Right</string>
+    <string name="combo_circle_down">Circle Pad Down</string>
+    <string name="combo_c_left">C-Stick Left</string>
+    <string name="combo_c_up">C-Stick Up</string>
+    <string name="combo_c_right">C-Stick Right</string>
+    <string name="combo_c_down">C-Stick Down</string>
     <string name="button_x" translatable="false">X</string>
     <string name="button_y" translatable="false">Y</string>
     <string name="button_l" translatable="false">L</string>
@@ -184,8 +203,12 @@
     <string name="turbo_limit_hotkey">Turbo Speed</string>
     <string name="turbo_enabled_toast">Turbo Speed Enabled</string>
     <string name="turbo_disabled_toast">Turbo Speed Disabled</string>
-    <string name="combo_button_settings">Configure Combo Button</string>
-    <string name="combo_button_settings_description">Select which buttons are triggered by the Combo Button.</string>
+    <string name="combo_button_settings">Configure Combo Buttons</string>
+    <string name="combo_button_settings_2">Configure Combo Button 2</string>
+    <string name="combo_button_settings_3">Configure Combo Button 3</string>
+    <string name="combo_button_settings_4">Configure Combo Button 4</string>
+    <string name="combo_button_settings_5">Configure Combo Button 5</string>
+    <string name="combo_button_settings_description">Choose what each combo button presses, and turn each one on or off.</string>
 
     <!-- System files strings -->
     <string name="setup_system_files">System Files</string>
@@ -1126,8 +1149,10 @@
     <string name="multiplayer_game">Game</string>
     <string name="multiplayer_no_game_info">Any Game</string>
     <string name="multiplayer_password_protected">Password protected room</string>
-    <string name="multiplayer_hide_full_rooms">Hide Full Rooms</string>
-    <string name="multiplayer_hide_empty_rooms">Hide Empty Rooms</string>
+    <string name="multiplayer_hide_full_rooms">Hide Full</string>
+    <string name="multiplayer_hide_empty_rooms">Hide Empty</string>
+    <string name="multiplayer_hide_locked_rooms">Hide Locked</string>
+    <string name="multiplayer_last_joined">Last joined</string>
     <string name="multiplayer_tap_refresh_to_check_again">Tap refresh to check again</string>
     <string name="multiplayer_search_public_lobbies">Search Public Lobbies...</string>
     <string name="multiplayer_game_name">Preferred Games</string>
@@ -1232,4 +1257,28 @@
     <string name="chat_fab_size_description">Adjust the size of the floating chat button.</string>
     <string name="chat_max_lines">Chat Message Lines</string>
     <string name="chat_max_lines_description">Sets the maximum number of chat messages displayed in the overlay.</string>
+
+    <!-- Experimental Settings -->
+    <string name="keep_emulation_running">Keep Emulation Running</string>
+    <string name="keep_emulation_running_description">Do not pause the game when when emulation is in background. Useful for multiplayer so you do not time out.</string>
+    
+    <string name="adreno_gpu_boost">Adreno GPU Boost (Experimental)</string>
+    <string name="adreno_gpu_boost_description">Increases graphics throughput on supported devices, improving performance. Use of this setting can increase power usage and temperature. May cause stability issues on certain devices.</string>
+    <string name="reduce_downcount_slice">Reduce Downcount Slice</string>
+    <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+    <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
+    <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+    <string name="use_fastmem">Use Fastmem</string>
+    <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
+
+    <!-- Per game controls -->
+    <string name="overlay_per_game">Separate layout for this game</string>
+    <string name="overlay_per_game_enabled">This game now uses its own controls. Changes will not affect other games.</string>
+    <string name="overlay_per_game_disabled">This game now uses the global controls.</string>
+    <string name="per_game_custom_controls">Custom controls for this game</string>
+    <string name="per_game_custom_controls_description">Gamepad mapping, hotkeys, touch bindings and the on-screen layout are kept separately for this game. Turning it on copies your current global controls; turning it off goes back to them without deleting the copy.</string>
+    <string name="per_game_controls_using_global">This game uses the global controls. Turn on custom controls above to change the gamepad or on-screen layout for this game only.</string>
+    <string name="per_game_controls_reset">Delete custom controls</string>
+    <string name="per_game_controls_reset_description">Throws this game\'s own controls away and goes back to the global controls.</string>
+    <string name="per_game_controls_reset_confirmation">Delete the custom controls of this game? This can\'t be undone.</string>
 </resources>

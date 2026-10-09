@@ -88,6 +88,10 @@ void LogSettings() {
     LOG_INFO(Config, "Azahar Configuration:");
     log_setting("Core_UseCpuJit", values.use_cpu_jit.GetValue());
     log_setting("Core_CPUClockPercentage", values.cpu_clock_percentage.GetValue());
+    log_setting("Core_ReduceDowncountSlice", values.reduce_downcount_slice.GetValue());
+    log_setting("Core_PriorityBoostStarvedThreads",
+                values.priority_boost_starved_threads.GetValue());
+    log_setting("Core_UseFastmem", values.use_fastmem.GetValue());
     log_setting("Controller_UseArticController", values.use_artic_base_controller.GetValue());
     log_setting("Renderer_UseGLES", values.use_gles.GetValue());
     log_setting("Renderer_GraphicsAPI", GetGraphicsAPIName(values.graphics_api.GetValue()));
@@ -203,6 +207,9 @@ void RestoreGlobalState(bool is_powered_on) {
 
     // Core
     values.cpu_clock_percentage.SetGlobal(true);
+    values.reduce_downcount_slice.SetGlobal(true);
+    values.priority_boost_starved_threads.SetGlobal(true);
+    values.use_fastmem.SetGlobal(true);
     values.is_new_3ds.SetGlobal(true);
     values.lle_applets.SetGlobal(true);
 

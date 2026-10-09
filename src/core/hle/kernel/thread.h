@@ -156,6 +156,9 @@ public:
      */
     void Reschedule();
 
+    /// Boost low priority starved threads
+    void PriorityBoostStarvedThreads();
+
     /**
      * Prints the thread queue for debugging purposes
      */

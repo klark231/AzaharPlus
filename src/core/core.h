@@ -379,6 +379,8 @@ public:
     /// Applies any changes to settings to this core instance.
     void ApplySettings();
 
+    void ReduceDowncountSlice(bool enabled, u32 num_cores);
+
     void RegisterAppLoaderEarly(std::unique_ptr<Loader::AppLoader>& loader);
 
     void InsertCartridge(const std::string& path);

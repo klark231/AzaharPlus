@@ -485,6 +485,10 @@ struct Values {
     // Core
     Setting<bool> use_cpu_jit{true, Keys::use_cpu_jit};
     SwitchableSetting<s32, true> cpu_clock_percentage{100, 5, 400, Keys::cpu_clock_percentage};
+    SwitchableSetting<bool> reduce_downcount_slice{false, Keys::reduce_downcount_slice};
+    SwitchableSetting<bool> priority_boost_starved_threads{
+        true, Keys::priority_boost_starved_threads};
+    SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};
     SwitchableSetting<bool> is_new_3ds{true, Keys::is_new_3ds};
     SwitchableSetting<bool> lle_applets{true, Keys::lle_applets};
     SwitchableSetting<bool> deterministic_async_operations{false,

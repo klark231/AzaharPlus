@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.overlay
 
+import org.citra.citra_emu.utils.InputProfile
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
@@ -196,8 +197,13 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                         button.status == NativeLibrary.ButtonState.PRESSED
                     ) {
                         TurboHelper.toggleTurbo(true)
-                    } else if (button.id == Hotkey.COMBO_BUTTON.button) {
-                        ComboHelper.comboActivate(button.status)
+                    } else if (button.id >= Hotkey.COMBO_BUTTON.button &&
+                        button.id < Hotkey.COMBO_BUTTON.button + ComboHelper.COMBO_COUNT
+                    ) {
+                        ComboHelper.comboActivate(
+                            button.status,
+                            button.id - Hotkey.COMBO_BUTTON.button
+                        )
                     }
 
                     NativeLibrary.onGamePadEvent(
@@ -210,7 +216,11 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 }
             }
 
-            if (!hasActiveButtons && !hasActiveJoystick) {
+            // A finger that just pressed a button must not also be grabbed by a dpad/joystick
+            // that overlaps it (this is what left the joystick stuck).
+            val pointerOwnedByButton = overlayButtons.any { it.trackId == pointerId }
+
+            if (!hasActiveButtons && !hasActiveJoystick && !pointerOwnedByButton) {
                 for (dpad in overlayDpads) {
                     val stateChanged = dpad.updateStatus(
                         event,
@@ -249,7 +259,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 }
             }
 
-            if (!hasActiveDpad && !hasActiveButtons) {
+            if (!hasActiveDpad && !hasActiveButtons && !pointerOwnedByButton) {
                 for (joystick in overlayJoysticks) {
                     val stateChanged = joystick.updateStatus(
                         event,
@@ -608,17 +618,48 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             )
         }
 
-        if (preferences.getBoolean("buttonToggle16", false)) {
-            overlayButtons.add(
-                initializeOverlayButton(
-                    context,
-                    R.drawable.button_combo,
-                    R.drawable.button_combo_pressed,
-                    Hotkey.COMBO_BUTTON.button,
-                    orientation
+        // Combo buttons: 5 independent buttons, IDs Hotkey.COMBO_BUTTON.button + 0..4,
+        // toggled by buttonToggle16..20 in the shared preferences.
+        for (comboIndex in 0 until ComboHelper.COMBO_COUNT) {
+            if (preferences.getBoolean("buttonToggle${16 + comboIndex}", false)) {
+                if (comboIndex > 0) ensureComboDefaultPosition(comboIndex, orientation)
+                overlayButtons.add(
+                    initializeOverlayButton(
+                        context,
+                        COMBO_DRAWABLES[comboIndex],
+                        COMBO_DRAWABLES_PRESSED[comboIndex],
+                        Hotkey.COMBO_BUTTON.button + comboIndex,
+                        orientation
+                    )
                 )
-            )
+            }
         }
+    }
+
+    /**
+     * Combo buttons 2..5 have no stored position the first time they are enabled; place them
+     * relative to combo button 1 using the same layout as the defaults (a column going up in
+     * landscape, a 3 x 2 grid in portrait) so they don't overlap other controls.
+     */
+    private fun ensureComboDefaultPosition(comboIndex: Int, orientation: String) {
+        val id = Hotkey.COMBO_BUTTON.button + comboIndex
+        val xKey = "$id$orientation-X"
+        val yKey = "$id$orientation-Y"
+        if (preferences.contains(xKey) && preferences.contains(yKey)) return
+        val baseX = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-X", 0f)
+        val baseY = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-Y", 0f)
+        val metrics = resources.displayMetrics
+        val editor = preferences.edit()
+        if (orientation.isEmpty()) {
+            val step = 0.11f * metrics.heightPixels
+            editor.putFloat(xKey, baseX).putFloat(yKey, (baseY - step * comboIndex).coerceAtLeast(0f))
+        } else {
+            val step = 0.11f * metrics.widthPixels
+            editor
+                .putFloat(xKey, baseX + (comboIndex % 3) * step)
+                .putFloat(yKey, baseY + (comboIndex / 3) * step)
+        }
+        editor.apply()
     }
 
     fun refreshControls() {
@@ -835,15 +876,24 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 NativeLibrary.ButtonType.BUTTON_TURBO.toString() + "-Y",
                 resources.getInteger(R.integer.N3DS_BUTTON_TURBO_Y).toFloat() / 1000 * maxY
             )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + "-X",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_X).toFloat() / 1000 * maxX
-            )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + "-Y",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_Y).toFloat() / 1000 * maxY
-            )
             .apply()
+
+        // COMBO_DEFAULTS: combo 1..5 stacked upwards in a column, 11% of the height apart
+        val comboEditor = preferences.edit()
+        for (i in 0 until ComboHelper.COMBO_COUNT) {
+            val id = Hotkey.COMBO_BUTTON.button + i
+            comboEditor
+                .putFloat(
+                    id.toString() + "-X",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_X).toFloat() / 1000 * maxX
+                )
+                .putFloat(
+                    id.toString() + "-Y",
+                    (resources.getInteger(R.integer.N3DS_BUTTON_COMBO_Y) - 110 * i)
+                        .toFloat() / 1000 * maxY
+                )
+        }
+        comboEditor.apply()
     }
 
     private fun defaultOverlayPortrait() {
@@ -997,22 +1047,48 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 NativeLibrary.ButtonType.BUTTON_TURBO.toString() + portrait + "-Y",
                 resources.getInteger(R.integer.N3DS_BUTTON_TURBO_PORTRAIT_Y).toFloat() / 1000 * maxY
             )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + portrait + "-X",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_X).toFloat() / 1000 * maxX
-            )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + portrait + "-Y",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_Y).toFloat() / 1000 * maxY
-            )
             .apply()
+
+        // COMBO_DEFAULTS: combo 1..5 in a 3 x 2 grid (3 per row, left to right) in the free area
+        // between the circle pad and the B button. Spacing is 11% of the width in both directions.
+        val comboEditor = preferences.edit()
+        val comboStep = 0.11f * maxX
+        for (i in 0 until ComboHelper.COMBO_COUNT) {
+            val id = Hotkey.COMBO_BUTTON.button + i
+            val col = i % 3
+            val row = i / 3
+            comboEditor
+                .putFloat(
+                    id.toString() + portrait + "-X",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_X).toFloat() / 1000 * maxX +
+                        col * comboStep
+                )
+                .putFloat(
+                    id.toString() + portrait + "-Y",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_Y).toFloat() / 1000 * maxY +
+                        row * comboStep
+                )
+        }
+        comboEditor.apply()
     }
 
     override fun isInEditMode(): Boolean = isInEditMode
 
     companion object {
+        // Must live here (not as instance properties declared after init {}), otherwise they
+        // are still null when init calls refreshControls().
+        private val COMBO_DRAWABLES = intArrayOf(
+            R.drawable.button_combo_1, R.drawable.button_combo_2, R.drawable.button_combo_3,
+            R.drawable.button_combo_4, R.drawable.button_combo_5
+        )
+        private val COMBO_DRAWABLES_PRESSED = intArrayOf(
+            R.drawable.button_combo_1_pressed, R.drawable.button_combo_2_pressed,
+            R.drawable.button_combo_3_pressed, R.drawable.button_combo_4_pressed,
+            R.drawable.button_combo_5_pressed
+        )
+
         private val preferences
-            get() = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+            get() = InputProfile.prefs()
 
         /**
          * Resizes a [Bitmap] by a given scale factor
@@ -1280,11 +1356,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             val drawableX = preferences.getFloat("$joystick$orientation-X", 0f).toInt()
             val drawableY = preferences.getFloat("$joystick$orientation-Y", 0f).toInt()
 
-            // Decide inner scale based on joystick ID
-            var outerScale = 1f
-            if (joystick == NativeLibrary.ButtonType.STICK_C) {
-                outerScale = 2f
-            }
+            // C-stick uses the same size as the main stick (was 2f = half size).
+            // Raise this above 1f to make it smaller, e.g. 1.5f for 2/3 size.
+            val outerScale = 1f
 
             // Now set the bounds for the InputOverlayDrawableJoystick.
             // This will dictate where on the screen (and the what the size) the InputOverlayDrawableJoystick will be.

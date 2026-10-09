@@ -190,6 +190,10 @@
         <item>@string/button_swap</item>
         <item>@string/button_turbo</item>
         <item>@string/button_combo</item>
+        <item>@string/button_combo_2</item>
+        <item>@string/button_combo_3</item>
+        <item>@string/button_combo_4</item>
+        <item>@string/button_combo_5</item>
     </string-array>
 
     <string-array name="comboOptions">
@@ -203,9 +207,18 @@
         <item>@string/button_zr</item>
         <item>@string/button_start</item>
         <item>@string/button_select</item>
+        <item>@string/button_home</item>
+        <item>@string/combo_circle_left</item>
+        <item>@string/combo_circle_up</item>
+        <item>@string/combo_circle_right</item>
+        <item>@string/combo_circle_down</item>
+        <item>@string/combo_c_left</item>
+        <item>@string/combo_c_up</item>
+        <item>@string/combo_c_right</item>
+        <item>@string/combo_c_down</item>
     </string-array>
 
-    <!-- Ints refer to button values in NativeLibrary -->
+    <!-- Ints refer to button values in NativeLibrary (1001-1008 = analog stick directions, see ComboHelper) -->
     <integer-array name="comboOptionValues">
         <item>700</item>
         <item>701</item>
@@ -217,6 +230,15 @@
         <item>708</item>
         <item>704</item>
         <item>705</item>
+        <item>706</item>
+        <item>1001</item>
+        <item>1002</item>
+        <item>1003</item>
+        <item>1004</item>
+        <item>1005</item>
+        <item>1006</item>
+        <item>1007</item>
+        <item>1008</item>
     </integer-array>
 
 

@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.touchinput
 
+import org.citra.citra_emu.utils.InputProfile
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.KeyEvent
@@ -37,7 +38,7 @@ object TouchInputBindingManager {
     private data class AxisKey(val axis: Int, val positive: Boolean, val analog: Boolean)
 
     private val preferences: SharedPreferences
-        get() = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+        get() = InputProfile.prefs()
 
     private val bindings = mutableListOf<TouchInputBinding>()
     private val pressedKeys = mutableSetOf<Int>()

@@ -247,6 +247,8 @@ object NativeLibrary {
      */
     external fun swapScreens(swapScreens: Boolean, rotation: Int)
 
+    external fun enableAdrenoTurboMode(enable: Boolean)
+
     external fun initializeGpuDriver(
         hookLibDir: String?,
         customDriverDir: String?,

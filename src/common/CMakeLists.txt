@@ -32,6 +32,8 @@ add_library(citra_common STATIC EXCLUDE_FROM_ALL
     error.cpp
     error.h
     expected.h
+    fastmem_arena.cpp
+    fastmem_arena.h
     file_derived.cpp
     file_derived.h
     file_util.cpp

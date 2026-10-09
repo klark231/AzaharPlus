@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.ui.main
 
+import org.citra.citra_emu.utils.InputProfile
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -213,6 +214,7 @@ class MainActivity :
     }
 
     override fun onResume() {
+        InputProfile.setActiveGame(null)
         checkUserPermissions()
 
         ThemeUtil.setCorrectTheme(this)

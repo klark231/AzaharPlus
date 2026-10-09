@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.activities
 
+import org.citra.citra_emu.utils.InputProfile
 import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.content.Context
@@ -67,7 +68,7 @@ import org.citra.citra_emu.viewmodel.EmulationViewModel
 
 class EmulationActivity : AppCompatActivity() {
     private val preferences: SharedPreferences
-        get() = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+        get() = InputProfile.prefs()
     var isActivityRecreated = false
     private val emulationViewModel: EmulationViewModel by viewModels()
     val settingsViewModel: SettingsViewModel by viewModels()
@@ -126,8 +127,17 @@ class EmulationActivity : AppCompatActivity() {
 
         settingsViewModel.settings.loadSettings()
         // Per game overrides of the settings only the frontend uses (orientation, cutout, ...)
+        InputProfile.setActiveGame(null)
         intent.extras?.let { BundleCompat.getParcelable(it, "game", Game::class.java) }
-            ?.let { PerGameSettings.applyOverlay(it.titleId) }
+            ?.let {
+                PerGameSettings.applyOverlay(it.titleId)
+                // Selects the game's own gamepad mapping / on-screen layout when it has one
+                if (it.titleId != 0L) {
+                    InputProfile.setActiveGame(PerGameSettings.fileName(it.titleId))
+                }
+            }
+
+        NativeLibrary.enableAdrenoTurboMode(BooleanSetting.ADRENO_GPU_BOOST.boolean)
 
         screenAdjustmentUtil = ScreenAdjustmentUtil(this, windowManager, settingsViewModel.settings)
 
@@ -201,6 +211,10 @@ class EmulationActivity : AppCompatActivity() {
             NativeLibrary.playTimeManagerStart(game.titleId)
             PerGameSettings.restoreGlobal()
             PerGameSettings.applyOverlay(game.titleId)
+            InputProfile.setActiveGame(
+                if (game.titleId != 0L) PerGameSettings.fileName(game.titleId) else null
+            )
+            NativeLibrary.enableAdrenoTurboMode(BooleanSetting.ADRENO_GPU_BOOST.boolean)
         }
 
         val navHostFragment =
@@ -261,6 +275,7 @@ class EmulationActivity : AppCompatActivity() {
             NativeLibrary.resetProgramId()
             NativeLibrary.importQueuedZipPass()
         }
+        NativeLibrary.enableAdrenoTurboMode(false)
         EmulationLifecycleUtil.removeHook(onShutdown)
         NativeLibrary.playTimeManagerStop()
         if (isFinishing) {

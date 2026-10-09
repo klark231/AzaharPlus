@@ -21,8 +21,8 @@
     <integer name="N3DS_TRIGGER_R_Y">0</integer>
     <integer name="N3DS_BUTTON_ZR_X">895</integer>
     <integer name="N3DS_BUTTON_ZR_Y">110</integer>
-    <integer name="N3DS_STICK_C_X">740</integer>
-    <integer name="N3DS_STICK_C_Y">770</integer>
+    <integer name="N3DS_STICK_C_X">725</integer>
+    <integer name="N3DS_STICK_C_Y">715</integer>
     <integer name="N3DS_STICK_MAIN_X">100</integer>
     <integer name="N3DS_STICK_MAIN_Y">670</integer>
     <integer name="N3DS_BUTTON_SELECT_X">470</integer>
@@ -40,13 +40,13 @@
 
     <!-- Default N3DS portrait layout -->
     <integer name="N3DS_BUTTON_A_PORTRAIT_X">810</integer>
-    <integer name="N3DS_BUTTON_A_PORTRAIT_Y">850</integer>
+    <integer name="N3DS_BUTTON_A_PORTRAIT_Y">880</integer>
     <integer name="N3DS_BUTTON_B_PORTRAIT_X">710</integer>
-    <integer name="N3DS_BUTTON_B_PORTRAIT_Y">905</integer>
+    <integer name="N3DS_BUTTON_B_PORTRAIT_Y">935</integer>
     <integer name="N3DS_BUTTON_X_PORTRAIT_X">710</integer>
-    <integer name="N3DS_BUTTON_X_PORTRAIT_Y">795</integer>
+    <integer name="N3DS_BUTTON_X_PORTRAIT_Y">825</integer>
     <integer name="N3DS_BUTTON_Y_PORTRAIT_X">610</integer>
-    <integer name="N3DS_BUTTON_Y_PORTRAIT_Y">850</integer>
+    <integer name="N3DS_BUTTON_Y_PORTRAIT_Y">880</integer>
     <integer name="N3DS_BUTTON_UP_PORTRAIT_X">10</integer>
     <integer name="N3DS_BUTTON_UP_PORTRAIT_Y">730</integer>
     <integer name="N3DS_TRIGGER_L_PORTRAIT_X">10</integer>
@@ -57,8 +57,8 @@
     <integer name="N3DS_TRIGGER_R_PORTRAIT_Y">640</integer>
     <integer name="N3DS_BUTTON_ZR_PORTRAIT_X">610</integer>
     <integer name="N3DS_BUTTON_ZR_PORTRAIT_Y">640</integer>
-    <integer name="N3DS_STICK_C_PORTRAIT_X">800</integer>
-    <integer name="N3DS_STICK_C_PORTRAIT_Y">720</integer>
+    <integer name="N3DS_STICK_C_PORTRAIT_X">720</integer>
+    <integer name="N3DS_STICK_C_PORTRAIT_Y">705</integer>
     <integer name="N3DS_STICK_MAIN_PORTRAIT_X">80</integer>
     <integer name="N3DS_STICK_MAIN_PORTRAIT_Y">850</integer>
     <integer name="N3DS_BUTTON_HOME_PORTRAIT_X">460</integer>
@@ -71,7 +71,7 @@
     <integer name="N3DS_BUTTON_SWAP_PORTRAIT_Y">675</integer>
     <integer name="N3DS_BUTTON_TURBO_PORTRAIT_X">453</integer>
     <integer name="N3DS_BUTTON_TURBO_PORTRAIT_Y">720</integer>
-    <integer name="N3DS_BUTTON_COMBO_PORTRAIT_X">450</integer>
-    <integer name="N3DS_BUTTON_COMBO_PORTRAIT_Y">925</integer>
+    <integer name="N3DS_BUTTON_COMBO_PORTRAIT_X">370</integer>
+    <integer name="N3DS_BUTTON_COMBO_PORTRAIT_Y">883</integer>
 
 </resources>

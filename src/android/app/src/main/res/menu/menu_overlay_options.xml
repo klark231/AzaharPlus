@@ -12,6 +12,11 @@
         android:checkable="true" />
 
     <item
+        android:id="@+id/menu_overlay_per_game"
+        android:title="@string/overlay_per_game"
+        android:checkable="true" />
+
+    <item
         android:id="@+id/menu_haptic_feedback"
         android:title="@string/emulation_haptic_feedback"
         android:checkable="true" />
@@ -85,6 +90,18 @@
             <item
                 android:id="@+id/menu_emulation_adjust_scale_button_combo"
                 android:title="@string/button_combo" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_2"
+                android:title="@string/button_combo_2" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_3"
+                android:title="@string/button_combo_3" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_4"
+                android:title="@string/button_combo_4" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_5"
+                android:title="@string/button_combo_5" />
         </menu>
     </item>
 

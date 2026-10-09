@@ -122,6 +122,7 @@ enum class BooleanSetting(
     ),
     ASYNC_FS_OPERATIONS(SettingKeys.async_fs_operations(), Settings.SECTION_STORAGE, true),
     ANDROID_HIDE_IMAGES(SettingKeys.android_hide_images(), Settings.SECTION_MISC, false),
+    KEEP_EMULATION_RUNNING("keep_emulation_running", Settings.SECTION_CORE, false),
     APPLY_REGION_FREE_PATCH(SettingKeys.apply_region_free_patch(), Settings.SECTION_SYSTEM, true),
     USE_INTEGER_SCALING(SettingKeys.use_integer_scaling(), Settings.SECTION_RENDERER, false),
     ENABLE_SECONDARY_DISPLAY(SettingKeys.enable_secondary_display(), Settings.SECTION_LAYOUT, true),
@@ -130,7 +131,19 @@ enum class BooleanSetting(
         Settings.SECTION_RENDERER,
         false
     ),
-    CHECK_FOR_UPDATES(SettingKeys.check_for_update_on_start(), Settings.SECTION_MISC, true);
+    CHECK_FOR_UPDATES(SettingKeys.check_for_update_on_start(), Settings.SECTION_MISC, true),
+    REDUCE_DOWNCOUNT_SLICE(
+        SettingKeys.reduce_downcount_slice(),
+        Settings.SECTION_CORE,
+        false
+    ),
+    PRIORITY_BOOST_STARVED_THREADS(
+        SettingKeys.priority_boost_starved_threads(),
+        Settings.SECTION_CORE,
+        true
+    ),
+    USE_FASTMEM(SettingKeys.use_fastmem(), Settings.SECTION_CORE, true),
+    ADRENO_GPU_BOOST(SettingKeys.adreno_gpu_boost(), Settings.SECTION_RENDERER, false);
 
     override var boolean: Boolean = defaultValue
 
@@ -169,7 +182,10 @@ enum class BooleanSetting(
             ANDROID_HIDE_IMAGES,
             PERF_OVERLAY_ENABLE, // Works in overlay options, but not from the settings menu
             APPLY_REGION_FREE_PATCH,
-            EXPAND_TO_CUTOUT_AREA
+            EXPAND_TO_CUTOUT_AREA,
+            REDUCE_DOWNCOUNT_SLICE,
+            USE_FASTMEM,
+            ADRENO_GPU_BOOST
         )
 
         fun from(key: String): BooleanSetting? =

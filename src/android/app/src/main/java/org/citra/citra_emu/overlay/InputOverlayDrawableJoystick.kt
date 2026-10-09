@@ -112,6 +112,10 @@ class InputOverlayDrawableJoystick(
         val isActionUp =
             motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
         if (isActionDown) {
+            // Already held by another finger: never steal tracking (this left the stick stuck).
+            if (trackId != -1 && trackId != pointerId) {
+                return false
+            }
             if (!bounds.contains(xPosition, yPosition)) {
                 return false
             }
@@ -196,11 +200,8 @@ class InputOverlayDrawableJoystick(
         val pointerIndex = event.actionIndex
         val fingerPositionX = event.getX(pointerIndex).toInt()
         val fingerPositionY = event.getY(pointerIndex).toInt()
-        var scale = 1
-        if (joystickId == NativeLibrary.ButtonType.STICK_C) {
-            // C-stick is scaled down to be half the size of the circle pad
-            scale = 2
-        }
+        // C-stick now has the same size as the circle pad.
+        val scale = 1
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 previousTouchX = fingerPositionX

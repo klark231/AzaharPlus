@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.hotkeys
 
+import org.citra.citra_emu.utils.InputProfile
 import android.content.Context
 import android.view.KeyEvent
 import android.widget.Toast
@@ -32,7 +33,7 @@ class HotkeyUtility(
         var handled = false
         val buttonSet = InputBindingSetting.getButtonSet(keyEvent)
         val enableButton =
-            PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+            InputProfile.prefs()
                 .getString(Settings.HOTKEY_ENABLE, "")
         val thisKeyIsEnableButton = buttonSet.contains(Hotkey.ENABLE.button)
         val thisKeyIsHotkey =
@@ -72,15 +73,15 @@ class HotkeyUtility(
         var handled = false
         val buttonSet = InputBindingSetting.getButtonSet(keyEvent)
         val thisKeyIsEnableButton = buttonSet.contains(Hotkey.ENABLE.button)
-        val thisKeyIsComboButton = buttonSet.contains(Hotkey.COMBO_BUTTON.button)
+        val releasedCombos = ComboHelper.comboIndicesIn(buttonSet)
         val thisKeyIsHotkey =
             !thisKeyIsEnableButton && Hotkey.entries.any { buttonSet.contains(it.button) }
         if (thisKeyIsEnableButton) {
             handled = true
             hotkeyIsEnabled = false
         }
-        if (thisKeyIsComboButton) {
-            ComboHelper.comboActivate(NativeLibrary.ButtonState.RELEASED)
+        for (comboIndex in releasedCombos) {
+            ComboHelper.comboActivate(NativeLibrary.ButtonState.RELEASED, comboIndex)
             handled = true
         }
 
@@ -148,8 +149,15 @@ class HotkeyUtility(
                 ).show()
             }
 
-            Hotkey.COMBO_BUTTON.button -> {
-                ComboHelper.comboActivate(NativeLibrary.ButtonState.PRESSED)
+            Hotkey.COMBO_BUTTON.button,
+            Hotkey.COMBO_BUTTON_2.button,
+            Hotkey.COMBO_BUTTON_3.button,
+            Hotkey.COMBO_BUTTON_4.button,
+            Hotkey.COMBO_BUTTON_5.button -> {
+                ComboHelper.comboActivate(
+                    NativeLibrary.ButtonState.PRESSED,
+                    bindedButton - Hotkey.COMBO_BUTTON.button
+                )
             }
 
             else -> {}

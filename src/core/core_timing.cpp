@@ -242,6 +242,12 @@ void Timing::Timer::SetNextSlice(s64 max_slice_length) {
             std::min<s64>(event_queue.front().time - executed_ticks, max_slice_length));
     }
 
+    // Shrink the whole slice (not only the downcount) so executed tick accounting
+    // (slice_length - downcount) stays correct. Never go below one tick.
+    if (downcount_slice != 0) {
+        slice_length = std::max<s64>(slice_length >> downcount_slice, 1);
+    }
+
     downcount = slice_length;
 }
 

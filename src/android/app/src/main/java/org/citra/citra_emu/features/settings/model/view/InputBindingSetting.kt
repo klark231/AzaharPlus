@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.settings.model.view
 
+import org.citra.citra_emu.utils.InputProfile
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.InputDevice
@@ -24,7 +25,7 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
     SettingsItem(abstractSetting, titleId, 0) {
     private val context: Context get() = CitraApplication.appContext
     private val preferences: SharedPreferences
-        get() = PreferenceManager.getDefaultSharedPreferences(context)
+        get() = InputProfile.prefs()
 
     var value: String
         get() = preferences.getString(abstractSetting.key, "")!!
@@ -128,6 +129,10 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
                 Settings.HOTKEY_QUICKLOAD -> Hotkey.QUICKLOAD.button
                 Settings.HOTKEY_TURBO_LIMIT -> Hotkey.TURBO_LIMIT.button
                 Settings.HOTKEY_BUTTON_COMBO -> Hotkey.COMBO_BUTTON.button
+                Settings.HOTKEY_BUTTON_COMBO_2 -> Hotkey.COMBO_BUTTON_2.button
+                Settings.HOTKEY_BUTTON_COMBO_3 -> Hotkey.COMBO_BUTTON_3.button
+                Settings.HOTKEY_BUTTON_COMBO_4 -> Hotkey.COMBO_BUTTON_4.button
+                Settings.HOTKEY_BUTTON_COMBO_5 -> Hotkey.COMBO_BUTTON_5.button
                 else -> -1
             }
 
@@ -579,7 +584,7 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
         }
 
         fun clearAllBindings() {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+            val prefs = InputProfile.prefs()
             val editor = prefs.edit()
             val allKeys = prefs.all.keys.toList()
             for (key in allKeys) {
@@ -594,7 +599,7 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
             buttonMappings: List<DefaultButtonMapping>,
             axisMappings: List<DefaultAxisMapping>
         ) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+            val prefs = InputProfile.prefs()
             val editor = prefs.edit()
             buttonMappings.forEach { applyDefaultButtonMapping(editor, it) }
             axisMappings.forEach { applyDefaultAxisMapping(editor, it) }
@@ -695,9 +700,7 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
          */
         fun getButtonSet(keyCode: KeyEvent): MutableSet<Int> {
             val key = getInputButtonKey(keyCode)
-            val preferences = PreferenceManager.getDefaultSharedPreferences(
-                CitraApplication.appContext
-            )
+            val preferences = InputProfile.prefs()
             var buttonCodes = try {
                 preferences.getStringSet(key, mutableSetOf<String>())
             } catch (e: ClassCastException) {

@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.settings.ui
 
+import org.citra.citra_emu.utils.InputProfile
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -67,6 +68,8 @@ class SettingsActivity :
         val gameID = launcher.getStringExtra(ARG_GAME_ID)
         val menuTag = launcher.getStringExtra(ARG_MENU_TAG)
         presenter.onCreate(savedInstanceState, menuTag!!, gameID!!)
+        // Gamepad / overlay settings are stored per game when that game has custom controls
+        InputProfile.beginEditing(gameID)
 
         // Show "Back" button in the action bar for navigation
         setSupportActionBar(binding.toolbarSettings)
@@ -113,6 +116,11 @@ class SettingsActivity :
         // Critical: If super method is not called, rotations will be busted.
         super.onSaveInstanceState(outState)
         presenter.saveState(outState)
+    }
+
+    override fun onDestroy() {
+        InputProfile.endEditing()
+        super.onDestroy()
     }
 
     override fun onPause() {

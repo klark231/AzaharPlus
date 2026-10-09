@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.touchinput
 
+import org.citra.citra_emu.utils.InputProfile
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
@@ -18,10 +19,8 @@ import org.json.JSONException
  * a new "Profile N" rather than leaving nothing to select.
  */
 class TouchInputBindingProfileManager(context: Context) {
-    private val preferences: SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(
-            context.applicationContext ?: CitraApplication.appContext
-        )
+    private val preferences: SharedPreferences
+        get() = InputProfile.prefs()
 
     init {
         if (getProfiles().isEmpty()) {

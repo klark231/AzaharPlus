@@ -568,6 +568,10 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
     kernel->SetCPUs(cpu_cores);
     kernel->SetRunningCPU(cpu_cores[0].get());
 
+    if (Settings::values.reduce_downcount_slice.GetValue()) {
+        ReduceDowncountSlice(true, num_cores);
+    }
+
     const auto audio_emulation = Settings::values.audio_emulation.GetValue();
     if (audio_emulation == Settings::AudioEmulation::HLE) {
         dsp_core = std::make_unique<AudioCore::DspHle>(*this);
@@ -973,6 +977,14 @@ void System::serialize(Archive& ar, const unsigned int file_version) {
     }
 
     save_state_status = SaveStateStatus::NONE;
+}
+
+void System::ReduceDowncountSlice(bool enabled, u32 num_cores) {
+    // Per-core shift amounts (app core, system core, extra N3DS cores)
+    static constexpr u32 values[4] = {1, 4, 2, 2};
+    for (u32 i = 0; i < num_cores && i < 4; ++i) {
+        timing->GetTimer(i)->ReduceDowncountSlice(enabled ? values[i] : 0);
+    }
 }
 
 SERIALIZE_IMPL(System)

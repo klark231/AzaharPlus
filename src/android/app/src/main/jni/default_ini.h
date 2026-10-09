@@ -81,6 +81,18 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # List of buttons which will be triggered by the combo button. (Default [] or empty)
 )") DECLARE_KEY(combo_button_buttons) BOOST_HANA_STRING(R"(
 
+# List of buttons which will be triggered by combo button 2. (Default [] or empty)
+)") DECLARE_KEY(combo_button_buttons_2) BOOST_HANA_STRING(R"(
+
+# List of buttons which will be triggered by combo button 3. (Default [] or empty)
+)") DECLARE_KEY(combo_button_buttons_3) BOOST_HANA_STRING(R"(
+
+# List of buttons which will be triggered by combo button 4. (Default [] or empty)
+)") DECLARE_KEY(combo_button_buttons_4) BOOST_HANA_STRING(R"(
+
+# List of buttons which will be triggered by combo button 5. (Default [] or empty)
+)") DECLARE_KEY(combo_button_buttons_5) BOOST_HANA_STRING(R"(
+
 [Core]
 # Whether to use the Just-In-Time (JIT) compiler for CPU emulation
 # 0: Interpreter (slow), 1 (default): JIT (fast)
@@ -91,6 +103,19 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # Overclocking may fix lag that happens on console, but also comes with the risk of freezing.
 # Range is any positive integer (but we suspect 25 - 400 is a good idea) Default is 100
 )") DECLARE_KEY(cpu_clock_percentage) BOOST_HANA_STRING(R"(
+
+# Limit the CPU time slice to a smaller value. Can improve responsiveness and
+# multi-core timing at some performance cost.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(reduce_downcount_slice) BOOST_HANA_STRING(R"(
+
+# Boost low priority starved threads during kernel rescheduling.
+# 0: Off, 1 (default): On
+)") DECLARE_KEY(priority_boost_starved_threads) BOOST_HANA_STRING(R"(
+
+# Enable fastmem for the JIT (direct guest memory access) on Android arm64.
+# 0: Disabled, 1: Enabled (default)
+)") DECLARE_KEY(use_fastmem) BOOST_HANA_STRING(R"(
 
 [Renderer]
 # Whether to render using OpenGL
@@ -134,6 +159,10 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # Skips display of duplicated frames in 30 fps games
 # 0: Off, 1 (default): On
 )") DECLARE_KEY(use_skip_duplicate_frames) BOOST_HANA_STRING(R"(
+
+# Increases graphics throughput on supported Adreno devices.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(adreno_gpu_boost) BOOST_HANA_STRING(R"(
 
 # Reduce stuttering by storing and loading generated shaders to disk
 # 0: Off, 1 (default. On)

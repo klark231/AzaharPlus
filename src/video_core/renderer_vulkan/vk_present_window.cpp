@@ -371,6 +371,19 @@ void PresentWindow::NotifySurfaceChanged() {
 }
 
 void PresentWindow::CopyToSwapchain(Frame* frame) {
+#ifdef ANDROID
+    // The Android surface is gone (app in background, Settings opened on top, etc.). Drop the
+    // frame instead of waiting for a new surface in recreate_swapchain(), otherwise the present
+    // thread blocks, the free frame queue runs dry and the emulation thread stalls, which
+    // effectively pauses the game even when "Keep Emulation Running" is enabled.
+    if (emu_window.GetWindowInfo().render_surface == nullptr) {
+        // Forget the dead surface so a new one is always picked up by NotifySurfaceChanged(),
+        // even if the new ANativeWindow happens to reuse the old pointer value.
+        std::scoped_lock lock{recreate_surface_mutex};
+        last_render_surface = nullptr;
+        return;
+    }
+#endif
     const auto recreate_swapchain = [&] {
 #ifdef ANDROID
         {

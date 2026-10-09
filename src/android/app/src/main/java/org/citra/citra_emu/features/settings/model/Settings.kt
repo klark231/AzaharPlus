@@ -184,6 +184,7 @@ class Settings {
         const val SECTION_CUSTOM_LANDSCAPE = "Custom Landscape Layout"
         const val SECTION_CUSTOM_PORTRAIT = "Custom Portrait Layout"
         const val SECTION_PERFORMANCE_OVERLAY = "Performance Overlay"
+        const val SECTION_CHAT_OVERLAY = "Chat Overlay"
         const val SECTION_STORAGE = "Storage"
         const val SECTION_MISC = "Miscellaneous"
 
@@ -329,6 +330,7 @@ class Settings {
                     SECTION_CUSTOM_LANDSCAPE,
                     SECTION_CUSTOM_PORTRAIT,
                     SECTION_PERFORMANCE_OVERLAY,
+                    SECTION_CHAT_OVERLAY,
                     SECTION_STORAGE,
                     SECTION_MISC
                 )

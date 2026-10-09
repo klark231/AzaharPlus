@@ -76,13 +76,26 @@ object NetPlayManager {
         val gameName: String
     )
 
-    private var messageListener: ((Int, String) -> Unit)? = null
+    private val messageListeners = mutableListOf<(Int, String) -> Unit>()
     private var adapterRefreshListener: ((Int, String) -> Unit)? = null
 
     private val usernameRegex = Regex("^[a-zA-Z0-9._\\- ]{4,20}$")
 
-    fun setOnMessageReceivedListener(listener: (Int, String) -> Unit) {
-        messageListener = listener
+    fun addOnMessageReceivedListener(listener: (Int, String) -> Unit) {
+        messageListeners.add(listener)
+    }
+
+    fun removeOnMessageReceivedListener(listener: (Int, String) -> Unit) {
+        messageListeners.remove(listener)
+    }
+
+    fun notifyMessageListeners(type: Int, msg: String) {
+        messageListeners.toList().forEach { it(type, msg) }
+    }
+
+    fun leaveRoom() {
+        netPlayLeaveRoom()
+        notifyMessageListeners(NetPlayStatus.ROOM_IDLE, "")
     }
 
     fun getPublicRooms(): List<RoomInfo> {
@@ -222,13 +235,16 @@ object NetPlayManager {
             }
         }
 
-        Handler(Looper.getMainLooper()).post {
-            if (!isChatOpen && message.isNotEmpty()) {
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        // Chat messages are shown by the chat overlay instead of a toast
+        if (type != NetPlayStatus.CHAT_MESSAGE) {
+            Handler(Looper.getMainLooper()).post {
+                if (!isChatOpen && message.isNotEmpty()) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
-        messageListener?.invoke(type, msg)
+        messageListeners.toList().forEach { it(type, msg) }
         adapterRefreshListener?.invoke(type, msg)
     }
 

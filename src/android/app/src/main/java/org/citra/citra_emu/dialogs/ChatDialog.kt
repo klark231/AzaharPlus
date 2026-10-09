@@ -34,6 +34,13 @@ class ChatDialog(context: Context) : BottomSheetDialog(context) {
     private lateinit var chatAdapter: ChatAdapter
     private val handler = Handler(Looper.getMainLooper())
 
+    private val messageListener: (Int, String) -> Unit = { _, _ ->
+        handler.post {
+            chatAdapter.notifyDataSetChanged()
+            scrollToBottom()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DialogChatBinding.inflate(LayoutInflater.from(context))
@@ -54,12 +61,7 @@ class ChatDialog(context: Context) : BottomSheetDialog(context) {
             }
         }
 
-        NetPlayManager.setOnMessageReceivedListener { type, message ->
-            handler.post {
-                chatAdapter.notifyDataSetChanged()
-                scrollToBottom()
-            }
-        }
+        NetPlayManager.addOnMessageReceivedListener(messageListener)
 
         binding.sendButton.setOnClickListener {
             val message = binding.chatInput.text.toString()
@@ -72,6 +74,7 @@ class ChatDialog(context: Context) : BottomSheetDialog(context) {
 
     override fun dismiss() {
         NetPlayManager.setChatOpen(false)
+        NetPlayManager.removeOnMessageReceivedListener(messageListener)
         super.dismiss()
     }
 
@@ -87,6 +90,13 @@ class ChatDialog(context: Context) : BottomSheetDialog(context) {
         )
 
         NetPlayManager.addChatMessage(chatMessage)
+
+        // Notify overlay to show your own message
+        NetPlayManager.notifyMessageListeners(
+            NetPlayManager.NetPlayStatus.CHAT_MESSAGE,
+            "$username: $message"
+        )
+
         chatAdapter.notifyDataSetChanged()
         scrollToBottom()
     }

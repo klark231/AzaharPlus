@@ -55,7 +55,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
@@ -81,6 +83,7 @@ import org.citra.citra_emu.features.settings.ui.SettingsActivity
 import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.model.Game
+import org.citra.citra_emu.overlay.ChatOverlayManager
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos_series
 import org.citra.citra_emu.utils.AmiiboUsageDatabase
@@ -125,6 +128,7 @@ class EmulationFragment :
     private val onShutdown = Runnable { emulationState.stop() }
 
     private lateinit var customLayoutManager: CustomLayoutManager
+    private lateinit var chatOverlayManager: ChatOverlayManager
 
     // Only used if a game is passed through intent on google play variant
     private var gameFd: Int? = null
@@ -248,6 +252,14 @@ class EmulationFragment :
             binding.surfaceInputOverlay.setIsInEditMode(false)
         }
         
+        // Initialize Chat Overlay Manager
+        chatOverlayManager = ChatOverlayManager(
+            view.findViewById<View>(R.id.chatContainer),
+            view.findViewById<RecyclerView>(R.id.chatRecycler),
+            view.findViewById<FloatingActionButton>(R.id.chatButton),
+            requireContext()
+        )
+
         customLayoutManager = CustomLayoutManager(
             binding.customLayoutEditor,
             binding.doneButton,
@@ -567,6 +579,13 @@ class EmulationFragment :
         if (NativeLibrary.isRunning()) {
             emulationState.unpause()
 
+            // Resume chat overlay
+            if (::chatOverlayManager.isInitialized) {
+                NativeLibrary.reloadSettings()
+                chatOverlayManager.loadSettings()
+                chatOverlayManager.updateChatButtonVisibility()
+            }
+
             // If the overlay is enabled, we need to update the position if changed
             val position = IntSetting.PERFORMANCE_OVERLAY_POSITION.int
             updateStatsPosition(position)
@@ -611,6 +630,11 @@ class EmulationFragment :
         if (gameFd != null) {
             ParcelFileDescriptor.adoptFd(gameFd!!).close()
             gameFd = null
+        }
+
+        // Cleanup chat overlay
+        if (::chatOverlayManager.isInitialized) {
+            chatOverlayManager.cleanup()
         }
         super.onDestroy()
     }

@@ -177,6 +177,48 @@
             android:textSize="12sp"
             tools:ignore="RtlHardcoded" />
 
+
+        <!-- Chat Container (touch‑through) -->
+        <FrameLayout
+            android:id="@+id/chatContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_gravity="top|start"
+            android:padding="8dp"
+            android:background="#66000000"
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:importantForAccessibility="no">
+            
+            <org.citra.citra_emu.overlay.PassthroughRecyclerView
+                android:id="@+id/chatRecycler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:importantForAccessibility="no"
+                android:scrollbars="none"/>
+
+        </FrameLayout>
+
+        <!-- Chat FAB Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/chatButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="20dp"
+            android:src="@drawable/ic_chat"
+            android:contentDescription="Chat"
+            android:visibility="gone"
+            app:fabCustomSize="40dp"
+            app:ensureMinTouchTargetSize="false" />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView

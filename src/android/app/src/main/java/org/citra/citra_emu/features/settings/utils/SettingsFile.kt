@@ -34,6 +34,7 @@ import org.ini4j.Wini
  */
 object SettingsFile {
     const val FILE_NAME_CONFIG = "config"
+    private const val USE_GLOBAL_SUFFIX = "\\use_global"
 
     private var sectionsMap = BiMap<String?, String?>()
 
@@ -95,17 +96,104 @@ object SettingsFile {
     fun readFile(fileName: String): HashMap<String, SettingSection?> = readFile(fileName, null)
 
     /**
-     * Reads a given .ini file from disk and returns it as a HashMap of SettingSections, themselves
-     * effectively a HashMap of key/value settings. If unsuccessful, outputs an error telling why it
-     * failed.
-     *
-     * @param gameId the id of the game to load it's settings.
-     * @param view   The current view.
+     * One overridden setting read from a per application config file.
      */
-    fun readCustomGameSettings(
-        gameId: String,
-        view: SettingsActivityView?
-    ): HashMap<String, SettingSection?> = readFile(getCustomGameSettingsFile(gameId), true, view)
+    data class PerGameEntry(val section: String, val key: String, val value: String)
+
+    /**
+     * Reads config/custom/<title id>.ini. Only settings flagged with `<key>\use_global=false` are
+     * returned, everything else in the file is ignored (this is the same file format the desktop
+     * frontend writes, and what the native Config::ApplyPerGameConfig reads).
+     *
+     * @param gameId 16 digit hex title id, see [PerGameSettings.fileName]
+     */
+    fun readPerGameSettings(gameId: String): List<PerGameEntry> {
+        val file = findPerGameSettingsFile(gameId, create = false) ?: return emptyList()
+        val values = LinkedHashMap<Pair<String, String>, String>()
+        val overridden = LinkedHashSet<Pair<String, String>>()
+        try {
+            val context: Context = CitraApplication.appContext
+            context.contentResolver.openInputStream(file.uri)?.use { stream ->
+                var section = ""
+                BufferedReader(InputStreamReader(stream)).forEachLine { raw ->
+                    val line = raw.trim()
+                    if (line.startsWith("[") && line.endsWith("]")) {
+                        section = line.substring(1, line.length - 1)
+                        return@forEachLine
+                    }
+                    val split = line.indexOf('=')
+                    if (section.isEmpty() || split <= 0) {
+                        return@forEachLine
+                    }
+                    val key = line.substring(0, split).trim()
+                    val value = line.substring(split + 1).trim()
+                    if (key.endsWith(USE_GLOBAL_SUFFIX)) {
+                        if (!value.toBoolean()) {
+                            overridden.add(section to key.removeSuffix(USE_GLOBAL_SUFFIX))
+                        }
+                    } else {
+                        values[section to key] = value
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.error("[SettingsFile] Error reading per game settings $gameId: ${e.message}")
+            return emptyList()
+        }
+        return overridden.mapNotNull { id ->
+            values[id]?.let { PerGameEntry(id.first, id.second, it) }
+        }
+    }
+
+    /**
+     * Writes config/custom/<title id>.ini. An empty list removes the file again so that games
+     * without any override do not leave files behind.
+     */
+    fun savePerGameSettings(gameId: String, entries: List<PerGameEntry>, view: SettingsActivityView?) {
+        if (entries.isEmpty()) {
+            deletePerGameSettings(gameId)
+            return
+        }
+        val file = findPerGameSettingsFile(gameId, create = true)
+        if (file == null) {
+            Log.error("[SettingsFile] Could not create per game settings file for $gameId")
+            view?.showToastMessage(
+                CitraApplication.appContext.getString(R.string.error_saving, gameId, "create"),
+                false
+            )
+            return
+        }
+        val text = buildString {
+            entries.groupBy { it.section }.forEach { (section, sectionEntries) ->
+                append('[').append(section).append("]\n")
+                sectionEntries.forEach {
+                    append(it.key).append(USE_GLOBAL_SUFFIX).append("=false\n")
+                    append(it.key).append('=').append(it.value).append('\n')
+                }
+                append('\n')
+            }
+        }
+        try {
+            val context: Context = CitraApplication.appContext
+            context.contentResolver.openOutputStream(file.uri, "wt")?.use {
+                it.write(text.toByteArray())
+                it.flush()
+            }
+        } catch (e: Exception) {
+            Log.error("[SettingsFile] Error saving per game settings $gameId: ${e.message}")
+            view?.showToastMessage(
+                CitraApplication.appContext.getString(R.string.error_saving, gameId, e.message),
+                false
+            )
+        }
+    }
+
+    fun deletePerGameSettings(gameId: String) {
+        findPerGameSettingsFile(gameId, create = false)?.delete()
+    }
+
+    fun hasPerGameSettings(gameId: String): Boolean =
+        findPerGameSettingsFile(gameId, create = false) != null
 
     /**
      * Saves a Settings HashMap to a given .ini file on disk. If unsuccessful, outputs an error
@@ -182,10 +270,18 @@ object SettingsFile {
         return configDirectory!!.findFile("$fileName.ini")!!
     }
 
-    private fun getCustomGameSettingsFile(gameId: String): DocumentFile {
+    /**
+     * Looks up <user dir>/config/custom/<gameId>.ini, optionally creating the directory and file.
+     */
+    private fun findPerGameSettingsFile(gameId: String, create: Boolean): DocumentFile? {
         val root = DocumentFile.fromTreeUri(CitraApplication.appContext, Uri.parse(userDirectory))
-        val configDirectory = root!!.findFile("GameSettings")
-        return configDirectory!!.findFile("$gameId.ini")!!
+            ?: return null
+        val config = root.findFile("config") ?: return null
+        val custom = config.findFile("custom")
+            ?: if (create) config.createDirectory("custom") else null
+        custom ?: return null
+        return custom.findFile("$gameId.ini")
+            ?: if (create) custom.createFile("application/octet-stream", "$gameId.ini") else null
     }
 
     private fun sectionFromLine(line: String, isCustomGame: Boolean): SettingSection {
@@ -203,7 +299,7 @@ object SettingsFile {
      * @param line    The line of text being parsed.
      * @return A typed Setting containing the key/value contained in the line.
      */
-    private fun settingFromLine(line: String): AbstractSetting? {
+    fun settingFromLine(line: String): AbstractSetting? {
         val splitLine = line.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         if (splitLine.size != 2) {
             return null
@@ -251,6 +347,7 @@ object SettingsFile {
         val intListSetting = IntListSetting.from(key)
         if (intListSetting != null) {
             intListSetting.list = value.split(", ").map { it.toInt() }
+            return intListSetting
         }
 
         return null

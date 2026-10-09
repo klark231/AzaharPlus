@@ -2,13 +2,20 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
+#include <cctype>
+#include <string_view>
+#include <vector>
+#include <cmath>
 #include <iomanip>
 #include <memory>
 #include <ranges>
 #include <sstream>
 #include <unordered_map>
 #include <INIReader.h>
+#include <type_traits>
 #include <boost/hana/string.hpp>
+#include <fmt/format.h>
 #include "common/file_util.h"
 #include "common/logging/backend.h"
 #include "common/logging/log.h"
@@ -25,11 +32,134 @@
 #include "jni/default_ini.h"
 #include "jni/input_manager.h"
 
-Config::Config() {
+namespace {
+
+std::string ToLower(std::string text) {
+    std::ranges::transform(text, text.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return text;
+}
+
+std::string Trim(const std::string& text) {
+    const auto first = text.find_first_not_of(" \t\r");
+    if (first == std::string::npos) {
+        return {};
+    }
+    const auto last = text.find_last_not_of(" \t\r");
+    return text.substr(first, last - first + 1);
+}
+
+struct PerGameOverride {
+    std::string section;
+    std::string key;
+    std::string value;
+    bool applied = false;
+};
+
+/// Reads the settings flagged with `<key>\use_global=false` from a per application config file.
+std::vector<PerGameOverride> ReadPerGameOverrides(const std::string& text) {
+    constexpr std::string_view use_global_suffix = "\\use_global";
+    std::vector<PerGameOverride> result;
+    std::unordered_map<std::string, std::pair<std::string, std::string>> values; // id -> section,v
+    std::vector<std::pair<std::string, std::string>> flagged;                     // section, key
+
+    std::istringstream stream(text);
+    std::string line;
+    std::string section;
+    while (std::getline(stream, line)) {
+        line = Trim(line);
+        if (line.empty() || line[0] == ';' || line[0] == '#') {
+            continue;
+        }
+        if (line.front() == '[' && line.back() == ']') {
+            section = line.substr(1, line.size() - 2);
+            continue;
+        }
+        const auto eq = line.find('=');
+        if (section.empty() || eq == std::string::npos) {
+            continue;
+        }
+        const std::string key = Trim(line.substr(0, eq));
+        const std::string value = Trim(line.substr(eq + 1));
+        if (key.ends_with(use_global_suffix)) {
+            if (ToLower(value) == "false" || value == "0") {
+                flagged.emplace_back(section, key.substr(0, key.size() - use_global_suffix.size()));
+            }
+        } else {
+            values[ToLower(section) + "\n" + ToLower(key)] = {section, value};
+        }
+    }
+    for (const auto& [flag_section, key] : flagged) {
+        const auto it = values.find(ToLower(flag_section) + "\n" + ToLower(key));
+        if (it != values.end()) {
+            result.push_back({flag_section, key, it->second.second});
+        }
+    }
+    return result;
+}
+
+/**
+ * Produces the global ini text with the per application overrides folded in. Everything is
+ * matched by key name only (the frontends don't agree on the section of every key), and keys
+ * the global file doesn't have yet are appended under the section the override names.
+ */
+std::string MergePerGameOverrides(const std::string& global_text,
+                                  std::vector<PerGameOverride> overrides) {
+    std::string merged;
+    merged.reserve(global_text.size() + 256);
+
+    std::istringstream stream(global_text);
+    std::string line;
+    while (std::getline(stream, line)) {
+        const auto eq = line.find('=');
+        const std::string trimmed = Trim(line);
+        if (eq != std::string::npos && !trimmed.empty() && trimmed[0] != '[' &&
+            trimmed[0] != ';' && trimmed[0] != '#') {
+            const std::string key = ToLower(Trim(line.substr(0, eq)));
+            auto it = std::ranges::find_if(overrides, [&](const PerGameOverride& entry) {
+                return !entry.applied && ToLower(entry.key) == key;
+            });
+            if (it != overrides.end()) {
+                it->applied = true;
+                merged += line.substr(0, eq) + "=" + it->value + "\n";
+                continue;
+            }
+        }
+        merged += line + "\n";
+    }
+
+    for (const auto& entry : overrides) {
+        if (!entry.applied) {
+            merged += "\n[" + entry.section + "]\n" + entry.key + "=" + entry.value + "\n";
+        }
+    }
+    return merged;
+}
+
+} // namespace
+
+Config::Config(u64 program_id) {
     // TODO: Don't hardcode the path; let the frontend decide where to put the config files.
     android_config_loc = FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + "config.ini";
     std::string ini_buffer;
     FileUtil::ReadFileToString(true, android_config_loc, ini_buffer);
+
+    // Per application overrides (config/custom/<title id>.ini) are folded into the text that is
+    // parsed. The merged text is never written back, the global file stays untouched.
+    if (program_id != 0 && !ini_buffer.empty()) {
+        const std::string custom_path = GetPerGameConfigPath(program_id);
+        std::string custom_text;
+        if (FileUtil::Exists(custom_path) &&
+            FileUtil::ReadFileToString(true, custom_path, custom_text) != 0) {
+            auto overrides = ReadPerGameOverrides(custom_text);
+            if (!overrides.empty()) {
+                LOG_INFO(Config, "Applying {} per application settings from {}", overrides.size(),
+                         custom_path);
+                ini_buffer = MergePerGameOverrides(ini_buffer, std::move(overrides));
+            }
+        }
+    }
+
     if (!ini_buffer.empty()) {
         android_config = std::make_unique<INIReader>(ini_buffer.c_str(), ini_buffer.size());
     }
@@ -348,5 +478,14 @@ void Config::Reload() {
         }
     }
     LoadINI(DefaultINI::android_config_default_file_content);
+    // A previous per-game config may have left settings in their "custom" state. Make sure every
+    // switchable setting is back to global, otherwise the assignments in ReadValues() would end up
+    // in the custom slot instead of the global one.
+    Settings::RestoreGlobalState(false);
     ReadValues();
+}
+
+std::string Config::GetPerGameConfigPath(u64 program_id) {
+    return fmt::format("{}custom/{:016X}.ini", FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir),
+                       program_id);
 }

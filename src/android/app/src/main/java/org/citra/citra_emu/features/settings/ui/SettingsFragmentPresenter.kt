@@ -44,6 +44,7 @@ import org.citra.citra_emu.features.settings.model.view.StringInputSetting
 import org.citra.citra_emu.features.settings.model.view.StringSingleChoiceSetting
 import org.citra.citra_emu.features.settings.model.view.SubmenuSetting
 import org.citra.citra_emu.features.settings.model.view.SwitchSetting
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.fragments.ResetSettingsDialogFragment
 import org.citra.citra_emu.fragments.TouchInputBindingFragment
@@ -89,7 +90,9 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
 
     fun loadSettingsList() {
         if (!TextUtils.isEmpty(gameId)) {
-            settingsActivity.setToolbarTitle("Application Settings: $gameId")
+            settingsActivity.setToolbarTitle(
+                CitraApplication.appContext.getString(R.string.per_game_settings_title, gameId)
+            )
         }
         val sl = ArrayList<SettingsItem>()
         if (menuTag == null) {
@@ -129,8 +132,55 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 return
             }
         }
+        if (settings.isPerGame) {
+            restrictToPerGameSettings(sl)
+        }
         settingsList = sl
         fragmentView.showSettingsList(settingsList!!)
+    }
+
+    /**
+     * Only a subset of the settings can be overridden for a single application. Everything else
+     * (controls, cameras, network, debugging, ...) is global, so hide it.
+     */
+    private fun restrictToPerGameSettings(sl: ArrayList<SettingsItem>) {
+        val allowedMenus = PerGameSettings.allowedMenus
+        sl.removeAll { item ->
+            when (item.type) {
+                SettingsItem.TYPE_HEADER -> false
+                SettingsItem.TYPE_SUBMENU -> (item as SubmenuSetting).menuKey !in allowedMenus
+                else -> !PerGameSettings.isOverridable(item.setting?.key)
+            }
+        }
+        // Drop headers that ended up without any item below them
+        var i = sl.size - 1
+        while (i >= 0) {
+            if (sl[i].type == SettingsItem.TYPE_HEADER &&
+                (i == sl.size - 1 || sl[i + 1].type == SettingsItem.TYPE_HEADER)
+            ) {
+                sl.removeAt(i)
+            }
+            i--
+        }
+        if (menuTag == SettingsFile.FILE_NAME_CONFIG) {
+            sl.add(
+                RunnableSetting(
+                    R.string.per_game_reset_all,
+                    R.string.per_game_reset_all_description,
+                    false,
+                    R.drawable.ic_restore,
+                    {
+                        settings.resetAllToGlobal()
+                        fragmentView.onSettingChanged()
+                        fragmentView.loadSettingsList()
+                        fragmentView.showToastMessage(
+                            CitraApplication.appContext.getString(R.string.per_game_reset_done),
+                            false
+                        )
+                    }
+                )
+            )
+        }
     }
 
     /** Returns the portrait mode width */

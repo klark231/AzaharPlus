@@ -53,6 +53,9 @@ import org.citra.citra_emu.adapters.GameAdapter.GameViewHolder
 import org.citra.citra_emu.databinding.CardGameBinding
 import org.citra.citra_emu.databinding.DialogShortcutBinding
 import org.citra.citra_emu.features.cheats.ui.CheatsFragmentDirections
+import org.citra.citra_emu.features.settings.ui.SettingsActivity
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
+import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.fragments.IndeterminateProgressDialogFragment
 import org.citra.citra_emu.model.Game
 import org.citra.citra_emu.utils.BuildUtil
@@ -667,6 +670,22 @@ class GameAdapter(
 
         bottomSheetView.findViewById<MaterialButton>(R.id.menu_button_open).setOnClickListener {
             showOpenContextMenu(it, game)
+        }
+
+        // Per game settings, stored as config/custom/<title id>.ini
+        bottomSheetView.findViewById<MaterialButton>(R.id.menu_button_settings).apply {
+            if (game.titleId == 0L) {
+                visibility = View.GONE
+            } else {
+                setOnClickListener {
+                    bottomSheetDialog.dismiss()
+                    SettingsActivity.launch(
+                        context,
+                        SettingsFile.FILE_NAME_CONFIG,
+                        PerGameSettings.fileName(game.titleId)
+                    )
+                }
+            }
         }
 
         bottomSheetView.findViewById<MaterialButton>(

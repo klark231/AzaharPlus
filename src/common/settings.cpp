@@ -246,6 +246,23 @@ void RestoreGlobalState(bool is_powered_on) {
     values.custom_textures.SetGlobal(true);
     values.preload_textures.SetGlobal(true);
     values.disable_right_eye_render.SetGlobal(true);
+
+    // Settings that were previously missing from the reset list. Without these, a per-game
+    // override could leak into the next game that is booted.
+    values.enable_gamemode.SetGlobal(true);
+    values.deterministic_async_operations.SetGlobal(true);
+    values.enable_required_online_lle_modules.SetGlobal(true);
+    values.region_value.SetGlobal(true);
+    values.disable_spirv_optimizer.SetGlobal(true);
+    values.use_display_refresh_rate_detection.SetGlobal(true);
+    values.turbo_limit.SetGlobal(true);
+    values.aspect_ratio.SetGlobal(true);
+    values.screen_top_stretch.SetGlobal(true);
+    values.screen_bottom_stretch.SetGlobal(true);
+    values.mono_render_option.SetGlobal(true);
+    values.render_3d_which_display.SetGlobal(true);
+    values.async_custom_loading.SetGlobal(true);
+    values.simulate_headphones_plugged.SetGlobal(true);
 }
 
 /// Gets the graphics API that should be used; not necessarily one set in settings

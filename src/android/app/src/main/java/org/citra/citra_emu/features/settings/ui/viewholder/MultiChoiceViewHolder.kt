@@ -17,6 +17,7 @@ class MultiChoiceViewHolder(val binding: ListItemSettingBinding, adapter: Settin
     override fun bind(item: SettingsItem) {
         setting = item
         binding.textSettingName.setText(item.nameId)
+        markOverride(item, binding.textSettingName)
         if (item.descriptionId != 0) {
             binding.textSettingDescription.visibility = View.VISIBLE
             binding.textSettingDescription.setText(item.descriptionId)

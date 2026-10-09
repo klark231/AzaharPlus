@@ -10,6 +10,8 @@ import android.text.TextUtils
 import androidx.documentfile.provider.DocumentFile
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.activities.EmulationActivity
+import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.model.BooleanSetting
 import org.citra.citra_emu.features.settings.model.Settings
 import org.citra.citra_emu.utils.DirectoryInitialization
@@ -106,6 +108,16 @@ class SettingsActivityPresenter(private val activityView: SettingsActivityView) 
             TurboHelper.reloadTurbo(false) // TODO: Can this go somewhere else? -OS
         }
         NativeLibrary.reloadSettings()
+        if (finishing) {
+            // The setting objects are shared, don't let the values of one game leak into the
+            // global settings screens
+            settings.restoreGlobalValues()
+            // Opening any settings screen reloads the global values into the shared setting
+            // objects, so bring the overrides of the running game back
+            if (EmulationActivity.isRunning()) {
+                PerGameSettings.applyOverlay(NativeLibrary.getRunningTitleId())
+            }
+        }
     }
 
     fun onSettingChanged() {

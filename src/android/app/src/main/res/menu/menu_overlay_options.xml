@@ -85,6 +85,18 @@
             <item
                 android:id="@+id/menu_emulation_adjust_scale_button_combo"
                 android:title="@string/button_combo" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_2"
+                android:title="@string/button_combo_2" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_3"
+                android:title="@string/button_combo_3" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_4"
+                android:title="@string/button_combo_4" />
+            <item
+                android:id="@+id/menu_emulation_adjust_scale_button_combo_5"
+                android:title="@string/button_combo_5" />
         </menu>
     </item>
 

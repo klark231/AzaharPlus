@@ -15,6 +15,8 @@
 
 #include <vk_mem_alloc.h>
 
+#include <chrono>
+
 MICROPROFILE_DEFINE(Vulkan_WaitPresent, "Vulkan", "Wait For Present", MP_RGB(128, 128, 128));
 
 namespace Vulkan {
@@ -370,18 +372,70 @@ void PresentWindow::NotifySurfaceChanged() {
 #endif
 }
 
+bool PresentWindow::IsPresentationSuspended() const {
+    return emu_window.IsPresentationSuspended();
+}
+
+void PresentWindow::DropFrame(Frame* frame) {
+    // The frame was rendered but cannot be shown. Consume its render_ready semaphore and signal
+    // present_done, otherwise the frame can never be reused (GetRenderFrame() waits for the fence)
+    // and the emulation thread stalls after a few frames.
+    static constexpr vk::PipelineStageFlags wait_stage = vk::PipelineStageFlagBits::eAllGraphics;
+    const vk::SubmitInfo submit_info = {
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &frame->render_ready,
+        .pWaitDstStageMask = &wait_stage,
+    };
+    std::scoped_lock submit_lock{scheduler.submit_mutex};
+    try {
+        graphics_queue.submit(submit_info, frame->present_done);
+    } catch (vk::DeviceLostError& err) {
+        LOG_CRITICAL(Render_Vulkan, "Device lost while dropping a frame: {}", err.what());
+        UNREACHABLE();
+    }
+}
+
 void PresentWindow::CopyToSwapchain(Frame* frame) {
-    const auto recreate_swapchain = [&] {
+#ifdef ANDROID
+    // Presentation is suspended (app in background) or the Android surface is gone (Settings
+    // opened on top, etc.). Drop the frame instead of waiting on the swapchain, otherwise the
+    // emulation thread stalls and the game is effectively paused even when
+    // "Keep Emulation Running" is enabled.
+    const bool surface_gone = emu_window.GetWindowInfo().render_surface == nullptr;
+    if (surface_gone || emu_window.IsPresentationSuspended()) {
+        if (surface_gone) {
+            // Forget the dead surface so a new one is always picked up by NotifySurfaceChanged(),
+            // even if the new ANativeWindow happens to reuse the old pointer value. Only done
+            // when the surface is really gone: if it is merely suspended the swapchain is still
+            // valid and creating a second VkSurfaceKHR for the same window would fail.
+            std::scoped_lock lock{recreate_surface_mutex};
+            last_render_surface = nullptr;
+        }
+        DropFrame(frame);
+        return;
+    }
+#endif
+    // Returns false if there is no surface to create the swapchain on (the frame is dropped).
+    const auto recreate_swapchain = [&]() -> bool {
 #ifdef ANDROID
         {
             std::unique_lock lock{recreate_surface_mutex};
-            recreate_surface_cv.wait(lock, [this]() { return surface != next_surface; });
+            // Wait for the new surface, but never while the window has none: the app can stay
+            // in the background for a long time and the emulation must not block on it.
+            while (!recreate_surface_cv.wait_for(lock, std::chrono::milliseconds(20), [this]() {
+                return surface != next_surface;
+            })) {
+                if (emu_window.GetWindowInfo().render_surface == nullptr) {
+                    return false;
+                }
+            }
             surface = next_surface;
         }
 #endif
         std::scoped_lock submit_lock{scheduler.submit_mutex};
         graphics_queue.waitIdle();
         swapchain.Create(frame->width, frame->height, surface, low_refresh_rate);
+        return true;
     };
 
 #ifndef ANDROID
@@ -395,8 +449,34 @@ void PresentWindow::CopyToSwapchain(Frame* frame) {
     }
 #endif
 
+#ifdef ANDROID
+    // A new surface arrived (returning from Settings, another app, rotation...). Some drivers keep
+    // reporting success for the swapchain of the old, destroyed surface, which ends in a black
+    // screen, so don't wait for AcquireNextImage() to fail: switch to the new surface right away.
+    bool new_surface_pending;
+    {
+        std::scoped_lock lock{recreate_surface_mutex};
+        new_surface_pending = surface != next_surface;
+    }
+    if (new_surface_pending && !recreate_swapchain()) {
+        DropFrame(frame);
+        return;
+    }
+#endif
+
     while (!swapchain.AcquireNextImage()) {
-        recreate_swapchain();
+#ifdef ANDROID
+        // No image became available in time (surface hidden / compositor not consuming buffers).
+        // Drop this frame so the emulation thread keeps running instead of blocking.
+        if (swapchain.AcquireTimedOut()) {
+            DropFrame(frame);
+            return;
+        }
+#endif
+        if (!recreate_swapchain()) {
+            DropFrame(frame);
+            return;
+        }
     }
 
     const vk::Image swapchain_image = swapchain.Image();

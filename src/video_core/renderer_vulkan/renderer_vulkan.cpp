@@ -236,6 +236,11 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
 
 void RendererVulkan::RenderToWindow(PresentWindow& window, const Layout::FramebufferLayout& layout,
                                     bool flipped) {
+    // App in background with "Keep Emulation Running": don't render or present anything. The
+    // emulation keeps going, the picture just isn't produced until the app is visible again.
+    if (window.IsPresentationSuspended()) {
+        return;
+    }
     if (!Settings::values.use_skip_duplicate_frames.GetValue() ||
         Core::PerfStats::game_frames_updated) {
         Frame* frame = window.GetRenderFrame();

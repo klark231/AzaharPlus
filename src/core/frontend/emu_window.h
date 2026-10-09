@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -254,6 +255,18 @@ public:
     void UpdateCurrentFramebufferLayout(unsigned width, unsigned height,
                                         bool is_portrait_mode = {});
 
+    /**
+     * While suspended (Android: app in background / "Keep Emulation Running"), the renderer must
+     * not acquire or present swapchain images. The emulation keeps running, frames are just not
+     * shown. Safe to call from any thread.
+     */
+    void SetPresentationSuspended(bool suspended) {
+        presentation_suspended.store(suspended, std::memory_order_release);
+    }
+    bool IsPresentationSuspended() const {
+        return presentation_suspended.load(std::memory_order_acquire);
+    }
+
     std::unique_ptr<TextureMailbox> mailbox = nullptr;
     bool isSecondary() const {
         return is_secondary;
@@ -323,6 +336,8 @@ protected:
     WindowSystemInfo window_info;
 
 private:
+    std::atomic<bool> presentation_suspended{false};
+
     /**
      * Handler called when the minimal client area was requested to be changed via SetConfig.
      * For the request to be honored, EmuWindow implementations will usually reimplement this

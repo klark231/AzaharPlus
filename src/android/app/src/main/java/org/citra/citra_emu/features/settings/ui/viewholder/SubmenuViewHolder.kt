@@ -5,6 +5,8 @@
 package org.citra.citra_emu.features.settings.ui.viewholder
 
 import android.view.View
+import com.google.android.material.color.MaterialColors
+import org.citra.citra_emu.R
 import androidx.core.content.res.ResourcesCompat
 import org.citra.citra_emu.databinding.ListItemSettingBinding
 import org.citra.citra_emu.features.settings.model.view.SettingsItem
@@ -36,7 +38,20 @@ class SubmenuViewHolder(val binding: ListItemSettingBinding, adapter: SettingsAd
         } else {
             binding.textSettingDescription.visibility = View.GONE
         }
-        binding.textSettingValue.visibility = View.GONE
+        val customCount = adapter.customCount(item.menuKey)
+        if (customCount > 0) {
+            binding.textSettingValue.visibility = View.VISIBLE
+            binding.textSettingValue.text =
+                binding.root.context.getString(R.string.per_game_custom_count, customCount)
+            binding.textSettingValue.setTextColor(
+                MaterialColors.getColor(
+                    binding.textSettingValue,
+                    androidx.appcompat.R.attr.colorPrimary
+                )
+            )
+        } else {
+            binding.textSettingValue.visibility = View.GONE
+        }
     }
 
     override fun onClick(clicked: View) {

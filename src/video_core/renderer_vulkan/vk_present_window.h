@@ -55,6 +55,9 @@ public:
     /// This is called to notify the rendering backend of a surface change
     void NotifySurfaceChanged();
 
+    /// True while the frontend asked us not to touch the swapchain (app in background).
+    [[nodiscard]] bool IsPresentationSuspended() const;
+
     [[nodiscard]] vk::RenderPass Renderpass() const noexcept {
         return present_renderpass;
     }
@@ -71,6 +74,8 @@ private:
     void PresentThread(std::stop_token token);
 
     void CopyToSwapchain(Frame* frame);
+
+    void DropFrame(Frame* frame);
 
     vk::RenderPass CreateRenderpass();
 

@@ -11,6 +11,7 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import kotlin.math.hypot
 import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.utils.EmulationMenuSettings
 
@@ -44,6 +45,9 @@ class InputOverlayDrawableButton(
     val opacity: Int
 ) {
     var trackId: Int
+
+    // Part of a multi-press: stays pressed until the finger lifts, never released by sliding off
+    private var heldUntilRelease = false
 
     private var isMotionFirstButton = false
     // ^- mark the first activated button with the current motion
@@ -87,10 +91,15 @@ class InputOverlayDrawableButton(
         val isActionUp =
             motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
         if (isActionDown) {
-            if (!bounds.contains(xPosition, yPosition)) {
+            // Multi-press: a touch between two buttons presses both (see InputOverlay)
+            val groupSize = overlay.buttonTouchGroupSize(this, xPosition, yPosition)
+            if (groupSize == 0) {
                 return false
             }
             buttonDown(true, pointerId, overlay)
+            // Like Citra MMJ: buttons pressed together stay held until the finger is lifted,
+            // even if the finger jitters or drifts off them
+            heldUntilRelease = groupSize > 1
             return true
         }
         if (isActionUp) {
@@ -107,7 +116,7 @@ class InputOverlayDrawableButton(
             if (pressedState) {
                 // button is already pressed
                 // check whether we moved out of the button area to update the state
-                if (inside || trackId != pointerId) {
+                if (inside || trackId != pointerId || heldUntilRelease) {
                     return false
                 }
 
@@ -135,6 +144,7 @@ class InputOverlayDrawableButton(
 
     private fun buttonDown(firstBtn: Boolean, pointerId: Int, overlay: InputOverlay) {
         pressedState = true
+        heldUntilRelease = false
         isMotionFirstButton = firstBtn
         trackId = pointerId
         overlay.hapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
@@ -142,6 +152,7 @@ class InputOverlayDrawableButton(
 
     private fun buttonUp(overlay: InputOverlay, preserveTrackId: Boolean) {
         pressedState = false
+        heldUntilRelease = false
         isMotionFirstButton = false
         if (!preserveTrackId) {
             trackId = -1
@@ -202,4 +213,12 @@ class InputOverlayDrawableButton(
         }
     val bounds: Rect
         get() = defaultStateBitmap.bounds
+
+    /** Distance in pixels from (x, y) to this button's bounds, 0 when the point is inside. */
+    fun distanceTo(x: Int, y: Int): Float {
+        val r = bounds
+        val dx = maxOf(r.left - x, 0, x - r.right)
+        val dy = maxOf(r.top - y, 0, y - r.bottom)
+        return hypot(dx.toFloat(), dy.toFloat())
+    }
 }

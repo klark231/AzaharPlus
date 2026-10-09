@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.settings.model
 
+import org.citra.citra_emu.utils.OverlayProfile
 import android.text.TextUtils
 import java.util.TreeMap
 import org.citra.citra_emu.CitraApplication
@@ -84,6 +85,20 @@ class Settings {
         }
     }
 
+    /** Per-game lists only show the settings that differ from the global ones. */
+    var showCustomizedOnly = false
+
+    /** How many settings of a menu have their own value for this application. */
+    fun customCount(menuKey: String): Int {
+        if (!isPerGame) {
+            return 0
+        }
+        val sections = PerGameSettings.sectionsOf(menuKey)
+        return PerGameSettings.allOverridableSettings().count {
+            it.section in sections && isOverridden(it)
+        }
+    }
+
     /** Whether the setting currently has its own value for this application. */
     fun isOverridden(setting: AbstractSetting?): Boolean {
         val key = setting?.key ?: return false
@@ -111,6 +126,7 @@ class Settings {
             globalValues[setting.key!!]?.let { SettingsFile.settingFromLine("${setting.key}=$it") }
         }
         overriddenKeys.clear()
+        OverlayProfile.reset(gameId!!)
         SettingsFile.deletePerGameSettings(gameId!!)
     }
 
@@ -218,6 +234,10 @@ class Settings {
         const val HOTKEY_QUICKLOAD = "hotkey_quickpause"
         const val HOTKEY_TURBO_LIMIT = "hotkey_turbo_limit"
         const val HOTKEY_BUTTON_COMBO = "hotkey_button_combo"
+        const val HOTKEY_BUTTON_COMBO_2 = "hotkey_button_combo_2"
+        const val HOTKEY_BUTTON_COMBO_3 = "hotkey_button_combo_3"
+        const val HOTKEY_BUTTON_COMBO_4 = "hotkey_button_combo_4"
+        const val HOTKEY_BUTTON_COMBO_5 = "hotkey_button_combo_5"
 
         val buttonKeys = listOf(
             KEY_BUTTON_A,
@@ -286,7 +306,11 @@ class Settings {
             HOTKEY_QUICKSAVE,
             HOTKEY_QUICKLOAD,
             HOTKEY_TURBO_LIMIT,
-            HOTKEY_BUTTON_COMBO
+            HOTKEY_BUTTON_COMBO,
+            HOTKEY_BUTTON_COMBO_2,
+            HOTKEY_BUTTON_COMBO_3,
+            HOTKEY_BUTTON_COMBO_4,
+            HOTKEY_BUTTON_COMBO_5
         )
         val hotkeyTitles = listOf(
             R.string.controller_hotkey_enable_button,
@@ -297,7 +321,11 @@ class Settings {
             R.string.emulation_quicksave,
             R.string.emulation_quickload,
             R.string.turbo_limit_hotkey,
-            R.string.button_combo
+            R.string.button_combo,
+            R.string.button_combo_2,
+            R.string.button_combo_3,
+            R.string.button_combo_4,
+            R.string.button_combo_5
         )
 
         // TODO: Move these in with the other setting keys in GenerateSettingKeys.cmake

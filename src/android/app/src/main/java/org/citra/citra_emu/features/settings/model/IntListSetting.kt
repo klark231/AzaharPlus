@@ -28,6 +28,34 @@ enum class IntListSetting(
         Settings.SECTION_CONTROLS,
         listOf(),
         canBeEmpty = true
+    ),
+
+    COMBO_BUTTON_BUTTONS_2(
+        SettingKeys.combo_button_buttons_2(),
+        Settings.SECTION_CONTROLS,
+        listOf(),
+        canBeEmpty = true
+    ),
+
+    COMBO_BUTTON_BUTTONS_3(
+        SettingKeys.combo_button_buttons_3(),
+        Settings.SECTION_CONTROLS,
+        listOf(),
+        canBeEmpty = true
+    ),
+
+    COMBO_BUTTON_BUTTONS_4(
+        SettingKeys.combo_button_buttons_4(),
+        Settings.SECTION_CONTROLS,
+        listOf(),
+        canBeEmpty = true
+    ),
+
+    COMBO_BUTTON_BUTTONS_5(
+        SettingKeys.combo_button_buttons_5(),
+        Settings.SECTION_CONTROLS,
+        listOf(),
+        canBeEmpty = true
     );
 
     private var backingList: List<Int> = defaultValue

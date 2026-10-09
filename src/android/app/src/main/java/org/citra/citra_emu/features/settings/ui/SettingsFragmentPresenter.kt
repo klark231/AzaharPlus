@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.features.settings.ui
 
+import org.citra.citra_emu.utils.OverlayProfile
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -50,6 +51,7 @@ import org.citra.citra_emu.fragments.ResetSettingsDialogFragment
 import org.citra.citra_emu.fragments.TouchInputBindingFragment
 import org.citra.citra_emu.utils.BirthdayMonth
 import org.citra.citra_emu.utils.BuildUtil
+import org.citra.citra_emu.utils.GpuDriverHelper
 import org.citra.citra_emu.utils.GraphicsUtil
 import org.citra.citra_emu.utils.Log
 import org.citra.citra_emu.utils.SystemSaveGame
@@ -147,11 +149,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
      */
     private fun restrictToPerGameSettings(sl: ArrayList<SettingsItem>) {
         val allowedMenus = PerGameSettings.allowedMenus
+        val customizedOnly = settings.showCustomizedOnly
         sl.removeAll { item ->
             when (item.type) {
                 SettingsItem.TYPE_HEADER -> false
-                SettingsItem.TYPE_SUBMENU -> (item as SubmenuSetting).menuKey !in allowedMenus
-                else -> !PerGameSettings.isOverridable(item.setting?.key)
+                SettingsItem.TYPE_SUBMENU -> {
+                    val key = (item as SubmenuSetting).menuKey
+                    key !in allowedMenus || (customizedOnly && settings.customCount(key) == 0)
+                }
+                else -> !PerGameSettings.isOverridable(item.setting?.key) ||
+                    (customizedOnly && !settings.isOverridden(item.setting))
             }
         }
         // Drop headers that ended up without any item below them
@@ -164,7 +171,34 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
             }
             i--
         }
+        if (customizedOnly && sl.none { it.type != SettingsItem.TYPE_HEADER }) {
+            sl.add(HeaderSetting(R.string.per_game_nothing_customized))
+        }
         if (menuTag == SettingsFile.FILE_NAME_CONFIG) {
+            val customizedOnlySetting: AbstractBooleanSetting = object : AbstractBooleanSetting {
+                override var boolean: Boolean
+                    get() = settings.showCustomizedOnly
+                    set(value) {
+                        settings.showCustomizedOnly = value
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            fragmentView.loadSettingsList()
+                        }
+                    }
+                override val key: String? = null
+                override val section: String? = null
+                override val isRuntimeEditable: Boolean = false
+                override val valueAsString: String
+                    get() = settings.showCustomizedOnly.toString()
+                override val defaultValue: Any = false
+            }
+            sl.add(
+                0,
+                SwitchSetting(
+                    customizedOnlySetting,
+                    R.string.per_game_show_customized_only,
+                    R.string.per_game_show_customized_only_description
+                )
+            )
             sl.add(
                 RunnableSetting(
                     R.string.per_game_reset_all,
@@ -363,6 +397,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.android_hide_images_description,
                     BooleanSetting.ANDROID_HIDE_IMAGES.key,
                     BooleanSetting.ANDROID_HIDE_IMAGES.defaultValue
+                )
+            )
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.KEEP_EMULATION_RUNNING,
+                    R.string.keep_emulation_running,
+                    R.string.keep_emulation_running_description,
+                    BooleanSetting.KEEP_EMULATION_RUNNING.key,
+                    BooleanSetting.KEEP_EMULATION_RUNNING.defaultValue
                 )
             )
 
@@ -995,14 +1039,19 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
             )
 
             add(
-                MultiChoiceSetting(
-                    IntListSetting.COMBO_BUTTON_BUTTONS,
+                RunnableSetting(
                     R.string.combo_button_settings,
                     R.string.combo_button_settings_description,
-                    R.array.comboOptions,
-                    R.array.comboOptionValues,
-                    IntListSetting.COMBO_BUTTON_BUTTONS.key,
-                    IntListSetting.COMBO_BUTTON_BUTTONS.defaultValue
+                    false,
+                    0,
+                    {
+                        settingsActivity.supportFragmentManager.let { fm ->
+                            ComboButtonConfigDialogFragment().show(
+                                fm,
+                                ComboButtonConfigDialogFragment.TAG
+                            )
+                        }
+                    }
                 )
             )
         }
@@ -1106,6 +1155,17 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     BooleanSetting.SHADERS_ACCURATE_MUL.defaultValue
                 )
             )
+            if (GpuDriverHelper.supportsCustomDriverLoading()) {
+                add(
+                    SwitchSetting(
+                        BooleanSetting.ADRENO_GPU_BOOST,
+                        R.string.adreno_gpu_boost,
+                        R.string.adreno_gpu_boost_description,
+                        BooleanSetting.ADRENO_GPU_BOOST.key,
+                        BooleanSetting.ADRENO_GPU_BOOST.defaultValue
+                    )
+                )
+            }
             add(
                 SwitchSetting(
                     BooleanSetting.DISK_SHADER_CACHE,
@@ -2202,6 +2262,34 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.deterministic_async_operations_description,
                     BooleanSetting.DETERMINISTIC_ASYNC_OPERATIONS.key,
                     BooleanSetting.DETERMINISTIC_ASYNC_OPERATIONS.defaultValue
+                )
+            )
+            add(HeaderSetting(R.string.miscellaneous))
+            add(
+                SwitchSetting(
+                    BooleanSetting.REDUCE_DOWNCOUNT_SLICE,
+                    R.string.reduce_downcount_slice,
+                    R.string.reduce_downcount_slice_description,
+                    BooleanSetting.REDUCE_DOWNCOUNT_SLICE.key,
+                    BooleanSetting.REDUCE_DOWNCOUNT_SLICE.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.PRIORITY_BOOST_STARVED_THREADS,
+                    R.string.priority_boost_starved_threads,
+                    R.string.priority_boost_starved_threads_description,
+                    BooleanSetting.PRIORITY_BOOST_STARVED_THREADS.key,
+                    BooleanSetting.PRIORITY_BOOST_STARVED_THREADS.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.USE_FASTMEM,
+                    R.string.use_fastmem,
+                    R.string.use_fastmem_description,
+                    BooleanSetting.USE_FASTMEM.key,
+                    BooleanSetting.USE_FASTMEM.defaultValue
                 )
             )
         }

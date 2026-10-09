@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_combo_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/combo_button_n_1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_combo_1"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_combo_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/combo_button_n_2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_combo_2"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_combo_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/combo_button_n_3" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_combo_3"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_combo_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/combo_button_n_4" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_combo_4"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_combo_5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/combo_button_n_5" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_combo_5"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+</ScrollView>

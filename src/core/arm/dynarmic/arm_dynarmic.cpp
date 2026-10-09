@@ -8,6 +8,7 @@
 #include <dynarmic/interface/optimization_flags.h>
 #include "common/assert.h"
 #include "common/microprofile.h"
+#include "common/settings.h"
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #include "core/arm/dynarmic/arm_dynarmic_cp15.h"
 #include "core/arm/dynarmic/arm_exclusive_monitor.h"
@@ -369,6 +370,15 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     // Multi-process state
     config.processor_id = GetID();
     config.global_monitor = &exclusive_monitor.monitor;
+
+    // Fastmem: let the JIT access guest RAM directly through the mirrored arena.
+    // Faulting accesses fall back to the page table.
+    if (Settings::values.use_fastmem.GetValue()) {
+        const uintptr_t arena_base = memory.GetFastmemArenaBase(current_page_table);
+        if (arena_base != 0) {
+            config.fastmem_pointer = arena_base;
+        }
+    }
 
     return std::make_unique<Dynarmic::A32::Jit>(config);
 }

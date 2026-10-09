@@ -128,6 +128,10 @@ class InputBindingSetting(val abstractSetting: AbstractSetting, titleId: Int) :
                 Settings.HOTKEY_QUICKLOAD -> Hotkey.QUICKLOAD.button
                 Settings.HOTKEY_TURBO_LIMIT -> Hotkey.TURBO_LIMIT.button
                 Settings.HOTKEY_BUTTON_COMBO -> Hotkey.COMBO_BUTTON.button
+                Settings.HOTKEY_BUTTON_COMBO_2 -> Hotkey.COMBO_BUTTON_2.button
+                Settings.HOTKEY_BUTTON_COMBO_3 -> Hotkey.COMBO_BUTTON_3.button
+                Settings.HOTKEY_BUTTON_COMBO_4 -> Hotkey.COMBO_BUTTON_4.button
+                Settings.HOTKEY_BUTTON_COMBO_5 -> Hotkey.COMBO_BUTTON_5.button
                 else -> -1
             }
 

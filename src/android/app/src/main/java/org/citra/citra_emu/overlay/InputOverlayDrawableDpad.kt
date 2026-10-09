@@ -11,6 +11,8 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import kotlin.math.abs
+import kotlin.math.hypot
 import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.utils.EmulationMenuSettings
 
@@ -84,7 +86,10 @@ class InputOverlayDrawableDpad(
         val isActionUp =
             motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
         if (isActionDown) {
-            if (!bounds.contains(xPosition, yPosition)) {
+            // Slightly forgiving hit area so a thumb landing just off the pad still counts
+            val margin = (bounds.width() * HIT_MARGIN).toInt()
+            val hitArea = Rect(bounds).apply { inset(-margin, -margin) }
+            if (!hitArea.contains(xPosition, yPosition)) {
                 return false
             }
             isDown = true
@@ -112,24 +117,35 @@ class InputOverlayDrawableDpad(
             if (trackId != event.getPointerId(i)) {
                 continue
             }
-            var touchX = event.getX(i)
-            var touchY = event.getY(i)
-            var maxY = bounds.bottom.toFloat()
-            var maxX = bounds.right.toFloat()
-            touchX -= bounds.centerX().toFloat()
-            maxX -= bounds.centerX().toFloat()
-            touchY -= bounds.centerY().toFloat()
-            maxY -= bounds.centerY().toFloat()
-            val xAxis = touchX / maxX
-            val yAxis = touchY / maxY
+            // Finger offset from the centre of the pad, in pixels
+            val dx = event.getX(i) - bounds.exactCenterX()
+            val dy = event.getY(i) - bounds.exactCenterY()
+            val halfSize = bounds.width() / 2f
+
             val upState = upButtonState
             val downState = downButtonState
             val leftState = leftButtonState
             val rightState = rightButtonState
-            upButtonState = yAxis < -VIRT_AXIS_DEADZONE
-            downButtonState = yAxis > VIRT_AXIS_DEADZONE
-            leftButtonState = xAxis < -VIRT_AXIS_DEADZONE
-            rightButtonState = xAxis > VIRT_AXIS_DEADZONE
+
+            val absX = abs(dx)
+            val absY = abs(dy)
+            if (hypot(dx, dy) < halfSize * CENTER_DEADZONE) {
+                // Small dead spot in the very middle only
+                upButtonState = false
+                downButtonState = false
+                leftButtonState = false
+                rightButtonState = false
+            } else {
+                // 8-way by angle: each axis is active when it is at least DIAGONAL_RATIO of the
+                // other one. Cardinal directions get wide 55 degree zones, diagonals 35 degrees,
+                // so a normal press on an arm never turns into an accidental diagonal.
+                val horizontalActive = absX >= absY * DIAGONAL_RATIO
+                val verticalActive = absY >= absX * DIAGONAL_RATIO
+                upButtonState = verticalActive && dy < 0
+                downButtonState = verticalActive && dy > 0
+                leftButtonState = horizontalActive && dx < 0
+                rightButtonState = horizontalActive && dx > 0
+            }
 
             val stateChanged =
                 upState != upButtonState || downState != downButtonState ||
@@ -296,6 +312,13 @@ class InputOverlayDrawableDpad(
         get() = defaultStateBitmap.bounds
 
     companion object {
-        private const val VIRT_AXIS_DEADZONE = 0.5f
+        /** Radius of the dead spot in the centre, as a fraction of half the pad size. */
+        private const val CENTER_DEADZONE = 0.10f
+
+        /** tan(~27.5 degrees): how strong the weaker axis must be to add a diagonal. */
+        private const val DIAGONAL_RATIO = 0.52f
+
+        /** Extra touch area around the pad, as a fraction of its width. */
+        private const val HIT_MARGIN = 0.10f
     }
 }

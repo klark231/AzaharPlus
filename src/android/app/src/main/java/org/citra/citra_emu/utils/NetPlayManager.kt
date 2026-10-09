@@ -158,7 +158,7 @@ object NetPlayManager {
 
     fun isUsernameValid(activity: Context): Boolean = getUsername(activity).matches(usernameRegex)
 
-    fun setUsername(activity: Activity, name: String) {
+    fun setUsername(activity: Context, name: String) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
         prefs.edit().putString("NetPlayUsername", name).apply()
     }

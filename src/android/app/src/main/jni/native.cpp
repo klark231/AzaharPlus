@@ -395,6 +395,12 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     return Core::System::ResultStatus::Success;
 }
 
+void EnableAdrenoTurboMode(bool enable) {
+#if defined(ENABLE_VULKAN) && CITRA_ARCH(arm64)
+    adrenotools_set_turbo(enable);
+#endif
+}
+
 void InitializeGpuDriver(const std::string& hook_lib_dir, const std::string& custom_driver_dir,
                          const std::string& custom_driver_name,
                          const std::string& file_redirect_dir) {
@@ -521,6 +527,21 @@ void Java_org_citra_citra_1emu_NativeLibrary_surfaceDestroyed([[maybe_unused]] J
     }
 }
 
+void Java_org_citra_citra_1emu_NativeLibrary_setPresentationSuspended(
+    [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jobject obj, jboolean suspended) {
+    std::scoped_lock lock(surface_mutex);
+
+    // Used by "Keep Emulation Running": while the app is in the background the renderer stops
+    // acquiring/presenting swapchain images (Vulkan), but the emulation thread keeps running.
+    if (window) {
+        window->SetPresentationSuspended(suspended);
+    }
+    if (secondary_window) {
+        secondary_window->SetPresentationSuspended(suspended);
+    }
+    LOG_INFO(Frontend, "Presentation {}", suspended ? "suspended" : "resumed");
+}
+
 void Java_org_citra_citra_1emu_NativeLibrary_doFrame([[maybe_unused]] JNIEnv* env,
                                                      [[maybe_unused]] jobject obj) {
     if (stop_run || pause_emulation) {
@@ -532,6 +553,12 @@ void Java_org_citra_citra_1emu_NativeLibrary_doFrame([[maybe_unused]] JNIEnv* en
     if (secondary_window) {
         secondary_window->TryPresenting();
     }
+}
+
+void JNICALL Java_org_citra_citra_1emu_NativeLibrary_enableAdrenoTurboMode(JNIEnv* env,
+                                                                           jobject obj,
+                                                                           jboolean enable) {
+    EnableAdrenoTurboMode(enable);
 }
 
 void JNICALL Java_org_citra_citra_1emu_NativeLibrary_initializeGpuDriver(

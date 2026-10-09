@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.fragments
 
+import org.citra.citra_emu.utils.OverlayProfile
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.AlertDialog
@@ -250,6 +251,7 @@ class EmulationFragment :
         binding.doneControlConfig.setOnClickListener {
             binding.doneControlConfig.visibility = View.GONE
             binding.surfaceInputOverlay.setIsInEditMode(false)
+            finishOverlayEdit()
         }
         
         // Initialize Chat Overlay Manager
@@ -575,6 +577,8 @@ class EmulationFragment :
 
     override fun onResume() {
         super.onResume()
+        // Make sure the renderer presents again (no-op if it was never suspended)
+        NativeLibrary.setPresentationSuspended(false)
         Choreographer.getInstance().postFrameCallback(this)
         if (NativeLibrary.isRunning()) {
             emulationState.unpause()
@@ -610,7 +614,14 @@ class EmulationFragment :
 
     override fun onPause() {
         if (NativeLibrary.isRunning()) {
-            emulationState.pause()
+            if (BooleanSetting.KEEP_EMULATION_RUNNING.boolean) {
+                // Keep the game running in the background. On Vulkan the emulation thread owns
+                // the swapchain, so it must be told to stop presenting or it can block forever
+                // once Android stops consuming our buffers.
+                NativeLibrary.setPresentationSuspended(true)
+            } else {
+                emulationState.pause()
+            }
         }
         Choreographer.getInstance().removeFrameCallback(this)
         super.onPause()
@@ -935,6 +946,26 @@ class EmulationFragment :
                     true
                 }
 
+                R.id.menu_emulation_adjust_scale_button_combo_2 -> {
+                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_2.button)
+                    true
+                }
+
+                R.id.menu_emulation_adjust_scale_button_combo_3 -> {
+                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_3.button)
+                    true
+                }
+
+                R.id.menu_emulation_adjust_scale_button_combo_4 -> {
+                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_4.button)
+                    true
+                }
+
+                R.id.menu_emulation_adjust_scale_button_combo_5 -> {
+                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_5.button)
+                    true
+                }
+
                 R.id.menu_emulation_adjust_opacity -> {
                     showAdjustOpacityDialog()
                     true
@@ -1050,7 +1081,7 @@ class EmulationFragment :
     }
 
     private fun showButtonSlidingMenu() {
-        val editor = preferences.edit()
+        val editor = OverlayProfile.prefs().edit()
 
         val buttonSlidingModes = mutableListOf<String>()
         buttonSlidingModes.add(getString(R.string.emulation_button_sliding_disabled))
@@ -1346,27 +1377,74 @@ class EmulationFragment :
         popupMenu.show()
     }
 
+    private var overlayEditBefore: Map<String, Any>? = null
+    private var overlayEditWasCustom = false
+
+    /** Remembers the on-screen controls before an edit, to ask where to keep the change. */
+    private fun beginOverlayEdit() {
+        overlayEditBefore = OverlayProfile.snapshot()
+        overlayEditWasCustom = OverlayProfile.isActiveCustom()
+    }
+
+    /**
+     * If the edit changed the layout, asks whether it is for every game or only for this one.
+     * Closing the dialog keeps the change on the layout that was being edited.
+     */
+    private fun finishOverlayEdit() {
+        val before = overlayEditBefore ?: return
+        overlayEditBefore = null
+        val gameId = OverlayProfile.activeGameId ?: return
+        if (_binding == null || !OverlayProfile.changed(before)) {
+            return
+        }
+        val wasCustom = overlayEditWasCustom
+        val edited = OverlayProfile.snapshot()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.overlay_save_scope_title)
+            .setMessage(getString(R.string.overlay_save_scope_message, game.title))
+            .setPositiveButton(R.string.overlay_save_this_game) { _, _ ->
+                OverlayProfile.saveForThisGame(gameId, before, wasCustom, edited)
+                _binding?.surfaceInputOverlay?.refreshControls()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.overlay_saved_for_game, game.title),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton(R.string.overlay_save_all_games) { _, _ ->
+                OverlayProfile.saveForAllGames(gameId, wasCustom, edited)
+                _binding?.surfaceInputOverlay?.refreshControls()
+            }
+            .setNeutralButton(R.string.overlay_discard_changes) { _, _ ->
+                OverlayProfile.discard(before)
+                _binding?.surfaceInputOverlay?.refreshControls()
+            }
+            .show()
+    }
+
     private fun editControlsPlacement() {
         if (binding.surfaceInputOverlay.isInEditMode) {
             binding.doneControlConfig.visibility = View.GONE
             binding.surfaceInputOverlay.setIsInEditMode(false)
+            finishOverlayEdit()
         } else {
+            beginOverlayEdit()
             binding.doneControlConfig.visibility = View.VISIBLE
             binding.surfaceInputOverlay.setIsInEditMode(true)
         }
     }
 
     private fun showToggleControlsDialog() {
-        val editor = preferences.edit()
-        val enabledButtons = BooleanArray(17)
+        val editor = OverlayProfile.prefs().edit()
+        val enabledButtons = BooleanArray(21)
         enabledButtons.forEachIndexed { i: Int, _: Boolean ->
             // Buttons that are disabled by default
             var defaultValue = true
             when (i) {
                 // TODO: Remove these magic numbers
-                6, 7, 12, 13, 14, 15, 16 -> defaultValue = false
+                6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20 -> defaultValue = false
             }
-            enabledButtons[i] = preferences.getBoolean("buttonToggle$i", defaultValue)
+            enabledButtons[i] = OverlayProfile.prefs().getBoolean("buttonToggle$i", defaultValue)
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
@@ -1404,7 +1482,7 @@ class EmulationFragment :
             val sliderMax = 150
             slider.valueFrom = sliderMin.toFloat()
             slider.valueTo = sliderMax.toFloat()
-            slider.value = preferences.getInt(target, sliderStart)
+            slider.value = OverlayProfile.prefs().getInt(target, sliderStart)
                 .toFloat()
                 .coerceIn(slider.valueFrom..slider.valueTo)
             @SuppressLint("SetTextI18n")
@@ -1464,7 +1542,7 @@ class EmulationFragment :
         sliderBinding.apply {
             slider.valueFrom = 0f
             slider.valueTo = 100f
-            slider.value = preferences.getInt("controlOpacity", 50).toFloat()
+            slider.value = OverlayProfile.prefs().getInt("controlOpacity", 50).toFloat()
             textValue.setText(slider.value.toInt().toString())
 
             textValue.addTextChangedListener(object : TextWatcher {
@@ -1511,14 +1589,14 @@ class EmulationFragment :
     }
 
     private fun setControlScale(scale: Int, target: String) {
-        preferences.edit()
+        OverlayProfile.prefs().edit()
             .putInt(target, scale)
             .apply()
         binding.surfaceInputOverlay.refreshControls()
     }
 
     private fun resetScale(target: String) {
-        preferences.edit().putInt(
+        OverlayProfile.prefs().edit().putInt(
             target,
             50
         ).apply()
@@ -1543,11 +1621,15 @@ class EmulationFragment :
         resetScale("controlScale-" + NativeLibrary.ButtonType.BUTTON_SWAP)
         resetScale("controlScale-" + NativeLibrary.ButtonType.BUTTON_TURBO)
         resetScale("controlScale-" + Hotkey.COMBO_BUTTON.button)
+        resetScale("controlScale-" + Hotkey.COMBO_BUTTON_2.button)
+        resetScale("controlScale-" + Hotkey.COMBO_BUTTON_3.button)
+        resetScale("controlScale-" + Hotkey.COMBO_BUTTON_4.button)
+        resetScale("controlScale-" + Hotkey.COMBO_BUTTON_5.button)
         binding.surfaceInputOverlay.refreshControls()
     }
 
     private fun setControlOpacity(opacity: Int) {
-        preferences.edit()
+        OverlayProfile.prefs().edit()
             .putInt("controlOpacity", opacity)
             .apply()
         binding.surfaceInputOverlay.refreshControls()
@@ -1557,7 +1639,9 @@ class EmulationFragment :
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.emulation_touch_overlay_reset))
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
+                beginOverlayEdit()
                 resetInputOverlay()
+                finishOverlayEdit()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -1565,16 +1649,16 @@ class EmulationFragment :
 
     private fun resetInputOverlay() {
         resetAllScales()
-        preferences.edit()
+        OverlayProfile.prefs().edit()
             .putInt("controlOpacity", 50)
             .apply()
 
-        val editor = preferences.edit()
+        val editor = OverlayProfile.prefs().edit()
         // TODO: This code sucks balls. We need to do this differently. -OS
-        for (i in 0 until 17) {
+        for (i in 0 until 21) {
             var defaultValue = true
             when (i) {
-                6, 7, 12, 13, 14, 15, 16 -> defaultValue = false
+                6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20 -> defaultValue = false
             }
             editor.putBoolean("buttonToggle$i", defaultValue)
         }
@@ -1871,7 +1955,10 @@ class EmulationFragment :
                 when (state) {
                     State.RUNNING -> {
                         NativeLibrary.surfaceDestroyed()
-                        state = State.PAUSED
+                        // Keep the emulation thread running (no picture) when requested
+                        if (!BooleanSetting.KEEP_EMULATION_RUNNING.boolean) {
+                            state = State.PAUSED
+                        }
                     }
 
                     State.PAUSED -> {

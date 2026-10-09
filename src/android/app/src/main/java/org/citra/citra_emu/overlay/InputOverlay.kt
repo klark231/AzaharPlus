@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.overlay
 
+import org.citra.citra_emu.utils.OverlayProfile
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
@@ -105,6 +106,39 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         }
     }
 
+    /**
+     * Multi-press hit test (Citra MMJ style) for a finger that just landed at (x, y).
+     *
+     * - A finger inside one or more buttons presses those, plus any other button that is within
+     *   [MULTI_PRESS_SLOP] of the touch (so pressing near the edge shared with a neighbour presses
+     *   both).
+     * - A finger that lands in the gap between buttons, inside none of them, presses all the
+     *   buttons around it, but only when that is at least two. A lone near-miss is still a miss.
+     * Works for every overlay button (A/B/X/Y, L/R, ZL/ZR, Start/Select, ...).
+     *
+     * @return 0 if [button] is not hit, otherwise how many buttons this touch presses together
+     *         (1 = a normal single press, 2+ = a multi-press that stays held until release).
+     */
+    fun buttonTouchGroupSize(button: InputOverlayDrawableButton, x: Int, y: Int): Int {
+        var insideAny = false
+        var nearCount = 0
+        var thisIsNear = false
+        for (other in overlayButtons) {
+            val b = other.bounds
+            if (b.contains(x, y)) {
+                insideAny = true
+            }
+            val slop = MULTI_PRESS_SLOP * minOf(b.width(), b.height())
+            if (other.distanceTo(x, y) <= slop) {
+                nearCount++
+                if (other === button) {
+                    thisIsNear = true
+                }
+            }
+        }
+        return if (thisIsNear && (insideAny || nearCount >= 2)) nearCount else 0
+    }
+
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         if (isInEditMode) {
             return onTouchWhileEditing(event)
@@ -140,33 +174,14 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 yPosition += marginsY
             }
 
-            var hasActiveButtons = false
-            for (button in overlayButtons) {
-                if (button.trackId == pointerId) {
-                    hasActiveButtons = true
-                    break
-                }
-            }
-
-            var hasActiveDpad = false
-            if (!hasActiveButtons) {
-                for (dpad in overlayDpads) {
-                    if (dpad.trackId == pointerId) {
-                        hasActiveDpad = true
-                        break
-                    }
-                }
-            }
-
-            var hasActiveJoystick = false
-            if (!hasActiveButtons && !hasActiveDpad) {
-                for (joystick in overlayJoysticks) {
-                    if (joystick.trackId == pointerId) {
-                        hasActiveJoystick = true
-                        break
-                    }
-                }
-            }
+            // Which controls are already tracking this finger. These are computed once, before any
+            // control had a chance to claim the finger. So on ACTION_DOWN (nothing tracks it yet)
+            // a finger landing where e.g. a joystick and a button overlap is offered to both and
+            // presses both. Afterwards each control that owns the finger keeps receiving its
+            // MOVE/UP events, so none of them can get stuck.
+            val hasActiveButtons = overlayButtons.any { it.trackId == pointerId }
+            val hasActiveDpad = overlayDpads.any { it.trackId == pointerId }
+            val hasActiveJoystick = overlayJoysticks.any { it.trackId == pointerId }
 
             val hasActiveOverlay = hasActiveButtons || hasActiveDpad || hasActiveJoystick
 
@@ -182,7 +197,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
 
             var anyOverlayStateChanged = false
             var shouldUpdateView = false
-            if (!hasActiveDpad && !hasActiveJoystick) {
+            // A finger that only drives a dpad/joystick must not slide into buttons, but a finger
+            // that also owns a button (overlap press) must keep updating it.
+            if (hasActiveButtons || (!hasActiveDpad && !hasActiveJoystick)) {
                 for (button in overlayButtons) {
                     val stateChanged = button.updateStatus(
                         event,
@@ -203,8 +220,13 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                         button.status == NativeLibrary.ButtonState.PRESSED
                     ) {
                         TurboHelper.toggleTurbo(true)
-                    } else if (button.id == Hotkey.COMBO_BUTTON.button) {
-                        ComboHelper.comboActivate(button.status)
+                    } else if (button.id >= Hotkey.COMBO_BUTTON.button &&
+                        button.id < Hotkey.COMBO_BUTTON.button + ComboHelper.COMBO_COUNT
+                    ) {
+                        ComboHelper.comboActivate(
+                            button.status,
+                            button.id - Hotkey.COMBO_BUTTON.button
+                        )
                     }
 
                     NativeLibrary.onGamePadEvent(
@@ -217,7 +239,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 }
             }
 
-            if (!hasActiveButtons && !hasActiveJoystick) {
+            if (hasActiveDpad || (!hasActiveButtons && !hasActiveJoystick)) {
                 for (dpad in overlayDpads) {
                     val stateChanged = dpad.updateStatus(
                         event,
@@ -256,7 +278,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 }
             }
 
-            if (!hasActiveDpad && !hasActiveButtons) {
+            if (hasActiveJoystick || (!hasActiveButtons && !hasActiveDpad)) {
                 for (joystick in overlayJoysticks) {
                     val stateChanged = joystick.updateStatus(
                         event,
@@ -615,17 +637,44 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             )
         }
 
-        if (preferences.getBoolean("buttonToggle16", false)) {
-            overlayButtons.add(
-                initializeOverlayButton(
-                    context,
-                    R.drawable.button_combo,
-                    R.drawable.button_combo_pressed,
-                    Hotkey.COMBO_BUTTON.button,
-                    orientation
+        // Combo buttons: 5 independent buttons, IDs Hotkey.COMBO_BUTTON.button + 0..4,
+        // toggled by buttonToggle16..20 in the shared preferences.
+        for (comboIndex in 0 until ComboHelper.COMBO_COUNT) {
+            if (preferences.getBoolean("buttonToggle${16 + comboIndex}", false)) {
+                if (comboIndex > 0) ensureComboDefaultPosition(comboIndex, orientation)
+                overlayButtons.add(
+                    initializeOverlayButton(
+                        context,
+                        COMBO_DRAWABLES[comboIndex],
+                        COMBO_DRAWABLES_PRESSED[comboIndex],
+                        Hotkey.COMBO_BUTTON.button + comboIndex,
+                        orientation
+                    )
                 )
-            )
+            }
         }
+    }
+
+    /**
+     * Combo buttons 2..5 have no stored position the first time they are enabled; place them
+     * relative to combo button 1 using the same layout as the defaults (a row going right) so they don't overlap other controls.
+     */
+    private fun ensureComboDefaultPosition(comboIndex: Int, orientation: String) {
+        val id = Hotkey.COMBO_BUTTON.button + comboIndex
+        val xKey = "$id$orientation-X"
+        val yKey = "$id$orientation-Y"
+        if (preferences.contains(xKey) && preferences.contains(yKey)) return
+        val baseX = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-X", 0f)
+        val baseY = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-Y", 0f)
+        val metrics = resources.displayMetrics
+        val editor = preferences.edit()
+        val step = if (orientation.isEmpty()) {
+            0.11f * metrics.heightPixels
+        } else {
+            0.11f * metrics.widthPixels
+        }
+        editor.putFloat(xKey, baseX + step * comboIndex).putFloat(yKey, baseY)
+        editor.apply()
     }
 
     fun refreshControls() {
@@ -858,15 +907,26 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 NativeLibrary.ButtonType.BUTTON_TURBO.toString() + "-Y",
                 resources.getInteger(R.integer.N3DS_BUTTON_TURBO_Y).toFloat() / 1000 * maxY
             )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + "-X",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_X).toFloat() / 1000 * maxX
-            )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + "-Y",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_Y).toFloat() / 1000 * maxY
-            )
             .apply()
+
+        // COMBO_DEFAULTS: combo 1..5 in a row (1 on the left) at the top centre, above the screen.
+        // Spacing is 11% of the height so the buttons touch without overlapping.
+        val comboEditor = preferences.edit()
+        val comboStepLandscape = 0.11f * maxY
+        for (i in 0 until ComboHelper.COMBO_COUNT) {
+            val id = Hotkey.COMBO_BUTTON.button + i
+            comboEditor
+                .putFloat(
+                    id.toString() + "-X",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_X).toFloat() / 1000 * maxX +
+                        i * comboStepLandscape
+                )
+                .putFloat(
+                    id.toString() + "-Y",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_Y).toFloat() / 1000 * maxY
+                )
+        }
+        comboEditor.apply()
     }
 
     private fun defaultOverlayPortrait() {
@@ -1036,22 +1096,52 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 NativeLibrary.ButtonType.BUTTON_TURBO.toString() + portrait + "-Y",
                 resources.getInteger(R.integer.N3DS_BUTTON_TURBO_PORTRAIT_Y).toFloat() / 1000 * maxY
             )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + portrait + "-X",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_X).toFloat() / 1000 * maxX
-            )
-            .putFloat(
-                Hotkey.COMBO_BUTTON.button.toString() + portrait + "-Y",
-                resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_Y).toFloat() / 1000 * maxY
-            )
             .apply()
+
+        // COMBO_DEFAULTS: combo 1..5 in a row (1 on the left) just above L, ZL, ZR and R.
+        // Spacing is 11% of the width so the buttons touch without overlapping.
+        val comboEditor = preferences.edit()
+        val comboStep = 0.11f * maxX
+        for (i in 0 until ComboHelper.COMBO_COUNT) {
+            val id = Hotkey.COMBO_BUTTON.button + i
+            comboEditor
+                .putFloat(
+                    id.toString() + portrait + "-X",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_X).toFloat() / 1000 * maxX +
+                        i * comboStep
+                )
+                .putFloat(
+                    id.toString() + portrait + "-Y",
+                    resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_Y).toFloat() / 1000 * maxY
+                )
+        }
+        comboEditor.apply()
     }
 
     override fun isInEditMode(): Boolean = isInEditMode
 
     companion object {
+        /**
+         * How far outside a button (as a fraction of its size) a touch still counts as touching
+         * it for multi-press. Raise it to make pressing two buttons at once easier, lower it if
+         * neighbouring buttons trigger together too easily.
+         */
+        private const val MULTI_PRESS_SLOP = 0.25f
+
+        // Must live here (not as instance properties declared after init {}), otherwise they
+        // are still null when init calls refreshControls().
+        private val COMBO_DRAWABLES = intArrayOf(
+            R.drawable.button_combo_1, R.drawable.button_combo_2, R.drawable.button_combo_3,
+            R.drawable.button_combo_4, R.drawable.button_combo_5
+        )
+        private val COMBO_DRAWABLES_PRESSED = intArrayOf(
+            R.drawable.button_combo_1_pressed, R.drawable.button_combo_2_pressed,
+            R.drawable.button_combo_3_pressed, R.drawable.button_combo_4_pressed,
+            R.drawable.button_combo_5_pressed
+        )
+
         private val preferences
-            get() = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)
+            get() = OverlayProfile.prefs()
 
         /**
          * Resizes a [Bitmap] by a given scale factor
@@ -1319,11 +1409,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             val drawableX = preferences.getFloat("$joystick$orientation-X", 0f).toInt()
             val drawableY = preferences.getFloat("$joystick$orientation-Y", 0f).toInt()
 
-            // Decide inner scale based on joystick ID
-            var outerScale = 1f
-            if (joystick == NativeLibrary.ButtonType.STICK_C) {
-                outerScale = 2f
-            }
+            // C-stick uses the same size as the main stick (was 2f = half size).
+            // Raise this above 1f to make it smaller, e.g. 1.5f for 2/3 size.
+            val outerScale = 1f
 
             // Now set the bounds for the InputOverlayDrawableJoystick.
             // This will dictate where on the screen (and the what the size) the InputOverlayDrawableJoystick will be.

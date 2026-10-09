@@ -20,18 +20,34 @@ import org.citra.citra_emu.features.settings.model.StringSetting
  * Every setting that lives in one of [allowedSections] can be overridden: the native loader
  * (Config in jni/config.cpp) merges the overrides into the global ini before reading it, and
  * frontend only settings (orientation, cutout, layouts to cycle, ...) are applied by [applyOverlay]
- * when the game starts. Controls, cameras, network and storage settings are global only.
+ * when the game starts. Controls, network and storage settings are global only. The layout of the
+ * on screen controls is kept per game by [org.citra.citra_emu.utils.OverlayProfile].
  */
 object PerGameSettings {
     val allowedSections: Set<String> = setOf(
         Settings.SECTION_CORE,
         Settings.SECTION_SYSTEM,
+        Settings.SECTION_CAMERA,
         Settings.SECTION_RENDERER,
         Settings.SECTION_LAYOUT,
         Settings.SECTION_AUDIO,
         Settings.SECTION_DEBUG,
-        Settings.SECTION_UTILITY
+        Settings.SECTION_UTILITY,
+        Settings.SECTION_CHAT_OVERLAY,
+        Settings.SECTION_MISC
     )
+
+    /**
+     * Settings that live in an allowed section but describe the app itself rather than a game
+     * (update checks, how the game list looks), so they stay global.
+     */
+    private val appWideKeys: Set<String> by lazy {
+        setOf(
+            SettingKeys.check_for_update_on_start(),
+            SettingKeys.update_check_channel(),
+            SettingKeys.android_hide_images()
+        )
+    }
 
     /** Menus (and their sub menus) that are shown while editing a single game. */
     val allowedMenus: Set<String> = allowedSections + setOf(
@@ -50,7 +66,23 @@ object PerGameSettings {
     )
 
     private val overridableKeys: Set<String> by lazy {
-        allSettings().filter { it.section in allowedSections }.mapNotNull { it.key }.toSet()
+        allSettings()
+            .filter { it.section in allowedSections }
+            .mapNotNull { it.key }
+            .filter { it !in appWideKeys }
+            .toSet()
+    }
+
+    /** The sections whose settings are listed in (and counted for) a menu. */
+    fun sectionsOf(menuKey: String): Set<String> = when (menuKey) {
+        Settings.SECTION_CORE -> setOf(Settings.SECTION_CORE, Settings.SECTION_MISC)
+        Settings.SECTION_RENDERER -> setOf(Settings.SECTION_RENDERER, Settings.SECTION_UTILITY)
+        Settings.SECTION_LAYOUT -> setOf(
+            Settings.SECTION_LAYOUT,
+            Settings.SECTION_CUSTOM_LANDSCAPE,
+            Settings.SECTION_CUSTOM_PORTRAIT
+        )
+        else -> setOf(menuKey)
     }
 
     fun isOverridable(key: String?): Boolean = key != null && key in overridableKeys

@@ -183,6 +183,12 @@ object NativeLibrary {
     // Surface Handling
     external fun surfaceChanged(surf: Surface)
     external fun surfaceDestroyed()
+
+    /**
+     * Used by "Keep Emulation Running": tells the renderer not to present while the app is in the
+     * background. The emulation itself keeps running.
+     */
+    external fun setPresentationSuspended(suspended: Boolean)
     external fun doFrame()
 
     // Second window
@@ -246,6 +252,8 @@ object NativeLibrary {
      * Swaps the top and bottom screens.
      */
     external fun swapScreens(swapScreens: Boolean, rotation: Int)
+
+    external fun enableAdrenoTurboMode(enable: Boolean)
 
     external fun initializeGpuDriver(
         hookLibDir: String?,

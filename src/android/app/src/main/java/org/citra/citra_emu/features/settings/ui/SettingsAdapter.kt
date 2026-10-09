@@ -596,6 +596,10 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
         }
     }
 
+    /** Number of customized settings behind a submenu (0 outside of per-game settings). */
+    fun customCount(menuKey: String): Int =
+        fragmentView.activityView?.settings?.customCount(menuKey) ?: 0
+
     /** True if the item has its own value for the game that is being edited. */
     fun isOverridden(item: SettingsItem): Boolean =
         fragmentView.activityView?.settings?.isOverridden(item.setting) ?: false

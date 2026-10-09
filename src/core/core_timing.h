@@ -205,6 +205,11 @@ public:
 
         void ForceExceptionCheck(s64 cycles);
 
+        /// Shifts every new time slice right by `value` bits (0 = off)
+        void ReduceDowncountSlice(u32 value) {
+            downcount_slice = value;
+        }
+
         void MoveEvents();
 
     private:
@@ -230,6 +235,7 @@ public:
         s64 slice_length = MAX_SLICE_LENGTH;
         s64 downcount = MAX_SLICE_LENGTH;
         s64 executed_ticks = 0;
+        u32 downcount_slice = 0;
         u64 idled_cycles = 0;
 
         // Stores a scaling for the internal clockspeed. Changing this number results in

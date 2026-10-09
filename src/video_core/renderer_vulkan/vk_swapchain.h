@@ -26,6 +26,12 @@ public:
     /// Acquires the next image in the swapchain.
     bool AcquireNextImage();
 
+    /// True if the last AcquireNextImage() failed only because it timed out (no image became
+    /// available), not because the swapchain needs to be recreated.
+    [[nodiscard]] bool AcquireTimedOut() const noexcept {
+        return acquire_timed_out;
+    }
+
     /// Presents the current image and move to the next one
     void Present();
 
@@ -106,6 +112,7 @@ private:
     u32 image_index = 0;
     u32 frame_index = 0;
     bool needs_recreation = true;
+    bool acquire_timed_out = false;
     bool low_refresh_rate;
 };
 

@@ -1212,4 +1212,24 @@
     <string name="y_coordinate">Y Coordinate</string>
     <string name="invalid_coordinates">Invalid coordinates (0.0 - 1.0)</string>
 
+
+    <!-- Chat Overlay Settings -->
+    <string name="chat_overlay_settings">Chat Overlay</string>
+    <string name="chat_overlay_settings_description">Customize the appearance of the in-game chat overlay.</string>
+    <string name="chat_text_size">Chat Text Size</string>
+    <string name="chat_text_size_description">Change the size of chat messages displayed on screen.</string>
+    <string name="chat_shadow_radius">Chat Shadow Radius</string>
+    <string name="chat_shadow_radius_description">Adjust the shadow around chat text.</string>
+    <string name="chat_shadow_dx">Chat Shadow X Offset</string>
+    <string name="chat_shadow_dx_description">Adjust the horizontal shadow offset.</string>
+    <string name="chat_shadow_dy">Chat Shadow Y Offset</string>
+    <string name="chat_shadow_dy_description">Adjust the vertical shadow offset.</string>
+    <string name="chat_background_opacity">Chat Background Opacity</string>
+    <string name="chat_background_opacity_description">Adjust the transparency of the chat background.</string>
+    <string name="chat_fab_opacity">Chat Button Opacity</string>
+    <string name="chat_fab_opacity_description">Adjust the transparency of the chat button.</string>
+    <string name="chat_fab_size">Chat Button Size</string>
+    <string name="chat_fab_size_description">Adjust the size of the floating chat button.</string>
+    <string name="chat_max_lines">Chat Message Lines</string>
+    <string name="chat_max_lines_description">Sets the maximum number of chat messages displayed in the overlay.</string>
 </resources>

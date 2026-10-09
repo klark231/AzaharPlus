@@ -127,6 +127,8 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
 
             Settings.SECTION_PERFORMANCE_OVERLAY -> addPerformanceOverlaySettings(sl)
 
+            Settings.SECTION_CHAT_OVERLAY -> addChatOverlaySettings(sl)
+
             else -> {
                 fragmentView.showToastMessage("Unimplemented menu", false)
                 return
@@ -361,6 +363,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.android_hide_images_description,
                     BooleanSetting.ANDROID_HIDE_IMAGES.key,
                     BooleanSetting.ANDROID_HIDE_IMAGES.defaultValue
+                )
+            )
+
+            // Chat Overlay submenu (no icon)
+            add(
+                SubmenuSetting(
+                    R.string.chat_overlay_settings,
+                    R.string.chat_overlay_settings_description,
+                    0,
+                    Settings.SECTION_CHAT_OVERLAY
                 )
             )
         }
@@ -1870,6 +1882,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     StringSetting.WEB_API_URL.defaultValue
                 )
             )
+            
             add(
                 StringInputSetting(
                     StringSetting.NETWORK_TOKEN,
@@ -1877,6 +1890,115 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.network_token_description,
                     StringSetting.NETWORK_TOKEN.key,
                     StringSetting.NETWORK_TOKEN.defaultValue
+                )
+            )
+        }
+    }
+
+    private fun addChatOverlaySettings(sl: ArrayList<SettingsItem>) {
+        settingsActivity.setToolbarTitle(settingsActivity.getString(R.string.chat_overlay_settings))
+        sl.apply {
+
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_TEXT_SIZE,
+                    R.string.chat_text_size,
+                    R.string.chat_text_size_description,
+                    10,
+                    24,
+                    "sp",
+                    IntSetting.CHAT_TEXT_SIZE.key,
+                    IntSetting.CHAT_TEXT_SIZE.defaultValue.toFloat()
+                )
+            )
+
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_SHADOW_RADIUS,
+                    R.string.chat_shadow_radius,
+                    R.string.chat_shadow_radius_description,
+                    0,
+                    10,
+                    "",
+                    IntSetting.CHAT_SHADOW_RADIUS.key,
+                    IntSetting.CHAT_SHADOW_RADIUS.defaultValue.toFloat()
+                )
+            )
+            
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_SHADOW_DX,
+                    R.string.chat_shadow_dx,
+                    R.string.chat_shadow_dx_description,
+                    0,
+                    10,
+                    "",
+                    IntSetting.CHAT_SHADOW_DX.key,
+                    IntSetting.CHAT_SHADOW_DX.defaultValue.toFloat()
+                )
+            )
+            
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_SHADOW_DY,
+                    R.string.chat_shadow_dy,
+                    R.string.chat_shadow_dy_description,
+                    0,
+                    10,
+                    "",
+                    IntSetting.CHAT_SHADOW_DY.key,
+                    IntSetting.CHAT_SHADOW_DY.defaultValue.toFloat()
+                )
+            )
+
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_BACKGROUND_OPACITY,
+                    R.string.chat_background_opacity,
+                    R.string.chat_background_opacity_description,
+                    0,
+                    100,
+                    "%",
+                    IntSetting.CHAT_BACKGROUND_OPACITY.key,
+                    IntSetting.CHAT_BACKGROUND_OPACITY.defaultValue.toFloat()
+                )
+            )
+
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_FAB_OPACITY,
+                    R.string.chat_fab_opacity,
+                    R.string.chat_fab_opacity_description,
+                    0,
+                    100,
+                    "%",
+                    IntSetting.CHAT_FAB_OPACITY.key,
+                    IntSetting.CHAT_FAB_OPACITY.defaultValue.toFloat()
+                )
+            )
+
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_FAB_SIZE,
+                    R.string.chat_fab_size,
+                    R.string.chat_fab_size_description,
+                    40,
+                    80,
+                    "dp",
+                    IntSetting.CHAT_FAB_SIZE.key,
+                    IntSetting.CHAT_FAB_SIZE.defaultValue.toFloat()
+                )
+            )
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_MAX_LINES,
+                    R.string.chat_max_lines,
+                    R.string.chat_max_lines_description,
+                    1,
+                    20,
+                    "",
+                    IntSetting.CHAT_MAX_LINES.key,
+                    IntSetting.CHAT_MAX_LINES.defaultValue.toFloat()
                 )
             )
         }

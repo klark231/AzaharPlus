@@ -98,7 +98,7 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
                     listMultiplayer.adapter = adapter
                     adapter.loadMultiplayerMenu()
                     btnLeave.setOnClickListener {
-                        NetPlayManager.netPlayLeaveRoom()
+                        NetPlayManager.leaveRoom()
                         activeWifiDirectManager?.stop()
                         activeWifiDirectManager = null
                         dismiss()

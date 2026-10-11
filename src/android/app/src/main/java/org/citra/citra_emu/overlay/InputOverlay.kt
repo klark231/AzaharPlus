@@ -107,36 +107,20 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     }
 
     /**
-     * Multi-press hit test (Citra MMJ style) for a finger that just landed at (x, y).
+     * Precise hit test for a finger that just landed at (x, y).
      *
-     * - A finger inside one or more buttons presses those, plus any other button that is within
-     *   [MULTI_PRESS_SLOP] of the touch (so pressing near the edge shared with a neighbour presses
-     *   both).
-     * - A finger that lands in the gap between buttons, inside none of them, presses all the
-     *   buttons around it, but only when that is at least two. A lone near-miss is still a miss.
-     * Works for every overlay button (A/B/X/Y, L/R, ZL/ZR, Start/Select, ...).
+     * A button reacts only where its icon really is (its visible shape, not the square around it).
+     * A finger on one icon presses that button. A finger where two or more icons overlap presses
+     * every button whose icon is under the finger, and they stay held until the finger lifts.
      *
      * @return 0 if [button] is not hit, otherwise how many buttons this touch presses together
      *         (1 = a normal single press, 2+ = a multi-press that stays held until release).
      */
     fun buttonTouchGroupSize(button: InputOverlayDrawableButton, x: Int, y: Int): Int {
-        var insideAny = false
-        var nearCount = 0
-        var thisIsNear = false
-        for (other in overlayButtons) {
-            val b = other.bounds
-            if (b.contains(x, y)) {
-                insideAny = true
-            }
-            val slop = MULTI_PRESS_SLOP * minOf(b.width(), b.height())
-            if (other.distanceTo(x, y) <= slop) {
-                nearCount++
-                if (other === button) {
-                    thisIsNear = true
-                }
-            }
+        if (!button.containsPoint(x, y)) {
+            return 0
         }
-        return if (thisIsNear && (insideAny || nearCount >= 2)) nearCount else 0
+        return overlayButtons.count { it.containsPoint(x, y) }
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -1121,13 +1105,6 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     override fun isInEditMode(): Boolean = isInEditMode
 
     companion object {
-        /**
-         * How far outside a button (as a fraction of its size) a touch still counts as touching
-         * it for multi-press. Raise it to make pressing two buttons at once easier, lower it if
-         * neighbouring buttons trigger together too easily.
-         */
-        private const val MULTI_PRESS_SLOP = 0.25f
-
         // Must live here (not as instance properties declared after init {}), otherwise they
         // are still null when init calls refreshControls().
         private val COMBO_DRAWABLES = intArrayOf(

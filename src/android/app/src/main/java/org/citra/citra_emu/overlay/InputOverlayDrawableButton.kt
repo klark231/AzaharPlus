@@ -28,6 +28,9 @@ enum class ButtonSlidingMode(val int: Int) {
     Alternative(2)
 }
 
+/** Pixels of the icon that are at least this opaque (0..255) count as part of the button. */
+private const val BUTTON_HIT_ALPHA = 32
+
 /**
  * Custom [BitmapDrawable] that is capable
  * of storing it's own ID.
@@ -62,9 +65,13 @@ class InputOverlayDrawableButton(
     private val pressedStateBitmap: BitmapDrawable
     private var pressedState = false
 
+    // The default icon, kept to tell the visible shape from the empty corners of its square
+    private val hitMask: Bitmap
+
     init {
         this.defaultStateBitmap = BitmapDrawable(res, defaultStateBitmap)
         this.pressedStateBitmap = BitmapDrawable(res, pressedStateBitmap)
+        hitMask = defaultStateBitmap
         trackId = -1
         width = this.defaultStateBitmap.intrinsicWidth
         height = this.defaultStateBitmap.intrinsicHeight
@@ -112,7 +119,7 @@ class InputOverlayDrawableButton(
 
         val isActionMoving = motionEvent == MotionEvent.ACTION_MOVE
         if (buttonSliding != ButtonSlidingMode.Disabled.int && isActionMoving) {
-            val inside = bounds.contains(xPosition, yPosition)
+            val inside = containsPoint(xPosition, yPosition)
             if (pressedState) {
                 // button is already pressed
                 // check whether we moved out of the button area to update the state
@@ -213,6 +220,31 @@ class InputOverlayDrawableButton(
         }
     val bounds: Rect
         get() = defaultStateBitmap.bounds
+
+    /**
+     * True if (x, y) is on the visible icon, not just inside the square around it. A round button
+     * does not react in the corners of its square, so buttons that are close together never
+     * share a touch.
+     */
+    fun containsPoint(x: Int, y: Int): Boolean {
+        val r = bounds
+        if (r.width() <= 0 || r.height() <= 0 || !r.contains(x, y)) {
+            return false
+        }
+        val px = ((x - r.left) * hitMask.width / r.width()).coerceIn(0, hitMask.width - 1)
+        val py = ((y - r.top) * hitMask.height / r.height()).coerceIn(0, hitMask.height - 1)
+        return try {
+            (hitMask.getPixel(px, py) ushr 24) >= BUTTON_HIT_ALPHA
+        } catch (_: Exception) {
+            true
+        }
+    }
+
+    /** Distance in pixels from (x, y) to the centre of this button. */
+    fun centerDistance(x: Int, y: Int): Float {
+        val r = bounds
+        return hypot(x - r.exactCenterX(), y - r.exactCenterY())
+    }
 
     /** Distance in pixels from (x, y) to this button's bounds, 0 when the point is inside. */
     fun distanceTo(x: Int, y: Int): Float {

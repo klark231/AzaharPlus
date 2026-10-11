@@ -31,6 +31,49 @@ class CustomLayoutManager(
     private val resetButton: View,
     private val toolbar: View
 ) {
+    /** The custom layout numbers as they were when the editor was opened. */
+    private var layoutBefore: List<Int> = emptyList()
+
+    /** Orientation that was being edited when the editor was opened. */
+    private var editedPortrait = false
+
+    /**
+     * Called after Done with the layout from before the edit. The listener decides where the
+     * change is kept (this game or all games). Without a listener the layout is saved globally.
+     */
+    var onDone: ((before: List<Int>, portrait: Boolean) -> Unit)? = null
+
+    /** The eight settings (top and bottom: x, y, width, height) of one orientation. */
+    fun layoutSettings(portrait: Boolean = NativeLibrary.isPortraitMode()): List<IntSetting> =
+        if (portrait) {
+            listOf(
+                IntSetting.PORTRAIT_TOP_X, IntSetting.PORTRAIT_TOP_Y,
+                IntSetting.PORTRAIT_TOP_WIDTH, IntSetting.PORTRAIT_TOP_HEIGHT,
+                IntSetting.PORTRAIT_BOTTOM_X, IntSetting.PORTRAIT_BOTTOM_Y,
+                IntSetting.PORTRAIT_BOTTOM_WIDTH, IntSetting.PORTRAIT_BOTTOM_HEIGHT
+            )
+        } else {
+            listOf(
+                IntSetting.LANDSCAPE_TOP_X, IntSetting.LANDSCAPE_TOP_Y,
+                IntSetting.LANDSCAPE_TOP_WIDTH, IntSetting.LANDSCAPE_TOP_HEIGHT,
+                IntSetting.LANDSCAPE_BOTTOM_X, IntSetting.LANDSCAPE_BOTTOM_Y,
+                IntSetting.LANDSCAPE_BOTTOM_WIDTH, IntSetting.LANDSCAPE_BOTTOM_HEIGHT
+            )
+        }
+
+    /** Puts a layout that was read with [layoutSettings] back, in the settings and the renderer. */
+    fun restoreLayout(values: List<Int>, portrait: Boolean) {
+        if (values.size != 8) return
+        layoutSettings(portrait).zip(values).forEach { (setting, value) -> setting.int = value }
+        NativeLibrary.setCustomLayout(
+            values[0], values[1], values[2], values[3],
+            values[4], values[5], values[6], values[7],
+            portrait
+        )
+        editorView.loadLayoutSettings()
+        editorView.invalidate()
+    }
+
     /**
      * Initializes editor controls and connects button actions.
      *
@@ -49,6 +92,8 @@ class CustomLayoutManager(
      * the current framebuffer layout settings.
      */
     fun showEditor() {
+        editedPortrait = NativeLibrary.isPortraitMode()
+        layoutBefore = layoutSettings(editedPortrait).map { it.int }
         editorView.visibility = View.VISIBLE
         toolbar.visibility = View.VISIBLE
         editorView.post { editorView.loadLayoutSettings() }
@@ -77,14 +122,23 @@ class CustomLayoutManager(
     private fun setupSaveButton() {
         doneButton.setOnClickListener {
             editorView.applyLayoutChanges()
-            saveLayoutSettings()
             hideEditor()
+            val listener = onDone
+            if (listener != null) {
+                listener(layoutBefore, editedPortrait)
+            } else {
+                saveLayoutSettings()
+            }
         }
     }
 
     /** Configures the cancel button. Discards current changes and closes the editor. */
     private fun setupCancelButton() {
-        cancelButton.setOnClickListener { hideEditor() }
+        cancelButton.setOnClickListener {
+            // The layout is applied live while editing, so put the old one back
+            restoreLayout(layoutBefore, editedPortrait)
+            hideEditor()
+        }
     }
 
     /** Configures the reset button. Restores default screen positions. */
@@ -98,8 +152,8 @@ class CustomLayoutManager(
      * Saves either portrait or landscape layout settings depending
      * on the current orientation.
      */
-    fun saveLayoutSettings() {
-        if (NativeLibrary.isPortraitMode()) {
+    fun saveLayoutSettings(portrait: Boolean = NativeLibrary.isPortraitMode()) {
+        if (portrait) {
             SettingsFile.saveFile(SettingsFile.FILE_NAME_CONFIG, IntSetting.PORTRAIT_TOP_X)
             SettingsFile.saveFile(SettingsFile.FILE_NAME_CONFIG, IntSetting.PORTRAIT_TOP_Y)
             SettingsFile.saveFile(SettingsFile.FILE_NAME_CONFIG, IntSetting.PORTRAIT_TOP_WIDTH)

@@ -4,6 +4,8 @@
 
 package org.citra.citra_emu.fragments
 
+import org.citra.citra_emu.utils.CustomLayoutProfile
+import org.citra.citra_emu.utils.LayoutFiles
 import org.citra.citra_emu.utils.OverlayProfile
 import android.annotation.SuppressLint
 import android.app.ActivityManager
@@ -272,6 +274,7 @@ class EmulationFragment :
 
          // Initialize Custom Layout Manager
         customLayoutManager.bindControls()
+        customLayoutManager.onDone = { before, portrait -> finishCustomLayoutEdit(before, portrait) }
 
         // Show/hide the "Stats" overlay
         updateShowPerformanceOverlay()
@@ -987,6 +990,11 @@ class EmulationFragment :
                     true
                 }
 
+                R.id.menu_emulation_layout_files -> {
+                    showLayoutFilesDialog()
+                    true
+                }
+
                 R.id.menu_emulation_reset_overlay -> {
                     showResetOverlayDialog()
                     true
@@ -1159,7 +1167,7 @@ class EmulationFragment :
 
                 R.id.menu_screen_layout_custom -> {               
                     screenAdjustmentUtil.changeScreenOrientation(ScreenLayout.CUSTOM_LAYOUT.int)
-                    customLayoutManager.showEditor()
+                    showCustomLayoutEditor()
                     true
                 }
 
@@ -1212,7 +1220,7 @@ class EmulationFragment :
 
                 R.id.menu_portrait_layout_custom -> {
                     screenAdjustmentUtil.changePortraitOrientation(PortraitScreenLayout.CUSTOM_PORTRAIT_LAYOUT.int)
-                    customLayoutManager.showEditor()
+                    showCustomLayoutEditor()
                     true
                 }
 
@@ -1422,6 +1430,167 @@ class EmulationFragment :
             .show()
     }
 
+    /** Starts remembering the layout for a dialog that edits it (scale, opacity, toggles). */
+    private fun beginOverlayDialogEdit() {
+        if (overlayEditBefore == null) {
+            beginOverlayEdit()
+        }
+    }
+
+    /**
+     * Ends such a dialog: asks where to keep the change, or forgets it when it was cancelled.
+     * While the controls are being moved around, the Done button of that edit asks instead.
+     */
+    private fun endOverlayDialogEdit(keep: Boolean) {
+        if (_binding?.surfaceInputOverlay?.isInEditMode == true) {
+            return
+        }
+        if (keep) finishOverlayEdit() else overlayEditBefore = null
+    }
+
+    /**
+     * Asks whether the custom screen layout that was just edited is for every game or only for
+     * this one. The numbers are per-game settings, so "only this game" goes to the game's own ini.
+     */
+    private fun finishCustomLayoutEdit(before: List<Int>, portrait: Boolean) {
+        val settings = customLayoutManager.layoutSettings(portrait)
+        if (settings.map { it.int } == before) {
+            return
+        }
+        val gameId = OverlayProfile.activeGameId
+        if (gameId == null || _binding == null) {
+            customLayoutManager.saveLayoutSettings(portrait)
+            return
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.custom_layout_save_scope_title)
+            .setMessage(getString(R.string.custom_layout_save_scope_message, game.title))
+            .setPositiveButton(R.string.overlay_save_this_game) { _, _ ->
+                CustomLayoutProfile.saveForThisGame(gameId, settings)
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.custom_layout_saved_for_game, game.title),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton(R.string.overlay_save_all_games) { _, _ ->
+                CustomLayoutProfile.saveForAllGames(gameId, settings)
+            }
+            .setNeutralButton(R.string.overlay_discard_changes) { _, _ ->
+                customLayoutManager.restoreLayout(before, portrait)
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /** Menu with the export and import actions for layout files (config/layout_*.ini). */
+    private fun showLayoutFilesDialog() {
+        val gameId = OverlayProfile.activeGameId
+        val gameFile = gameId?.let { LayoutFiles.gameName(it) }
+        val labels = ArrayList<String>()
+        val actions = ArrayList<() -> Unit>()
+        labels.add(getString(R.string.layout_files_export_global))
+        actions.add { exportLayoutFile(LayoutFiles.GLOBAL_NAME) }
+        if (gameFile != null) {
+            labels.add(getString(R.string.layout_files_export_game))
+            actions.add { exportLayoutFile(gameFile) }
+        }
+        labels.add(getString(R.string.layout_files_import_global))
+        actions.add { importLayoutFile(LayoutFiles.GLOBAL_NAME) }
+        if (gameFile != null) {
+            labels.add(getString(R.string.layout_files_import_game))
+            actions.add { importLayoutFile(gameFile) }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.layout_files_title)
+            .setItems(labels.toTypedArray()) { _, which -> actions[which]() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Writes the layout that is in use right now (screens and on-screen controls) to a file. */
+    private fun exportLayoutFile(name: String) {
+        val saved = LayoutFiles.write(
+            name,
+            OverlayProfile.snapshot(),
+            customLayoutManager.layoutSettings(false).map { it.int },
+            customLayoutManager.layoutSettings(true).map { it.int }
+        )
+        Toast.makeText(
+            requireContext(),
+            getString(
+                if (saved) R.string.layout_files_exported else R.string.layout_files_export_failed,
+                name
+            ),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    /** Reads a layout file and asks whether it is for this game only or for every game. */
+    private fun importLayoutFile(name: String) {
+        if (!LayoutFiles.exists(name)) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.layout_files_missing, name),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val layout = LayoutFiles.read(name)
+        if (layout == null || layout.isEmpty) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.layout_files_bad, name),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val gameId = OverlayProfile.activeGameId
+        if (gameId == null) {
+            applyImportedLayout(layout, null, false)
+            return
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.layout_files_import_title)
+            .setMessage(getString(R.string.layout_files_import_message, name, game.title))
+            .setPositiveButton(R.string.overlay_save_this_game) { _, _ ->
+                applyImportedLayout(layout, gameId, true)
+            }
+            .setNegativeButton(R.string.overlay_save_all_games) { _, _ ->
+                applyImportedLayout(layout, gameId, false)
+            }
+            .setNeutralButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applyImportedLayout(layout: LayoutFiles.Layout, gameId: String?, forGame: Boolean) {
+        if (layout.controls.isNotEmpty()) {
+            if (forGame && gameId != null) {
+                OverlayProfile.importForGame(gameId, layout.controls)
+            } else {
+                OverlayProfile.importForAllGames(gameId, layout.controls)
+            }
+        }
+        for ((portrait, values) in listOf(false to layout.landscape, true to layout.portrait)) {
+            if (values.isEmpty()) {
+                continue
+            }
+            val settings = customLayoutManager.layoutSettings(portrait)
+            val merged = settings.mapIndexed { index, setting -> values[index] ?: setting.int }
+            settings.zip(merged).forEach { (setting, value) -> setting.int = value }
+            if (portrait == NativeLibrary.isPortraitMode()) {
+                customLayoutManager.restoreLayout(merged, portrait)
+            }
+            if (forGame && gameId != null) {
+                CustomLayoutProfile.saveForThisGame(gameId, settings)
+            } else {
+                CustomLayoutProfile.saveForAllGames(gameId, settings)
+            }
+        }
+        _binding?.surfaceInputOverlay?.refreshControls()
+        Toast.makeText(requireContext(), R.string.layout_files_imported, Toast.LENGTH_SHORT).show()
+    }
+
     private fun editControlsPlacement() {
         if (binding.surfaceInputOverlay.isInEditMode) {
             binding.doneControlConfig.visibility = View.GONE
@@ -1435,6 +1604,7 @@ class EmulationFragment :
     }
 
     private fun showToggleControlsDialog() {
+        beginOverlayDialogEdit()
         val editor = OverlayProfile.prefs().edit()
         val enabledButtons = BooleanArray(21)
         enabledButtons.forEachIndexed { i: Int, _: Boolean ->
@@ -1458,7 +1628,12 @@ class EmulationFragment :
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 editor.apply()
                 binding.surfaceInputOverlay.refreshControls()
+                endOverlayDialogEdit(keep = true)
             }
+            .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
+                endOverlayDialogEdit(keep = false)
+            }
+            .setOnCancelListener { endOverlayDialogEdit(keep = false) }
             .show()
 
         // Band-aid fix for strange dialog flickering issue
@@ -1474,6 +1649,7 @@ class EmulationFragment :
     }
 
     private fun showAdjustScaleDialog(target: String) {
+        beginOverlayDialogEdit()
         val sliderBinding = DialogSliderBinding.inflate(layoutInflater)
 
         sliderBinding.apply {
@@ -1526,17 +1702,25 @@ class EmulationFragment :
             .setView(sliderBinding.root)
             .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
                 setControlScale(previousProgress, target)
+                endOverlayDialogEdit(keep = false)
             }
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 setControlScale(sliderBinding.slider.value.toInt(), target)
+                endOverlayDialogEdit(keep = true)
             }
             .setNeutralButton(R.string.slider_default) { _: DialogInterface?, _: Int ->
                 setControlScale(50, target)
+                endOverlayDialogEdit(keep = true)
+            }
+            .setOnCancelListener {
+                setControlScale(previousProgress, target)
+                endOverlayDialogEdit(keep = false)
             }
             .show()
     }
 
     private fun showAdjustOpacityDialog() {
+        beginOverlayDialogEdit()
         val sliderBinding = DialogSliderBinding.inflate(layoutInflater)
 
         sliderBinding.apply {
@@ -1578,12 +1762,19 @@ class EmulationFragment :
             .setView(sliderBinding.root)
             .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
                 setControlOpacity(previousProgress)
+                endOverlayDialogEdit(keep = false)
             }
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 setControlOpacity(sliderBinding.slider.value.toInt())
+                endOverlayDialogEdit(keep = true)
             }
             .setNeutralButton(R.string.slider_default) { _: DialogInterface?, _: Int ->
                 setControlOpacity(50)
+                endOverlayDialogEdit(keep = true)
+            }
+            .setOnCancelListener {
+                setControlOpacity(previousProgress)
+                endOverlayDialogEdit(keep = false)
             }
             .show()
     }
@@ -1846,6 +2037,28 @@ class EmulationFragment :
             cutout?.safeInsetBottom ?: 0
         )
         windowInsets
+    }
+
+    /**
+     * Opens the custom layout editor on exactly the same area the emulation surface occupies.
+     *
+     * With "Expand to cutout area" off the surface is inset by the display cutout, so the renderer
+     * measures the custom layout from the safe area, not from the screen corner. The editor view is
+     * full screen, so without this its frames and handles are shifted by the cutout size.
+     */
+    private fun showCustomLayoutEditor() {
+        val surfaceParams = binding.surfaceEmulation.layoutParams as? ViewGroup.MarginLayoutParams
+        val editorParams = binding.customLayoutEditor.layoutParams as? ViewGroup.MarginLayoutParams
+        if (surfaceParams != null && editorParams != null) {
+            editorParams.setMargins(
+                surfaceParams.leftMargin,
+                surfaceParams.topMargin,
+                surfaceParams.rightMargin,
+                surfaceParams.bottomMargin
+            )
+            binding.customLayoutEditor.layoutParams = editorParams
+        }
+        customLayoutManager.showEditor()
     }
 
     private fun setInsets() {

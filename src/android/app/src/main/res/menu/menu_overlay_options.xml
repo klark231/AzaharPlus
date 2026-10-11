@@ -123,4 +123,8 @@
         android:id="@+id/menu_emulation_reset_overlay"
         android:title="@string/emulation_touch_overlay_reset" />
 
+    <item
+        android:id="@+id/menu_emulation_layout_files"
+        android:title="@string/layout_files_menu" />
+
 </menu>

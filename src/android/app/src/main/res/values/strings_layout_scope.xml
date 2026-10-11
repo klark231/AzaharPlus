@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="custom_layout_save_scope_title">Save the screen layout</string>
+    <string name="custom_layout_save_scope_message">You changed the custom screen layout. Keep the change only for %1$s, or for every game?</string>
+    <string name="custom_layout_saved_for_game">Screen layout saved for %1$s</string>
+
+    <string name="layout_files_menu">Layout files (export / import)</string>
+    <string name="layout_files_title">Layout files</string>
+    <string name="layout_files_export_global">Export current layout to layout_global.ini</string>
+    <string name="layout_files_export_game">Export current layout for this game</string>
+    <string name="layout_files_import_global">Import layout_global.ini</string>
+    <string name="layout_files_import_game">Import this game\'s layout file</string>
+    <string name="layout_files_exported">Saved to config/%1$s.ini</string>
+    <string name="layout_files_export_failed">Could not write config/%1$s.ini</string>
+    <string name="layout_files_missing">config/%1$s.ini was not found. Export a layout first.</string>
+    <string name="layout_files_bad">Could not read any layout from config/%1$s.ini</string>
+    <string name="layout_files_import_title">Import layout</string>
+    <string name="layout_files_import_message">Use the layout from %1$s.ini only for %2$s, or for every game?</string>
+    <string name="layout_files_imported">Layout imported</string>
+</resources>

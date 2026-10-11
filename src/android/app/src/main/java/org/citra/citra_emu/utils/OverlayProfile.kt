@@ -114,6 +114,39 @@ object OverlayProfile {
         }
     }
 
+    /** True if [key] is one of the preference keys that make up the on-screen controls layout. */
+    fun isLayoutKey(key: String): Boolean = layoutKey.matches(key)
+
+    private fun globalLayout(): Map<String, Any> =
+        globalPrefs().all.filter { layoutKey.matches(it.key) && it.value != null }
+            .mapValues { it.value!! }
+
+    /** Imported keys must keep the defaults from being laid out again over the positions. */
+    private fun withInit(imported: Map<String, Any>): Map<String, Any> =
+        if (imported.keys.any { it.endsWith("-X") || it.endsWith("-Y") }) {
+            imported + ("OverlayInit" to true)
+        } else {
+            imported
+        }
+
+    /** Keeps an imported layout for [gameId] alone; keys that were not imported stay as they are. */
+    fun importForGame(gameId: String, imported: Map<String, Any>) {
+        val target = gamePrefs(gameId)
+        write(target, snapshot() + withInit(imported))
+        target.edit().putBoolean(KEY_CUSTOM, true).apply()
+    }
+
+    /**
+     * Keeps an imported layout for every game; keys that were not imported stay as they are. A
+     * layout of the game's own is dropped so the game follows the global one.
+     */
+    fun importForAllGames(gameId: String?, imported: Map<String, Any>) {
+        write(globalPrefs(), globalLayout() + withInit(imported))
+        if (gameId != null) {
+            reset(gameId)
+        }
+    }
+
     /** Throws the game's own layout away. */
     fun reset(gameId: String) {
         gamePrefs(gameId).edit().clear().apply()

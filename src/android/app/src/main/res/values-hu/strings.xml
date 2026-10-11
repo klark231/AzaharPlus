@@ -10,6 +10,7 @@
     <string name="touch_input_empty_title">Még nincs hozzárendelés</string>
     <string name="touch_input_empty_message">Koppints az előnézetre a hely kiválasztásához, majd nyomj meg egy gombot, vagy mozgass egy kart a kontrolleren.</string>
     <string name="touch_input_hint_empty">Koppints az első hozzárendelés elhelyezéséhez</string>
+    <string name="touch_input_hint_select">Koppints az előnézetre egy hozzárendelés hozzáadásához vagy kiválasztásához</string>
     <string name="touch_input_hint_test">Nyomj meg egy gombot vagy mozgass egy kart a teszteléshez</string>
     <string name="touch_input_mode_edit">Szerkesztés</string>
     <string name="touch_input_mode_test">Tesztelés</string>

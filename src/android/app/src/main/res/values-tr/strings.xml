@@ -898,6 +898,7 @@
     <string name="touch_input_empty_title">Henüz bağlama yok</string>
     <string name="touch_input_empty_message">Bir konum seçmek için önizlemeye dokunun, ardından denetleyicinizde bir düğmeye basın veya kolu hareket ettirin.</string>
     <string name="touch_input_hint_empty">İlk bağlamanızı yerleştirmek için dokunun</string>
+    <string name="touch_input_hint_select">Bir bağlama eklemek veya seçmek için önizlemeye dokunun</string>
     <string name="touch_input_hint_test">Test etmek için bir düğmeye basın veya kolu hareket ettirin</string>
     <string name="touch_input_mode_edit">Düzenle</string>
     <string name="touch_input_mode_test">Test Et</string>

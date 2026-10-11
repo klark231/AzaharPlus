@@ -10,6 +10,7 @@
     <string name="touch_input_empty_title">아직 바인딩이 없습니다</string>
     <string name="touch_input_empty_message">미리보기를 탭하여 위치를 선택한 다음 컨트롤러의 버튼을 누르거나 스틱을 움직이세요.</string>
     <string name="touch_input_hint_empty">탭하여 첫 바인딩을 배치하세요</string>
+    <string name="touch_input_hint_select">미리보기를 탭하여 바인딩을 추가하거나 선택하세요</string>
     <string name="touch_input_hint_test">버튼을 누르거나 스틱을 움직여 테스트하세요</string>
     <string name="touch_input_mode_edit">편집</string>
     <string name="touch_input_mode_test">테스트</string>

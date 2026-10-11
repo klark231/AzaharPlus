@@ -13,23 +13,21 @@
         android:orientation="vertical">
 
         <!-- Profile chips: the row scrolls, the add button stays put -->
-        <LinearLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="@dimen/touch_input_card_gap"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:clipToPadding="false"
             android:paddingStart="@dimen/touch_input_margin"
-            android:paddingEnd="8dp">
+            android:paddingEnd="@dimen/touch_input_margin"
+            android:scrollbars="none">
 
-            <HorizontalScrollView
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clipToPadding="false"
-                android:paddingEnd="8dp"
-                android:scrollbars="none">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/profileChipGroup"
@@ -39,21 +37,22 @@
                     app:singleLine="true"
                     app:singleSelection="true" />
 
-            </HorizontalScrollView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addProfileButton"
+                    style="@style/Widget.Material3.Button.IconButton.Tonal"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/create_profile"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addProfileButton"
-                style="@style/Widget.Material3.Button.IconButton.Tonal"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="@string/create_profile"
-                app:icon="@drawable/ic_add"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp" />
+            </LinearLayout>
 
-        </LinearLayout>
+        </HorizontalScrollView>
 
-        <!-- The touchscreen canvas: full width, always 4:3 -->
+        <!-- The touchscreen canvas card: preview, hint, and inspector all live together here -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.Azahar.TouchInput.Card"
             android:layout_width="match_parent"
@@ -62,53 +61,58 @@
             android:layout_marginEnd="@dimen/touch_input_margin"
             android:clipToOutline="true">
 
-            <org.citra.citra_emu.features.touchinput.TouchInputBindingView
-                android:id="@+id/touchInputBindingView"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Padding above keeps the preview from touching the card's own edges, so it
+                     reads as a screen sitting inside the card rather than as the card outline -->
+                <org.citra.citra_emu.features.touchinput.TouchInputBindingView
+                    android:id="@+id/touchInputBindingView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- Hint, shown while nothing is selected -->
+                <LinearLayout
+                    android:id="@+id/hintRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_touch_input"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/hintText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/touch_input_hint_empty"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+                <!-- Inspector for the selected binding: position, nudge, delete -->
+                <include
+                    android:id="@+id/inspectorRow"
+                    layout="@layout/view_binding_inspector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Hint, shown while nothing is selected -->
-        <LinearLayout
-            android:id="@+id/hintRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="24dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="4dp">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_touch_input"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                android:id="@+id/hintText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:text="@string/touch_input_hint_empty"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
-        </LinearLayout>
-
-        <!-- Inspector for the selected binding: position, nudge, delete -->
-        <include
-            android:id="@+id/inspectorRow"
-            layout="@layout/view_binding_inspector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/touch_input_margin"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="@dimen/touch_input_margin"
-            android:visibility="gone" />
 
         <!-- List header: title, count, Edit/Test toggle, overflow -->
         <LinearLayout

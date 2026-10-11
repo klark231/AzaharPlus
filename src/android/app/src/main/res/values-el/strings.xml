@@ -384,6 +384,7 @@
     <string name="touch_input_empty_title">Δεν υπάρχουν ακόμη αντιστοιχίσεις</string>
     <string name="touch_input_empty_message">Πατήστε στην προεπισκόπηση για να επιλέξετε σημείο, έπειτα πατήστε ένα πλήκτρο ή μετακινήστε έναν μοχλό στο χειριστήριό σας.</string>
     <string name="touch_input_hint_empty">Πατήστε για να τοποθετήσετε την πρώτη σας αντιστοίχιση</string>
+    <string name="touch_input_hint_select">Πατήστε την προεπισκόπηση για να προσθέσετε ή να επιλέξετε μια αντιστοίχιση</string>
     <string name="touch_input_hint_test">Πατήστε ένα πλήκτρο ή μετακινήστε έναν μοχλό για δοκιμή</string>
     <string name="touch_input_mode_edit">Επεξεργασία</string>
     <string name="touch_input_mode_test">Δοκιμή</string>

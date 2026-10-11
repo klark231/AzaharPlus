@@ -842,6 +842,7 @@
     <string name="touch_input_empty_title">尚无绑定</string>
     <string name="touch_input_empty_message">点击预览选择位置,然后在控制器上按下按键或移动摇杆。</string>
     <string name="touch_input_hint_empty">点击以放置您的第一个绑定</string>
+    <string name="touch_input_hint_select">点击预览以添加或选择绑定</string>
     <string name="touch_input_hint_test">按下按键或移动摇杆以测试</string>
     <string name="touch_input_mode_edit">编辑</string>
     <string name="touch_input_mode_test">测试</string>

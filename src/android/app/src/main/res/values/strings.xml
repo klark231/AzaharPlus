@@ -36,7 +36,11 @@
     <string name="select_games_folder_description">Allows Azahar to populate the application list</string>
     <string name="about">About</string>
     <string name="clear_streetpass_config">Clear StreetPass Configuration</string>
+<<<<<<< HEAD
     <string name="citra_description">An open-source 3DS emulator\nLicensed under GPLv3 or any later version</string>
+=======
+    <string name="citra_description">An open-source 3DS emulator</string>
+>>>>>>> 9c8730509 (feat: add UDS-TRACE logging, touch input binding, and various UI/UX fixes)
     <string name="about_description">Build version, credits, and more</string>
     <string name="clear_streetpass_config_description">In case something went wrong with ZipPass</string>
     <string name="games_dir_selected">Application directory selected</string>
@@ -172,7 +176,7 @@
     <string name="button_home">HOME</string>
     <string name="button_swap">Swap Screens</string>
     <string name="button_turbo">Turbo</string>
-    <string name="button_combo">Combo Button</string>
+    <string name="button_combo">Combo Button 1</string>
     <string name="button_x" translatable="false">X</string>
     <string name="button_y" translatable="false">Y</string>
     <string name="button_l" translatable="false">L</string>
@@ -184,8 +188,31 @@
     <string name="turbo_limit_hotkey">Turbo Speed</string>
     <string name="turbo_enabled_toast">Turbo Speed Enabled</string>
     <string name="turbo_disabled_toast">Turbo Speed Disabled</string>
-    <string name="combo_button_settings">Configure Combo Button</string>
-    <string name="combo_button_settings_description">Select which buttons are triggered by the Combo Button.</string>
+    <string name="combo_button_settings">Configure Combo Buttons</string>
+    <string name="combo_button_settings_description">Choose what each combo button presses, and turn each one on or off.</string>
+    <string name="button_combo_2">Combo Button 2</string>
+    <string name="button_combo_3">Combo Button 3</string>
+    <string name="button_combo_4">Combo Button 4</string>
+    <string name="button_combo_5">Combo Button 5</string>
+    <string name="combo_button_n_1">Combo Button 1</string>
+    <string name="combo_button_n_2">Combo Button 2</string>
+    <string name="combo_button_n_3">Combo Button 3</string>
+    <string name="combo_button_n_4">Combo Button 4</string>
+    <string name="combo_button_n_5">Combo Button 5</string>
+    <string name="combo_none">None</string>
+    <string name="combo_button_n">Combo Button %1$d</string>
+    <string name="combo_circle_left">Circle Pad Left</string>
+    <string name="combo_circle_up">Circle Pad Up</string>
+    <string name="combo_circle_right">Circle Pad Right</string>
+    <string name="combo_circle_down">Circle Pad Down</string>
+    <string name="combo_c_left">C-Stick Left</string>
+    <string name="combo_c_up">C-Stick Up</string>
+    <string name="combo_c_right">C-Stick Right</string>
+    <string name="combo_c_down">C-Stick Down</string>
+    <string name="combo_button_settings_2">Configure Combo Button 2</string>
+    <string name="combo_button_settings_3">Configure Combo Button 3</string>
+    <string name="combo_button_settings_4">Configure Combo Button 4</string>
+    <string name="combo_button_settings_5">Configure Combo Button 5</string>
 
     <!-- System files strings -->
     <string name="setup_system_files">System Files</string>
@@ -396,8 +423,11 @@
     <!-- Debug settings strings -->
     <string name="cpu_jit">CPU JIT</string>
     <string name="cpu_jit_description">Uses the Just-in-Time (JIT) compiler for CPU emulation. When enabled, game performance will be significantly improved.</string>
+<<<<<<< HEAD
     <string name="use_fastinterp">Use Fast Interpreter</string>
     <string name="use_fastinterp_description">When the CPU JIT is disabled, use the fast interpreter instead of the legacy interpreter. Restart required.</string>
+=======
+>>>>>>> 9c8730509 (feat: add UDS-TRACE logging, touch input binding, and various UI/UX fixes)
     <string name="hw_shaders">Enable Hardware Shader</string>
     <string name="hw_shaders_description">Uses hardware to emulate 3DS shaders. When enabled, game performance will be significantly improved.</string>
     <string name="cpu_clock_speed">CPU Clock Speed</string>
@@ -477,6 +507,12 @@
     <!-- Game Properties -->
     <string name="properties">Properties</string>
     <string name="properties_not_loaded">The game properties could not be loaded.</string>
+    <string name="per_game_settings">Game settings</string>
+    <string name="per_game_settings_title">Game settings: %1$s</string>
+    <string name="per_game_use_global_confirmation">Use the global value for this setting again?</string>
+    <string name="per_game_reset_all">Use global settings</string>
+    <string name="per_game_reset_all_description">Remove every game specific setting of this game</string>
+    <string name="per_game_reset_done">Game settings reset to global</string>
 
     <!-- Preferences Screen -->
     <string name="preferences_settings">Settings</string>
@@ -1122,8 +1158,8 @@
     <string name="multiplayer_game">Game</string>
     <string name="multiplayer_no_game_info">Any Game</string>
     <string name="multiplayer_password_protected">Password protected room</string>
-    <string name="multiplayer_hide_full_rooms">Hide Full Rooms</string>
-    <string name="multiplayer_hide_empty_rooms">Hide Empty Rooms</string>
+    <string name="multiplayer_hide_full_rooms">Hide Full</string>
+    <string name="multiplayer_hide_empty_rooms">Hide Empty</string>
     <string name="multiplayer_tap_refresh_to_check_again">Tap refresh to check again</string>
     <string name="multiplayer_search_public_lobbies">Search Public Lobbies...</string>
     <string name="multiplayer_game_name">Preferred Games</string>
@@ -1141,6 +1177,8 @@
     <string name="multiplayer_wifi_direct_not_supported">Wi-Fi Direct is not supported on this device</string>
     <string name="multiplayer_wifi_direct_permission_needed">Wi-Fi permission required. Please grant it and try again.</string>
     <string name="multiplayer_wifi_direct_select_peer">[ %1$s ]   Select a device to connect</string>
+    <string name="multiplayer_hide_locked_rooms">Hide Locked</string>
+    <string name="multiplayer_last_joined">Last joined</string>
 
     <!-- File Compression -->
     <string name="compress">Compress</string>
@@ -1169,4 +1207,135 @@
     <string name="update_check_channel_stable">Stable</string>
     <string name="update_check_channel_prerelease">Prerelease</string>
 
+<<<<<<< HEAD
+
+    <!-- Chat Overlay Settings -->
+    <string name="chat_overlay_settings">Chat Overlay</string>
+    <string name="chat_overlay_settings_description">Customize the appearance of the in-game chat overlay.</string>
+    <string name="chat_text_size">Chat Text Size</string>
+    <string name="chat_text_size_description">Change the size of chat messages displayed on screen.</string>
+    <string name="chat_shadow_radius">Chat Shadow Radius</string>
+    <string name="chat_shadow_radius_description">Adjust the shadow around chat text.</string>
+    <string name="chat_shadow_dx">Chat Shadow X Offset</string>
+    <string name="chat_shadow_dx_description">Adjust the horizontal shadow offset.</string>
+    <string name="chat_shadow_dy">Chat Shadow Y Offset</string>
+    <string name="chat_shadow_dy_description">Adjust the vertical shadow offset.</string>
+    <string name="chat_background_opacity">Chat Background Opacity</string>
+    <string name="chat_background_opacity_description">Adjust the transparency of the chat background.</string>
+    <string name="chat_fab_opacity">Chat Button Opacity</string>
+    <string name="chat_fab_opacity_description">Adjust the transparency of the chat button.</string>
+    <string name="chat_fab_size">Chat Button Size</string>
+    <string name="chat_fab_size_description">Adjust the size of the floating chat button.</string>
+    <string name="chat_max_lines">Chat Message Lines</string>
+    <string name="chat_max_lines_description">Sets the maximum number of chat messages displayed in the overlay.</string>
+
+    <!-- Experimental Settings -->
+    <string name="keep_emulation_running">Keep Emulation Running</string>
+    <string name="keep_emulation_running_description">Do not pause the game when when emulation is in background. Useful for multiplayer so you do not time out.</string>
+    <string name="adreno_gpu_boost">Adreno GPU Boost (Experimental)</string>
+    <string name="adreno_gpu_boost_description">Increases graphics throughput on supported devices, improving performance. Use of this setting can increase power usage and temperature. May cause stability issues on certain devices.</string>
+    <string name="reduce_downcount_slice">Reduce Downcount Slice</string>
+    <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+    <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
+    <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+    <string name="use_fastmem">Use Fastmem</string>
+    <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
+
+    <!-- Per game on-screen controls -->
+    <string name="overlay_save_scope_title">Save the on-screen controls</string>
+    <string name="overlay_save_scope_message">You changed the on-screen controls. Keep the change only for %1$s, or for every game?</string>
+    <string name="overlay_save_this_game">Only this game</string>
+    <string name="overlay_save_all_games">All games</string>
+    <string name="overlay_discard_changes">Discard changes</string>
+    <string name="overlay_saved_for_game">On-screen controls saved for %1$s</string>
+    <string name="per_game_custom_count">%1$d custom</string>
+    <string name="per_game_show_customized_only">Show only customized settings</string>
+    <string name="per_game_show_customized_only_description">Hide everything that uses the global value.</string>
+    <string name="per_game_nothing_customized">Nothing is customized for this game yet.</string>
 </resources>
+=======
+<!-- Touch Input Binding -->
+    <string name="touch_input_bindings">Touch Input Bindings</string>
+    <string name="touch_input_bindings_description">Map controller buttons and axes to position on the 3DS bottom touchscreen.</string>
+    <string name="bind_touch_input">Bind Touch Input</string>
+    <string name="bind_touch_input_message">Press or move an input.</string>
+    <string name="bind_touch_input_cancel">Cancel</string>
+    <string name="touch_input_empty_title">No bindings yet</string>
+    <string name="touch_input_empty_message">Tap the preview to choose a spot, then press a button or move a stick on your controller.</string>
+    <string name="touch_input_hint_empty">Tap to place your first binding</string>
+    <string name="touch_input_hint_select">Tap the preview to add or select a binding</string>
+    <string name="touch_input_hint_test">Press a button or key to test</string>
+    <string name="touch_input_mode_edit">Edit</string>
+    <string name="touch_input_mode_test">Test</string>
+    <string name="more_options">More options</string>
+    <string name="touch_input_nudge_left">Nudge left</string>
+    <string name="touch_input_nudge_right">Nudge right</string>
+    <string name="touch_input_nudge_up">Nudge up</string>
+    <string name="touch_input_nudge_down">Nudge down</string>
+    <string name="touch_input_binding_options">Binding options</string>
+    <string name="delete_all">Delete All</string>
+    <string name="delete_all_touch_input_confirm">Are you sure you want to delete all touch input bindings?</string>
+    <string name="delete_touch_input_confirm">Delete this touch input binding?</string>
+    <string name="create_profile">Create Profile</string>
+    <string name="create_new_profile">Create New Profile</string>
+    <string name="profile_action_rename_format">Rename \"%1$s\"</string>
+    <string name="profile_manage_format">Manage \"%1$s\"</string>
+    <string name="profile_action_delete_format">Delete \"%1$s\"</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="profile_name">Profile Name</string>
+    <string name="edit_profile_name">Edit Profile Name</string>
+    <string name="profile_already_exists">Profile already exists</string>
+    <string name="profile_name_already_exists">Profile name already exists</string>
+    <string name="delete_profile_confirm">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="profile_deleted">Profile deleted</string>
+    <string name="edit">Edit</string>
+    <string name="x_coordinate">X Coordinate</string>
+    <string name="y_coordinate">Y Coordinate</string>
+    <string name="invalid_coordinates">Invalid coordinates (0.0 - 1.0)</string>
+
+
+    <!-- Chat Overlay Settings -->
+    <string name="chat_overlay_settings">Chat Overlay</string>
+    <string name="chat_overlay_settings_description">Customize the appearance of the in-game chat overlay.</string>
+    <string name="chat_text_size">Chat Text Size</string>
+    <string name="chat_text_size_description">Change the size of chat messages displayed on screen.</string>
+    <string name="chat_shadow_radius">Chat Shadow Radius</string>
+    <string name="chat_shadow_radius_description">Adjust the shadow around chat text.</string>
+    <string name="chat_shadow_dx">Chat Shadow X Offset</string>
+    <string name="chat_shadow_dx_description">Adjust the horizontal shadow offset.</string>
+    <string name="chat_shadow_dy">Chat Shadow Y Offset</string>
+    <string name="chat_shadow_dy_description">Adjust the vertical shadow offset.</string>
+    <string name="chat_background_opacity">Chat Background Opacity</string>
+    <string name="chat_background_opacity_description">Adjust the transparency of the chat background.</string>
+    <string name="chat_fab_opacity">Chat Button Opacity</string>
+    <string name="chat_fab_opacity_description">Adjust the transparency of the chat button.</string>
+    <string name="chat_fab_size">Chat Button Size</string>
+    <string name="chat_fab_size_description">Adjust the size of the floating chat button.</string>
+    <string name="chat_max_lines">Chat Message Lines</string>
+    <string name="chat_max_lines_description">Sets the maximum number of chat messages displayed in the overlay.</string>
+
+    <!-- Experimental Settings -->
+    <string name="keep_emulation_running">Keep Emulation Running</string>
+    <string name="keep_emulation_running_description">Do not pause the game when when emulation is in background. Useful for multiplayer so you do not time out.</string>
+    <string name="adreno_gpu_boost">Adreno GPU Boost (Experimental)</string>
+    <string name="adreno_gpu_boost_description">Increases graphics throughput on supported devices, improving performance. Use of this setting can increase power usage and temperature. May cause stability issues on certain devices.</string>
+    <string name="reduce_downcount_slice">Reduce Downcount Slice</string>
+    <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+    <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
+    <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+    <string name="use_fastmem">Use Fastmem</string>
+    <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
+
+    <!-- Per game on-screen controls -->
+    <string name="overlay_save_scope_title">Save the on-screen controls</string>
+    <string name="overlay_save_scope_message">You changed the on-screen controls. Keep the change only for %1$s, or for every game?</string>
+    <string name="overlay_save_this_game">Only this game</string>
+    <string name="overlay_save_all_games">All games</string>
+    <string name="overlay_discard_changes">Discard changes</string>
+    <string name="overlay_saved_for_game">On-screen controls saved for %1$s</string>
+    <string name="per_game_custom_count">%1$d custom</string>
+    <string name="per_game_show_customized_only">Show only customized settings</string>
+    <string name="per_game_show_customized_only_description">Hide everything that uses the global value.</string>
+    <string name="per_game_nothing_customized">Nothing is customized for this game yet.</string>
+</resources>
+>>>>>>> 9c8730509 (feat: add UDS-TRACE logging, touch input binding, and various UI/UX fixes)

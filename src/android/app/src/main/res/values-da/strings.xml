@@ -938,6 +938,7 @@
     <string name="touch_input_empty_title">Ingen bindinger endnu</string>
     <string name="touch_input_empty_message">Tryk på forhåndsvisningen for at vælge et sted, og tryk derefter på en knap eller bevæg et stick på din controller.</string>
     <string name="touch_input_hint_empty">Tryk for at placere din første binding</string>
+    <string name="touch_input_hint_select">Tryk på forhåndsvisningen for at tilføje eller vælge en binding</string>
     <string name="touch_input_hint_test">Tryk på en knap, eller bevæg et stick for at teste</string>
     <string name="touch_input_mode_edit">Rediger</string>
     <string name="touch_input_mode_test">Test</string>

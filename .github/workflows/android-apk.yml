@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - AzaharPlus
+      - test
     paths-ignore:
       - README.md
       - .github/**

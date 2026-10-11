@@ -10,6 +10,7 @@
     <string name="touch_input_empty_title">尚無綁定</string>
     <string name="touch_input_empty_message">點按預覽以選擇位置,然後在控制器上按下按鍵或移動搖桿。</string>
     <string name="touch_input_hint_empty">點按以放置您的第一個綁定</string>
+    <string name="touch_input_hint_select">點按預覽以新增或選取綁定</string>
     <string name="touch_input_hint_test">按下按鍵或移動搖桿以測試</string>
     <string name="touch_input_mode_edit">編輯</string>
     <string name="touch_input_mode_test">測試</string>

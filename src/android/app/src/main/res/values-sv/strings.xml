@@ -1080,6 +1080,7 @@
     <string name="touch_input_empty_title">Inga bindningar ännu</string>
     <string name="touch_input_empty_message">Tryck på förhandsgranskningen för att välja en plats, tryck sedan på en knapp eller flytta en spak på din kontroller.</string>
     <string name="touch_input_hint_empty">Tryck för att placera din första bindning</string>
+    <string name="touch_input_hint_select">Tryck på förhandsgranskningen för att lägga till eller välja en bindning</string>
     <string name="touch_input_hint_test">Tryck på en knapp eller flytta en spak för att testa</string>
     <string name="touch_input_mode_edit">Redigera</string>
     <string name="touch_input_mode_test">Testa</string>

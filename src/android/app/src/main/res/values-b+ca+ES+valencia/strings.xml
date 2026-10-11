@@ -1081,6 +1081,7 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="touch_input_empty_title">Encara no hi ha vinculacions</string>
     <string name="touch_input_empty_message">Toca la previsualització per triar un punt i després prem un botó o mou una palanca al controlador.</string>
     <string name="touch_input_hint_empty">Toca per col·locar la teua primera vinculació</string>
+    <string name="touch_input_hint_select">Toca la previsualització per afegir o seleccionar una vinculació</string>
     <string name="touch_input_hint_test">Prem un botó o mou una palanca per provar</string>
     <string name="touch_input_mode_edit">Edita</string>
     <string name="touch_input_mode_test">Prova</string>

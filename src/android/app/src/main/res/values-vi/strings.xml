@@ -10,6 +10,7 @@
     <string name="touch_input_empty_title">Chưa có ràng buộc nào</string>
     <string name="touch_input_empty_message">Chạm vào bản xem trước để chọn vị trí, sau đó nhấn một nút hoặc di chuyển cần analog trên tay cầm của bạn.</string>
     <string name="touch_input_hint_empty">Chạm để đặt ràng buộc đầu tiên của bạn</string>
+    <string name="touch_input_hint_select">Chạm vào bản xem trước để thêm hoặc chọn ràng buộc</string>
     <string name="touch_input_hint_test">Nhấn một nút hoặc di chuyển cần analog để kiểm tra</string>
     <string name="touch_input_mode_edit">Chỉnh sửa</string>
     <string name="touch_input_mode_test">Kiểm tra</string>

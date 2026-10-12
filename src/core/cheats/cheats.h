@@ -47,6 +47,9 @@ public:
     /// Loads the cheat file from disk for the specified title id.
     void LoadCheatFile(u64 title_id);
 
+    /// Forgets which title is loaded so the next LoadCheatFile really reads the file again.
+    void InvalidateLoaded();
+
     /// Saves currently active cheats to file for the specified title id.
     void SaveCheatFile(u64 title_id) const;
 

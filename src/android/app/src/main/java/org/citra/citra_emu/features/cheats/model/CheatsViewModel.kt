@@ -7,6 +7,7 @@ package org.citra.citra_emu.features.cheats.model
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.citra.citra_emu.features.settings.model.BooleanSetting
 
 class CheatsViewModel : ViewModel() {
     val selectedCheat get() = _selectedCheat.asStateFlow()
@@ -54,6 +55,7 @@ class CheatsViewModel : ViewModel() {
 
     fun initialize(titleId_: Long) {
         titleId = titleId_
+        CheatEngine.setBuiltInCheatsEnabled(BooleanSetting.BUILTIN_CHEATS.boolean)
         load()
     }
 
@@ -73,6 +75,20 @@ class CheatsViewModel : ViewModel() {
             CheatEngine.saveCheatFile(titleId)
             cheatsNeedSaving = false
         }
+    }
+
+    /** The whole cheat file as text, for the notepad editor. */
+    fun getCheatFileText(): String {
+        saveIfNeeded()
+        return CheatEngine.getCheatFileText(titleId)
+    }
+
+    /** Replaces the whole cheat file with the text from the notepad editor and reloads. */
+    fun replaceCheatFileText(text: String) {
+        setSelectedCheat(null, -1)
+        CheatEngine.setCheatFileText(titleId, text)
+        cheatsNeedSaving = false
+        load()
     }
 
     fun setSelectedCheat(cheat: Cheat?, position: Int) {

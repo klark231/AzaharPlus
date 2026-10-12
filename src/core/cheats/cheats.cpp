@@ -79,6 +79,11 @@ void CheatEngine::SaveCheatFile(u64 title_id) const {
     }
 }
 
+void CheatEngine::InvalidateLoaded() {
+    std::unique_lock lock{cheats_list_mutex};
+    loaded_title_id.reset();
+}
+
 void CheatEngine::LoadCheatFile(u64 title_id) {
     {
         std::unique_lock lock{cheats_list_mutex};

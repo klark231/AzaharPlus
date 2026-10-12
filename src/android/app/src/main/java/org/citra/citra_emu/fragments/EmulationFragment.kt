@@ -597,6 +597,9 @@ class EmulationFragment :
             val position = IntSetting.PERFORMANCE_OVERLAY_POSITION.int
             updateStatsPosition(position)
 
+            // refresh_after_settings: combo buttons enabled/disabled in Settings show up right away
+            _binding?.surfaceInputOverlay?.refreshControls()
+
             binding.inGameMenu.menu.findItem(R.id.menu_emulation_pause)?.let { menuItem ->
                 menuItem.title = resources.getString(R.string.pause_emulation)
                 menuItem.icon = ResourcesCompat.getDrawable(
@@ -2192,6 +2195,8 @@ class EmulationFragment :
                 State.STOPPED -> {
                     Thread({
                         Log.debug("[EmulationFragment] Starting emulation thread.")
+                        org.citra.citra_emu.features.cheats.model.CheatEngine
+                            .setBuiltInCheatsEnabled(BooleanSetting.BUILTIN_CHEATS.boolean)
                         NativeLibrary.run(gamePath)
                     }, "NativeEmulation").start()
                 }

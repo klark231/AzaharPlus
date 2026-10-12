@@ -1301,4 +1301,10 @@
     <string name="layout_files_import_title">Import layout</string>
     <string name="layout_files_import_message">Use the layout from %1$s.ini only for %2$s, or for every game?</string>
     <string name="layout_files_imported">Layout imported</string>
+    <string name="builtin_cheats">Built-in cheats</string>
+    <string name="builtin_cheats_description">Also show the cheats AzaharPlus ships in its own database (for example the long Monster Hunter lists). Off = only your own cheats.</string>
+    <string name="cheats_edit_text">Edit as text</string>
+    <string name="cheats_text_hint">[Cheat name]\n01234567 89ABCDEF</string>
+    <string name="cheats_text_save">Save</string>
+    <string name="cheats_text_cancel">Cancel</string>
 </resources>

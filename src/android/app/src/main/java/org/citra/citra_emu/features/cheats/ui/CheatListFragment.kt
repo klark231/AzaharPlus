@@ -5,7 +5,13 @@
 package org.citra.citra_emu.features.cheats.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.InputType
+import android.view.Gravity
+import android.widget.EditText
+import android.widget.ScrollView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,7 +112,47 @@ class CheatListFragment : Fragment() {
             }
         }
 
+        binding.toolbarCheatList.inflateMenu(R.menu.menu_cheat_list)
+        binding.toolbarCheatList.setOnMenuItemClickListener {
+            if (it.itemId == R.id.cheats_edit_text) {
+                showTextEditor()
+                true
+            } else {
+                false
+            }
+        }
+
         setInsets()
+    }
+
+    /** Notepad-style editor for the whole cheat file. */
+    private fun showTextEditor() {
+        val ctx = requireContext()
+        val edit = EditText(ctx).apply {
+            setText(cheatsViewModel.getCheatFileText())
+            typeface = Typeface.MONOSPACE
+            textSize = 13f
+            gravity = Gravity.TOP or Gravity.START
+            minLines = 14
+            hint = ctx.getString(R.string.cheats_text_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
+        val pad = (16 * resources.displayMetrics.density).toInt()
+        val scroll = ScrollView(ctx).apply {
+            setPadding(pad, pad / 2, pad, 0)
+            addView(edit)
+        }
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.cheats_edit_text)
+            .setView(scroll)
+            .setPositiveButton(R.string.cheats_text_save) { _, _ ->
+                cheatsViewModel.replaceCheatFileText(edit.text.toString())
+                @Suppress("NotifyDataSetChanged")
+                binding.cheatList.adapter?.notifyDataSetChanged()
+            }
+            .setNegativeButton(R.string.cheats_text_cancel, null)
+            .show()
     }
 
     private fun setInsets() {

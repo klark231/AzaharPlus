@@ -410,6 +410,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
+            add(
+                SwitchSetting(
+                    BooleanSetting.BUILTIN_CHEATS,
+                    R.string.builtin_cheats,
+                    R.string.builtin_cheats_description,
+                    BooleanSetting.BUILTIN_CHEATS.key,
+                    BooleanSetting.BUILTIN_CHEATS.defaultValue
+                )
+            )
+
             // Chat Overlay submenu (no icon)
             add(
                 SubmenuSetting(
@@ -1042,9 +1052,10 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 RunnableSetting(
                     R.string.combo_button_settings,
                     R.string.combo_button_settings_description,
-                    false,
+                    true, // combo_runtime_ok: may be opened while a game is running
                     0,
                     {
+                        fragmentView.onSettingChanged() // make sure the combos get saved
                         settingsActivity.supportFragmentManager.let { fm ->
                             ComboButtonConfigDialogFragment().show(
                                 fm,

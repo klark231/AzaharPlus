@@ -11,6 +11,10 @@ object CheatEngine {
     external fun loadCheatFile(titleId: Long)
     external fun saveCheatFile(titleId: Long)
 
+    external fun setBuiltInCheatsEnabled(enabled: Boolean)
+    external fun getCheatFileText(titleId: Long): String
+    external fun setCheatFileText(titleId: Long, text: String)
+
     external fun getCheats(): Array<Cheat>
 
     external fun addCheat(cheat: Cheat?)

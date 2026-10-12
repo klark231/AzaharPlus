@@ -81,6 +81,9 @@ public:
     ///     Comment lines start with a '*'
     /// This function will pares the file for such structures
     static std::vector<std::shared_ptr<CheatBase>> LoadFile(const std::string& filepath);
+    /// Turns the built-in cheat database on/off (used by LoadFile).
+    static void SetBuiltInEnabled(bool enabled);
+    static bool IsBuiltInEnabled();
 
 private:
     std::atomic<bool> enabled = false;

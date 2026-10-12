@@ -11,7 +11,7 @@
 #include "core/cheats/cheat_base.h"
 #include <string>
 #include <fmt/format.h>
-#include "android_common/android_common.h"
+#include "jni/android_common/android_common.h"
 #include "common/file_util.h"
 #include "core/cheats/cheats.h"
 #include "core/cheats/gateway_cheat.h"

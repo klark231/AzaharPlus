@@ -247,6 +247,21 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0 : Enable right eye rendering, 1: Disable right eye rendering
 )") DECLARE_KEY(disable_right_eye_render) BOOST_HANA_STRING(R"(
 
+# Ignores software vertex shaders from PICA core. Skips draws that cannot run on the GPU.
+# May give a small performance boost, but may cause graphical bugs.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(force_hw_vertex_shaders) BOOST_HANA_STRING(R"(
+
+# Ignores texture copies when no cached source surface exists.
+# May give a small performance boost, but may cause graphical bugs.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(disable_surface_texture_copy) BOOST_HANA_STRING(R"(
+
+# Skips flushing cached surfaces on tiny CPU writes.
+# May give a small performance boost, but may cause graphical bugs.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(disable_flush_cpu_write) BOOST_HANA_STRING(R"(
+
 # Perform presentation on separate threads
 # Improves performance when using Vulkan in most applications.
 # Adds ~1 frame of input lag.

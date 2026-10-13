@@ -1309,4 +1309,11 @@
     <string name="cheats_text_cancel">Cancel</string>
     <string name="cheats_text_label">Cheat file</string>
     <string name="cheats_text_helper">Start each cheat with a [Name] line, then one code per line.</string>
+    <string name="tweaks">Tweaks</string>
+    <string name="force_hw_vertex_shaders">Force Hardware Vertex Shaders</string>
+    <string name="force_hw_vertex_shaders_description">Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
+    <string name="disable_surface_texture_copy">Disable Surface Texture Copy</string>
+    <string name="disable_surface_texture_copy_description">Skips texture copies when no cached source exists. May give a small performance boost, but can cause graphical bugs.</string>
+    <string name="disable_flush_cpu_write">Disable Flush CPU Write</string>
+    <string name="disable_flush_cpu_write_description">Skips flushing cached surfaces on tiny CPU writes. May reduce stutter, but can cause graphical bugs.</string>
 </resources>

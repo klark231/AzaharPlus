@@ -228,7 +228,8 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
 
     const auto [src_surface_id, src_rect] = GetTexCopySurface(src_params);
     if (!src_surface_id) {
-        return false;
+        // Tweak: when enabled, treat the copy as handled instead of falling back
+        return Settings::values.disable_surface_texture_copy.GetValue();
     }
 
     const SurfaceParams src_info = slot_surfaces[src_surface_id];
@@ -1339,6 +1340,10 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
         // If the CPU is invalidating this region we want to remove it
         // to (likely) mark the memory pages as uncached
         if (!region_owner_id && size <= 8) {
+            // Tweak: skip the flush for tiny CPU writes
+            if (Settings::values.disable_flush_cpu_write.GetValue()) {
+                return;
+            }
             FlushRegion(surface.addr, surface.size, surface_id);
             remove_surfaces.push_back(surface_id);
             return;

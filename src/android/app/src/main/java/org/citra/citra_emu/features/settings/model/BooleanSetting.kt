@@ -110,6 +110,21 @@ enum class BooleanSetting(
         Settings.SECTION_RENDERER,
         false
     ),
+    FORCE_HW_VERTEX_SHADERS(
+        SettingKeys.force_hw_vertex_shaders(),
+        Settings.SECTION_RENDERER,
+        false
+    ),
+    DISABLE_SURFACE_TEXTURE_COPY(
+        SettingKeys.disable_surface_texture_copy(),
+        Settings.SECTION_RENDERER,
+        false
+    ),
+    DISABLE_FLUSH_CPU_WRITE(
+        SettingKeys.disable_flush_cpu_write(),
+        Settings.SECTION_RENDERER,
+        false
+    ),
     USE_ARTIC_BASE_CONTROLLER(
         SettingKeys.use_artic_base_controller(),
         Settings.SECTION_CONTROLS,

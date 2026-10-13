@@ -633,6 +633,10 @@ struct Values {
     SwitchableSetting<bool> preload_textures{false, Keys::preload_textures};
     SwitchableSetting<bool> async_custom_loading{true, Keys::async_custom_loading};
     SwitchableSetting<bool> disable_right_eye_render{false, Keys::disable_right_eye_render};
+    SwitchableSetting<bool> force_hw_vertex_shaders{false, Keys::force_hw_vertex_shaders};
+    SwitchableSetting<bool> disable_surface_texture_copy{false,
+                                                         Keys::disable_surface_texture_copy};
+    SwitchableSetting<bool> disable_flush_cpu_write{false, Keys::disable_flush_cpu_write};
 
     // Audio
     bool audio_muted;

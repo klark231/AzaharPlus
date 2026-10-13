@@ -1362,6 +1362,35 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
+            add(HeaderSetting(R.string.tweaks))
+            add(
+                SwitchSetting(
+                    BooleanSetting.FORCE_HW_VERTEX_SHADERS,
+                    R.string.force_hw_vertex_shaders,
+                    R.string.force_hw_vertex_shaders_description,
+                    BooleanSetting.FORCE_HW_VERTEX_SHADERS.key,
+                    BooleanSetting.FORCE_HW_VERTEX_SHADERS.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.DISABLE_SURFACE_TEXTURE_COPY,
+                    R.string.disable_surface_texture_copy,
+                    R.string.disable_surface_texture_copy_description,
+                    BooleanSetting.DISABLE_SURFACE_TEXTURE_COPY.key,
+                    BooleanSetting.DISABLE_SURFACE_TEXTURE_COPY.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.DISABLE_FLUSH_CPU_WRITE,
+                    R.string.disable_flush_cpu_write,
+                    R.string.disable_flush_cpu_write_description,
+                    BooleanSetting.DISABLE_FLUSH_CPU_WRITE.key,
+                    BooleanSetting.DISABLE_FLUSH_CPU_WRITE.defaultValue
+                )
+            )
+
             // Disabled until custom texture implementation gets rewrite, current one overloads RAM
             // and crashes Citra.
             // add(

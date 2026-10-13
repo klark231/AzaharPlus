@@ -203,6 +203,17 @@ if (ENABLE_VULKAN)
         shader/generator/spv_fs_shader_gen.h
     )
     target_link_libraries(video_core PRIVATE vulkan-headers vma sirit SPIRV glslang)
+
+    if(ENABLE_LSFG)
+        # Step 1: loader + shader cache. The Vulkan chain (lsfg_*) is added in later commits.
+        target_sources(video_core PRIVATE
+            frame_gen/lossless_dll.cpp
+            frame_gen/lossless_dll.h
+            frame_gen/lsfg_translate.cpp
+            frame_gen/lsfg_translate.h
+        )
+        target_compile_definitions(video_core PUBLIC HAS_LSFG)
+    endif()
 endif()
 
 if(ENABLE_SDL2)

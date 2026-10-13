@@ -154,6 +154,11 @@ enum class BooleanSetting(
         Settings.SECTION_CORE,
         false
     ),
+    SIMPLE_CPU_TICKS(
+        SettingKeys.simple_cpu_ticks(),
+        Settings.SECTION_CORE,
+        false
+    ),
     PRIORITY_BOOST_STARVED_THREADS(
         SettingKeys.priority_boost_starved_threads(),
         Settings.SECTION_CORE,

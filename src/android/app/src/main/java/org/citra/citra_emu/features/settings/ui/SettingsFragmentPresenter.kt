@@ -2316,6 +2316,15 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
             )
             add(
                 SwitchSetting(
+                    BooleanSetting.SIMPLE_CPU_TICKS,
+                    R.string.simple_cpu_ticks,
+                    R.string.simple_cpu_ticks_description,
+                    BooleanSetting.SIMPLE_CPU_TICKS.key,
+                    BooleanSetting.SIMPLE_CPU_TICKS.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
                     BooleanSetting.PRIORITY_BOOST_STARVED_THREADS,
                     R.string.priority_boost_starved_threads,
                     R.string.priority_boost_starved_threads_description,

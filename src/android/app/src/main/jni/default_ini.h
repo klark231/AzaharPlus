@@ -114,6 +114,11 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0 (default): Off, 1: On
 )") DECLARE_KEY(reduce_downcount_slice) BOOST_HANA_STRING(R"(
 
+# Count every emulated CPU instruction as 1 tick instead of using per-instruction cycle costs.
+# Behaves like the original Citra timing model. Restart the game after changing.
+# 0 (default): Off (accurate costs), 1: On
+)") DECLARE_KEY(simple_cpu_ticks) BOOST_HANA_STRING(R"(
+
 # Boost low priority starved threads during kernel rescheduling.
 # 0: Off, 1 (default): On
 )") DECLARE_KEY(priority_boost_starved_threads) BOOST_HANA_STRING(R"(

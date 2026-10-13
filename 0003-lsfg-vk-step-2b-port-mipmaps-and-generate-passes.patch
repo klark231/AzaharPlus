@@ -1,0 +1,400 @@
+From 19ee88b951df44876ee2f4cb9116e14901337594 Mon Sep 17 00:00:00 2001
+From: dev <dev@local>
+Date: Tue, 13 Oct 2026 04:53:04 +0000
+Subject: [PATCH 3/3] lsfg-vk step 2b: port mipmaps and generate passes
+
+- lsfg_mipmaps: flow-scaled mip chain (7 levels, R8) from the input frame pair.
+- lsfg_generate: final blend pass writing into a caller-supplied storage image.
+  Ends with a transition to TRANSFER_SRC_OPTIMAL (Eden leaves GENERAL) because Azahar's
+  PresentWindow reads frames from that layout.
+- lsfg_common: add AllocateLsfgDescriptorSets helper.
+
+NOT COMPILED (see step 2a). Frame images must gain VK_IMAGE_USAGE_STORAGE_BIT in step 3.
+---
+ src/video_core/CMakeLists.txt                 |   4 +
+ .../renderer_vulkan/lsfg/lsfg_common.cpp      |  13 ++
+ .../renderer_vulkan/lsfg/lsfg_common.h        |   5 +
+ .../renderer_vulkan/lsfg/lsfg_generate.cpp    | 117 ++++++++++++++++++
+ .../renderer_vulkan/lsfg/lsfg_generate.h      |  57 +++++++++
+ .../renderer_vulkan/lsfg/lsfg_mipmaps.cpp     |  76 ++++++++++++
+ .../renderer_vulkan/lsfg/lsfg_mipmaps.h       |  42 +++++++
+ 7 files changed, 314 insertions(+)
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_generate.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_generate.h
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.h
+
+diff --git a/src/video_core/CMakeLists.txt b/src/video_core/CMakeLists.txt
+index f56ddde..649fdd6 100644
+--- a/src/video_core/CMakeLists.txt
++++ b/src/video_core/CMakeLists.txt
+@@ -214,6 +214,10 @@ if (ENABLE_VULKAN)
+             renderer_vulkan/lsfg/lsfg_common.h
+             renderer_vulkan/lsfg/lsfg_shaders.cpp
+             renderer_vulkan/lsfg/lsfg_shaders.h
++            renderer_vulkan/lsfg/lsfg_mipmaps.cpp
++            renderer_vulkan/lsfg/lsfg_mipmaps.h
++            renderer_vulkan/lsfg/lsfg_generate.cpp
++            renderer_vulkan/lsfg/lsfg_generate.h
+         )
+         target_compile_definitions(video_core PUBLIC HAS_LSFG)
+     endif()
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+index b31b7d4..07aaf36 100644
+--- a/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+@@ -483,6 +483,19 @@ vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance, u32
+     return instance.GetDevice().createDescriptorPoolUnique(pool_info);
+ }
+ 
++std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(const Instance& instance,
++                                                          vk::DescriptorPool pool,
++                                                          vk::DescriptorSetLayout layout,
++                                                          size_t count) {
++    const std::vector<vk::DescriptorSetLayout> layouts(count, layout);
++    const vk::DescriptorSetAllocateInfo alloc_info = {
++        .descriptorPool = pool,
++        .descriptorSetCount = static_cast<u32>(layouts.size()),
++        .pSetLayouts = layouts.data(),
++    };
++    return instance.GetDevice().allocateDescriptorSets(alloc_info);
++}
++
+ vk::UniqueSampler CreateLsfgSampler(const Instance& instance, vk::SamplerAddressMode address_mode,
+                                     vk::CompareOp compare_op, bool white_border) {
+     const vk::SamplerCreateInfo sampler_info = {
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.h b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+index c465edf..180a1c8 100644
+--- a/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+@@ -262,6 +262,11 @@ private:
+ [[nodiscard]] vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance,
+                                                                 u32 max_sets);
+ 
++/// Allocates `count` sets of the given layout from the pool. Sets are freed with the pool.
++[[nodiscard]] std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(
++    const Instance& instance, vk::DescriptorPool pool, vk::DescriptorSetLayout layout,
++    size_t count);
++
+ [[nodiscard]] vk::UniqueSampler CreateLsfgSampler(const Instance& instance,
+                                                   vk::SamplerAddressMode address_mode,
+                                                   vk::CompareOp compare_op, bool white_border);
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_generate.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_generate.cpp
+new file mode 100644
+index 0000000..013ae7e
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_generate.cpp
+@@ -0,0 +1,117 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <vector>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_generate.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 4;
++
++[[nodiscard]] u32 GroupCount(u32 size) {
++    return (size + (1u << DISPATCH_TILE_SHIFT) - 1) >> DISPATCH_TILE_SHIFT;
++}
++
++} // Anonymous namespace
++
++LsfgGenerate::LsfgGenerate(const Instance& instance, const LsfgShaders& shaders,
++                           LsfgResources& resources, vk::DescriptorPool descriptor_pool,
++                           LsfgImagePair& frames_, LsfgImage& motion_, LsfgImage& detail1_,
++                           LsfgImage& detail2_)
++    : frames{&frames_}, motion{&motion_}, detail1{&detail1_}, detail2{&detail2_} {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    pass = LsfgPass(instance, shaders, GENERATE,
++                    {{1, vk::DescriptorType::eUniformBuffer},
++                     {2, vk::DescriptorType::eSampler},
++                     {5, vk::DescriptorType::eSampledImage},
++                     {1, vk::DescriptorType::eStorageImage}});
++
++    sampler = resources.GetSampler();
++    edge_sampler =
++        resources.GetSampler(vk::SamplerAddressMode::eClampToEdge, vk::CompareOp::eAlways, false);
++
++    const std::vector<vk::DescriptorSet> sets = AllocateLsfgDescriptorSets(
++        instance, descriptor_pool, pass.SetLayout(), LSFG_GENERATION_SLOTS * LSFG_MAX_TARGETS * 2);
++
++    size_t next = 0;
++    for (size_t slot = 0; slot < LSFG_GENERATION_SLOTS; ++slot) {
++        Generation& generation = generations[slot];
++        generation.buffer = resources.GetBuffer(LsfgSlotTimestamp(slot));
++
++        for (auto& entry : generation.targets) {
++            for (auto& set : entry.descriptor_sets) {
++                set = sets[next++];
++            }
++        }
++    }
++}
++
++void LsfgGenerate::SetTarget(const Instance& instance, size_t slot, u32 target,
++                             vk::ImageView view) {
++    Target& entry = generations[slot].targets[target];
++    if (entry.view == view) {
++        return;
++    }
++    entry.view = view;
++
++    for (size_t i = 0; i < entry.descriptor_sets.size(); ++i) {
++        LsfgDescriptorWriter(entry.descriptor_sets[i])
++            .AddUniformBuffer(generations[slot].buffer, LsfgResources::BufferSize())
++            .AddSampler(sampler)
++            .AddSampler(edge_sampler)
++            .AddSampledImage((*frames)[1 - i])
++            .AddSampledImage((*frames)[i])
++            .AddSampledImage(*motion)
++            .AddSampledImage(*detail1)
++            .AddSampledImage(*detail2)
++            .AddStorageView(view)
++            .Build(instance);
++    }
++}
++
++void LsfgGenerate::Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot, u32 target,
++                            vk::Image image, vk::Extent2D extent) {
++    const Target& entry = generations[slot].targets[target];
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(*frames)
++        .WriteToRead(*motion)
++        .WriteToRead(*detail1)
++        .WriteToRead(*detail2)
++        .DiscardToWrite(image)
++        .Build();
++
++    pass.Bind(cmdbuf, entry.descriptor_sets[frame_count % entry.descriptor_sets.size()]);
++    cmdbuf.dispatch(GroupCount(extent.width), GroupCount(extent.height), 1);
++
++    // Hand the finished frame to the present path. Unlike Eden (which keeps GENERAL), Azahar's
++    // PresentWindow blits/copies from TRANSFER_SRC_OPTIMAL.
++    const vk::ImageMemoryBarrier to_transfer_src = {
++        .srcAccessMask = vk::AccessFlagBits::eShaderWrite,
++        .dstAccessMask = vk::AccessFlagBits::eTransferRead,
++        .oldLayout = vk::ImageLayout::eGeneral,
++        .newLayout = vk::ImageLayout::eTransferSrcOptimal,
++        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .image = image,
++        .subresourceRange =
++            {
++                .aspectMask = vk::ImageAspectFlagBits::eColor,
++                .baseMipLevel = 0,
++                .levelCount = 1,
++                .baseArrayLayer = 0,
++                .layerCount = 1,
++            },
++    };
++    cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader,
++                           vk::PipelineStageFlagBits::eTransfer, {}, {}, {}, to_transfer_src);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_generate.h b/src/video_core/renderer_vulkan/lsfg/lsfg_generate.h
+new file mode 100644
+index 0000000..762cb6d
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_generate.h
+@@ -0,0 +1,57 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++#include <vector>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++/// Final pass: blends the two source frames with the estimated motion into an output image.
++///
++/// The output image must have been created with VK_IMAGE_USAGE_STORAGE_BIT and be a format the
++/// device can write as a storage image. Dispatch() discards the image's previous contents and
++/// leaves it in TRANSFER_SRC_OPTIMAL, visible to transfer reads (what PresentWindow expects).
++class LsfgGenerate {
++public:
++    LsfgGenerate() = default;
++    LsfgGenerate(const Instance& instance, const LsfgShaders& shaders, LsfgResources& resources,
++                 vk::DescriptorPool descriptor_pool, LsfgImagePair& frames, LsfgImage& motion,
++                 LsfgImage& detail1, LsfgImage& detail2);
++
++    /// Binds the output view for a (generation slot, target) pair. Cheap if unchanged.
++    void SetTarget(const Instance& instance, size_t slot, u32 target, vk::ImageView view);
++
++    void Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot, u32 target,
++                  vk::Image image, vk::Extent2D extent);
++
++private:
++    struct Target {
++        std::array<vk::DescriptorSet, 2> descriptor_sets{};
++        vk::ImageView view{};
++    };
++
++    struct Generation {
++        std::array<Target, LSFG_MAX_TARGETS> targets{};
++        vk::Buffer buffer{};
++    };
++
++    LsfgImagePair* frames{};
++    LsfgImage* motion{};
++    LsfgImage* detail1{};
++    LsfgImage* detail2{};
++    vk::Sampler sampler{};
++    vk::Sampler edge_sampler{};
++
++    LsfgPass pass;
++    std::array<Generation, LSFG_GENERATION_SLOTS> generations{};
++};
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.cpp
+new file mode 100644
+index 0000000..330df2b
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.cpp
+@@ -0,0 +1,76 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <algorithm>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_mipmaps.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 6;
++
++[[nodiscard]] u32 GroupCount(u32 size) {
++    return (size + (1u << DISPATCH_TILE_SHIFT) - 1) >> DISPATCH_TILE_SHIFT;
++}
++
++} // Anonymous namespace
++
++LsfgMipmaps::LsfgMipmaps(const Instance& instance, const LsfgShaders& shaders,
++                         LsfgResources& resources, vk::DescriptorPool descriptor_pool,
++                         LsfgImagePair& frames_, f32 flow_scale)
++    : frames{&frames_} {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    pass = LsfgPass(instance, shaders, MIPMAPS,
++                    {{1, vk::DescriptorType::eUniformBuffer},
++                     {1, vk::DescriptorType::eSampler},
++                     {1, vk::DescriptorType::eSampledImage},
++                     {LSFG_MIP_LEVELS, vk::DescriptorType::eStorageImage}});
++
++    const vk::Extent2D input_extent = (*frames)[0].Extent();
++    flow_extent = vk::Extent2D{
++        .width = std::max(1u, static_cast<u32>(static_cast<f32>(input_extent.width) * flow_scale)),
++        .height =
++            std::max(1u, static_cast<u32>(static_cast<f32>(input_extent.height) * flow_scale)),
++    };
++
++    for (size_t i = 0; i < LSFG_MIP_LEVELS; ++i) {
++        const vk::Extent2D level_extent{
++            .width = flow_extent.width >> i,
++            .height = flow_extent.height >> i,
++        };
++        out_images[i] = LsfgImage(instance, level_extent, LSFG_FLOW_FORMAT);
++    }
++
++    const std::vector<vk::DescriptorSet> sets = AllocateLsfgDescriptorSets(
++        instance, descriptor_pool, pass.SetLayout(), descriptor_sets.size());
++
++    const vk::Sampler sampler = resources.GetSampler();
++    const vk::Buffer buffer = resources.GetBuffer();
++
++    for (size_t i = 0; i < descriptor_sets.size(); ++i) {
++        descriptor_sets[i] = sets[i];
++        LsfgDescriptorWriter(descriptor_sets[i])
++            .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++            .AddSampler(sampler)
++            .AddSampledImage((*frames)[i])
++            .AddStorageImages(out_images)
++            .Build(instance);
++    }
++}
++
++void LsfgMipmaps::Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count) {
++    const size_t slot = frame_count % descriptor_sets.size();
++
++    LsfgBarriers(cmdbuf).WriteToRead((*frames)[slot]).ReadToWriteAll(out_images).Build();
++
++    pass.Bind(cmdbuf, descriptor_sets[slot]);
++    cmdbuf.dispatch(GroupCount(flow_extent.width), GroupCount(flow_extent.height), 1);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.h b/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.h
+new file mode 100644
+index 0000000..710ead1
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_mipmaps.h
+@@ -0,0 +1,42 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++#include <vector>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr size_t LSFG_MIP_LEVELS = 7;
++
++/// Downsamples the (optionally flow-scaled) input frame into a chain of single-channel images.
++class LsfgMipmaps {
++public:
++    LsfgMipmaps() = default;
++    LsfgMipmaps(const Instance& instance, const LsfgShaders& shaders, LsfgResources& resources,
++                vk::DescriptorPool descriptor_pool, LsfgImagePair& frames, f32 flow_scale);
++
++    void Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count);
++
++    [[nodiscard]] LsfgImage& Output(size_t level) {
++        return out_images[level];
++    }
++
++private:
++    LsfgImagePair* frames{};
++
++    LsfgPass pass;
++    std::array<vk::DescriptorSet, 2> descriptor_sets{};
++
++    vk::Extent2D flow_extent{};
++    std::array<LsfgImage, LSFG_MIP_LEVELS> out_images;
++};
++
++} // namespace Vulkan
+-- 
+2.43.0
+

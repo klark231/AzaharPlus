@@ -268,6 +268,7 @@ void Config::ReadValues() {
     ReadSetting("Core", Settings::values.use_fastinterp);
     ReadSetting("Core", Settings::values.cpu_clock_percentage);
     ReadSetting("Core", Settings::values.reduce_downcount_slice);
+    ReadSetting("Core", Settings::values.simple_cpu_ticks);
     ReadSetting("Core", Settings::values.priority_boost_starved_threads);
     ReadSetting("Core", Settings::values.use_fastmem);
 

@@ -487,6 +487,7 @@ struct Values {
     Setting<bool> use_fastinterp{true, Keys::use_fastinterp};
     SwitchableSetting<s32, true> cpu_clock_percentage{100, 5, 400, Keys::cpu_clock_percentage};
     SwitchableSetting<bool> reduce_downcount_slice{false, Keys::reduce_downcount_slice};
+    SwitchableSetting<bool> simple_cpu_ticks{false, Keys::simple_cpu_ticks};
     SwitchableSetting<bool> priority_boost_starved_threads{
         true, Keys::priority_boost_starved_threads};
     SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};

@@ -169,6 +169,11 @@ public:
         return static_cast<u64>(ticks <= 0 ? 0 : ticks);
     }
     std::uint64_t GetTicksForCode(bool is_thumb, VAddr, std::uint32_t instruction) override {
+        // Called at JIT translation time. With "Simple CPU Tick Costs" every instruction counts
+        // as 1 tick (original Citra behaviour). Restart the game to apply a changed value.
+        if (Settings::values.simple_cpu_ticks.GetValue()) {
+            return 1;
+        }
         return Core::TicksForInstruction(is_thumb, instruction);
     }
 

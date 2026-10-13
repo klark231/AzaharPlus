@@ -1,0 +1,1107 @@
+From 8118f30b1cd287a28be580c910f2336b2ee4a989 Mon Sep 17 00:00:00 2001
+From: dev <dev@local>
+Date: Tue, 13 Oct 2026 04:56:10 +0000
+Subject: [PATCH 4/4] lsfg-vk step 2c: port alpha, beta, gamma and delta passes
+
+Mechanical port of Eden's four processing stages to vulkan-hpp (Device -> Instance, raw Vk*
+handles -> vk::*, MemoryAllocator argument dropped since LsfgImage allocates through VMA).
+Descriptor sets are allocated from the pool without keeping an owner (freed with the pool).
+Adds a vector-of-layouts overload of AllocateLsfgDescriptorSets.
+
+NOT COMPILED (see 2a). Not run through clang-format (not available in this environment).
+---
+ src/video_core/CMakeLists.txt                 |   8 +
+ .../renderer_vulkan/lsfg/lsfg_alpha.cpp       | 137 +++++++++
+ .../renderer_vulkan/lsfg/lsfg_alpha.h         |  58 ++++
+ .../renderer_vulkan/lsfg/lsfg_beta.cpp        | 144 +++++++++
+ .../renderer_vulkan/lsfg/lsfg_beta.h          |  44 +++
+ .../renderer_vulkan/lsfg/lsfg_common.cpp      |  16 +-
+ .../renderer_vulkan/lsfg/lsfg_common.h        |   5 +
+ .../renderer_vulkan/lsfg/lsfg_delta.cpp       | 280 ++++++++++++++++++
+ .../renderer_vulkan/lsfg/lsfg_delta.h         |  59 ++++
+ .../renderer_vulkan/lsfg/lsfg_gamma.cpp       | 182 ++++++++++++
+ .../renderer_vulkan/lsfg/lsfg_gamma.h         |  50 ++++
+ 11 files changed, 978 insertions(+), 5 deletions(-)
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_alpha.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_alpha.h
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_beta.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_beta.h
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_delta.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_delta.h
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_gamma.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_gamma.h
+
+diff --git a/src/video_core/CMakeLists.txt b/src/video_core/CMakeLists.txt
+index 649fdd6..cc17340 100644
+--- a/src/video_core/CMakeLists.txt
++++ b/src/video_core/CMakeLists.txt
+@@ -218,6 +218,14 @@ if (ENABLE_VULKAN)
+             renderer_vulkan/lsfg/lsfg_mipmaps.h
+             renderer_vulkan/lsfg/lsfg_generate.cpp
+             renderer_vulkan/lsfg/lsfg_generate.h
++            renderer_vulkan/lsfg/lsfg_alpha.cpp
++            renderer_vulkan/lsfg/lsfg_alpha.h
++            renderer_vulkan/lsfg/lsfg_beta.cpp
++            renderer_vulkan/lsfg/lsfg_beta.h
++            renderer_vulkan/lsfg/lsfg_gamma.cpp
++            renderer_vulkan/lsfg/lsfg_gamma.h
++            renderer_vulkan/lsfg/lsfg_delta.cpp
++            renderer_vulkan/lsfg/lsfg_delta.h
+         )
+         target_compile_definitions(video_core PUBLIC HAS_LSFG)
+     endif()
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.cpp
+new file mode 100644
+index 0000000..2dbb917
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.cpp
+@@ -0,0 +1,137 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <vector>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_alpha.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 3;
++
++[[nodiscard]] u32 GroupCount(u32 size) {
++    return (size + (1u << DISPATCH_TILE_SHIFT) - 1) >> DISPATCH_TILE_SHIFT;
++}
++
++[[nodiscard]] vk::Extent2D HalveExtent(vk::Extent2D extent) {
++    return vk::Extent2D{
++        .width = (extent.width + 1) >> 1,
++        .height = (extent.height + 1) >> 1,
++    };
++}
++
++} // Anonymous namespace
++
++LsfgAlphaPasses::LsfgAlphaPasses(const Instance& instance, const LsfgShaders& shaders) {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    passes[0] = LsfgPass(instance, shaders, ALPHA[0],
++                         {{1, vk::DescriptorType::eSampler},
++                          {1, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++    passes[1] = LsfgPass(instance, shaders, ALPHA[1],
++                         {{1, vk::DescriptorType::eSampler},
++                          {1, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++    passes[2] = LsfgPass(instance, shaders, ALPHA[2],
++                         {{1, vk::DescriptorType::eSampler},
++                          {1, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[3] = LsfgPass(instance, shaders, ALPHA[3],
++                         {{1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++}
++
++LsfgAlpha::LsfgAlpha(const Instance& instance,
++                     const LsfgAlphaPasses& passes_, LsfgResources& resources,
++                     vk::DescriptorPool descriptor_pool, LsfgImage& input_)
++    : passes{&passes_}, input{&input_} {
++    const vk::Extent2D half_extent = HalveExtent(input->Extent());
++    const vk::Extent2D quarter_extent = HalveExtent(half_extent);
++
++    temp1 = LsfgImage(instance, half_extent);
++    temp2 = LsfgImage(instance, half_extent);
++    for (size_t i = 0; i < temp3.size(); ++i) {
++        temp3[i] = LsfgImage(instance, quarter_extent);
++        for (size_t j = 0; j < LSFG_HISTORY_SLOTS; ++j) {
++            out_images[j][i] = LsfgImage(instance, quarter_extent);
++        }
++    }
++
++    std::vector<vk::DescriptorSetLayout> layouts;
++    for (size_t i = 0; i < LSFG_ALPHA_STAGES - 1; ++i) {
++        layouts.push_back(passes->Get(i).SetLayout());
++    }
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        layouts.push_back(passes->Get(3).SetLayout());
++    }
++    const std::vector<vk::DescriptorSet> owned_sets =
++        AllocateLsfgDescriptorSets(instance, descriptor_pool, layouts);
++
++    for (size_t i = 0; i < LSFG_ALPHA_STAGES - 1; ++i) {
++        descriptor_sets[i] = owned_sets[i];
++    }
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        last_descriptor_sets[i] = owned_sets[LSFG_ALPHA_STAGES - 1 + i];
++    }
++
++    const vk::Sampler sampler = resources.GetSampler();
++
++    LsfgDescriptorWriter(descriptor_sets[0])
++        .AddSampler(sampler)
++        .AddSampledImage(*input)
++        .AddStorageImage(temp1)
++        .Build(instance);
++    LsfgDescriptorWriter(descriptor_sets[1])
++        .AddSampler(sampler)
++        .AddSampledImage(temp1)
++        .AddStorageImage(temp2)
++        .Build(instance);
++    LsfgDescriptorWriter(descriptor_sets[2])
++        .AddSampler(sampler)
++        .AddSampledImage(temp2)
++        .AddStorageImages(temp3)
++        .Build(instance);
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        LsfgDescriptorWriter(last_descriptor_sets[i])
++            .AddSampler(sampler)
++            .AddSampledImages(temp3)
++            .AddStorageImages(out_images[i])
++            .Build(instance);
++    }
++}
++
++void LsfgAlpha::PushBarriers(LsfgBarriers& barriers, u64 frame_count, size_t stage) {
++    switch (stage) {
++    case 0:
++        barriers.WriteToRead(*input).ReadToWrite(temp1);
++        break;
++    case 1:
++        barriers.WriteToRead(temp1).ReadToWrite(temp2);
++        break;
++    case 2:
++        barriers.WriteToRead(temp2).ReadToWriteAll(temp3);
++        break;
++    default:
++        barriers.WriteToReadAll(temp3).ReadToWriteAll(out_images[frame_count % LSFG_HISTORY_SLOTS]);
++        break;
++    }
++}
++
++void LsfgAlpha::DispatchStage(vk::CommandBuffer cmdbuf, u64 frame_count, size_t stage) {
++    const vk::Extent2D extent = stage < 2 ? temp1.Extent() : temp3[0].Extent();
++    const vk::DescriptorSet set = stage < LSFG_ALPHA_STAGES - 1
++                                    ? descriptor_sets[stage]
++                                    : last_descriptor_sets[frame_count % LSFG_HISTORY_SLOTS];
++
++    passes->Get(stage).BindSet(cmdbuf, set);
++    cmdbuf.dispatch(GroupCount(extent.width), GroupCount(extent.height), 1);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.h b/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.h
+new file mode 100644
+index 0000000..11606c6
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_alpha.h
+@@ -0,0 +1,58 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr size_t LSFG_ALPHA_STAGES = 4;
++
++class LsfgAlphaPasses {
++public:
++    LsfgAlphaPasses() = default;
++    LsfgAlphaPasses(const Instance& instance, const LsfgShaders& shaders);
++
++    [[nodiscard]] const LsfgPass& Get(size_t stage) const {
++        return passes[stage];
++    }
++
++private:
++    std::array<LsfgPass, LSFG_ALPHA_STAGES> passes;
++};
++
++class LsfgAlpha {
++public:
++    LsfgAlpha() = default;
++    LsfgAlpha(const Instance& instance,
++              const LsfgAlphaPasses& passes_, LsfgResources& resources,
++              vk::DescriptorPool descriptor_pool, LsfgImage& input);
++
++    void PushBarriers(LsfgBarriers& barriers, u64 frame_count, size_t stage);
++    void DispatchStage(vk::CommandBuffer cmdbuf, u64 frame_count, size_t stage);
++
++    [[nodiscard]] LsfgImageHistory& Outputs() {
++        return out_images;
++    }
++
++private:
++    const LsfgAlphaPasses* passes{};
++    LsfgImage* input{};
++
++    std::array<vk::DescriptorSet, LSFG_ALPHA_STAGES - 1> descriptor_sets{};
++    std::array<vk::DescriptorSet, LSFG_HISTORY_SLOTS> last_descriptor_sets{};
++
++    LsfgImage temp1;
++    LsfgImage temp2;
++    LsfgImagePair temp3;
++    LsfgImageHistory out_images;
++};
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_beta.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_beta.cpp
+new file mode 100644
+index 0000000..15bbaac
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_beta.cpp
+@@ -0,0 +1,144 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <vector>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_beta.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 3;
++constexpr u32 OUTPUT_TILE_SHIFT = 5;
++
++[[nodiscard]] u32 GroupCount(u32 size, u32 shift) {
++    return (size + (1u << shift) - 1) >> shift;
++}
++
++} // Anonymous namespace
++
++LsfgBeta::LsfgBeta(const Instance& instance,
++                   const LsfgShaders& shaders, LsfgResources& resources,
++                   vk::DescriptorPool descriptor_pool, LsfgImageHistory& inputs_)
++    : inputs{&inputs_} {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    passes[0] = LsfgPass(instance, shaders, BETA[0],
++                         {{1, vk::DescriptorType::eSampler},
++                          {6, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    for (size_t i = 1; i < LSFG_BETA_STAGES - 1; ++i) {
++        passes[i] = LsfgPass(instance, shaders, BETA[i],
++                             {{1, vk::DescriptorType::eSampler},
++                              {2, vk::DescriptorType::eSampledImage},
++                              {2, vk::DescriptorType::eStorageImage}});
++    }
++    passes[4] = LsfgPass(instance, shaders, BETA[4],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {6, vk::DescriptorType::eStorageImage}});
++
++    const vk::Extent2D extent = (*inputs)[0][0].Extent();
++    for (size_t i = 0; i < temp1.size(); ++i) {
++        temp1[i] = LsfgImage(instance, extent);
++        temp2[i] = LsfgImage(instance, extent);
++    }
++    for (size_t i = 0; i < LSFG_BETA_OUTPUTS; ++i) {
++        const vk::Extent2D level_extent{
++            .width = extent.width >> i,
++            .height = extent.height >> i,
++        };
++        out_images[i] = LsfgImage(instance, level_extent, LSFG_FLOW_FORMAT);
++    }
++
++    std::vector<vk::DescriptorSetLayout> layouts;
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        layouts.push_back(passes[0].SetLayout());
++    }
++    for (size_t i = 1; i < LSFG_BETA_STAGES; ++i) {
++        layouts.push_back(passes[i].SetLayout());
++    }
++    const std::vector<vk::DescriptorSet> owned_sets =
++        AllocateLsfgDescriptorSets(instance, descriptor_pool, layouts);
++
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        first_descriptor_sets[i] = owned_sets[i];
++    }
++    for (size_t i = 0; i < LSFG_BETA_STAGES - 1; ++i) {
++        descriptor_sets[i] = owned_sets[LSFG_HISTORY_SLOTS + i];
++    }
++
++    const vk::Sampler sampler = resources.GetSampler();
++    const vk::Sampler border_sampler = resources.GetSampler(
++        vk::SamplerAddressMode::eClampToBorder, vk::CompareOp::eNever, true);
++
++    for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++        LsfgDescriptorWriter(first_descriptor_sets[i])
++            .AddSampler(border_sampler)
++            .AddSampledImages((*inputs)[(i + 1) % LSFG_HISTORY_SLOTS])
++            .AddSampledImages((*inputs)[(i + 2) % LSFG_HISTORY_SLOTS])
++            .AddSampledImages((*inputs)[i % LSFG_HISTORY_SLOTS])
++            .AddStorageImages(temp1)
++            .Build(instance);
++    }
++    LsfgDescriptorWriter(descriptor_sets[0])
++        .AddSampler(sampler)
++        .AddSampledImages(temp1)
++        .AddStorageImages(temp2)
++        .Build(instance);
++    LsfgDescriptorWriter(descriptor_sets[1])
++        .AddSampler(sampler)
++        .AddSampledImages(temp2)
++        .AddStorageImages(temp1)
++        .Build(instance);
++    LsfgDescriptorWriter(descriptor_sets[2])
++        .AddSampler(sampler)
++        .AddSampledImages(temp1)
++        .AddStorageImages(temp2)
++        .Build(instance);
++    LsfgDescriptorWriter(descriptor_sets[3])
++        .AddUniformBuffer(resources.GetBuffer(0.5f), LsfgResources::BufferSize())
++        .AddSampler(sampler)
++        .AddSampledImages(temp2)
++        .AddStorageImages(out_images)
++        .Build(instance);
++}
++
++void LsfgBeta::Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count) {
++    const vk::Extent2D extent = temp1[0].Extent();
++    const u32 groups_x = GroupCount(extent.width, DISPATCH_TILE_SHIFT);
++    const u32 groups_y = GroupCount(extent.height, DISPATCH_TILE_SHIFT);
++
++    LsfgBarriers barriers(cmdbuf);
++    for (auto& slot : *inputs) {
++        barriers.WriteToReadAll(slot);
++    }
++    barriers.ReadToWriteAll(temp1).Build();
++
++    passes[0].Bind(cmdbuf, first_descriptor_sets[frame_count % LSFG_HISTORY_SLOTS]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp1).ReadToWriteAll(temp2).Build();
++    passes[1].Bind(cmdbuf, descriptor_sets[0]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp2).ReadToWriteAll(temp1).Build();
++    passes[2].Bind(cmdbuf, descriptor_sets[1]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp1).ReadToWriteAll(temp2).Build();
++    passes[3].Bind(cmdbuf, descriptor_sets[2]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp2).ReadToWriteAll(out_images).Build();
++    passes[4].Bind(cmdbuf, descriptor_sets[3]);
++    cmdbuf.dispatch(GroupCount(extent.width, OUTPUT_TILE_SHIFT),
++                    GroupCount(extent.height, OUTPUT_TILE_SHIFT), 1);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_beta.h b/src/video_core/renderer_vulkan/lsfg/lsfg_beta.h
+new file mode 100644
+index 0000000..287d30e
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_beta.h
+@@ -0,0 +1,44 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr size_t LSFG_BETA_STAGES = 5;
++constexpr size_t LSFG_BETA_OUTPUTS = 6;
++
++class LsfgBeta {
++public:
++    LsfgBeta() = default;
++    LsfgBeta(const Instance& instance, const LsfgShaders& shaders,
++             LsfgResources& resources, vk::DescriptorPool descriptor_pool,
++             LsfgImageHistory& inputs);
++
++    void Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count);
++
++    [[nodiscard]] LsfgImage& Output(size_t level) {
++        return out_images[level];
++    }
++
++private:
++    LsfgImageHistory* inputs{};
++
++    std::array<LsfgPass, LSFG_BETA_STAGES> passes;
++    std::array<vk::DescriptorSet, LSFG_HISTORY_SLOTS> first_descriptor_sets{};
++    std::array<vk::DescriptorSet, LSFG_BETA_STAGES - 1> descriptor_sets{};
++
++    LsfgImagePair temp1;
++    LsfgImagePair temp2;
++    std::array<LsfgImage, LSFG_BETA_OUTPUTS> out_images;
++};
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+index 07aaf36..b57bd92 100644
+--- a/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+@@ -483,11 +483,9 @@ vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance, u32
+     return instance.GetDevice().createDescriptorPoolUnique(pool_info);
+ }
+ 
+-std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(const Instance& instance,
+-                                                          vk::DescriptorPool pool,
+-                                                          vk::DescriptorSetLayout layout,
+-                                                          size_t count) {
+-    const std::vector<vk::DescriptorSetLayout> layouts(count, layout);
++std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(
++    const Instance& instance, vk::DescriptorPool pool,
++    const std::vector<vk::DescriptorSetLayout>& layouts) {
+     const vk::DescriptorSetAllocateInfo alloc_info = {
+         .descriptorPool = pool,
+         .descriptorSetCount = static_cast<u32>(layouts.size()),
+@@ -496,6 +494,14 @@ std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(const Instance& instan
+     return instance.GetDevice().allocateDescriptorSets(alloc_info);
+ }
+ 
++std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(const Instance& instance,
++                                                          vk::DescriptorPool pool,
++                                                          vk::DescriptorSetLayout layout,
++                                                          size_t count) {
++    return AllocateLsfgDescriptorSets(instance, pool,
++                                      std::vector<vk::DescriptorSetLayout>(count, layout));
++}
++
+ vk::UniqueSampler CreateLsfgSampler(const Instance& instance, vk::SamplerAddressMode address_mode,
+                                     vk::CompareOp compare_op, bool white_border) {
+     const vk::SamplerCreateInfo sampler_info = {
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.h b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+index 180a1c8..ea3a9c5 100644
+--- a/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+@@ -262,6 +262,11 @@ private:
+ [[nodiscard]] vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance,
+                                                                 u32 max_sets);
+ 
++/// Allocates one set per entry of `layouts` from the pool. Sets are freed with the pool.
++[[nodiscard]] std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(
++    const Instance& instance, vk::DescriptorPool pool,
++    const std::vector<vk::DescriptorSetLayout>& layouts);
++
+ /// Allocates `count` sets of the given layout from the pool. Sets are freed with the pool.
+ [[nodiscard]] std::vector<vk::DescriptorSet> AllocateLsfgDescriptorSets(
+     const Instance& instance, vk::DescriptorPool pool, vk::DescriptorSetLayout layout,
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_delta.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_delta.cpp
+new file mode 100644
+index 0000000..8637b5b
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_delta.cpp
+@@ -0,0 +1,280 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <vector>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_delta.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 3;
++
++[[nodiscard]] u32 GroupCount(u32 size) {
++    return (size + (1u << DISPATCH_TILE_SHIFT) - 1) >> DISPATCH_TILE_SHIFT;
++}
++
++} // Anonymous namespace
++
++LsfgDelta::LsfgDelta(const Instance& instance,
++                     const LsfgShaders& shaders, LsfgResources& resources,
++                     vk::DescriptorPool descriptor_pool, LsfgImageHistory& inputs_,
++                     LsfgImage& flow_input_, LsfgImage* previous_gamma_, LsfgImage* previous1_,
++                     LsfgImage* previous2_)
++    : inputs{&inputs_}, flow_input{&flow_input_}, previous_gamma{previous_gamma_},
++      previous1{previous1_}, previous2{previous2_} {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    passes[0] = LsfgPass(instance, shaders, DELTA[0],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {5, vk::DescriptorType::eSampledImage},
++                          {3, vk::DescriptorType::eStorageImage}});
++    passes[1] = LsfgPass(instance, shaders, DELTA[1],
++                         {{1, vk::DescriptorType::eSampler},
++                          {3, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[2] = LsfgPass(instance, shaders, DELTA[2],
++                         {{1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[3] = LsfgPass(instance, shaders, DELTA[3],
++                         {{1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[4] = LsfgPass(instance, shaders, DELTA[4],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {4, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++    passes[5] = LsfgPass(instance, shaders, DELTA[5],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {6, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++    for (size_t i = 6; i < LSFG_DELTA_STAGES - 1; ++i) {
++        passes[i] = LsfgPass(instance, shaders, DELTA[i],
++                             {{1, vk::DescriptorType::eSampler},
++                              {1, vk::DescriptorType::eSampledImage},
++                              {1, vk::DescriptorType::eStorageImage}});
++    }
++    passes[9] = LsfgPass(instance, shaders, DELTA[9],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++
++    const vk::Extent2D extent = (*inputs)[0][0].Extent();
++    for (auto& image : temp1) {
++        image = LsfgImage(instance, extent);
++    }
++    for (auto& image : temp2) {
++        image = LsfgImage(instance, extent);
++    }
++    out_image1 = LsfgImage(instance, extent, LSFG_MOTION_FORMAT);
++    out_image2 = LsfgImage(instance, extent, LSFG_MOTION_FORMAT);
++
++    std::vector<vk::DescriptorSetLayout> layouts;
++    for (size_t slot = 0; slot < LSFG_GENERATION_SLOTS; ++slot) {
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            layouts.push_back(passes[0].SetLayout());
++        }
++        for (size_t i = 1; i <= 4; ++i) {
++            layouts.push_back(passes[i].SetLayout());
++        }
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            layouts.push_back(passes[5].SetLayout());
++        }
++        for (size_t i = 6; i < LSFG_DELTA_STAGES; ++i) {
++            layouts.push_back(passes[i].SetLayout());
++        }
++    }
++    const std::vector<vk::DescriptorSet> owned_sets =
++        AllocateLsfgDescriptorSets(instance, descriptor_pool, layouts);
++
++    const vk::Sampler sampler = resources.GetSampler();
++    const vk::Sampler border_sampler = resources.GetSampler(
++        vk::SamplerAddressMode::eClampToBorder, vk::CompareOp::eNever, true);
++    const vk::Sampler edge_sampler =
++        resources.GetSampler(vk::SamplerAddressMode::eClampToEdge, vk::CompareOp::eAlways, false);
++    size_t next = 0;
++    for (size_t slot = 0; slot < LSFG_GENERATION_SLOTS; ++slot) {
++        Generation& pass = generations[slot];
++        const vk::Buffer buffer =
++            resources.GetBuffer(LsfgSlotTimestamp(slot), false, previous_gamma == nullptr);
++
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            pass.first_descriptor_sets[i] = owned_sets[next++];
++        }
++        for (size_t i = 0; i < 4; ++i) {
++            pass.descriptor_sets[i] = owned_sets[next++];
++        }
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            pass.sixth_descriptor_sets[i] = owned_sets[next++];
++        }
++        for (size_t i = 4; i < LSFG_DELTA_STAGES - 2; ++i) {
++            pass.descriptor_sets[i] = owned_sets[next++];
++        }
++
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            LsfgDescriptorWriter(pass.first_descriptor_sets[i])
++                .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++                .AddSampler(border_sampler)
++                .AddSampler(edge_sampler)
++                .AddSampledImages((*inputs)[(i + 2) % LSFG_HISTORY_SLOTS])
++                .AddSampledImages((*inputs)[i % LSFG_HISTORY_SLOTS])
++                .AddSampledImage(previous_gamma)
++                .AddStorageImages(temp1)
++                .Build(instance);
++            LsfgDescriptorWriter(pass.sixth_descriptor_sets[i])
++                .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++                .AddSampler(border_sampler)
++                .AddSampler(edge_sampler)
++                .AddSampledImages((*inputs)[(i + 2) % LSFG_HISTORY_SLOTS])
++                .AddSampledImages((*inputs)[i % LSFG_HISTORY_SLOTS])
++                .AddSampledImage(previous_gamma)
++                .AddSampledImage(previous1)
++                .AddStorageImage(temp2[0])
++                .Build(instance);
++        }
++        LsfgDescriptorWriter(pass.descriptor_sets[0])
++            .AddSampler(sampler)
++            .AddSampledImages(temp1)
++            .AddStorageImages(temp2)
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[1])
++            .AddSampler(sampler)
++            .AddSampledImages(temp2)
++            .AddStorageImage(temp1[0])
++            .AddStorageImage(temp1[1])
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[2])
++            .AddSampler(sampler)
++            .AddSampledImage(temp1[0])
++            .AddSampledImage(temp1[1])
++            .AddStorageImages(temp2)
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[3])
++            .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++            .AddSampler(sampler)
++            .AddSampler(edge_sampler)
++            .AddSampledImages(temp2)
++            .AddSampledImage(previous_gamma)
++            .AddSampledImage(*flow_input)
++            .AddStorageImage(out_image1)
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[4])
++            .AddSampler(sampler)
++            .AddSampledImage(temp2[0])
++            .AddStorageImage(temp1[0])
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[5])
++            .AddSampler(sampler)
++            .AddSampledImage(temp1[0])
++            .AddStorageImage(temp2[0])
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[6])
++            .AddSampler(sampler)
++            .AddSampledImage(temp2[0])
++            .AddStorageImage(temp1[0])
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[7])
++            .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++            .AddSampler(sampler)
++            .AddSampler(edge_sampler)
++            .AddSampledImage(temp1[0])
++            .AddSampledImage(previous2)
++            .AddStorageImage(out_image2)
++            .Build(instance);
++    }
++}
++
++void LsfgDelta::Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot) {
++    const Generation& pass = generations[slot];
++
++    const vk::Extent2D extent = temp1[0].Extent();
++    const u32 groups_x = GroupCount(extent.width);
++    const u32 groups_y = GroupCount(extent.height);
++
++    const size_t history = frame_count % LSFG_HISTORY_SLOTS;
++    const size_t previous_history = (frame_count + 2) % LSFG_HISTORY_SLOTS;
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll((*inputs)[previous_history])
++        .WriteToReadAll((*inputs)[history])
++        .WriteToRead(previous_gamma)
++        .ReadToWriteAll(temp1)
++        .Build();
++    passes[0].Bind(cmdbuf, pass.first_descriptor_sets[history]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp1).ReadToWriteAll(temp2).Build();
++    passes[1].Bind(cmdbuf, pass.descriptor_sets[0]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp2).ReadToWriteAll(temp1).Build();
++    passes[2].Bind(cmdbuf, pass.descriptor_sets[1]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp1).ReadToWriteAll(temp2).Build();
++    passes[3].Bind(cmdbuf, pass.descriptor_sets[2]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(temp2)
++        .WriteToRead(previous_gamma)
++        .WriteToRead(*flow_input)
++        .ReadToWrite(out_image1)
++        .Build();
++    passes[4].Bind(cmdbuf, pass.descriptor_sets[3]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll((*inputs)[previous_history])
++        .WriteToReadAll((*inputs)[history])
++        .WriteToRead(previous_gamma)
++        .WriteToRead(previous1)
++        .ReadToWriteAll(temp2)
++        .Build();
++    passes[5].Bind(cmdbuf, pass.sixth_descriptor_sets[history]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(temp2)
++        .ReadToWrite(temp1[0])
++        .ReadToWrite(temp1[1])
++        .Build();
++    passes[6].Bind(cmdbuf, pass.descriptor_sets[4]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToRead(temp1[0])
++        .WriteToRead(temp1[1])
++        .ReadToWriteAll(temp2)
++        .Build();
++    passes[7].Bind(cmdbuf, pass.descriptor_sets[5]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(temp2)
++        .ReadToWrite(temp1[0])
++        .ReadToWrite(temp1[1])
++        .Build();
++    passes[8].Bind(cmdbuf, pass.descriptor_sets[6]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToRead(temp1[0])
++        .WriteToRead(temp1[1])
++        .WriteToRead(previous2)
++        .ReadToWrite(out_image2)
++        .Build();
++    passes[9].Bind(cmdbuf, pass.descriptor_sets[7]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_delta.h b/src/video_core/renderer_vulkan/lsfg/lsfg_delta.h
+new file mode 100644
+index 0000000..46cadeb
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_delta.h
+@@ -0,0 +1,59 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr size_t LSFG_DELTA_STAGES = 10;
++constexpr size_t LSFG_DELTA_TEMPS = 3;
++
++class LsfgDelta {
++public:
++    LsfgDelta() = default;
++    LsfgDelta(const Instance& instance, const LsfgShaders& shaders,
++              LsfgResources& resources, vk::DescriptorPool descriptor_pool,
++              LsfgImageHistory& inputs, LsfgImage& flow_input, LsfgImage* previous_gamma,
++              LsfgImage* previous1, LsfgImage* previous2);
++
++    void Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot);
++
++    [[nodiscard]] LsfgImage& Output1() {
++        return out_image1;
++    }
++
++    [[nodiscard]] LsfgImage& Output2() {
++        return out_image2;
++    }
++
++private:
++    struct Generation {
++        std::array<vk::DescriptorSet, LSFG_HISTORY_SLOTS> first_descriptor_sets{};
++        std::array<vk::DescriptorSet, LSFG_HISTORY_SLOTS> sixth_descriptor_sets{};
++        std::array<vk::DescriptorSet, LSFG_DELTA_STAGES - 2> descriptor_sets{};
++    };
++
++    LsfgImageHistory* inputs{};
++    LsfgImage* flow_input{};
++    LsfgImage* previous_gamma{};
++    LsfgImage* previous1{};
++    LsfgImage* previous2{};
++
++    std::array<LsfgPass, LSFG_DELTA_STAGES> passes;
++    std::array<Generation, LSFG_GENERATION_SLOTS> generations{};
++
++    std::array<LsfgImage, LSFG_DELTA_TEMPS> temp1;
++    LsfgImagePair temp2;
++    LsfgImage out_image1;
++    LsfgImage out_image2;
++};
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.cpp
+new file mode 100644
+index 0000000..c850f2a
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.cpp
+@@ -0,0 +1,182 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <vector>
++
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_gamma.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DISPATCH_TILE_SHIFT = 3;
++
++[[nodiscard]] u32 GroupCount(u32 size) {
++    return (size + (1u << DISPATCH_TILE_SHIFT) - 1) >> DISPATCH_TILE_SHIFT;
++}
++
++} // Anonymous namespace
++
++LsfgGamma::LsfgGamma(const Instance& instance,
++                     const LsfgShaders& shaders, LsfgResources& resources,
++                     vk::DescriptorPool descriptor_pool, LsfgImageHistory& inputs_,
++                     LsfgImage& flow_input_, LsfgImage* previous_)
++    : inputs{&inputs_}, flow_input{&flow_input_}, previous{previous_} {
++    using namespace VideoCore::FrameGen::PerformanceShader;
++
++    passes[0] = LsfgPass(instance, shaders, GAMMA[0],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {5, vk::DescriptorType::eSampledImage},
++                          {3, vk::DescriptorType::eStorageImage}});
++    passes[1] = LsfgPass(instance, shaders, GAMMA[1],
++                         {{1, vk::DescriptorType::eSampler},
++                          {3, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[2] = LsfgPass(instance, shaders, GAMMA[2],
++                         {{1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[3] = LsfgPass(instance, shaders, GAMMA[3],
++                         {{1, vk::DescriptorType::eSampler},
++                          {2, vk::DescriptorType::eSampledImage},
++                          {2, vk::DescriptorType::eStorageImage}});
++    passes[4] = LsfgPass(instance, shaders, GAMMA[4],
++                         {{1, vk::DescriptorType::eUniformBuffer},
++                          {2, vk::DescriptorType::eSampler},
++                          {4, vk::DescriptorType::eSampledImage},
++                          {1, vk::DescriptorType::eStorageImage}});
++
++    const vk::Extent2D extent = (*inputs)[0][0].Extent();
++    for (auto& image : temp1) {
++        image = LsfgImage(instance, extent);
++    }
++    for (auto& image : temp2) {
++        image = LsfgImage(instance, extent);
++    }
++    out_image = LsfgImage(instance, extent, LSFG_MOTION_FORMAT);
++
++    std::vector<vk::DescriptorSetLayout> layouts;
++    for (size_t slot = 0; slot < LSFG_GENERATION_SLOTS; ++slot) {
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            layouts.push_back(passes[0].SetLayout());
++        }
++        for (size_t i = 1; i < LSFG_GAMMA_STAGES; ++i) {
++            layouts.push_back(passes[i].SetLayout());
++        }
++    }
++    const std::vector<vk::DescriptorSet> owned_sets =
++        AllocateLsfgDescriptorSets(instance, descriptor_pool, layouts);
++
++    const vk::Sampler sampler = resources.GetSampler();
++    const vk::Sampler border_sampler = resources.GetSampler(
++        vk::SamplerAddressMode::eClampToBorder, vk::CompareOp::eNever, true);
++    const vk::Sampler edge_sampler =
++        resources.GetSampler(vk::SamplerAddressMode::eClampToEdge, vk::CompareOp::eAlways, false);
++
++    size_t next = 0;
++    for (size_t slot = 0; slot < LSFG_GENERATION_SLOTS; ++slot) {
++        Generation& pass = generations[slot];
++        const vk::Buffer buffer =
++            resources.GetBuffer(LsfgSlotTimestamp(slot), previous == nullptr);
++
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            pass.first_descriptor_sets[i] = owned_sets[next++];
++        }
++        for (size_t i = 0; i < LSFG_GAMMA_STAGES - 1; ++i) {
++            pass.descriptor_sets[i] = owned_sets[next++];
++        }
++
++        for (size_t i = 0; i < LSFG_HISTORY_SLOTS; ++i) {
++            LsfgDescriptorWriter(pass.first_descriptor_sets[i])
++                .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++                .AddSampler(border_sampler)
++                .AddSampler(edge_sampler)
++                .AddSampledImages((*inputs)[(i + 2) % LSFG_HISTORY_SLOTS])
++                .AddSampledImages((*inputs)[i % LSFG_HISTORY_SLOTS])
++                .AddSampledImage(previous)
++                .AddStorageImages(temp1)
++                .Build(instance);
++        }
++        LsfgDescriptorWriter(pass.descriptor_sets[0])
++            .AddSampler(sampler)
++            .AddSampledImages(temp1)
++            .AddStorageImages(temp2)
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[1])
++            .AddSampler(sampler)
++            .AddSampledImages(temp2)
++            .AddStorageImage(temp1[0])
++            .AddStorageImage(temp1[1])
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[2])
++            .AddSampler(sampler)
++            .AddSampledImage(temp1[0])
++            .AddSampledImage(temp1[1])
++            .AddStorageImages(temp2)
++            .Build(instance);
++        LsfgDescriptorWriter(pass.descriptor_sets[3])
++            .AddUniformBuffer(buffer, LsfgResources::BufferSize())
++            .AddSampler(sampler)
++            .AddSampler(edge_sampler)
++            .AddSampledImages(temp2)
++            .AddSampledImage(previous)
++            .AddSampledImage(*flow_input)
++            .AddStorageImage(out_image)
++            .Build(instance);
++    }
++}
++
++void LsfgGamma::Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot) {
++    const Generation& pass = generations[slot];
++
++    const vk::Extent2D extent = temp1[0].Extent();
++    const u32 groups_x = GroupCount(extent.width);
++    const u32 groups_y = GroupCount(extent.height);
++
++    const size_t history = frame_count % LSFG_HISTORY_SLOTS;
++    const size_t previous_history = (frame_count + 2) % LSFG_HISTORY_SLOTS;
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll((*inputs)[previous_history])
++        .WriteToReadAll((*inputs)[history])
++        .WriteToRead(previous)
++        .ReadToWriteAll(temp1)
++        .Build();
++    passes[0].Bind(cmdbuf, pass.first_descriptor_sets[history]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf).WriteToReadAll(temp1).ReadToWriteAll(temp2).Build();
++    passes[1].Bind(cmdbuf, pass.descriptor_sets[0]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(temp2)
++        .ReadToWrite(temp1[0])
++        .ReadToWrite(temp1[1])
++        .Build();
++    passes[2].Bind(cmdbuf, pass.descriptor_sets[1]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToRead(temp1[0])
++        .WriteToRead(temp1[1])
++        .ReadToWriteAll(temp2)
++        .Build();
++    passes[3].Bind(cmdbuf, pass.descriptor_sets[2]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++
++    LsfgBarriers(cmdbuf)
++        .WriteToReadAll(temp2)
++        .WriteToRead(previous)
++        .WriteToRead(*flow_input)
++        .ReadToWrite(out_image)
++        .Build();
++    passes[4].Bind(cmdbuf, pass.descriptor_sets[3]);
++    cmdbuf.dispatch(groups_x, groups_y, 1);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.h b/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.h
+new file mode 100644
+index 0000000..fbe4c7b
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_gamma.h
+@@ -0,0 +1,50 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr size_t LSFG_GAMMA_STAGES = 5;
++constexpr size_t LSFG_GAMMA_TEMPS = 3;
++
++class LsfgGamma {
++public:
++    LsfgGamma() = default;
++    LsfgGamma(const Instance& instance, const LsfgShaders& shaders,
++              LsfgResources& resources, vk::DescriptorPool descriptor_pool,
++              LsfgImageHistory& inputs, LsfgImage& flow_input, LsfgImage* previous);
++
++    void Dispatch(vk::CommandBuffer cmdbuf, u64 frame_count, size_t slot);
++
++    [[nodiscard]] LsfgImage& Output() {
++        return out_image;
++    }
++
++private:
++    struct Generation {
++        std::array<vk::DescriptorSet, LSFG_HISTORY_SLOTS> first_descriptor_sets{};
++        std::array<vk::DescriptorSet, LSFG_GAMMA_STAGES - 1> descriptor_sets{};
++    };
++
++    LsfgImageHistory* inputs{};
++    LsfgImage* flow_input{};
++    LsfgImage* previous{};
++
++    std::array<LsfgPass, LSFG_GAMMA_STAGES> passes;
++    std::array<Generation, LSFG_GENERATION_SLOTS> generations{};
++
++    std::array<LsfgImage, LSFG_GAMMA_TEMPS> temp1;
++    LsfgImagePair temp2;
++    LsfgImage out_image;
++};
++
++} // namespace Vulkan
+-- 
+2.43.0
+

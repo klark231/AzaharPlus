@@ -1,0 +1,1056 @@
+From 79eed8a21456b632c0438f4bf9571cecfc83c37c Mon Sep 17 00:00:00 2001
+From: dev <dev@local>
+Date: Tue, 13 Oct 2026 04:50:33 +0000
+Subject: [PATCH 2/3] lsfg-vk step 2a: Vulkan device capabilities and shared
+ LSFG layer (vulkan-hpp)
+
+- Instance: request VK_KHR_vulkan_memory_model and VK_KHR_shader_float16_int8, and enable
+  shaderStorageImage{Read,Write}WithoutFormat, only when built with HAS_LSFG.
+  Adds IsLsfgCapable() (memory model + FP16 + nullDescriptor + write-without-format).
+- renderer_vulkan/lsfg/lsfg_shaders: builds shader modules from the user's Lossless.dll.
+- renderer_vulkan/lsfg/lsfg_common: LsfgImage / LsfgUniformBuffer (VMA, RAII, move-only),
+  LsfgResources, LsfgBarriers, LsfgDescriptorWriter, LsfgPass, pool/sampler helpers.
+  Resource creation throws vk::SystemError so FrameGen can disable itself instead of aborting.
+
+NOT COMPILED: externals (vulkan-headers, VMA, boost, fmt) were empty in the source snapshot, so
+this was only reviewed by hand and bracket-checked. Needs a first real build on-device/CI.
+---
+ src/video_core/CMakeLists.txt                 |   5 +-
+ .../renderer_vulkan/lsfg/lsfg_common.cpp      | 509 ++++++++++++++++++
+ .../renderer_vulkan/lsfg/lsfg_common.h        | 269 +++++++++
+ .../renderer_vulkan/lsfg/lsfg_shaders.cpp     |  50 ++
+ .../renderer_vulkan/lsfg/lsfg_shaders.h       |  33 ++
+ .../renderer_vulkan/vk_instance.cpp           |  35 +-
+ src/video_core/renderer_vulkan/vk_instance.h  |  18 +
+ 7 files changed, 916 insertions(+), 3 deletions(-)
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_shaders.cpp
+ create mode 100644 src/video_core/renderer_vulkan/lsfg/lsfg_shaders.h
+
+diff --git a/src/video_core/CMakeLists.txt b/src/video_core/CMakeLists.txt
+index ecb6667..f56ddde 100644
+--- a/src/video_core/CMakeLists.txt
++++ b/src/video_core/CMakeLists.txt
+@@ -205,12 +205,15 @@ if (ENABLE_VULKAN)
+     target_link_libraries(video_core PRIVATE vulkan-headers vma sirit SPIRV glslang)
+ 
+     if(ENABLE_LSFG)
+-        # Step 1: loader + shader cache. The Vulkan chain (lsfg_*) is added in later commits.
+         target_sources(video_core PRIVATE
+             frame_gen/lossless_dll.cpp
+             frame_gen/lossless_dll.h
+             frame_gen/lsfg_translate.cpp
+             frame_gen/lsfg_translate.h
++            renderer_vulkan/lsfg/lsfg_common.cpp
++            renderer_vulkan/lsfg/lsfg_common.h
++            renderer_vulkan/lsfg/lsfg_shaders.cpp
++            renderer_vulkan/lsfg/lsfg_shaders.h
+         )
+         target_compile_definitions(video_core PUBLIC HAS_LSFG)
+     endif()
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+new file mode 100644
+index 0000000..b31b7d4
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.cpp
+@@ -0,0 +1,509 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include <algorithm>
++#include <cstring>
++
++#include <vk_mem_alloc.h>
++
++#include "common/logging/log.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_common.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++namespace {
++
++constexpr u32 DESCRIPTORS_PER_TYPE = 4096;
++
++struct LsfgConstants {
++    std::array<u32, 2> input_offset;
++    u32 first_iter;
++    u32 first_iter_s;
++    u32 advanced_color_kind;
++    u32 hdr_support;
++    f32 resolution_inv_scale;
++    f32 timestamp;
++    f32 ui_threshold;
++    std::array<u32, 3> padding;
++};
++static_assert(sizeof(LsfgConstants) == 48);
++
++constexpr vk::ImageSubresourceRange COLOR_RANGE = {
++    .aspectMask = vk::ImageAspectFlagBits::eColor,
++    .baseMipLevel = 0,
++    .levelCount = 1,
++    .baseArrayLayer = 0,
++    .layerCount = 1,
++};
++
++/// Frame generation can fail at runtime (out of memory, driver error). Rather than aborting the
++/// emulator, resource creation throws and FrameGen catches it and disables itself.
++[[noreturn]] void ThrowVk(VkResult result, const char* what) {
++    LOG_ERROR(Render_Vulkan, "Frame generation: {} failed with error {}", what,
++              static_cast<int>(result));
++    throw vk::SystemError(vk::make_error_code(static_cast<vk::Result>(result)), what);
++}
++
++vk::ImageMemoryBarrier MakeBarrier(const LsfgImage& image, vk::AccessFlags src_access,
++                                   vk::AccessFlags dst_access) {
++    return vk::ImageMemoryBarrier{
++        .srcAccessMask = src_access,
++        .dstAccessMask = dst_access,
++        .oldLayout = image.Layout(),
++        .newLayout = vk::ImageLayout::eGeneral,
++        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .image = image.Handle(),
++        .subresourceRange = COLOR_RANGE,
++    };
++}
++
++} // Anonymous namespace
++
++// ---------------------------------------------------------------------------------------------
++// LsfgImage
++// ---------------------------------------------------------------------------------------------
++
++LsfgImage::LsfgImage(const Instance& instance, vk::Extent2D extent_, vk::Format format_)
++    : allocator{instance.GetAllocator()},
++      extent{std::max(1u, extent_.width), std::max(1u, extent_.height)}, format{format_} {
++    const vk::ImageCreateInfo image_info = {
++        .imageType = vk::ImageType::e2D,
++        .format = format,
++        .extent = {extent.width, extent.height, 1},
++        .mipLevels = 1,
++        .arrayLayers = 1,
++        .samples = vk::SampleCountFlagBits::e1,
++        .tiling = vk::ImageTiling::eOptimal,
++        .usage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst |
++                 vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled,
++        .sharingMode = vk::SharingMode::eExclusive,
++        .initialLayout = vk::ImageLayout::eUndefined,
++    };
++
++    const VmaAllocationCreateInfo alloc_info = {
++        .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT,
++        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
++        .requiredFlags = 0,
++        .preferredFlags = 0,
++        .pool = VK_NULL_HANDLE,
++        .pUserData = nullptr,
++    };
++
++    VkImage unsafe_image{};
++    const VkImageCreateInfo unsafe_info = static_cast<VkImageCreateInfo>(image_info);
++    const VkResult result =
++        vmaCreateImage(allocator, &unsafe_info, &alloc_info, &unsafe_image, &allocation, nullptr);
++    if (result != VK_SUCCESS) {
++        allocator = nullptr;
++        ThrowVk(result, "vmaCreateImage");
++    }
++    image = vk::Image{unsafe_image};
++
++    const vk::ImageViewCreateInfo view_info = {
++        .image = image,
++        .viewType = vk::ImageViewType::e2D,
++        .format = format,
++        .subresourceRange = COLOR_RANGE,
++    };
++    try {
++        view = instance.GetDevice().createImageViewUnique(view_info);
++    } catch (...) {
++        Destroy();
++        throw;
++    }
++}
++
++LsfgImage::~LsfgImage() {
++    Destroy();
++}
++
++LsfgImage::LsfgImage(LsfgImage&& other) noexcept
++    : allocator{std::exchange(other.allocator, nullptr)},
++      allocation{std::exchange(other.allocation, nullptr)}, image{std::exchange(other.image, {})},
++      view{std::move(other.view)}, extent{other.extent}, format{other.format},
++      layout{other.layout} {}
++
++LsfgImage& LsfgImage::operator=(LsfgImage&& other) noexcept {
++    if (this != &other) {
++        Destroy();
++        allocator = std::exchange(other.allocator, nullptr);
++        allocation = std::exchange(other.allocation, nullptr);
++        image = std::exchange(other.image, {});
++        view = std::move(other.view);
++        extent = other.extent;
++        format = other.format;
++        layout = other.layout;
++    }
++    return *this;
++}
++
++void LsfgImage::Destroy() {
++    // The view must be destroyed before the image it was created from.
++    view.reset();
++    if (allocator && image) {
++        vmaDestroyImage(allocator, static_cast<VkImage>(image), allocation);
++    }
++    allocator = nullptr;
++    allocation = nullptr;
++    image = vk::Image{};
++}
++
++// ---------------------------------------------------------------------------------------------
++// LsfgUniformBuffer
++// ---------------------------------------------------------------------------------------------
++
++LsfgUniformBuffer::LsfgUniformBuffer(const Instance& instance, const void* data,
++                                     vk::DeviceSize size)
++    : allocator{instance.GetAllocator()} {
++    const vk::BufferCreateInfo buffer_info = {
++        .size = size,
++        .usage = vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst,
++        .sharingMode = vk::SharingMode::eExclusive,
++    };
++
++    const VmaAllocationCreateInfo alloc_create_info = {
++        .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT |
++                 VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
++        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST,
++        .requiredFlags = 0,
++        .preferredFlags = 0,
++        .pool = VK_NULL_HANDLE,
++        .pUserData = nullptr,
++    };
++
++    VkBuffer unsafe_buffer{};
++    VmaAllocationInfo alloc_info{};
++    const VkBufferCreateInfo unsafe_info = static_cast<VkBufferCreateInfo>(buffer_info);
++    const VkResult result = vmaCreateBuffer(allocator, &unsafe_info, &alloc_create_info,
++                                            &unsafe_buffer, &allocation, &alloc_info);
++    if (result != VK_SUCCESS) {
++        allocator = nullptr;
++        ThrowVk(result, "vmaCreateBuffer");
++    }
++    buffer = vk::Buffer{unsafe_buffer};
++
++    std::memcpy(alloc_info.pMappedData, data, size);
++    vmaFlushAllocation(allocator, allocation, 0, VK_WHOLE_SIZE);
++}
++
++LsfgUniformBuffer::~LsfgUniformBuffer() {
++    Destroy();
++}
++
++LsfgUniformBuffer::LsfgUniformBuffer(LsfgUniformBuffer&& other) noexcept
++    : allocator{std::exchange(other.allocator, nullptr)},
++      allocation{std::exchange(other.allocation, nullptr)},
++      buffer{std::exchange(other.buffer, {})} {}
++
++LsfgUniformBuffer& LsfgUniformBuffer::operator=(LsfgUniformBuffer&& other) noexcept {
++    if (this != &other) {
++        Destroy();
++        allocator = std::exchange(other.allocator, nullptr);
++        allocation = std::exchange(other.allocation, nullptr);
++        buffer = std::exchange(other.buffer, {});
++    }
++    return *this;
++}
++
++void LsfgUniformBuffer::Destroy() {
++    if (allocator && buffer) {
++        vmaDestroyBuffer(allocator, static_cast<VkBuffer>(buffer), allocation);
++    }
++    allocator = nullptr;
++    allocation = nullptr;
++    buffer = vk::Buffer{};
++}
++
++// ---------------------------------------------------------------------------------------------
++// LsfgResources
++// ---------------------------------------------------------------------------------------------
++
++vk::DeviceSize LsfgResources::BufferSize() {
++    return sizeof(LsfgConstants);
++}
++
++vk::Sampler LsfgResources::GetSampler(vk::SamplerAddressMode address_mode, vk::CompareOp compare_op,
++                                      bool white_border) {
++    const u64 key = static_cast<u64>(address_mode) | (static_cast<u64>(compare_op) << 8) |
++                    (static_cast<u64>(white_border) << 16);
++
++    const auto it = samplers.find(key);
++    if (it != samplers.end()) {
++        return *it->second;
++    }
++
++    const auto [entry, inserted] = samplers.emplace(
++        key, CreateLsfgSampler(*instance, address_mode, compare_op, white_border));
++    return *entry->second;
++}
++
++vk::Buffer LsfgResources::GetBuffer(f32 timestamp, bool first_iter, bool first_iter_s) {
++    u32 timestamp_bits{};
++    std::memcpy(&timestamp_bits, &timestamp, sizeof(timestamp_bits));
++    const u64 key = static_cast<u64>(timestamp_bits) | (static_cast<u64>(first_iter) << 32) |
++                    (static_cast<u64>(first_iter_s) << 33);
++
++    const auto it = buffers.find(key);
++    if (it != buffers.end()) {
++        return it->second.Handle();
++    }
++
++    const LsfgConstants constants{
++        .input_offset = {0, 0},
++        .first_iter = first_iter ? 1u : 0u,
++        .first_iter_s = first_iter_s ? 1u : 0u,
++        .advanced_color_kind = 0,
++        .hdr_support = 0,
++        .resolution_inv_scale = 1.0f / flow_scale,
++        .timestamp = timestamp,
++        .ui_threshold = 0.5f,
++        .padding = {0, 0, 0},
++    };
++
++    const auto [entry, inserted] =
++        buffers.emplace(key, LsfgUniformBuffer{*instance, &constants, sizeof(constants)});
++    return entry->second.Handle();
++}
++
++// ---------------------------------------------------------------------------------------------
++// LsfgBarriers
++// ---------------------------------------------------------------------------------------------
++
++LsfgBarriers& LsfgBarriers::Push(LsfgImage& image, vk::AccessFlags src_access,
++                                 vk::AccessFlags dst_access) {
++    barriers.push_back(MakeBarrier(image, src_access, dst_access));
++    image.SetLayout(vk::ImageLayout::eGeneral);
++    return *this;
++}
++
++LsfgBarriers& LsfgBarriers::WriteToRead(LsfgImage& image) {
++    return Push(image, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
++}
++
++LsfgBarriers& LsfgBarriers::ReadToWrite(LsfgImage& image) {
++    return Push(image, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eShaderWrite);
++}
++
++LsfgBarriers& LsfgBarriers::WriteToRead(LsfgImage* image) {
++    return image == nullptr ? *this : WriteToRead(*image);
++}
++
++LsfgBarriers& LsfgBarriers::ReadToWrite(LsfgImage* image) {
++    return image == nullptr ? *this : ReadToWrite(*image);
++}
++
++LsfgBarriers& LsfgBarriers::DiscardToWrite(vk::Image image) {
++    barriers.push_back(vk::ImageMemoryBarrier{
++        .srcAccessMask = {},
++        .dstAccessMask = vk::AccessFlagBits::eShaderWrite,
++        .oldLayout = vk::ImageLayout::eUndefined,
++        .newLayout = vk::ImageLayout::eGeneral,
++        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
++        .image = image,
++        .subresourceRange = COLOR_RANGE,
++    });
++    return *this;
++}
++
++void LsfgBarriers::Build() {
++    if (barriers.empty()) {
++        return;
++    }
++    cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader,
++                           vk::PipelineStageFlagBits::eComputeShader, {}, {}, {}, barriers);
++    barriers.clear();
++}
++
++// ---------------------------------------------------------------------------------------------
++// LsfgDescriptorWriter
++// ---------------------------------------------------------------------------------------------
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::PushImage(vk::DescriptorType type, vk::Sampler sampler,
++                                                      vk::ImageView view) {
++    image_infos.push_back(vk::DescriptorImageInfo{
++        .sampler = sampler,
++        .imageView = view,
++        // A null view (VK_EXT_robustness2 nullDescriptor) carries no layout.
++        .imageLayout = view ? vk::ImageLayout::eGeneral : vk::ImageLayout::eUndefined,
++    });
++    writes.push_back(vk::WriteDescriptorSet{
++        .dstSet = set,
++        .dstBinding = binding++,
++        .dstArrayElement = 0,
++        .descriptorCount = 1,
++        .descriptorType = type,
++        .pImageInfo = &image_infos.back(),
++    });
++    return *this;
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddSampler(vk::Sampler sampler) {
++    return PushImage(vk::DescriptorType::eSampler, sampler, vk::ImageView{});
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddSampledImage(const LsfgImage& image) {
++    return PushImage(vk::DescriptorType::eSampledImage, vk::Sampler{}, image.View());
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddSampledImage(const LsfgImage* image) {
++    return PushImage(vk::DescriptorType::eSampledImage, vk::Sampler{},
++                     image == nullptr ? vk::ImageView{} : image->View());
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddStorageImage(const LsfgImage& image) {
++    return PushImage(vk::DescriptorType::eStorageImage, vk::Sampler{}, image.View());
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddStorageView(vk::ImageView view) {
++    return PushImage(vk::DescriptorType::eStorageImage, vk::Sampler{}, view);
++}
++
++LsfgDescriptorWriter& LsfgDescriptorWriter::AddUniformBuffer(vk::Buffer buffer,
++                                                             vk::DeviceSize size) {
++    buffer_infos.push_back(vk::DescriptorBufferInfo{
++        .buffer = buffer,
++        .offset = 0,
++        .range = size,
++    });
++    writes.push_back(vk::WriteDescriptorSet{
++        .dstSet = set,
++        .dstBinding = binding++,
++        .dstArrayElement = 0,
++        .descriptorCount = 1,
++        .descriptorType = vk::DescriptorType::eUniformBuffer,
++        .pBufferInfo = &buffer_infos.back(),
++    });
++    return *this;
++}
++
++void LsfgDescriptorWriter::Build(const Instance& instance) {
++    if (writes.empty()) {
++        return;
++    }
++    instance.GetDevice().updateDescriptorSets(writes, {});
++    writes.clear();
++}
++
++// ---------------------------------------------------------------------------------------------
++// LsfgPass
++// ---------------------------------------------------------------------------------------------
++
++LsfgPass::LsfgPass(const Instance& instance, const LsfgShaders& shaders, u32 shader_id,
++                   LsfgBindings bindings) {
++    std::vector<vk::DescriptorType> types;
++    for (const auto& [count, type] : bindings) {
++        types.insert(types.end(), count, type);
++    }
++    descriptor_count = static_cast<u32>(types.size());
++
++    std::vector<vk::DescriptorSetLayoutBinding> layout_bindings(types.size());
++    for (size_t i = 0; i < types.size(); ++i) {
++        layout_bindings[i] = vk::DescriptorSetLayoutBinding{
++            .binding = static_cast<u32>(i),
++            .descriptorType = types[i],
++            .descriptorCount = 1,
++            .stageFlags = vk::ShaderStageFlagBits::eCompute,
++            .pImmutableSamplers = nullptr,
++        };
++    }
++
++    const vk::Device device = instance.GetDevice();
++
++    const vk::DescriptorSetLayoutCreateInfo layout_info = {
++        .bindingCount = static_cast<u32>(layout_bindings.size()),
++        .pBindings = layout_bindings.data(),
++    };
++    descriptor_set_layout = device.createDescriptorSetLayoutUnique(layout_info);
++
++    const vk::DescriptorSetLayout set_layout = *descriptor_set_layout;
++    const vk::PipelineLayoutCreateInfo pipeline_layout_info = {
++        .setLayoutCount = 1,
++        .pSetLayouts = &set_layout,
++        .pushConstantRangeCount = 0,
++        .pPushConstantRanges = nullptr,
++    };
++    pipeline_layout = device.createPipelineLayoutUnique(pipeline_layout_info);
++
++    const vk::ShaderModule shader = shaders.Get(shader_id);
++    if (!shader) {
++        throw vk::SystemError(vk::make_error_code(vk::Result::eErrorInitializationFailed),
++                              "missing frame generation shader");
++    }
++
++    const vk::ComputePipelineCreateInfo pipeline_info = {
++        .stage =
++            {
++                .stage = vk::ShaderStageFlagBits::eCompute,
++                .module = shader,
++                .pName = "main",
++            },
++        .layout = *pipeline_layout,
++    };
++    auto created = device.createComputePipelineUnique({}, pipeline_info);
++    if (created.result != vk::Result::eSuccess) {
++        throw vk::SystemError(vk::make_error_code(created.result),
++                              "frame generation compute pipeline creation");
++    }
++    pipeline = std::move(created.value);
++}
++
++void LsfgPass::Bind(vk::CommandBuffer cmdbuf, vk::DescriptorSet set) const {
++    BindPipeline(cmdbuf);
++    BindSet(cmdbuf, set);
++}
++
++void LsfgPass::BindPipeline(vk::CommandBuffer cmdbuf) const {
++    cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
++}
++
++void LsfgPass::BindSet(vk::CommandBuffer cmdbuf, vk::DescriptorSet set) const {
++    cmdbuf.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *pipeline_layout, 0, set, {});
++}
++
++// ---------------------------------------------------------------------------------------------
++// Free helpers
++// ---------------------------------------------------------------------------------------------
++
++vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance, u32 max_sets) {
++    const std::array pool_sizes = {
++        vk::DescriptorPoolSize{vk::DescriptorType::eUniformBuffer, DESCRIPTORS_PER_TYPE},
++        vk::DescriptorPoolSize{vk::DescriptorType::eSampler, DESCRIPTORS_PER_TYPE},
++        vk::DescriptorPoolSize{vk::DescriptorType::eSampledImage, DESCRIPTORS_PER_TYPE},
++        vk::DescriptorPoolSize{vk::DescriptorType::eStorageImage, DESCRIPTORS_PER_TYPE},
++    };
++    const vk::DescriptorPoolCreateInfo pool_info = {
++        .maxSets = max_sets,
++        .poolSizeCount = static_cast<u32>(pool_sizes.size()),
++        .pPoolSizes = pool_sizes.data(),
++    };
++    return instance.GetDevice().createDescriptorPoolUnique(pool_info);
++}
++
++vk::UniqueSampler CreateLsfgSampler(const Instance& instance, vk::SamplerAddressMode address_mode,
++                                    vk::CompareOp compare_op, bool white_border) {
++    const vk::SamplerCreateInfo sampler_info = {
++        .magFilter = vk::Filter::eLinear,
++        .minFilter = vk::Filter::eLinear,
++        .mipmapMode = vk::SamplerMipmapMode::eLinear,
++        .addressModeU = address_mode,
++        .addressModeV = address_mode,
++        .addressModeW = address_mode,
++        .mipLodBias = 0.0f,
++        .anisotropyEnable = VK_FALSE,
++        .maxAnisotropy = 0.0f,
++        .compareEnable = VK_FALSE,
++        .compareOp = compare_op,
++        .minLod = 0.0f,
++        .maxLod = VK_LOD_CLAMP_NONE,
++        .borderColor = white_border ? vk::BorderColor::eFloatOpaqueWhite
++                                    : vk::BorderColor::eFloatTransparentBlack,
++        .unnormalizedCoordinates = VK_FALSE,
++    };
++    return instance.GetDevice().createSamplerUnique(sampler_info);
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_common.h b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+new file mode 100644
+index 0000000..c465edf
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_common.h
+@@ -0,0 +1,269 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <array>
++#include <deque>
++#include <initializer_list>
++#include <map>
++#include <utility>
++#include <vector>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/vk_common.h"
++
++VK_DEFINE_HANDLE(VmaAllocation)
++VK_DEFINE_HANDLE(VmaAllocator)
++
++namespace Vulkan {
++
++class Instance;
++class LsfgShaders;
++
++constexpr vk::Format LSFG_DEFAULT_FORMAT = vk::Format::eR8G8B8A8Unorm;
++constexpr vk::Format LSFG_FLOW_FORMAT = vk::Format::eR8Unorm;
++constexpr vk::Format LSFG_MOTION_FORMAT = vk::Format::eR16G16B16A16Sfloat;
++
++constexpr size_t LSFG_HISTORY_SLOTS = 3;
++constexpr size_t LSFG_MAX_TARGETS = 7;
++constexpr size_t LSFG_MAX_GENERATIONS = 3;
++
++constexpr size_t LSFG_GENERATION_SLOTS = LSFG_MAX_GENERATIONS * (LSFG_MAX_GENERATIONS + 1) / 2;
++
++[[nodiscard]] constexpr size_t LsfgGenerationSlot(size_t generation_count, size_t generation) {
++    return (generation_count - 1) * generation_count / 2 + generation;
++}
++
++[[nodiscard]] constexpr f32 LsfgTimestamp(size_t generation, size_t generation_count) {
++    return static_cast<f32>(generation + 1) / static_cast<f32>(generation_count + 1);
++}
++
++[[nodiscard]] constexpr size_t LsfgSlotCount(size_t slot) {
++    size_t count = 1;
++    while (LsfgGenerationSlot(count + 1, 0) <= slot) {
++        ++count;
++    }
++    return count;
++}
++
++[[nodiscard]] constexpr f32 LsfgSlotTimestamp(size_t slot) {
++    const size_t count = LsfgSlotCount(slot);
++    return LsfgTimestamp(slot - LsfgGenerationSlot(count, 0), count);
++}
++
++/// A 2D storage+sampled image owned through VMA. Tracks its layout on the CPU side so that
++/// LsfgBarriers can emit the right transition.
++class LsfgImage {
++public:
++    LsfgImage() = default;
++    LsfgImage(const Instance& instance, vk::Extent2D extent_,
++              vk::Format format_ = LSFG_DEFAULT_FORMAT);
++    ~LsfgImage();
++
++    LsfgImage(const LsfgImage&) = delete;
++    LsfgImage& operator=(const LsfgImage&) = delete;
++    LsfgImage(LsfgImage&& other) noexcept;
++    LsfgImage& operator=(LsfgImage&& other) noexcept;
++
++    [[nodiscard]] vk::Image Handle() const {
++        return image;
++    }
++
++    [[nodiscard]] vk::ImageView View() const {
++        return *view;
++    }
++
++    [[nodiscard]] vk::Extent2D Extent() const {
++        return extent;
++    }
++
++    [[nodiscard]] vk::Format Format() const {
++        return format;
++    }
++
++    [[nodiscard]] vk::ImageLayout Layout() const {
++        return layout;
++    }
++
++    void SetLayout(vk::ImageLayout new_layout) {
++        layout = new_layout;
++    }
++
++private:
++    void Destroy();
++
++    VmaAllocator allocator{};
++    VmaAllocation allocation{};
++    vk::Image image{};
++    vk::UniqueImageView view;
++    vk::Extent2D extent{};
++    vk::Format format{vk::Format::eUndefined};
++    vk::ImageLayout layout{vk::ImageLayout::eUndefined};
++};
++
++using LsfgImagePair = std::array<LsfgImage, 2>;
++using LsfgImageHistory = std::array<LsfgImagePair, LSFG_HISTORY_SLOTS>;
++
++/// Small host-visible uniform buffer owned through VMA.
++class LsfgUniformBuffer {
++public:
++    LsfgUniformBuffer() = default;
++    LsfgUniformBuffer(const Instance& instance, const void* data, vk::DeviceSize size);
++    ~LsfgUniformBuffer();
++
++    LsfgUniformBuffer(const LsfgUniformBuffer&) = delete;
++    LsfgUniformBuffer& operator=(const LsfgUniformBuffer&) = delete;
++    LsfgUniformBuffer(LsfgUniformBuffer&& other) noexcept;
++    LsfgUniformBuffer& operator=(LsfgUniformBuffer&& other) noexcept;
++
++    [[nodiscard]] vk::Buffer Handle() const {
++        return buffer;
++    }
++
++private:
++    void Destroy();
++
++    VmaAllocator allocator{};
++    VmaAllocation allocation{};
++    vk::Buffer buffer{};
++};
++
++/// Caches the samplers and per-timestamp constant buffers shared by all passes.
++class LsfgResources {
++public:
++    LsfgResources() = default;
++    LsfgResources(const Instance& instance_, f32 flow_scale_)
++        : instance{&instance_}, flow_scale{flow_scale_} {}
++
++    [[nodiscard]] vk::Sampler GetSampler(
++        vk::SamplerAddressMode address_mode = vk::SamplerAddressMode::eClampToBorder,
++        vk::CompareOp compare_op = vk::CompareOp::eNever, bool white_border = false);
++
++    [[nodiscard]] vk::Buffer GetBuffer(f32 timestamp = 0.0f, bool first_iter = false,
++                                       bool first_iter_s = false);
++
++    [[nodiscard]] static vk::DeviceSize BufferSize();
++
++private:
++    const Instance* instance{};
++    f32 flow_scale{1.0f};
++
++    std::map<u64, vk::UniqueSampler> samplers;
++    std::map<u64, LsfgUniformBuffer> buffers;
++};
++
++/// Batches compute->compute image barriers and keeps the CPU-side layout tracking in sync.
++class LsfgBarriers {
++public:
++    explicit LsfgBarriers(vk::CommandBuffer cmdbuf_) : cmdbuf{cmdbuf_} {}
++
++    LsfgBarriers& WriteToRead(LsfgImage& image);
++    LsfgBarriers& ReadToWrite(LsfgImage& image);
++    LsfgBarriers& WriteToRead(LsfgImage* image);
++    LsfgBarriers& ReadToWrite(LsfgImage* image);
++    LsfgBarriers& DiscardToWrite(vk::Image image);
++
++    template <typename Range>
++    LsfgBarriers& WriteToReadAll(Range& images) {
++        for (auto& image : images) {
++            WriteToRead(image);
++        }
++        return *this;
++    }
++
++    template <typename Range>
++    LsfgBarriers& ReadToWriteAll(Range& images) {
++        for (auto& image : images) {
++            ReadToWrite(image);
++        }
++        return *this;
++    }
++
++    void Build();
++
++private:
++    LsfgBarriers& Push(LsfgImage& image, vk::AccessFlags src_access, vk::AccessFlags dst_access);
++
++    vk::CommandBuffer cmdbuf;
++    std::vector<vk::ImageMemoryBarrier> barriers;
++};
++
++/// Collects descriptor writes for consecutive bindings 0..N of one set.
++class LsfgDescriptorWriter {
++public:
++    explicit LsfgDescriptorWriter(vk::DescriptorSet set_) : set{set_} {}
++
++    LsfgDescriptorWriter& AddSampler(vk::Sampler sampler);
++    LsfgDescriptorWriter& AddSampledImage(const LsfgImage& image);
++    LsfgDescriptorWriter& AddSampledImage(const LsfgImage* image);
++    LsfgDescriptorWriter& AddStorageImage(const LsfgImage& image);
++    LsfgDescriptorWriter& AddStorageView(vk::ImageView view);
++    LsfgDescriptorWriter& AddUniformBuffer(vk::Buffer buffer, vk::DeviceSize size);
++
++    template <typename Range>
++    LsfgDescriptorWriter& AddSampledImages(const Range& images) {
++        for (const auto& image : images) {
++            AddSampledImage(image);
++        }
++        return *this;
++    }
++
++    template <typename Range>
++    LsfgDescriptorWriter& AddStorageImages(const Range& images) {
++        for (const auto& image : images) {
++            AddStorageImage(image);
++        }
++        return *this;
++    }
++
++    void Build(const Instance& instance);
++
++private:
++    LsfgDescriptorWriter& PushImage(vk::DescriptorType type, vk::Sampler sampler,
++                                    vk::ImageView view);
++
++    vk::DescriptorSet set;
++    u32 binding{};
++    std::deque<vk::DescriptorImageInfo> image_infos;
++    std::deque<vk::DescriptorBufferInfo> buffer_infos;
++    std::vector<vk::WriteDescriptorSet> writes;
++};
++
++/// {count, type} pairs, expanded to consecutive bindings.
++using LsfgBindings = std::initializer_list<std::pair<u32, vk::DescriptorType>>;
++
++/// One compute pipeline plus its single descriptor set layout.
++class LsfgPass {
++public:
++    LsfgPass() = default;
++    LsfgPass(const Instance& instance, const LsfgShaders& shaders, u32 shader_id,
++             LsfgBindings bindings);
++
++    [[nodiscard]] vk::DescriptorSetLayout SetLayout() const {
++        return *descriptor_set_layout;
++    }
++
++    [[nodiscard]] u32 DescriptorCount() const {
++        return descriptor_count;
++    }
++
++    void Bind(vk::CommandBuffer cmdbuf, vk::DescriptorSet set) const;
++    void BindPipeline(vk::CommandBuffer cmdbuf) const;
++    void BindSet(vk::CommandBuffer cmdbuf, vk::DescriptorSet set) const;
++
++private:
++    vk::UniqueDescriptorSetLayout descriptor_set_layout;
++    vk::UniquePipelineLayout pipeline_layout;
++    vk::UniquePipeline pipeline;
++    u32 descriptor_count{};
++};
++
++[[nodiscard]] vk::UniqueDescriptorPool CreateLsfgDescriptorPool(const Instance& instance,
++                                                                u32 max_sets);
++
++[[nodiscard]] vk::UniqueSampler CreateLsfgSampler(const Instance& instance,
++                                                  vk::SamplerAddressMode address_mode,
++                                                  vk::CompareOp compare_op, bool white_border);
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.cpp b/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.cpp
+new file mode 100644
+index 0000000..91e0bef
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.cpp
+@@ -0,0 +1,50 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#include "common/logging/log.h"
++#include "video_core/frame_gen/lossless_dll.h"
++#include "video_core/renderer_vulkan/lsfg/lsfg_shaders.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++
++namespace Vulkan {
++
++LsfgShaders::LsfgShaders(const Instance& instance) {
++    if (!instance.IsLsfgCapable()) {
++        LOG_WARNING(Render_Vulkan,
++                    "Frame generation unavailable: device lacks Vulkan memory model, native FP16, "
++                    "null descriptors or storage image write-without-format");
++        return;
++    }
++
++    VideoCore::FrameGen::ShaderModules code;
++    const auto status = VideoCore::FrameGen::LoadShaderModules(code);
++    if (status != VideoCore::FrameGen::LosslessStatus::Ok) {
++        LOG_WARNING(Render_Vulkan, "Frame generation unavailable: Lossless.dll status {}",
++                    static_cast<u32>(status));
++        return;
++    }
++
++    const vk::Device device = instance.GetDevice();
++    try {
++        for (const auto& [id, words] : code) {
++            const vk::ShaderModuleCreateInfo module_info = {
++                .codeSize = words.size() * sizeof(u32),
++                .pCode = words.data(),
++            };
++            modules.emplace(id, device.createShaderModuleUnique(module_info));
++        }
++    } catch (const vk::SystemError& err) {
++        LOG_ERROR(Render_Vulkan, "Failed to create frame generation shader modules: {}",
++                  err.what());
++        modules.clear();
++        return;
++    }
++    valid = true;
++}
++
++vk::ShaderModule LsfgShaders::Get(u32 shader_id) const {
++    const auto hit = modules.find(shader_id);
++    return hit == modules.end() ? vk::ShaderModule{} : *hit->second;
++}
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.h b/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.h
+new file mode 100644
+index 0000000..e0fae11
+--- /dev/null
++++ b/src/video_core/renderer_vulkan/lsfg/lsfg_shaders.h
+@@ -0,0 +1,33 @@
++// Copyright 2026 Eden Emulator Project / lsfg-vk (2025)
++// Adapted for Azahar Plus. Licensed under GPLv3 or any later version.
++
++#pragma once
++
++#include <map>
++
++#include "common/common_types.h"
++#include "video_core/renderer_vulkan/vk_common.h"
++
++namespace Vulkan {
++
++class Instance;
++
++/// Owns the shader modules extracted from the user-supplied Lossless.dll.
++class LsfgShaders {
++public:
++    explicit LsfgShaders(const Instance& instance);
++
++    /// True if the device is capable and every shader module was created successfully.
++    [[nodiscard]] bool IsValid() const {
++        return valid;
++    }
++
++    /// Returns a null handle if the id is unknown.
++    [[nodiscard]] vk::ShaderModule Get(u32 shader_id) const;
++
++private:
++    std::map<u32, vk::UniqueShaderModule> modules;
++    bool valid{};
++};
++
++} // namespace Vulkan
+diff --git a/src/video_core/renderer_vulkan/vk_instance.cpp b/src/video_core/renderer_vulkan/vk_instance.cpp
+index 7a79a67..4b3e310 100644
+--- a/src/video_core/renderer_vulkan/vk_instance.cpp
++++ b/src/video_core/renderer_vulkan/vk_instance.cpp
+@@ -403,7 +403,9 @@ bool Instance::CreateDevice() {
+         vk::PhysicalDeviceRobustness2FeaturesEXT,
+         vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT,
+         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT,
+-        vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
++        vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR,
++        vk::PhysicalDeviceVulkanMemoryModelFeaturesKHR,
++        vk::PhysicalDeviceShaderFloat16Int8FeaturesKHR>();
+     const vk::StructureChain properties_chain =
+         physical_device
+             .getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceDriverProperties,
+@@ -421,7 +423,7 @@ bool Instance::CreateDevice() {
+         return false;
+     }
+ 
+-    boost::container::static_vector<const char*, 13> enabled_extensions;
++    boost::container::static_vector<const char*, 17> enabled_extensions;
+     const auto add_extension = [&](std::string_view extension, bool blacklist = false,
+                                    std::string_view reason = "") -> bool {
+         const auto result =
+@@ -477,6 +479,15 @@ bool Instance::CreateDevice() {
+         add_extension(VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME, is_moltenvk,
+                       "the PerVertexKHR attribute is not supported by MoltenVK");
+ 
++#ifdef HAS_LSFG
++    // Required by the Lossless Scaling frame generation shaders.
++    const bool has_vulkan_memory_model = add_extension(VK_KHR_VULKAN_MEMORY_MODEL_EXTENSION_NAME);
++    const bool has_shader_float16_int8 = add_extension(VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME);
++#else
++    const bool has_vulkan_memory_model = false;
++    const bool has_shader_float16_int8 = false;
++#endif
++
+     const auto family_properties = physical_device.getQueueFamilyProperties();
+     if (family_properties.empty()) {
+         LOG_CRITICAL(Render_Vulkan, "Physical device reported no queues.");
+@@ -523,6 +534,11 @@ bool Instance::CreateDevice() {
+                 .logicOp = features.logicOp,
+                 .samplerAnisotropy = features.samplerAnisotropy,
+                 .fragmentStoresAndAtomics = features.fragmentStoresAndAtomics,
++#ifdef HAS_LSFG
++                .shaderStorageImageReadWithoutFormat = features.shaderStorageImageReadWithoutFormat,
++                .shaderStorageImageWriteWithoutFormat =
++                    features.shaderStorageImageWriteWithoutFormat,
++#endif
+                 .shaderClipDistance = features.shaderClipDistance,
+             },
+         },
+@@ -535,6 +551,8 @@ bool Instance::CreateDevice() {
+         vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT{},
+         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT{},
+         vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR{},
++        vk::PhysicalDeviceVulkanMemoryModelFeaturesKHR{},
++        vk::PhysicalDeviceShaderFloat16Int8FeaturesKHR{},
+     };
+ 
+ #define PROP_GET(structName, prop, property) property = properties_chain.get<structName>().prop;
+@@ -620,6 +638,19 @@ bool Instance::CreateDevice() {
+         device_chain.unlink<vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
+     }
+ 
++    if (has_vulkan_memory_model) {
++        FEAT_SET(vk::PhysicalDeviceVulkanMemoryModelFeaturesKHR, vulkanMemoryModel,
++                 vulkan_memory_model)
++    } else {
++        device_chain.unlink<vk::PhysicalDeviceVulkanMemoryModelFeaturesKHR>();
++    }
++
++    if (has_shader_float16_int8) {
++        FEAT_SET(vk::PhysicalDeviceShaderFloat16Int8FeaturesKHR, shaderFloat16, shader_float16)
++    } else {
++        device_chain.unlink<vk::PhysicalDeviceShaderFloat16Int8FeaturesKHR>();
++    }
++
+ #undef PROP_GET
+ #undef FEAT_SET
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_instance.h b/src/video_core/renderer_vulkan/vk_instance.h
+index 94ace36..664e682 100644
+--- a/src/video_core/renderer_vulkan/vk_instance.h
++++ b/src/video_core/renderer_vulkan/vk_instance.h
+@@ -156,6 +156,22 @@ public:
+         return null_descriptor;
+     }
+ 
++    /// Returns true when VK_KHR_vulkan_memory_model is supported and enabled
++    bool IsVulkanMemoryModelSupported() const {
++        return vulkan_memory_model;
++    }
++
++    /// Returns true when native FP16 shader arithmetic is supported and enabled
++    bool IsShaderFloat16Supported() const {
++        return shader_float16;
++    }
++
++    /// Returns true when the device can run the Lossless Scaling frame generation shaders
++    bool IsLsfgCapable() const {
++        return vulkan_memory_model && shader_float16 && null_descriptor &&
++               features.shaderStorageImageWriteWithoutFormat;
++    }
++
+     /// Returns true when VK_EXT_fragment_shader_interlock is supported
+     bool IsFragmentShaderInterlockSupported() const {
+         return fragment_shader_interlock;
+@@ -334,6 +350,8 @@ protected:
+     bool custom_border_color{};
+     bool index_type_uint8{};
+     bool null_descriptor{};
++    bool vulkan_memory_model{};
++    bool shader_float16{};
+     bool fragment_shader_interlock{};
+     bool image_format_list{};
+     bool pipeline_creation_cache_control{};
+-- 
+2.43.0
+

@@ -1,0 +1,128 @@
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 05:49:56.077886422 +0000
+@@ -14,6 +14,7 @@
+     external fun use_fastinterp(): String
+     external fun cpu_clock_percentage(): String
+     external fun reduce_downcount_slice(): String
++    external fun simple_cpu_ticks(): String
+     external fun priority_boost_starved_threads(): String
+     external fun use_fastmem(): String
+     external fun adreno_gpu_boost(): String
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt	2026-10-13 05:49:56.078262762 +0000
+@@ -154,6 +154,11 @@
+         Settings.SECTION_CORE,
+         false
+     ),
++    SIMPLE_CPU_TICKS(
++        SettingKeys.simple_cpu_ticks(),
++        Settings.SECTION_CORE,
++        false
++    ),
+     PRIORITY_BOOST_STARVED_THREADS(
+         SettingKeys.priority_boost_starved_threads(),
+         Settings.SECTION_CORE,
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 05:49:56.079657221 +0000
+@@ -2316,6 +2316,15 @@
+             )
+             add(
+                 SwitchSetting(
++                    BooleanSetting.SIMPLE_CPU_TICKS,
++                    R.string.simple_cpu_ticks,
++                    R.string.simple_cpu_ticks_description,
++                    BooleanSetting.SIMPLE_CPU_TICKS.key,
++                    BooleanSetting.SIMPLE_CPU_TICKS.defaultValue
++                )
++            )
++            add(
++                SwitchSetting(
+                     BooleanSetting.PRIORITY_BOOST_STARVED_THREADS,
+                     R.string.priority_boost_starved_threads,
+                     R.string.priority_boost_starved_threads_description,
+diff --git a/src/android/app/src/main/jni/config.cpp b/src/android/app/src/main/jni/config.cpp
+--- a/src/android/app/src/main/jni/config.cpp	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/jni/config.cpp	2026-10-13 05:49:56.077602947 +0000
+@@ -268,6 +268,7 @@
+     ReadSetting("Core", Settings::values.use_fastinterp);
+     ReadSetting("Core", Settings::values.cpu_clock_percentage);
+     ReadSetting("Core", Settings::values.reduce_downcount_slice);
++    ReadSetting("Core", Settings::values.simple_cpu_ticks);
+     ReadSetting("Core", Settings::values.priority_boost_starved_threads);
+     ReadSetting("Core", Settings::values.use_fastmem);
+ 
+diff --git a/src/android/app/src/main/jni/default_ini.h b/src/android/app/src/main/jni/default_ini.h
+--- a/src/android/app/src/main/jni/default_ini.h	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/jni/default_ini.h	2026-10-13 05:49:56.077244842 +0000
+@@ -114,6 +114,11 @@
+ # 0 (default): Off, 1: On
+ )") DECLARE_KEY(reduce_downcount_slice) BOOST_HANA_STRING(R"(
+ 
++# Count every emulated CPU instruction as 1 tick instead of using per-instruction cycle costs.
++# Behaves like the original Citra timing model. Restart the game after changing.
++# 0 (default): Off (accurate costs), 1: On
++)") DECLARE_KEY(simple_cpu_ticks) BOOST_HANA_STRING(R"(
++
+ # Boost low priority starved threads during kernel rescheduling.
+ # 0: Off, 1 (default): On
+ )") DECLARE_KEY(priority_boost_starved_threads) BOOST_HANA_STRING(R"(
+diff --git a/src/android/app/src/main/res/values/strings.xml b/src/android/app/src/main/res/values/strings.xml
+--- a/src/android/app/src/main/res/values/strings.xml	2026-10-13 04:35:16.000000000 +0000
++++ b/src/android/app/src/main/res/values/strings.xml	2026-10-13 05:49:56.080884945 +0000
+@@ -1266,6 +1266,8 @@
+     <string name="adreno_gpu_boost">Adreno GPU Boost (Experimental)</string>
+     <string name="adreno_gpu_boost_description">Increases graphics throughput on supported devices, improving performance. Use of this setting can increase power usage and temperature. May cause stability issues on certain devices.</string>
+     <string name="reduce_downcount_slice">Reduce Downcount Slice</string>
++    <string name="simple_cpu_ticks">Simple CPU Tick Costs</string>
++    <string name="simple_cpu_ticks_description">Counts every emulated CPU instruction as 1 tick (like original Citra) instead of using per-instruction cycle costs. May improve FPS in CPU-heavy games at some timing accuracy cost. Restart the game after changing.</string>
+     <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+     <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
+     <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+diff --git a/src/common/settings.cpp b/src/common/settings.cpp
+--- a/src/common/settings.cpp	2026-10-13 04:35:16.000000000 +0000
++++ b/src/common/settings.cpp	2026-10-13 05:49:56.076948367 +0000
+@@ -90,6 +90,7 @@
+     log_setting("Core_UseFastInterp", values.use_fastinterp.GetValue());
+     log_setting("Core_CPUClockPercentage", values.cpu_clock_percentage.GetValue());
+     log_setting("Core_ReduceDowncountSlice", values.reduce_downcount_slice.GetValue());
++    log_setting("Core_SimpleCpuTicks", values.simple_cpu_ticks.GetValue());
+     log_setting("Core_PriorityBoostStarvedThreads",
+                 values.priority_boost_starved_threads.GetValue());
+     log_setting("Core_UseFastmem", values.use_fastmem.GetValue());
+@@ -213,6 +214,7 @@
+     // Core
+     values.cpu_clock_percentage.SetGlobal(true);
+     values.reduce_downcount_slice.SetGlobal(true);
++    values.simple_cpu_ticks.SetGlobal(true);
+     values.priority_boost_starved_threads.SetGlobal(true);
+     values.use_fastmem.SetGlobal(true);
+     values.is_new_3ds.SetGlobal(true);
+diff --git a/src/common/settings.h b/src/common/settings.h
+--- a/src/common/settings.h	2026-10-13 04:35:16.000000000 +0000
++++ b/src/common/settings.h	2026-10-13 05:49:56.075868691 +0000
+@@ -487,6 +487,7 @@
+     Setting<bool> use_fastinterp{true, Keys::use_fastinterp};
+     SwitchableSetting<s32, true> cpu_clock_percentage{100, 5, 400, Keys::cpu_clock_percentage};
+     SwitchableSetting<bool> reduce_downcount_slice{false, Keys::reduce_downcount_slice};
++    SwitchableSetting<bool> simple_cpu_ticks{false, Keys::simple_cpu_ticks};
+     SwitchableSetting<bool> priority_boost_starved_threads{
+         true, Keys::priority_boost_starved_threads};
+     SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};
+diff --git a/src/core/arm/dynarmic/arm_dynarmic.cpp b/src/core/arm/dynarmic/arm_dynarmic.cpp
+--- a/src/core/arm/dynarmic/arm_dynarmic.cpp	2026-10-13 04:35:16.000000000 +0000
++++ b/src/core/arm/dynarmic/arm_dynarmic.cpp	2026-10-13 05:50:03.125441936 +0000
+@@ -169,6 +169,11 @@
+         return static_cast<u64>(ticks <= 0 ? 0 : ticks);
+     }
+     std::uint64_t GetTicksForCode(bool is_thumb, VAddr, std::uint32_t instruction) override {
++        // Called at JIT translation time. With "Simple CPU Tick Costs" every instruction counts
++        // as 1 tick (original Citra behaviour). Restart the game to apply a changed value.
++        if (Settings::values.simple_cpu_ticks.GetValue()) {
++            return 1;
++        }
+         return Core::TicksForInstruction(is_thumb, instruction);
+     }
+ 

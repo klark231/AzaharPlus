@@ -115,6 +115,11 @@ enum class BooleanSetting(
         Settings.SECTION_RENDERER,
         false
     ),
+    DISABLE_GEOMETRY_SHADER(
+        SettingKeys.disable_geometry_shader(),
+        Settings.SECTION_RENDERER,
+        false
+    ),
     DISABLE_SURFACE_TEXTURE_COPY(
         SettingKeys.disable_surface_texture_copy(),
         Settings.SECTION_RENDERER,

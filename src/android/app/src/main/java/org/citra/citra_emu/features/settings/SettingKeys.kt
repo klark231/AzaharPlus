@@ -99,6 +99,7 @@ object SettingKeys {
     external fun async_custom_loading(): String
     external fun disable_right_eye_render(): String
     external fun force_hw_vertex_shaders(): String
+    external fun disable_geometry_shader(): String
     external fun disable_surface_texture_copy(): String
     external fun disable_flush_cpu_write(): String
     external fun audio_emulation(): String

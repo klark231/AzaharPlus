@@ -1,0 +1,146 @@
+Only in b: .git
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 05:49:56.077886422 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 06:13:43.888936789 +0000
+@@ -99,6 +99,7 @@
+     external fun async_custom_loading(): String
+     external fun disable_right_eye_render(): String
+     external fun force_hw_vertex_shaders(): String
++    external fun disable_geometry_shader(): String
+     external fun disable_surface_texture_copy(): String
+     external fun disable_flush_cpu_write(): String
+     external fun audio_emulation(): String
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt	2026-10-13 05:49:56.078262762 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/BooleanSetting.kt	2026-10-13 06:13:43.888999012 +0000
+@@ -115,6 +115,11 @@
+         Settings.SECTION_RENDERER,
+         false
+     ),
++    DISABLE_GEOMETRY_SHADER(
++        SettingKeys.disable_geometry_shader(),
++        Settings.SECTION_RENDERER,
++        false
++    ),
+     DISABLE_SURFACE_TEXTURE_COPY(
+         SettingKeys.disable_surface_texture_copy(),
+         Settings.SECTION_RENDERER,
+diff --git a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt
+--- a/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 05:49:56.079657221 +0000
++++ b/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 06:13:43.889439934 +0000
+@@ -1374,6 +1374,15 @@
+             )
+             add(
+                 SwitchSetting(
++                    BooleanSetting.DISABLE_GEOMETRY_SHADER,
++                    R.string.disable_geometry_shader,
++                    R.string.disable_geometry_shader_description,
++                    BooleanSetting.DISABLE_GEOMETRY_SHADER.key,
++                    BooleanSetting.DISABLE_GEOMETRY_SHADER.defaultValue
++                )
++            )
++            add(
++                SwitchSetting(
+                     BooleanSetting.DISABLE_SURFACE_TEXTURE_COPY,
+                     R.string.disable_surface_texture_copy,
+                     R.string.disable_surface_texture_copy_description,
+diff --git a/src/android/app/src/main/jni/config.cpp b/src/android/app/src/main/jni/config.cpp
+--- a/src/android/app/src/main/jni/config.cpp	2026-10-13 05:49:56.077602947 +0000
++++ b/src/android/app/src/main/jni/config.cpp	2026-10-13 06:13:43.888863836 +0000
+@@ -317,6 +317,7 @@
+     ReadSetting("Renderer", Settings::values.simulate_3ds_gpu_timings);
+     ReadSetting("Renderer", Settings::values.disable_right_eye_render);
+     ReadSetting("Renderer", Settings::values.force_hw_vertex_shaders);
++    ReadSetting("Renderer", Settings::values.disable_geometry_shader);
+     ReadSetting("Renderer", Settings::values.disable_surface_texture_copy);
+     ReadSetting("Renderer", Settings::values.disable_flush_cpu_write);
+     ReadSetting("Renderer", Settings::values.swap_eyes_3d);
+diff --git a/src/android/app/src/main/jni/default_ini.h b/src/android/app/src/main/jni/default_ini.h
+--- a/src/android/app/src/main/jni/default_ini.h	2026-10-13 05:49:56.077244842 +0000
++++ b/src/android/app/src/main/jni/default_ini.h	2026-10-13 06:13:43.888787797 +0000
+@@ -257,6 +257,11 @@
+ # 0 (default): Off, 1: On
+ )") DECLARE_KEY(force_hw_vertex_shaders) BOOST_HANA_STRING(R"(
+ 
++# Disables the GPU geometry shader stage (quaternion fix-up used with per-fragment lighting).
++# Can improve performance on GPUs with slow geometry shaders, but may cause lighting artifacts.
++# 0 (default): Off, 1: On
++)") DECLARE_KEY(disable_geometry_shader) BOOST_HANA_STRING(R"(
++
+ # Ignores texture copies when no cached source surface exists.
+ # May give a small performance boost, but may cause graphical bugs.
+ # 0 (default): Off, 1: On
+diff --git a/src/android/app/src/main/res/values/strings.xml b/src/android/app/src/main/res/values/strings.xml
+--- a/src/android/app/src/main/res/values/strings.xml	2026-10-13 05:49:56.080884945 +0000
++++ b/src/android/app/src/main/res/values/strings.xml	2026-10-13 06:13:43.889864536 +0000
+@@ -1312,6 +1312,8 @@
+     <string name="cheats_text_label">Cheat file</string>
+     <string name="cheats_text_helper">Start each cheat with a [Name] line, then one code per line.</string>
+     <string name="tweaks">Tweaks</string>
++    <string name="disable_geometry_shader">Disable Geometry Shader</string>
++    <string name="disable_geometry_shader_description">Skips the GPU geometry shader stage used for per-fragment lighting fix-ups. May improve performance on GPUs with slow geometry shaders, but can cause lighting artifacts.</string>
+     <string name="force_hw_vertex_shaders">Force Hardware Vertex Shaders</string>
+     <string name="force_hw_vertex_shaders_description">Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
+     <string name="disable_surface_texture_copy">Disable Surface Texture Copy</string>
+diff --git a/src/common/settings.cpp b/src/common/settings.cpp
+--- a/src/common/settings.cpp	2026-10-13 05:49:56.076948367 +0000
++++ b/src/common/settings.cpp	2026-10-13 06:13:43.888702658 +0000
+@@ -120,6 +120,7 @@
+     log_setting("Renderer_Simulate3DSGPUTimings", values.simulate_3ds_gpu_timings.GetValue());
+     log_setting("Renderer_DisableRightEyeRender", values.disable_right_eye_render.GetValue());
+     log_setting("Renderer_ForceHWVertexShaders", values.force_hw_vertex_shaders.GetValue());
++    log_setting("Renderer_DisableGeometryShader", values.disable_geometry_shader.GetValue());
+     log_setting("Renderer_DisableSurfaceTextureCopy",
+                 values.disable_surface_texture_copy.GetValue());
+     log_setting("Renderer_DisableFlushCPUWrite", values.disable_flush_cpu_write.GetValue());
+@@ -261,6 +262,7 @@
+     values.preload_textures.SetGlobal(true);
+     values.disable_right_eye_render.SetGlobal(true);
+     values.force_hw_vertex_shaders.SetGlobal(true);
++    values.disable_geometry_shader.SetGlobal(true);
+     values.disable_surface_texture_copy.SetGlobal(true);
+     values.disable_flush_cpu_write.SetGlobal(true);
+ 
+diff --git a/src/common/settings.h b/src/common/settings.h
+--- a/src/common/settings.h	2026-10-13 05:49:56.075868691 +0000
++++ b/src/common/settings.h	2026-10-13 06:13:43.888329579 +0000
+@@ -635,6 +635,7 @@
+     SwitchableSetting<bool> async_custom_loading{true, Keys::async_custom_loading};
+     SwitchableSetting<bool> disable_right_eye_render{false, Keys::disable_right_eye_render};
+     SwitchableSetting<bool> force_hw_vertex_shaders{false, Keys::force_hw_vertex_shaders};
++    SwitchableSetting<bool> disable_geometry_shader{false, Keys::disable_geometry_shader};
+     SwitchableSetting<bool> disable_surface_texture_copy{false,
+                                                          Keys::disable_surface_texture_copy};
+     SwitchableSetting<bool> disable_flush_cpu_write{false, Keys::disable_flush_cpu_write};
+diff --git a/src/video_core/renderer_opengl/gl_rasterizer.cpp b/src/video_core/renderer_opengl/gl_rasterizer.cpp
+--- a/src/video_core/renderer_opengl/gl_rasterizer.cpp	2026-10-13 05:49:55.972215123 +0000
++++ b/src/video_core/renderer_opengl/gl_rasterizer.cpp	2026-10-13 06:13:49.932808452 +0000
+@@ -8,6 +8,7 @@
+ #include "common/logging/log.h"
+ #include "common/math_util.h"
+ #include "common/microprofile.h"
++#include "common/settings.h"
+ #include "core/loader/loader.h"
+ #include "video_core/pica/pica_core.h"
+ #include "video_core/renderer_opengl/gl_rasterizer.h"
+@@ -457,7 +458,7 @@
+     // Enable the quaternion fix-up geometry-shader only if we are actually doing per-fragment
+     // lighting and care about proper quaternions. Otherwise just use standard vertex+fragment
+     // shaders
+-    if (regs.lighting.disable) {
++    if (regs.lighting.disable || Settings::values.disable_geometry_shader.GetValue()) {
+         curr_shader_manager->UseTrivialGeometryShader();
+     } else {
+         curr_shader_manager->UseFixedGeometryShader(regs);
+diff --git a/src/video_core/renderer_vulkan/vk_rasterizer.cpp b/src/video_core/renderer_vulkan/vk_rasterizer.cpp
+--- a/src/video_core/renderer_vulkan/vk_rasterizer.cpp	2026-10-13 05:49:55.974768994 +0000
++++ b/src/video_core/renderer_vulkan/vk_rasterizer.cpp	2026-10-13 06:13:43.889992718 +0000
+@@ -420,7 +420,7 @@
+     // lighting and care about proper quaternions. Otherwise just use standard vertex+fragment
+     // shaders. We also don't need a geometry shader if the barycentric extension is supported,
+     // but that will be decided later as the GS config needs to be cached anyways.
+-    if (regs.lighting.disable) {
++    if (regs.lighting.disable || Settings::values.disable_geometry_shader.GetValue()) {
+         pipeline_cache.UseTrivialGeometryShader();
+         return true;
+     }

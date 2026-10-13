@@ -120,6 +120,7 @@ void LogSettings() {
     log_setting("Renderer_Simulate3DSGPUTimings", values.simulate_3ds_gpu_timings.GetValue());
     log_setting("Renderer_DisableRightEyeRender", values.disable_right_eye_render.GetValue());
     log_setting("Renderer_ForceHWVertexShaders", values.force_hw_vertex_shaders.GetValue());
+    log_setting("Renderer_DisableGeometryShader", values.disable_geometry_shader.GetValue());
     log_setting("Renderer_DisableSurfaceTextureCopy",
                 values.disable_surface_texture_copy.GetValue());
     log_setting("Renderer_DisableFlushCPUWrite", values.disable_flush_cpu_write.GetValue());
@@ -261,6 +262,7 @@ void RestoreGlobalState(bool is_powered_on) {
     values.preload_textures.SetGlobal(true);
     values.disable_right_eye_render.SetGlobal(true);
     values.force_hw_vertex_shaders.SetGlobal(true);
+    values.disable_geometry_shader.SetGlobal(true);
     values.disable_surface_texture_copy.SetGlobal(true);
     values.disable_flush_cpu_write.SetGlobal(true);
 

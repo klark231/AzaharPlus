@@ -317,6 +317,7 @@ void Config::ReadValues() {
     ReadSetting("Renderer", Settings::values.simulate_3ds_gpu_timings);
     ReadSetting("Renderer", Settings::values.disable_right_eye_render);
     ReadSetting("Renderer", Settings::values.force_hw_vertex_shaders);
+    ReadSetting("Renderer", Settings::values.disable_geometry_shader);
     ReadSetting("Renderer", Settings::values.disable_surface_texture_copy);
     ReadSetting("Renderer", Settings::values.disable_flush_cpu_write);
     ReadSetting("Renderer", Settings::values.swap_eyes_3d);

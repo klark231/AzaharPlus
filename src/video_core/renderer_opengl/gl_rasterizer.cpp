@@ -8,6 +8,7 @@
 #include "common/logging/log.h"
 #include "common/math_util.h"
 #include "common/microprofile.h"
+#include "common/settings.h"
 #include "core/loader/loader.h"
 #include "video_core/pica/pica_core.h"
 #include "video_core/renderer_opengl/gl_rasterizer.h"
@@ -457,7 +458,7 @@ bool RasterizerOpenGL::SetupGeometryShader() {
     // Enable the quaternion fix-up geometry-shader only if we are actually doing per-fragment
     // lighting and care about proper quaternions. Otherwise just use standard vertex+fragment
     // shaders
-    if (regs.lighting.disable) {
+    if (regs.lighting.disable || Settings::values.disable_geometry_shader.GetValue()) {
         curr_shader_manager->UseTrivialGeometryShader();
     } else {
         curr_shader_manager->UseFixedGeometryShader(regs);

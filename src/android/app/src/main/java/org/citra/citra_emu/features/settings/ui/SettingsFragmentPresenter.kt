@@ -1374,6 +1374,15 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
             )
             add(
                 SwitchSetting(
+                    BooleanSetting.DISABLE_GEOMETRY_SHADER,
+                    R.string.disable_geometry_shader,
+                    R.string.disable_geometry_shader_description,
+                    BooleanSetting.DISABLE_GEOMETRY_SHADER.key,
+                    BooleanSetting.DISABLE_GEOMETRY_SHADER.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
                     BooleanSetting.DISABLE_SURFACE_TEXTURE_COPY,
                     R.string.disable_surface_texture_copy,
                     R.string.disable_surface_texture_copy_description,

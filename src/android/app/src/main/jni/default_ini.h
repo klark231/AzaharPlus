@@ -257,6 +257,11 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0 (default): Off, 1: On
 )") DECLARE_KEY(force_hw_vertex_shaders) BOOST_HANA_STRING(R"(
 
+# Disables the GPU geometry shader stage (quaternion fix-up used with per-fragment lighting).
+# Can improve performance on GPUs with slow geometry shaders, but may cause lighting artifacts.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(disable_geometry_shader) BOOST_HANA_STRING(R"(
+
 # Ignores texture copies when no cached source surface exists.
 # May give a small performance boost, but may cause graphical bugs.
 # 0 (default): Off, 1: On

@@ -34,11 +34,11 @@
         android:paddingBottom="12dp">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editor_layout"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:hint="@string/cheats_text_label"
             app:placeholderText="@string/cheats_text_hint">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -52,15 +52,6 @@
                 android:typeface="monospace" />
 
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/cheats_text_helper"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant" />
 
     </LinearLayout>
 

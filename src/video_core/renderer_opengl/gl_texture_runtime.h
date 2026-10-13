@@ -190,7 +190,7 @@ public:
     }
 
 private:
-    u32 res_scale{1};
+    u32 res_scale{100};
     std::array<GLuint, 2> attachments{};
     OGLFramebuffer framebuffer;
 };

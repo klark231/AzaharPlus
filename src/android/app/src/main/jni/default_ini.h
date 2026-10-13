@@ -174,8 +174,8 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 )") DECLARE_KEY(use_disk_shader_cache) BOOST_HANA_STRING(R"(
 
 # Resolution scale factor
-# 0: Auto (scales resolution to window size), 1: Native 3DS screen resolution, Otherwise a scale
-# factor for the 3DS resolution
+# 0: Auto (scales resolution to window size), 100: Native 3DS screen resolution (1x),
+# otherwise a scale factor multiplied by 100 (e.g. 150 = 1.5x, 50 = 0.5x)
 )") DECLARE_KEY(resolution_factor) BOOST_HANA_STRING(R"(
 
 # Use Integer Scaling when the layout allows

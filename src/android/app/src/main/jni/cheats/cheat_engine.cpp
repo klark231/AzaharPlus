@@ -55,7 +55,6 @@ JNIEXPORT void JNICALL Java_org_citra_citra_1emu_features_cheats_model_CheatEngi
     JNIEnv* env, jclass, jlong title_id, jstring j_text) {
     std::string text = GetJString(env, j_text);
     text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
-    // Pasted codes without a [Name] line get a default name so they are not lost.
     const auto first = text.find_first_not_of(" \t\n");
     if (first != std::string::npos && text[first] != '[') {
         text = "[Cheat]\n" + text;

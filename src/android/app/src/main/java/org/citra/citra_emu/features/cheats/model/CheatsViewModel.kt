@@ -77,13 +77,13 @@ class CheatsViewModel : ViewModel() {
         }
     }
 
-    /** The whole cheat file as text, for the notepad editor. */
+    fun getCheatFileName(): String = String.format("%016X.txt", titleId)
+
     fun getCheatFileText(): String {
         saveIfNeeded()
         return CheatEngine.getCheatFileText(titleId)
     }
 
-    /** Replaces the whole cheat file with the text from the notepad editor and reloads. */
     fun replaceCheatFileText(text: String) {
         setSelectedCheat(null, -1)
         CheatEngine.setCheatFileText(titleId, text)

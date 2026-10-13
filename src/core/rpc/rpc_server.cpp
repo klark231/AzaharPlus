@@ -183,7 +183,9 @@ void RPCServer::HandleTakeScreenshot(std::unique_ptr<Packet> packet, u32 res_sca
         res_scale = renderer.GetResolutionScaleFactor();
     }
     const bool is_secondary = True(flags & ScreenshotFlags::SecondaryWindow);
-    const auto layout = Layout::FrameLayoutFromResolutionScale(res_scale, is_secondary);
+    // Clients pass whole multiples (1x, 2x...); layout expects 100-based scale.
+    const auto layout = Layout::FrameLayoutFromResolutionScale(
+        res_scale < 100 ? res_scale * 100 : res_scale, is_secondary);
 
     struct CaptureState {
         std::vector<u8> pixels;

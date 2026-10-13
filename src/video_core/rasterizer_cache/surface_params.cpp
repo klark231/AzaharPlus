@@ -98,7 +98,7 @@ Common::Rectangle<u32> SurfaceParams::GetSubRect(const SurfaceParams& sub_surfac
 }
 
 Common::Rectangle<u32> SurfaceParams::GetScaledSubRect(const SurfaceParams& sub_surface) const {
-    return GetSubRect(sub_surface) * res_scale;
+    return ScaleRect(GetSubRect(sub_surface));
 }
 
 SurfaceParams SurfaceParams::FromInterval(SurfaceInterval interval) const {

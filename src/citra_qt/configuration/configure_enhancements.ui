@@ -54,7 +54,17 @@
            </item>
            <item>
             <property name="text">
+             <string>0.5x Native (200x120)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Native (400x240)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>1.5x Native (600x360)</string>
             </property>
            </item>
            <item>
@@ -64,7 +74,17 @@
            </item>
            <item>
             <property name="text">
+             <string>2.5x Native (1000x600)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>3x Native (1200x720)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>3.5x Native (1400x840)</string>
             </property>
            </item>
            <item>
@@ -74,7 +94,17 @@
            </item>
            <item>
             <property name="text">
+             <string>4.5x Native (1800x1080)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>5x Native (2000x1200)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5.5x Native (2200x1320)</string>
             </property>
            </item>
            <item>
@@ -84,7 +114,17 @@
            </item>
            <item>
             <property name="text">
+             <string>6.5x Native (2600x1560)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>7x Native (2800x1680)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>7.5x Native (3000x1800)</string>
             </property>
            </item>
            <item>
@@ -94,7 +134,17 @@
            </item>
            <item>
             <property name="text">
+             <string>8.5x Native (3400x2040)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>9x Native (3600x2160)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>9.5x Native (3800x2280)</string>
             </property>
            </item>
            <item>
@@ -104,7 +154,17 @@
            </item>
            <item>
             <property name="text">
+             <string>10.5x Native (4200x2520)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>11x Native (4400x2640)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>11.5x Native (4600x2760)</string>
             </property>
            </item>
            <item>
@@ -114,7 +174,17 @@
            </item>
            <item>
             <property name="text">
+             <string>12.5x Native (5000x3000)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>13x Native (5200x3120)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>13.5x Native (5400x3240)</string>
             </property>
            </item>
            <item>
@@ -124,7 +194,17 @@
            </item>
            <item>
             <property name="text">
+             <string>14.5x Native (5800x3480)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>15x Native (6000x3600)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>15.5x Native (6200x3720)</string>
             </property>
            </item>
            <item>
@@ -134,7 +214,17 @@
            </item>
            <item>
             <property name="text">
+             <string>16.5x Native (6600x3960)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>17x Native (6800x4080)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>17.5x Native (7000x4200)</string>
             </property>
            </item>
            <item>

@@ -726,6 +726,15 @@ void QtConfig::ReadRendererValues() {
     ReadGlobalSetting(Settings::values.use_skip_duplicate_frames);
     ReadGlobalSetting(Settings::values.use_display_refresh_rate_detection);
     ReadGlobalSetting(Settings::values.resolution_factor);
+    {
+        const u32 rf = Settings::values.resolution_factor.GetValue();
+        if (rf >= 1 && rf <= 18) {
+            LOG_WARNING(Frontend,
+                        "Migrating old resolution factor value of {} to new value of {}", rf,
+                        rf * 100);
+            Settings::values.resolution_factor.SetValue(rf * 100);
+        }
+    }
     ReadGlobalSetting(Settings::values.use_integer_scaling);
     ReadGlobalSetting(Settings::values.frame_limit);
     ReadGlobalSetting(Settings::values.turbo_limit);
@@ -851,6 +860,12 @@ void QtConfig::ReadUIValues() {
         ReadBasicSetting(UISettings::values.enable_discord_presence);
 #endif
         ReadBasicSetting(UISettings::values.screenshot_resolution_factor);
+        {
+            const u16 srf = UISettings::values.screenshot_resolution_factor.GetValue();
+            if (srf >= 1 && srf <= 18) {
+                UISettings::values.screenshot_resolution_factor.SetValue(srf * 100);
+            }
+        }
 
         ReadUILayoutValues();
         ReadUIGameListValues();

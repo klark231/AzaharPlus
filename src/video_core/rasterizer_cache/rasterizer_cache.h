@@ -234,7 +234,7 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
 
     const SurfaceParams src_info = slot_surfaces[src_surface_id];
     if (output_gap != 0 &&
-        (output_width != src_info.BytesInPixels(src_rect.GetWidth() / src_info.res_scale) *
+        (output_width != src_info.BytesInPixels((src_rect.GetWidth() * 100) / src_info.res_scale) *
                              (src_info.is_tiled ? 8 : 1) ||
          output_gap % src_info.BytesInPixels(src_info.is_tiled ? 64 : 1) != 0)) {
         return false;
@@ -242,10 +242,10 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
 
     SurfaceParams dst_params = src_info;
     dst_params.addr = config.GetPhysicalOutputAddress();
-    dst_params.width = src_rect.GetWidth() / src_info.res_scale;
+    dst_params.width = (src_rect.GetWidth() * 100) / src_info.res_scale;
     dst_params.stride =
         dst_params.width + src_info.PixelsInBytes(src_info.is_tiled ? output_gap / 8 : output_gap);
-    dst_params.height = src_rect.GetHeight() / src_info.res_scale;
+    dst_params.height = (src_rect.GetHeight() * 100) / src_info.res_scale;
     dst_params.res_scale = src_info.res_scale;
     dst_params.UpdateParams();
 
@@ -582,7 +582,7 @@ SurfaceId RasterizerCache<T>::GetTextureSurface(const Pica::Texture::TextureInfo
     params.levels = max_level + 1;
     params.is_tiled = true;
     params.pixel_format = PixelFormatFromTextureFormat(info.format);
-    params.res_scale = filter != Settings::TextureFilter::NoFilter ? resolution_scale_factor : 1;
+    params.res_scale = filter != Settings::TextureFilter::NoFilter ? resolution_scale_factor : 100;
     SurfaceFlagBits initial_flags{};
     if (info.is_shadow_source) {
         initial_flags |= SurfaceFlagBits::ShadowSource;
@@ -644,7 +644,7 @@ typename T::Surface& RasterizerCache<T>::GetTextureCube(const TextureCubeConfig&
         };
         info.SetDefaultStride();
 
-        u32 res_scale = 1;
+        u32 res_scale = 100;
         for (u32 i = 0; i < addresses.size(); i++) {
             if (!addresses[i]) {
                 continue;
@@ -1032,7 +1032,7 @@ void RasterizerCache<T>::ValidateSurface(SurfaceId surface_id, PAddr addr, u32 s
 
     // Filtered mipmaps often look really bad. We can achieve better quality by
     // generating them from the base level.
-    if (surface.res_scale != 1 && level != 0) {
+    if (surface.res_scale != 100 && level != 0) {
         runtime.GenerateMipmaps(surface);
     }
 }

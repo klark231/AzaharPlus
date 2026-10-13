@@ -444,45 +444,81 @@
 
     <string-array name="resolutionFactorNames">
         <item>@string/internal_resolution_setting_auto</item>
+        <item>@string/internal_resolution_setting_0_5x</item>
         <item>@string/internal_resolution_setting_1x</item>
+        <item>@string/internal_resolution_setting_1_5x</item>
         <item>@string/internal_resolution_setting_2x</item>
+        <item>@string/internal_resolution_setting_2_5x</item>
         <item>@string/internal_resolution_setting_3x</item>
+        <item>@string/internal_resolution_setting_3_5x</item>
         <item>@string/internal_resolution_setting_4x</item>
+        <item>@string/internal_resolution_setting_4_5x</item>
         <item>@string/internal_resolution_setting_5x</item>
+        <item>@string/internal_resolution_setting_5_5x</item>
         <item>@string/internal_resolution_setting_6x</item>
+        <item>@string/internal_resolution_setting_6_5x</item>
         <item>@string/internal_resolution_setting_7x</item>
+        <item>@string/internal_resolution_setting_7_5x</item>
         <item>@string/internal_resolution_setting_8x</item>
+        <item>@string/internal_resolution_setting_8_5x</item>
         <item>@string/internal_resolution_setting_9x</item>
+        <item>@string/internal_resolution_setting_9_5x</item>
         <item>@string/internal_resolution_setting_10x</item>
+        <item>@string/internal_resolution_setting_10_5x</item>
         <item>@string/internal_resolution_setting_11x</item>
+        <item>@string/internal_resolution_setting_11_5x</item>
         <item>@string/internal_resolution_setting_12x</item>
+        <item>@string/internal_resolution_setting_12_5x</item>
         <item>@string/internal_resolution_setting_13x</item>
+        <item>@string/internal_resolution_setting_13_5x</item>
         <item>@string/internal_resolution_setting_14x</item>
+        <item>@string/internal_resolution_setting_14_5x</item>
         <item>@string/internal_resolution_setting_15x</item>
+        <item>@string/internal_resolution_setting_15_5x</item>
         <item>@string/internal_resolution_setting_16x</item>
+        <item>@string/internal_resolution_setting_16_5x</item>
         <item>@string/internal_resolution_setting_17x</item>
+        <item>@string/internal_resolution_setting_17_5x</item>
         <item>@string/internal_resolution_setting_18x</item>
     </string-array>
     <integer-array name="resolutionFactorValues">
         <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-        <item>18</item>
+        <item>50</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>250</item>
+        <item>300</item>
+        <item>350</item>
+        <item>400</item>
+        <item>450</item>
+        <item>500</item>
+        <item>550</item>
+        <item>600</item>
+        <item>650</item>
+        <item>700</item>
+        <item>750</item>
+        <item>800</item>
+        <item>850</item>
+        <item>900</item>
+        <item>950</item>
+        <item>1000</item>
+        <item>1050</item>
+        <item>1100</item>
+        <item>1150</item>
+        <item>1200</item>
+        <item>1250</item>
+        <item>1300</item>
+        <item>1350</item>
+        <item>1400</item>
+        <item>1450</item>
+        <item>1500</item>
+        <item>1550</item>
+        <item>1600</item>
+        <item>1650</item>
+        <item>1700</item>
+        <item>1750</item>
+        <item>1800</item>
     </integer-array>
 
     <string-array name="countries">

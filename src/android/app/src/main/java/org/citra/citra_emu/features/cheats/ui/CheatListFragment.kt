@@ -8,6 +8,7 @@ import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.core.view.WindowCompat
@@ -137,7 +138,6 @@ class CheatListFragment : Fragment() {
         setInsets()
     }
 
-    /** Full-screen notepad-style editor for the whole cheat file. */
     private fun showTextEditor() {
         val ctx = requireContext()
         val dialog = Dialog(ctx, R.style.Theme_Azahar_FullscreenEditor)
@@ -146,6 +146,8 @@ class CheatListFragment : Fragment() {
         val toolbar = root.findViewById<MaterialToolbar>(R.id.editor_toolbar)
         val saveButton = root.findViewById<View>(R.id.editor_save)
         val edit = root.findViewById<TextInputEditText>(R.id.editor_text)
+        root.findViewById<TextInputLayout>(R.id.editor_layout).hint =
+            cheatsViewModel.getCheatFileName()
 
         val nameColor =
             MaterialColors.getColor(root, com.google.android.material.R.attr.colorPrimary)
@@ -197,7 +199,6 @@ class CheatListFragment : Fragment() {
         }
     }
 
-    /** Colors [Name] lines with the accent color and *flag lines dimmed. */
     private fun highlightCheatText(e: Editable, nameColor: Int, dimColor: Int) {
         e.getSpans(0, e.length, ForegroundColorSpan::class.java).forEach { e.removeSpan(it) }
         e.getSpans(0, e.length, StyleSpan::class.java).forEach { e.removeSpan(it) }
@@ -228,7 +229,6 @@ class CheatListFragment : Fragment() {
         }
     }
 
-    /** Turns [[Name]] lines into [Name] so names are not double-wrapped. */
     private fun normalizeCheatText(text: String): String =
         text.replace("\r\n", "\n").split("\n").joinToString("\n") { line ->
             val t = line.trim()

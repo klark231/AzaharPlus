@@ -351,23 +351,41 @@
     <string name="internal_resolution">Internal Resolution</string>
     <string name="internal_resolution_description">Specifies the resolution used to render at. A high resolution will improve visual quality a lot but is also quite heavy on performance and might cause glitches in certain applications.</string>
     <string name="internal_resolution_setting_auto">Auto (Screen Size)</string>
+    <string name="internal_resolution_setting_0_5x">0.5x Native (200x120)</string>
     <string name="internal_resolution_setting_1x">Native (400x240)</string>
+    <string name="internal_resolution_setting_1_5x">1.5x Native (600x360)</string>
     <string name="internal_resolution_setting_2x">2x Native (800x480)</string>
+    <string name="internal_resolution_setting_2_5x">2.5x Native (1000x600)</string>
     <string name="internal_resolution_setting_3x">3x Native (1200x720)</string>
+    <string name="internal_resolution_setting_3_5x">3.5x Native (1400x840)</string>
     <string name="internal_resolution_setting_4x">4x Native (1600x960)</string>
+    <string name="internal_resolution_setting_4_5x">4.5x Native (1800x1080)</string>
     <string name="internal_resolution_setting_5x">5x Native (2000x1200)</string>
+    <string name="internal_resolution_setting_5_5x">5.5x Native (2200x1320)</string>
     <string name="internal_resolution_setting_6x">6x Native (2400x1440)</string>
+    <string name="internal_resolution_setting_6_5x">6.5x Native (2600x1560)</string>
     <string name="internal_resolution_setting_7x">7x Native (2800x1680)</string>
+    <string name="internal_resolution_setting_7_5x">7.5x Native (3000x1800)</string>
     <string name="internal_resolution_setting_8x">8x Native (3200x1920)</string>
+    <string name="internal_resolution_setting_8_5x">8.5x Native (3400x2040)</string>
     <string name="internal_resolution_setting_9x">9x Native (3600x2160)</string>
+    <string name="internal_resolution_setting_9_5x">9.5x Native (3800x2280)</string>
     <string name="internal_resolution_setting_10x">10x Native (4000x2400)</string>
+    <string name="internal_resolution_setting_10_5x">10.5x Native (4200x2520)</string>
     <string name="internal_resolution_setting_11x">11x Native (4400x2640)</string>
+    <string name="internal_resolution_setting_11_5x">11.5x Native (4600x2760)</string>
     <string name="internal_resolution_setting_12x">12x Native (4800x2880)</string>
+    <string name="internal_resolution_setting_12_5x">12.5x Native (5000x3000)</string>
     <string name="internal_resolution_setting_13x">13x Native (5200x3120)</string>
+    <string name="internal_resolution_setting_13_5x">13.5x Native (5400x3240)</string>
     <string name="internal_resolution_setting_14x">14x Native (5600x3360)</string>
+    <string name="internal_resolution_setting_14_5x">14.5x Native (5800x3480)</string>
     <string name="internal_resolution_setting_15x">15x Native (6000x3600)</string>
+    <string name="internal_resolution_setting_15_5x">15.5x Native (6200x3720)</string>
     <string name="internal_resolution_setting_16x">16x Native (6400x3840)</string>
+    <string name="internal_resolution_setting_16_5x">16.5x Native (6600x3960)</string>
     <string name="internal_resolution_setting_17x">17x Native (6800x4080)</string>
+    <string name="internal_resolution_setting_17_5x">17.5x Native (7000x4200)</string>
     <string name="internal_resolution_setting_18x">18x Native (7200x4320)</string>
     <string name="performance_warning">Turning off this setting will significantly reduce emulation performance! For the best experience, it is recommended that you leave this setting enabled.</string>
     <string name="debug_warning">Warning: Modifying these settings will slow emulation</string>
@@ -500,12 +518,12 @@
     <!-- Game Properties -->
     <string name="properties">Properties</string>
     <string name="properties_not_loaded">The game properties could not be loaded.</string>
-    <string name="per_game_settings">Game settings</string>
-    <string name="per_game_settings_title">Game settings: %1$s</string>
+    <string name="per_game_settings">Per-game settings</string>
+    <string name="per_game_settings_title">Per-game settings: %1$s</string>
     <string name="per_game_use_global_confirmation">Use the global value for this setting again?</string>
     <string name="per_game_reset_all">Use global settings</string>
     <string name="per_game_reset_all_description">Remove every game specific setting of this game</string>
-    <string name="per_game_reset_done">Game settings reset to global</string>
+    <string name="per_game_reset_done">Per-game settings reset to global</string>
 
     <!-- Preferences Screen -->
     <string name="preferences_settings">Settings</string>
@@ -1271,6 +1289,13 @@
     <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
     <string name="use_fastmem">Use Fastmem</string>
     <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
+    <string name="tweaks">Tweaks</string>
+    <string name="force_hw_vertex_shaders">Force Hardware Vertex Shaders</string>
+    <string name="force_hw_vertex_shaders_description">Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
+    <string name="disable_surface_texture_copy">Disable Surface Texture Copy</string>
+    <string name="disable_surface_texture_copy_description">Skips texture copies when no cached source exists. May give a small performance boost, but can cause graphical bugs.</string>
+    <string name="disable_flush_cpu_write">Disable Flush CPU Write</string>
+    <string name="disable_flush_cpu_write_description">Skips flushing cached surfaces on tiny CPU writes. May reduce stutter, but can cause graphical bugs.</string>
 
     <!-- Per game on-screen controls -->
     <string name="overlay_save_scope_title">Save the on-screen controls</string>
@@ -1301,19 +1326,13 @@
     <string name="layout_files_import_title">Import layout</string>
     <string name="layout_files_import_message">Use the layout from %1$s.ini only for %2$s, or for every game?</string>
     <string name="layout_files_imported">Layout imported</string>
+ 
+    <!-- Cheats -->
     <string name="builtin_cheats">Built-in cheats</string>
-    <string name="builtin_cheats_description">Also show the cheats AzaharPlus ships in its own database (for example the long Monster Hunter lists). Off = only your own cheats.</string>
-    <string name="cheats_edit_text">Edit as text</string>
+    <string name="builtin_cheats_description">Shows the cheats bundled with the app alongside your own. When disabled, only your own cheats are listed.</string>
+    <string name="cheats_edit_text">Edit file</string>
     <string name="cheats_text_hint">[Cheat name]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Save</string>
     <string name="cheats_text_cancel">Cancel</string>
-    <string name="cheats_text_label">Cheat file</string>
-    <string name="cheats_text_helper">Start each cheat with a [Name] line, then one code per line.</string>
-    <string name="tweaks">Tweaks</string>
-    <string name="force_hw_vertex_shaders">Force Hardware Vertex Shaders</string>
-    <string name="force_hw_vertex_shaders_description">Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
-    <string name="disable_surface_texture_copy">Disable Surface Texture Copy</string>
-    <string name="disable_surface_texture_copy_description">Skips texture copies when no cached source exists. May give a small performance boost, but can cause graphical bugs.</string>
-    <string name="disable_flush_cpu_write">Disable Flush CPU Write</string>
-    <string name="disable_flush_cpu_write_description">Skips flushing cached surfaces on tiny CPU writes. May reduce stutter, but can cause graphical bugs.</string>
+
 </resources>

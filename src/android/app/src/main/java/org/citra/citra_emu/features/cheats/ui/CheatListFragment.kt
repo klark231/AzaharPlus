@@ -7,6 +7,18 @@ package org.citra.citra_emu.features.cheats.ui
 import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.appbar.MaterialToolbar
+import androidx.core.view.WindowCompat
+import android.view.WindowManager
+import android.text.style.StyleSpan
+import android.text.style.ForegroundColorSpan
+import android.text.TextWatcher
+import android.text.Spanned
+import android.text.Editable
+import android.content.res.Configuration
+import android.app.Dialog
 import android.text.InputType
 import android.view.Gravity
 import android.widget.EditText
@@ -125,35 +137,107 @@ class CheatListFragment : Fragment() {
         setInsets()
     }
 
-    /** Notepad-style editor for the whole cheat file. */
+    /** Full-screen notepad-style editor for the whole cheat file. */
     private fun showTextEditor() {
         val ctx = requireContext()
-        val edit = EditText(ctx).apply {
-            setText(cheatsViewModel.getCheatFileText())
-            typeface = Typeface.MONOSPACE
-            textSize = 13f
-            gravity = Gravity.TOP or Gravity.START
-            minLines = 14
-            hint = ctx.getString(R.string.cheats_text_hint)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
-        val pad = (16 * resources.displayMetrics.density).toInt()
-        val scroll = ScrollView(ctx).apply {
-            setPadding(pad, pad / 2, pad, 0)
-            addView(edit)
-        }
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle(R.string.cheats_edit_text)
-            .setView(scroll)
-            .setPositiveButton(R.string.cheats_text_save) { _, _ ->
-                cheatsViewModel.replaceCheatFileText(edit.text.toString())
-                @Suppress("NotifyDataSetChanged")
-                binding.cheatList.adapter?.notifyDataSetChanged()
+        val dialog = Dialog(ctx, R.style.Theme_Azahar_FullscreenEditor)
+        val root = LayoutInflater.from(dialog.context)
+            .inflate(R.layout.dialog_cheat_text_editor, null)
+        val toolbar = root.findViewById<MaterialToolbar>(R.id.editor_toolbar)
+        val saveButton = root.findViewById<View>(R.id.editor_save)
+        val edit = root.findViewById<TextInputEditText>(R.id.editor_text)
+
+        val nameColor =
+            MaterialColors.getColor(root, com.google.android.material.R.attr.colorPrimary)
+        val dimColor =
+            MaterialColors.getColor(root, com.google.android.material.R.attr.colorOnSurfaceVariant)
+
+        edit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                s?.let { highlightCheatText(it, nameColor, dimColor) }
             }
-            .setNegativeButton(R.string.cheats_text_cancel, null)
-            .show()
+        })
+        edit.setText(cheatsViewModel.getCheatFileText())
+
+        toolbar.setNavigationOnClickListener { dialog.dismiss() }
+        saveButton.setOnClickListener {
+            cheatsViewModel.replaceCheatFileText(normalizeCheatText(edit.text.toString()))
+            @Suppress("NotifyDataSetChanged")
+            _binding?.cheatList?.adapter?.notifyDataSetChanged()
+            dialog.dismiss()
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.updatePadding(
+                left = bars.left,
+                top = bars.top,
+                right = bars.right,
+                bottom = maxOf(bars.bottom, ime.bottom)
+            )
+            WindowInsetsCompat.CONSUMED
+        }
+
+        dialog.setContentView(root)
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
+        dialog.show()
+
+        val night = (ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        dialog.window?.let {
+            WindowCompat.getInsetsController(it, root).isAppearanceLightStatusBars = !night
+        }
     }
+
+    /** Colors [Name] lines with the accent color and *flag lines dimmed. */
+    private fun highlightCheatText(e: Editable, nameColor: Int, dimColor: Int) {
+        e.getSpans(0, e.length, ForegroundColorSpan::class.java).forEach { e.removeSpan(it) }
+        e.getSpans(0, e.length, StyleSpan::class.java).forEach { e.removeSpan(it) }
+        val text = e.toString()
+        var start = 0
+        while (start < text.length) {
+            var end = text.indexOf('\n', start)
+            if (end < 0) end = text.length
+            if (end > start) {
+                when (text[start]) {
+                    '[' -> {
+                        e.setSpan(
+                            ForegroundColorSpan(nameColor), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        e.setSpan(
+                            StyleSpan(Typeface.BOLD), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    '*' -> e.setSpan(
+                        ForegroundColorSpan(dimColor), start, end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+            start = end + 1
+        }
+    }
+
+    /** Turns [[Name]] lines into [Name] so names are not double-wrapped. */
+    private fun normalizeCheatText(text: String): String =
+        text.replace("\r\n", "\n").split("\n").joinToString("\n") { line ->
+            val t = line.trim()
+            if (t.length > 4 && t.startsWith("[[") && t.endsWith("]]")) {
+                "[" + t.substring(2, t.length - 2).trim() + "]"
+            } else {
+                line
+            }
+        }
 
     private fun setInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(

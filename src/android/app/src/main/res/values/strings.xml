@@ -1307,4 +1307,6 @@
     <string name="cheats_text_hint">[Cheat name]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Save</string>
     <string name="cheats_text_cancel">Cancel</string>
+    <string name="cheats_text_label">Cheat file</string>
+    <string name="cheats_text_helper">Start each cheat with a [Name] line, then one code per line.</string>
 </resources>

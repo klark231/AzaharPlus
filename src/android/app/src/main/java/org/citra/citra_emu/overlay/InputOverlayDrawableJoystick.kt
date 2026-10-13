@@ -86,6 +86,14 @@ class InputOverlayDrawableJoystick(
         outerBitmap.alpha = opacity
     }
 
+    companion object {
+        /** Fraction of the pad radius at which the stick reaches full tilt. */
+        private const val FULL_TILT_RADIUS = 0.85f
+
+        /** Fraction of full tilt that is ignored around the center. */
+        private const val DEAD_ZONE = 0.08f
+    }
+
     fun draw(canvas: Canvas?) {
         outerBitmap.draw(canvas!!)
         boundsBoxBitmap.draw(canvas)
@@ -163,8 +171,9 @@ class InputOverlayDrawableJoystick(
             maxX -= virtBounds.centerX().toFloat()
             touchY -= virtBounds.centerY().toFloat()
             maxY -= virtBounds.centerY().toFloat()
-            val xAxis = touchX / maxX
-            val yAxis = touchY / maxY
+            // Full tilt is reached at 85% of the pad radius so the maximum is easy to hit
+            val xAxis = touchX / (maxX * FULL_TILT_RADIUS)
+            val yAxis = touchY / (maxY * FULL_TILT_RADIUS)
             val oldXAxis = this.xAxis
             val oldYAxis = this.yAxis
             val oldAngle = this.angle
@@ -176,6 +185,8 @@ class InputOverlayDrawableJoystick(
             if (radius > 1.0f) {
                 radius = 1.0f
             }
+            // Small dead zone, then rescale so the output still spans 0..1
+            radius = if (radius < DEAD_ZONE) 0f else (radius - DEAD_ZONE) / (1f - DEAD_ZONE)
             this.xAxis = cos(angle.toDouble()).toFloat() * radius
             this.yAxis = sin(angle.toDouble()).toFloat() * radius
             setInnerBounds()
@@ -191,7 +202,7 @@ class InputOverlayDrawableJoystick(
                 overlay.hapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
             }
 
-            return oldXAxis != this.xAxis && oldYAxis != this.yAxis
+            return oldXAxis != this.xAxis || oldYAxis != this.yAxis
         }
         return false
     }

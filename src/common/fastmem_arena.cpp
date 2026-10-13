@@ -8,6 +8,9 @@
 #if defined(__linux__) && defined(__LP64__)
 #define CITRA_FASTMEM_ARENA_SUPPORTED 1
 #include <cerrno>
+#include <cstdint>
+#include <fstream>
+#include <string>
 #include <sys/mman.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -29,6 +32,31 @@ namespace Common {
 #if CITRA_FASTMEM_ARENA_SUPPORTED
 
 namespace {
+
+constexpr std::size_t HUGE_PAGE_SIZE = 2ULL * 1024 * 1024;
+
+/// Current kernel policy for THP on shared memory (memfd/tmpfs), e.g. "always [advise] never".
+std::string ReadShmemThpPolicy() {
+    std::ifstream f("/sys/kernel/mm/transparent_hugepage/shmem_enabled");
+    std::string line;
+    if (!f || !std::getline(f, line)) {
+        return "unavailable";
+    }
+    return line;
+}
+
+/// Hints the kernel to back a mapping with 2 MiB pages. Only meaningful when the host address,
+/// file offset and length are all 2 MiB aligned, and when the kernel allows shmem THP
+/// (shmem_enabled = advise/always). Failure is harmless; the mapping stays on 4 KiB pages.
+void AdviseHugePages(void* addr, std::size_t size, std::size_t file_offset) {
+    const auto start = reinterpret_cast<std::uintptr_t>(addr);
+    if ((start % HUGE_PAGE_SIZE) != 0 || (file_offset % HUGE_PAGE_SIZE) != 0 ||
+        size < HUGE_PAGE_SIZE) {
+        return;
+    }
+    const std::size_t aligned_size = size & ~(HUGE_PAGE_SIZE - 1);
+    madvise(addr, aligned_size, MADV_HUGEPAGE);
+}
 
 // 4 GiB of guest address space plus a guard region so that the largest possible guest access
 // starting at 0xFFFFFFFF still lands inside the reservation instead of unrelated mappings.
@@ -69,7 +97,9 @@ FastmemArena::FastmemArena(std::size_t backing_size_) {
         return;
     }
 
-    const std::size_t reserve_size = GUEST_ADDRESS_SPACE_SIZE + ARENA_GUARD_SIZE;
+    // Over-reserve by one huge page so the arena base itself can be 2 MiB aligned; without that,
+    // MADV_HUGEPAGE could never apply to any guest mapping.
+    const std::size_t reserve_size = GUEST_ADDRESS_SPACE_SIZE + ARENA_GUARD_SIZE + HUGE_PAGE_SIZE;
     void* arena = mmap(nullptr, reserve_size, PROT_NONE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
     if (arena == MAP_FAILED) {
@@ -83,9 +113,13 @@ FastmemArena::FastmemArena(std::size_t backing_size_) {
 
     backing_size = backing_size_;
     backing_base = static_cast<u8*>(backing);
-    arena_base = static_cast<u8*>(arena);
+    arena_raw = static_cast<u8*>(arena);
+    arena_base = reinterpret_cast<u8*>(
+        (reinterpret_cast<std::uintptr_t>(arena) + HUGE_PAGE_SIZE - 1) & ~(HUGE_PAGE_SIZE - 1));
     arena_reserved_size = reserve_size;
-    madvise(arena, reserve_size, MADV_HUGEPAGE);
+    // NOTE: MADV_HUGEPAGE on this PROT_NONE reservation is useless: every Map() replaces the VMA
+    // with a fresh MAP_FIXED mapping, which drops the hint. The hint is applied per mapping below.
+    ARENA_ANDROID_LOG("[Fastmem] shmem THP policy: %s", ReadShmemThpPolicy().c_str());
     LOG_INFO(Common_Memory, "Fastmem arena ready: backing={} MiB arena_base={}",
              backing_size / (1024 * 1024), static_cast<void*>(arena_base));
     ARENA_ANDROID_LOG("[Fastmem] arena ready: backing=%zu MiB arena_base=%p",
@@ -93,8 +127,8 @@ FastmemArena::FastmemArena(std::size_t backing_size_) {
 }
 
 FastmemArena::~FastmemArena() {
-    if (arena_base != nullptr) {
-        munmap(arena_base, arena_reserved_size);
+    if (arena_raw != nullptr) {
+        munmap(arena_raw, arena_reserved_size);
     }
     if (backing_base != nullptr) {
         munmap(backing_base, backing_size);
@@ -113,7 +147,9 @@ void FastmemArena::Map(u64 guest_addr, std::size_t backing_offset, std::size_t s
     if (result == MAP_FAILED) {
         LOG_ERROR(Common_Memory, "Fastmem arena map failed: guest={:#x} size={:#x}", guest_addr,
                   size);
+        return;
     }
+    AdviseHugePages(result, size, backing_offset);
 }
 
 void FastmemArena::Unmap(u64 guest_addr, std::size_t size) {

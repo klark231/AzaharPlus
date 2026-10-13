@@ -14,6 +14,7 @@ foreach(KEY IN ITEMS
     "reduce_downcount_slice"
     "priority_boost_starved_threads"
     "use_fastmem"
+    "cpu_affinity_mode"
     "adreno_gpu_boost"
     "is_new_3ds"
     "lle_applets"

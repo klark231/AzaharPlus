@@ -122,6 +122,10 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0: Disabled, 1: Enabled (default)
 )") DECLARE_KEY(use_fastmem) BOOST_HANA_STRING(R"(
 
+# Pin the emulation and GPU worker threads to specific host CPU cores (Android/Linux).
+# 0 (default): Let the OS decide, 1: Big + prime cores, 2: Prime core only, 3: Little cores only
+)") DECLARE_KEY(cpu_affinity_mode) BOOST_HANA_STRING(R"(
+
 [Renderer]
 # Whether to render using OpenGL
 # 1: OpenGL ES (default), 2: Vulkan

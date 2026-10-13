@@ -58,6 +58,7 @@ private:
     int backing_fd = -1;
     std::size_t backing_size = 0;
     u8* backing_base = nullptr;
+    u8* arena_raw = nullptr; ///< Start of the actual reservation (arena_base is 2 MiB aligned)
     u8* arena_base = nullptr;
     std::size_t arena_reserved_size = 0;
 };

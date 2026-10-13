@@ -490,6 +490,9 @@ struct Values {
     SwitchableSetting<bool> priority_boost_starved_threads{
         true, Keys::priority_boost_starved_threads};
     SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};
+    /// Host CPU affinity for the emulation/GPU worker threads.
+    /// 0: Default (OS decides), 1: Big + prime cores, 2: Prime core only, 3: Little cores only
+    SwitchableSetting<s32, true> cpu_affinity_mode{0, 0, 3, Keys::cpu_affinity_mode};
     SwitchableSetting<bool> is_new_3ds{true, Keys::is_new_3ds};
     SwitchableSetting<bool> lle_applets{true, Keys::lle_applets};
     SwitchableSetting<bool> deterministic_async_operations{false,

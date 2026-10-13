@@ -777,4 +777,17 @@
         <item>1</item>
     </integer-array>
 
+    <string-array name="cpuAffinityModes">
+        <item>@string/cpu_affinity_default</item>
+        <item>@string/cpu_affinity_big</item>
+        <item>@string/cpu_affinity_prime</item>
+        <item>@string/cpu_affinity_little</item>
+    </string-array>
+    <integer-array name="cpuAffinityModeValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </integer-array>
+
 </resources>

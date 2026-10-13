@@ -34,6 +34,7 @@
 #include "common/scm_rev.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
+#include "common/thread.h"
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/frontend/applets/default_applets.h"
@@ -205,6 +206,8 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     LOG_INFO(Frontend, "Azahar starting...");
 
     MicroProfileOnThreadCreate("EmuThread");
+    Common::SetCurrentThreadAffinity(
+        static_cast<Common::CpuAffinityMode>(Settings::values.cpu_affinity_mode.GetValue()));
 
     if (filepath.empty()) {
         LOG_CRITICAL(Frontend, "Failed to load ROM: No ROM specified");

@@ -93,6 +93,7 @@ void LogSettings() {
     log_setting("Core_PriorityBoostStarvedThreads",
                 values.priority_boost_starved_threads.GetValue());
     log_setting("Core_UseFastmem", values.use_fastmem.GetValue());
+    log_setting("Core_CpuAffinityMode", values.cpu_affinity_mode.GetValue());
     log_setting("Controller_UseArticController", values.use_artic_base_controller.GetValue());
     log_setting("Renderer_UseGLES", values.use_gles.GetValue());
     log_setting("Renderer_GraphicsAPI", GetGraphicsAPIName(values.graphics_api.GetValue()));
@@ -215,6 +216,7 @@ void RestoreGlobalState(bool is_powered_on) {
     values.reduce_downcount_slice.SetGlobal(true);
     values.priority_boost_starved_threads.SetGlobal(true);
     values.use_fastmem.SetGlobal(true);
+    values.cpu_affinity_mode.SetGlobal(true);
     values.is_new_3ds.SetGlobal(true);
     values.lle_applets.SetGlobal(true);
 

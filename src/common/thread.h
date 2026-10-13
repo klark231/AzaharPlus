@@ -112,4 +112,16 @@ void SetCurrentThreadPriority(ThreadPriority new_priority);
 
 void SetCurrentThreadName(const char* name);
 
+/// Host CPU affinity presets, derived from each core's reported capacity/max frequency.
+enum class CpuAffinityMode : s32 {
+    Default = 0,
+    BigAndPrime = 1,
+    PrimeOnly = 2,
+    LittleOnly = 3,
+};
+
+/// Pins the calling thread according to `mode`. No-op for Default, on unsupported platforms, or if
+/// the CPU topology cannot be determined. Returns true if an affinity mask was applied.
+bool SetCurrentThreadAffinity(CpuAffinityMode mode);
+
 } // namespace Common

@@ -270,6 +270,7 @@ void Config::ReadValues() {
     ReadSetting("Core", Settings::values.reduce_downcount_slice);
     ReadSetting("Core", Settings::values.priority_boost_starved_threads);
     ReadSetting("Core", Settings::values.use_fastmem);
+    ReadSetting("Core", Settings::values.cpu_affinity_mode);
 
     // Renderer
     Settings::values.use_gles = android_config->GetBoolean("Renderer", "use_gles", true);

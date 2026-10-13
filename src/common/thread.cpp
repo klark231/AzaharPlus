@@ -2,7 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <algorithm>
+#include <cerrno>
+#include <fstream>
 #include <string>
+#include <vector>
+#include <fmt/format.h>
 
 #include "common/error.h"
 #include "common/logging/log.h"
@@ -117,6 +122,91 @@ void SetCurrentThreadName(const char*) {
     // Do Nothing on MingW
 }
 #endif
+
+#endif
+
+#if defined(__linux__)
+
+namespace {
+
+/// Returns each core's relative performance, or an empty vector if unavailable. Prefers the
+/// scheduler's cpu_capacity, falling back to cpuinfo_max_freq.
+std::vector<u64> ReadCoreCapacities() {
+    std::vector<u64> caps;
+    const long n = sysconf(_SC_NPROCESSORS_CONF);
+    for (long i = 0; i < n && i < CPU_SETSIZE; ++i) {
+        u64 value = 0;
+        for (const char* file : {"cpu_capacity", "cpufreq/cpuinfo_max_freq"}) {
+            std::ifstream f(fmt::format("/sys/devices/system/cpu/cpu{}/{}", i, file));
+            if (f >> value && value != 0) {
+                break;
+            }
+            value = 0;
+        }
+        caps.push_back(value);
+    }
+    return caps;
+}
+
+} // namespace
+
+bool SetCurrentThreadAffinity(CpuAffinityMode mode) {
+    if (mode == CpuAffinityMode::Default) {
+        return false;
+    }
+    const std::vector<u64> caps = ReadCoreCapacities();
+    if (caps.empty() || std::find(caps.begin(), caps.end(), 0) != caps.end()) {
+        LOG_WARNING(Common, "CPU affinity: core topology unavailable, leaving default");
+        return false;
+    }
+    const u64 max_cap = *std::max_element(caps.begin(), caps.end());
+    const u64 min_cap = *std::min_element(caps.begin(), caps.end());
+    if (max_cap == min_cap) {
+        return false; // homogeneous CPU, nothing to choose between
+    }
+
+    // Tiers: prime = top capacity; little = lowest capacity; big = everything in between + prime.
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    int selected = 0;
+    for (std::size_t i = 0; i < caps.size(); ++i) {
+        bool pick = false;
+        switch (mode) {
+        case CpuAffinityMode::PrimeOnly:
+            pick = caps[i] == max_cap;
+            break;
+        case CpuAffinityMode::LittleOnly:
+            pick = caps[i] == min_cap;
+            break;
+        case CpuAffinityMode::BigAndPrime:
+            pick = caps[i] != min_cap;
+            break;
+        default:
+            break;
+        }
+        if (pick) {
+            CPU_SET(static_cast<int>(i), &set);
+            ++selected;
+        }
+    }
+    if (selected == 0) {
+        return false;
+    }
+    // sched_setaffinity(0) targets the calling thread on Linux/Android.
+    if (sched_setaffinity(0, sizeof(set), &set) != 0) {
+        LOG_WARNING(Common, "CPU affinity: sched_setaffinity failed (errno={})", errno);
+        return false;
+    }
+    LOG_INFO(Common, "CPU affinity: pinned thread to {} core(s) (mode {})", selected,
+             static_cast<s32>(mode));
+    return true;
+}
+
+#else
+
+bool SetCurrentThreadAffinity(CpuAffinityMode) {
+    return false;
+}
 
 #endif
 

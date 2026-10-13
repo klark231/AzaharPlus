@@ -1,0 +1,418 @@
+diff -ruN a/AzaharPlus/CMakeModules/GenerateSettingKeys.cmake b/AzaharPlus/CMakeModules/GenerateSettingKeys.cmake
+--- a/AzaharPlus/CMakeModules/GenerateSettingKeys.cmake	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/CMakeModules/GenerateSettingKeys.cmake	2026-10-13 17:01:40.000275905 +0000
+@@ -14,6 +14,7 @@
+     "reduce_downcount_slice"
+     "priority_boost_starved_threads"
+     "use_fastmem"
++    "cpu_affinity_mode"
+     "adreno_gpu_boost"
+     "is_new_3ds"
+     "lle_applets"
+diff -ruN a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt
+--- a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/SettingKeys.kt	2026-10-13 17:01:40.000891531 +0000
+@@ -16,6 +16,7 @@
+     external fun reduce_downcount_slice(): String
+     external fun priority_boost_starved_threads(): String
+     external fun use_fastmem(): String
++    external fun cpu_affinity_mode(): String
+     external fun adreno_gpu_boost(): String
+     external fun is_new_3ds(): String
+     external fun lle_applets(): String
+diff -ruN a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/IntSetting.kt b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/IntSetting.kt
+--- a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/IntSetting.kt	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/model/IntSetting.kt	2026-10-13 17:01:40.003318011 +0000
+@@ -51,6 +51,7 @@
+         480
+     ),
+     AUDIO_INPUT_TYPE(SettingKeys.input_type(), Settings.SECTION_AUDIO, 0),
++    CPU_AFFINITY_MODE(SettingKeys.cpu_affinity_mode(), Settings.SECTION_CORE, 0),
+     CPU_CLOCK_SPEED(SettingKeys.cpu_clock_percentage(), Settings.SECTION_CORE, 100),
+     TEXTURE_FILTER(SettingKeys.texture_filter(), Settings.SECTION_RENDERER, 0),
+     TEXTURE_SAMPLING(SettingKeys.texture_sampling(), Settings.SECTION_RENDERER, 0),
+diff -ruN a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt
+--- a/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/java/org/citra/citra_emu/features/settings/ui/SettingsFragmentPresenter.kt	2026-10-13 17:01:40.004614808 +0000
+@@ -2332,6 +2332,17 @@
+                     BooleanSetting.USE_FASTMEM.defaultValue
+                 )
+             )
++            add(
++                SingleChoiceSetting(
++                    IntSetting.CPU_AFFINITY_MODE,
++                    R.string.cpu_affinity_mode,
++                    R.string.cpu_affinity_mode_description,
++                    R.array.cpuAffinityModes,
++                    R.array.cpuAffinityModeValues,
++                    IntSetting.CPU_AFFINITY_MODE.key,
++                    IntSetting.CPU_AFFINITY_MODE.defaultValue
++                )
++            )
+         }
+     }
+ 
+diff -ruN a/AzaharPlus/src/android/app/src/main/jni/config.cpp b/AzaharPlus/src/android/app/src/main/jni/config.cpp
+--- a/AzaharPlus/src/android/app/src/main/jni/config.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/jni/config.cpp	2026-10-13 17:01:40.002465515 +0000
+@@ -270,6 +270,7 @@
+     ReadSetting("Core", Settings::values.reduce_downcount_slice);
+     ReadSetting("Core", Settings::values.priority_boost_starved_threads);
+     ReadSetting("Core", Settings::values.use_fastmem);
++    ReadSetting("Core", Settings::values.cpu_affinity_mode);
+ 
+     // Renderer
+     Settings::values.use_gles = android_config->GetBoolean("Renderer", "use_gles", true);
+diff -ruN a/AzaharPlus/src/android/app/src/main/jni/default_ini.h b/AzaharPlus/src/android/app/src/main/jni/default_ini.h
+--- a/AzaharPlus/src/android/app/src/main/jni/default_ini.h	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/jni/default_ini.h	2026-10-13 17:01:40.002961563 +0000
+@@ -122,6 +122,10 @@
+ # 0: Disabled, 1: Enabled (default)
+ )") DECLARE_KEY(use_fastmem) BOOST_HANA_STRING(R"(
+ 
++# Pin the emulation and GPU worker threads to specific host CPU cores (Android/Linux).
++# 0 (default): Let the OS decide, 1: Big + prime cores, 2: Prime core only, 3: Little cores only
++)") DECLARE_KEY(cpu_affinity_mode) BOOST_HANA_STRING(R"(
++
+ [Renderer]
+ # Whether to render using OpenGL
+ # 1: OpenGL ES (default), 2: Vulkan
+diff -ruN a/AzaharPlus/src/android/app/src/main/jni/native.cpp b/AzaharPlus/src/android/app/src/main/jni/native.cpp
+--- a/AzaharPlus/src/android/app/src/main/jni/native.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/jni/native.cpp	2026-10-13 17:01:51.912432553 +0000
+@@ -34,6 +34,7 @@
+ #include "common/scm_rev.h"
+ #include "common/scope_exit.h"
+ #include "common/settings.h"
++#include "common/thread.h"
+ #include "common/string_util.h"
+ #include "core/core.h"
+ #include "core/frontend/applets/default_applets.h"
+@@ -205,6 +206,8 @@
+     LOG_INFO(Frontend, "Azahar starting...");
+ 
+     MicroProfileOnThreadCreate("EmuThread");
++    Common::SetCurrentThreadAffinity(
++        static_cast<Common::CpuAffinityMode>(Settings::values.cpu_affinity_mode.GetValue()));
+ 
+     if (filepath.empty()) {
+         LOG_CRITICAL(Frontend, "Failed to load ROM: No ROM specified");
+diff -ruN a/AzaharPlus/src/android/app/src/main/res/values/arrays.xml b/AzaharPlus/src/android/app/src/main/res/values/arrays.xml
+--- a/AzaharPlus/src/android/app/src/main/res/values/arrays.xml	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/res/values/arrays.xml	2026-10-13 17:01:40.006770169 +0000
+@@ -777,4 +777,17 @@
+         <item>1</item>
+     </integer-array>
+ 
++    <string-array name="cpuAffinityModes">
++        <item>@string/cpu_affinity_default</item>
++        <item>@string/cpu_affinity_big</item>
++        <item>@string/cpu_affinity_prime</item>
++        <item>@string/cpu_affinity_little</item>
++    </string-array>
++    <integer-array name="cpuAffinityModeValues">
++        <item>0</item>
++        <item>1</item>
++        <item>2</item>
++        <item>3</item>
++    </integer-array>
++
+ </resources>
+diff -ruN a/AzaharPlus/src/android/app/src/main/res/values/strings.xml b/AzaharPlus/src/android/app/src/main/res/values/strings.xml
+--- a/AzaharPlus/src/android/app/src/main/res/values/strings.xml	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/android/app/src/main/res/values/strings.xml	2026-10-13 17:01:40.006023940 +0000
+@@ -1287,6 +1287,12 @@
+     <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+     <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
+     <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
++    <string name="cpu_affinity_mode">CPU Core Affinity</string>
++    <string name="cpu_affinity_mode_description">Pin the emulation and GPU threads to specific CPU cores, similar to Winlator/GameHub. Takes effect the next time a game starts. Results vary by device; leave on Default if performance gets worse.</string>
++    <string name="cpu_affinity_default">Default (OS decides)</string>
++    <string name="cpu_affinity_big">Big + prime cores</string>
++    <string name="cpu_affinity_prime">Prime core only</string>
++    <string name="cpu_affinity_little">Little cores only</string>
+     <string name="use_fastmem">Use Fastmem</string>
+     <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
+     <string name="tweaks">Tweaks</string>
+diff -ruN a/AzaharPlus/src/common/fastmem_arena.cpp b/AzaharPlus/src/common/fastmem_arena.cpp
+--- a/AzaharPlus/src/common/fastmem_arena.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/fastmem_arena.cpp	2026-10-13 17:02:01.338560305 +0000
+@@ -8,6 +8,9 @@
+ #if defined(__linux__) && defined(__LP64__)
+ #define CITRA_FASTMEM_ARENA_SUPPORTED 1
+ #include <cerrno>
++#include <cstdint>
++#include <fstream>
++#include <string>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <unistd.h>
+@@ -30,6 +33,31 @@
+ 
+ namespace {
+ 
++constexpr std::size_t HUGE_PAGE_SIZE = 2ULL * 1024 * 1024;
++
++/// Current kernel policy for THP on shared memory (memfd/tmpfs), e.g. "always [advise] never".
++std::string ReadShmemThpPolicy() {
++    std::ifstream f("/sys/kernel/mm/transparent_hugepage/shmem_enabled");
++    std::string line;
++    if (!f || !std::getline(f, line)) {
++        return "unavailable";
++    }
++    return line;
++}
++
++/// Hints the kernel to back a mapping with 2 MiB pages. Only meaningful when the host address,
++/// file offset and length are all 2 MiB aligned, and when the kernel allows shmem THP
++/// (shmem_enabled = advise/always). Failure is harmless; the mapping stays on 4 KiB pages.
++void AdviseHugePages(void* addr, std::size_t size, std::size_t file_offset) {
++    const auto start = reinterpret_cast<std::uintptr_t>(addr);
++    if ((start % HUGE_PAGE_SIZE) != 0 || (file_offset % HUGE_PAGE_SIZE) != 0 ||
++        size < HUGE_PAGE_SIZE) {
++        return;
++    }
++    const std::size_t aligned_size = size & ~(HUGE_PAGE_SIZE - 1);
++    madvise(addr, aligned_size, MADV_HUGEPAGE);
++}
++
+ // 4 GiB of guest address space plus a guard region so that the largest possible guest access
+ // starting at 0xFFFFFFFF still lands inside the reservation instead of unrelated mappings.
+ constexpr u64 GUEST_ADDRESS_SPACE_SIZE = 1ULL << 32;
+@@ -69,7 +97,9 @@
+         return;
+     }
+ 
+-    const std::size_t reserve_size = GUEST_ADDRESS_SPACE_SIZE + ARENA_GUARD_SIZE;
++    // Over-reserve by one huge page so the arena base itself can be 2 MiB aligned; without that,
++    // MADV_HUGEPAGE could never apply to any guest mapping.
++    const std::size_t reserve_size = GUEST_ADDRESS_SPACE_SIZE + ARENA_GUARD_SIZE + HUGE_PAGE_SIZE;
+     void* arena = mmap(nullptr, reserve_size, PROT_NONE,
+                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+     if (arena == MAP_FAILED) {
+@@ -83,9 +113,13 @@
+ 
+     backing_size = backing_size_;
+     backing_base = static_cast<u8*>(backing);
+-    arena_base = static_cast<u8*>(arena);
++    arena_raw = static_cast<u8*>(arena);
++    arena_base = reinterpret_cast<u8*>(
++        (reinterpret_cast<std::uintptr_t>(arena) + HUGE_PAGE_SIZE - 1) & ~(HUGE_PAGE_SIZE - 1));
+     arena_reserved_size = reserve_size;
+-    madvise(arena, reserve_size, MADV_HUGEPAGE);
++    // NOTE: MADV_HUGEPAGE on this PROT_NONE reservation is useless: every Map() replaces the VMA
++    // with a fresh MAP_FIXED mapping, which drops the hint. The hint is applied per mapping below.
++    ARENA_ANDROID_LOG("[Fastmem] shmem THP policy: %s", ReadShmemThpPolicy().c_str());
+     LOG_INFO(Common_Memory, "Fastmem arena ready: backing={} MiB arena_base={}",
+              backing_size / (1024 * 1024), static_cast<void*>(arena_base));
+     ARENA_ANDROID_LOG("[Fastmem] arena ready: backing=%zu MiB arena_base=%p",
+@@ -93,8 +127,8 @@
+ }
+ 
+ FastmemArena::~FastmemArena() {
+-    if (arena_base != nullptr) {
+-        munmap(arena_base, arena_reserved_size);
++    if (arena_raw != nullptr) {
++        munmap(arena_raw, arena_reserved_size);
+     }
+     if (backing_base != nullptr) {
+         munmap(backing_base, backing_size);
+@@ -113,7 +147,9 @@
+     if (result == MAP_FAILED) {
+         LOG_ERROR(Common_Memory, "Fastmem arena map failed: guest={:#x} size={:#x}", guest_addr,
+                   size);
++        return;
+     }
++    AdviseHugePages(result, size, backing_offset);
+ }
+ 
+ void FastmemArena::Unmap(u64 guest_addr, std::size_t size) {
+diff -ruN a/AzaharPlus/src/common/fastmem_arena.h b/AzaharPlus/src/common/fastmem_arena.h
+--- a/AzaharPlus/src/common/fastmem_arena.h	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/fastmem_arena.h	2026-10-13 17:02:01.342885156 +0000
+@@ -58,6 +58,7 @@
+     int backing_fd = -1;
+     std::size_t backing_size = 0;
+     u8* backing_base = nullptr;
++    u8* arena_raw = nullptr; ///< Start of the actual reservation (arena_base is 2 MiB aligned)
+     u8* arena_base = nullptr;
+     std::size_t arena_reserved_size = 0;
+ };
+diff -ruN a/AzaharPlus/src/common/settings.cpp b/AzaharPlus/src/common/settings.cpp
+--- a/AzaharPlus/src/common/settings.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/settings.cpp	2026-10-13 17:01:40.002118249 +0000
+@@ -93,6 +93,7 @@
+     log_setting("Core_PriorityBoostStarvedThreads",
+                 values.priority_boost_starved_threads.GetValue());
+     log_setting("Core_UseFastmem", values.use_fastmem.GetValue());
++    log_setting("Core_CpuAffinityMode", values.cpu_affinity_mode.GetValue());
+     log_setting("Controller_UseArticController", values.use_artic_base_controller.GetValue());
+     log_setting("Renderer_UseGLES", values.use_gles.GetValue());
+     log_setting("Renderer_GraphicsAPI", GetGraphicsAPIName(values.graphics_api.GetValue()));
+@@ -215,6 +216,7 @@
+     values.reduce_downcount_slice.SetGlobal(true);
+     values.priority_boost_starved_threads.SetGlobal(true);
+     values.use_fastmem.SetGlobal(true);
++    values.cpu_affinity_mode.SetGlobal(true);
+     values.is_new_3ds.SetGlobal(true);
+     values.lle_applets.SetGlobal(true);
+ 
+diff -ruN a/AzaharPlus/src/common/settings.h b/AzaharPlus/src/common/settings.h
+--- a/AzaharPlus/src/common/settings.h	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/settings.h	2026-10-13 17:01:40.001345427 +0000
+@@ -490,6 +490,9 @@
+     SwitchableSetting<bool> priority_boost_starved_threads{
+         true, Keys::priority_boost_starved_threads};
+     SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};
++    /// Host CPU affinity for the emulation/GPU worker threads.
++    /// 0: Default (OS decides), 1: Big + prime cores, 2: Prime core only, 3: Little cores only
++    SwitchableSetting<s32, true> cpu_affinity_mode{0, 0, 3, Keys::cpu_affinity_mode};
+     SwitchableSetting<bool> is_new_3ds{true, Keys::is_new_3ds};
+     SwitchableSetting<bool> lle_applets{true, Keys::lle_applets};
+     SwitchableSetting<bool> deterministic_async_operations{false,
+diff -ruN a/AzaharPlus/src/common/thread.cpp b/AzaharPlus/src/common/thread.cpp
+--- a/AzaharPlus/src/common/thread.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/thread.cpp	2026-10-13 17:01:40.007755189 +0000
+@@ -2,7 +2,12 @@
+ // Licensed under GPLv2 or any later version
+ // Refer to the misc/licenses/gplv2.txt file included.
+ 
++#include <algorithm>
++#include <cerrno>
++#include <fstream>
+ #include <string>
++#include <vector>
++#include <fmt/format.h>
+ 
+ #include "common/error.h"
+ #include "common/logging/log.h"
+@@ -120,4 +125,89 @@
+ 
+ #endif
+ 
++#if defined(__linux__)
++
++namespace {
++
++/// Returns each core's relative performance, or an empty vector if unavailable. Prefers the
++/// scheduler's cpu_capacity, falling back to cpuinfo_max_freq.
++std::vector<u64> ReadCoreCapacities() {
++    std::vector<u64> caps;
++    const long n = sysconf(_SC_NPROCESSORS_CONF);
++    for (long i = 0; i < n && i < CPU_SETSIZE; ++i) {
++        u64 value = 0;
++        for (const char* file : {"cpu_capacity", "cpufreq/cpuinfo_max_freq"}) {
++            std::ifstream f(fmt::format("/sys/devices/system/cpu/cpu{}/{}", i, file));
++            if (f >> value && value != 0) {
++                break;
++            }
++            value = 0;
++        }
++        caps.push_back(value);
++    }
++    return caps;
++}
++
++} // namespace
++
++bool SetCurrentThreadAffinity(CpuAffinityMode mode) {
++    if (mode == CpuAffinityMode::Default) {
++        return false;
++    }
++    const std::vector<u64> caps = ReadCoreCapacities();
++    if (caps.empty() || std::find(caps.begin(), caps.end(), 0) != caps.end()) {
++        LOG_WARNING(Common, "CPU affinity: core topology unavailable, leaving default");
++        return false;
++    }
++    const u64 max_cap = *std::max_element(caps.begin(), caps.end());
++    const u64 min_cap = *std::min_element(caps.begin(), caps.end());
++    if (max_cap == min_cap) {
++        return false; // homogeneous CPU, nothing to choose between
++    }
++
++    // Tiers: prime = top capacity; little = lowest capacity; big = everything in between + prime.
++    cpu_set_t set;
++    CPU_ZERO(&set);
++    int selected = 0;
++    for (std::size_t i = 0; i < caps.size(); ++i) {
++        bool pick = false;
++        switch (mode) {
++        case CpuAffinityMode::PrimeOnly:
++            pick = caps[i] == max_cap;
++            break;
++        case CpuAffinityMode::LittleOnly:
++            pick = caps[i] == min_cap;
++            break;
++        case CpuAffinityMode::BigAndPrime:
++            pick = caps[i] != min_cap;
++            break;
++        default:
++            break;
++        }
++        if (pick) {
++            CPU_SET(static_cast<int>(i), &set);
++            ++selected;
++        }
++    }
++    if (selected == 0) {
++        return false;
++    }
++    // sched_setaffinity(0) targets the calling thread on Linux/Android.
++    if (sched_setaffinity(0, sizeof(set), &set) != 0) {
++        LOG_WARNING(Common, "CPU affinity: sched_setaffinity failed (errno={})", errno);
++        return false;
++    }
++    LOG_INFO(Common, "CPU affinity: pinned thread to {} core(s) (mode {})", selected,
++             static_cast<s32>(mode));
++    return true;
++}
++
++#else
++
++bool SetCurrentThreadAffinity(CpuAffinityMode) {
++    return false;
++}
++
++#endif
++
+ } // namespace Common
+diff -ruN a/AzaharPlus/src/common/thread.h b/AzaharPlus/src/common/thread.h
+--- a/AzaharPlus/src/common/thread.h	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/common/thread.h	2026-10-13 17:01:40.007175494 +0000
+@@ -112,4 +112,16 @@
+ 
+ void SetCurrentThreadName(const char* name);
+ 
++/// Host CPU affinity presets, derived from each core's reported capacity/max frequency.
++enum class CpuAffinityMode : s32 {
++    Default = 0,
++    BigAndPrime = 1,
++    PrimeOnly = 2,
++    LittleOnly = 3,
++};
++
++/// Pins the calling thread according to `mode`. No-op for Default, on unsupported platforms, or if
++/// the CPU topology cannot be determined. Returns true if an affinity mask was applied.
++bool SetCurrentThreadAffinity(CpuAffinityMode mode);
++
+ } // namespace Common
+diff -ruN a/AzaharPlus/src/video_core/renderer_vulkan/vk_scheduler.cpp b/AzaharPlus/src/video_core/renderer_vulkan/vk_scheduler.cpp
+--- a/AzaharPlus/src/video_core/renderer_vulkan/vk_scheduler.cpp	2026-10-13 09:59:21.000000000 +0000
++++ b/AzaharPlus/src/video_core/renderer_vulkan/vk_scheduler.cpp	2026-10-13 17:01:51.913073100 +0000
+@@ -5,6 +5,7 @@
+ #include <mutex>
+ #include <utility>
+ #include "common/microprofile.h"
++#include "common/settings.h"
+ #include "common/thread.h"
+ #include "video_core/renderer_vulkan/vk_instance.h"
+ #include "video_core/renderer_vulkan/vk_scheduler.h"
+@@ -116,6 +117,8 @@
+ 
+ void Scheduler::WorkerThread(std::stop_token stop_token) {
+     Common::SetCurrentThreadName("VulkanWorker");
++    Common::SetCurrentThreadAffinity(
++        static_cast<Common::CpuAffinityMode>(Settings::values.cpu_affinity_mode.GetValue()));
+ 
+     const auto TryPopQueue{[this](auto& work) -> bool {
+         if (work_queue.empty()) {

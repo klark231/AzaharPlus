@@ -1287,6 +1287,12 @@
     <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
     <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
     <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+    <string name="cpu_affinity_mode">CPU Core Affinity</string>
+    <string name="cpu_affinity_mode_description">Pin the emulation and GPU threads to specific CPU cores, similar to Winlator/GameHub. Takes effect the next time a game starts. Results vary by device; leave on Default if performance gets worse.</string>
+    <string name="cpu_affinity_default">Default (OS decides)</string>
+    <string name="cpu_affinity_big">Big + prime cores</string>
+    <string name="cpu_affinity_prime">Prime core only</string>
+    <string name="cpu_affinity_little">Little cores only</string>
     <string name="use_fastmem">Use Fastmem</string>
     <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing). Takes effect the next time a game starts.</string>
     <string name="tweaks">Tweaks</string>

@@ -16,6 +16,7 @@ object SettingKeys {
     external fun reduce_downcount_slice(): String
     external fun priority_boost_starved_threads(): String
     external fun use_fastmem(): String
+    external fun cpu_affinity_mode(): String
     external fun adreno_gpu_boost(): String
     external fun is_new_3ds(): String
     external fun lle_applets(): String

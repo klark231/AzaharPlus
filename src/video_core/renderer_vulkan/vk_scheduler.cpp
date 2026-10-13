@@ -5,6 +5,7 @@
 #include <mutex>
 #include <utility>
 #include "common/microprofile.h"
+#include "common/settings.h"
 #include "common/thread.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -116,6 +117,8 @@ void Scheduler::DispatchWork() {
 
 void Scheduler::WorkerThread(std::stop_token stop_token) {
     Common::SetCurrentThreadName("VulkanWorker");
+    Common::SetCurrentThreadAffinity(
+        static_cast<Common::CpuAffinityMode>(Settings::values.cpu_affinity_mode.GetValue()));
 
     const auto TryPopQueue{[this](auto& work) -> bool {
         if (work_queue.empty()) {

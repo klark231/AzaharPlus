@@ -2332,6 +2332,17 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     BooleanSetting.USE_FASTMEM.defaultValue
                 )
             )
+            add(
+                SingleChoiceSetting(
+                    IntSetting.CPU_AFFINITY_MODE,
+                    R.string.cpu_affinity_mode,
+                    R.string.cpu_affinity_mode_description,
+                    R.array.cpuAffinityModes,
+                    R.array.cpuAffinityModeValues,
+                    IntSetting.CPU_AFFINITY_MODE.key,
+                    IntSetting.CPU_AFFINITY_MODE.defaultValue
+                )
+            )
         }
     }
 

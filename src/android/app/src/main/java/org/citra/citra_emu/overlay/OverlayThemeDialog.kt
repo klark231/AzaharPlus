@@ -52,4 +52,55 @@ object OverlayThemeDialog {
         }
         launcher.launch(arrayOf("image/*"))
     }
+
+    /** Lets the user pick a theme .zip and imports it into theme/<zip name>. */
+    fun importZip(activity: AppCompatActivity, onDone: () -> Unit) {
+        var launcher: ActivityResultLauncher<Array<String>>? = null
+        launcher = activity.activityResultRegistry.register(
+            "overlay_theme_import_${System.nanoTime()}",
+            ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            launcher?.unregister()
+            if (uri != null) {
+                Thread {
+                    val name = OverlayTheme.importZip(activity, uri)
+                    activity.runOnUiThread {
+                        val message = if (name != null) {
+                            activity.getString(R.string.overlay_theme_import_done, name)
+                        } else {
+                            activity.getString(R.string.overlay_theme_import_failed)
+                        }
+                        Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
+                        onDone()
+                    }
+                }.start()
+            }
+        }
+        launcher.launch(arrayOf("application/zip", "application/x-zip-compressed"))
+    }
+
+    /** Lets the user choose where to save the selected theme as <name>.zip. */
+    fun exportZip(activity: AppCompatActivity, theme: String) {
+        var launcher: ActivityResultLauncher<String>? = null
+        launcher = activity.activityResultRegistry.register(
+            "overlay_theme_export_${System.nanoTime()}",
+            ActivityResultContracts.CreateDocument("application/zip")
+        ) { uri ->
+            launcher?.unregister()
+            if (uri != null) {
+                Thread {
+                    val ok = OverlayTheme.exportZip(activity, uri, theme)
+                    activity.runOnUiThread {
+                        Toast.makeText(
+                            activity,
+                            if (ok) R.string.overlay_theme_export_done
+                            else R.string.overlay_theme_export_failed,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.start()
+            }
+        }
+        launcher.launch(OverlayTheme.exportName(theme) + ".zip")
+    }
 }

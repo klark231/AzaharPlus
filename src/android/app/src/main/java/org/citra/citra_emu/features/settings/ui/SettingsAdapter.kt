@@ -36,6 +36,7 @@ import kotlin.math.roundToInt
 import org.citra.citra_emu.R
 import org.citra.citra_emu.databinding.DialogSliderBinding
 import org.citra.citra_emu.databinding.DialogSoftwareKeyboardBinding
+import org.citra.citra_emu.databinding.ListItemOverlayThemeBinding
 import org.citra.citra_emu.databinding.ListItemSettingBinding
 import org.citra.citra_emu.databinding.ListItemSettingSwitchBinding
 import org.citra.citra_emu.databinding.ListItemSettingsHeaderBinding
@@ -61,6 +62,7 @@ import org.citra.citra_emu.features.settings.ui.viewholder.DateTimeViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.HeaderViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.InputBindingSettingViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.MultiChoiceViewHolder
+import org.citra.citra_emu.features.settings.ui.viewholder.OverlayThemeViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.RunnableViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.SettingViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.SingleChoiceViewHolder
@@ -130,6 +132,10 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
 
             SettingsItem.TYPE_INPUT_BINDING -> {
                 InputBindingSettingViewHolder(ListItemSettingBinding.inflate(inflater), this)
+            }
+
+            SettingsItem.TYPE_OVERLAY_THEME -> {
+                OverlayThemeViewHolder(ListItemOverlayThemeBinding.inflate(inflater), this)
             }
 
             SettingsItem.TYPE_STRING_INPUT -> {

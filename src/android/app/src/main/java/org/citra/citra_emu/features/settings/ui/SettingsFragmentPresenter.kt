@@ -17,7 +17,9 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.citra.citra_emu.BuildConfig
 import org.citra.citra_emu.CitraApplication
+import org.citra.citra_emu.features.settings.model.view.OverlayThemeSetting
 import org.citra.citra_emu.overlay.OverlayTheme
+import org.citra.citra_emu.overlay.OverlayThemeDialog
 import org.citra.citra_emu.R
 import org.citra.citra_emu.display.ScreenLayout
 import org.citra.citra_emu.display.StereoMode
@@ -2458,80 +2460,19 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
-            val overlayTheme: AbstractStringSetting = object : AbstractStringSetting {
-                override var string: String
-                    get() = OverlayTheme.selected
-                    set(value) {
-                        OverlayTheme.selected = value
-                    }
-                override val key: String? = null
-                override val section: String? = null
-                override val isRuntimeEditable: Boolean = false
-                override val valueAsString: String
-                    get() = OverlayTheme.selected
-                override val defaultValue: Any = ""
-            }
-
-            val themeNames = OverlayTheme.listThemes()
-            add(
-                StringSingleChoiceSetting(
-                    overlayTheme,
-                    R.string.overlay_theme,
-                    R.string.overlay_theme_description,
-                    arrayOf(settingsActivity.getString(R.string.overlay_theme_default)) +
-                        themeNames,
-                    arrayOf("") + themeNames,
-                    defaultValue = ""
-                )
-            )
+            OverlayTheme.ensureThemeFolder()
+            add(OverlayThemeSetting())
 
             add(
                 RunnableSetting(
-                    R.string.overlay_theme_folder,
-                    R.string.overlay_theme_folder_description,
+                    R.string.overlay_theme_import,
+                    R.string.overlay_theme_import_description,
                     true,
-                    R.drawable.ic_folder,
+                    R.drawable.ic_install,
                     {
-                        val ready = OverlayTheme.ensureThemeFolder()
-                        fragmentView.showToastMessage(
-                            settingsActivity.getString(
-                                if (ready) {
-                                    R.string.overlay_theme_folder_ready
-                                } else {
-                                    R.string.overlay_theme_folder_failed
-                                }
-                            ),
-                            false
-                        )
-                        fragmentView.loadSettingsList()
-                    }
-                )
-            )
-
-            add(
-                RunnableSetting(
-                    R.string.overlay_theme_export,
-                    R.string.overlay_theme_export_description,
-                    true,
-                    R.drawable.ic_save,
-                    {
-                        Thread {
-                            val exported =
-                                OverlayTheme.exportTemplate(CitraApplication.appContext)
-                            settingsActivity.runOnUiThread {
-                                fragmentView.showToastMessage(
-                                    settingsActivity.getString(
-                                        if (exported) {
-                                            R.string.overlay_theme_export_done
-                                        } else {
-                                            R.string.overlay_theme_export_failed
-                                        }
-                                    ),
-                                    false
-                                )
-                                fragmentView.loadSettingsList()
-                            }
-                        }.start()
+                        OverlayThemeDialog.importZip(settingsActivity) {
+                            fragmentView.loadSettingsList()
+                        }
                     }
                 )
             )

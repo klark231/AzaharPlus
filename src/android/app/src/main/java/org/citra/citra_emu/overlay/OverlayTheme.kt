@@ -14,7 +14,11 @@ import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
+import java.io.BufferedOutputStream
 import java.util.WeakHashMap
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.R
 import org.citra.citra_emu.utils.DirectoryInitialization
@@ -26,7 +30,6 @@ object OverlayTheme {
     private const val THEME_DIR = "theme"
     private const val NO_MEDIA = ".nomedia"
     private const val TEMPLATE_THEME = "Template"
-    private const val CUSTOM_THEME = "Custom"
     private const val MAX_IMAGE_SIZE = 512
     private const val TEMPLATE_MIN_SIZE = 256f
 
@@ -119,8 +122,14 @@ object OverlayTheme {
         return childDir(dir, name, create)
     }
 
+    /** Creates the theme folder if needed. Safe to call any time; never throws. */
     fun ensureThemeFolder(): Boolean {
-        val dir = themeRoot(true) ?: return false
+        val dir = try {
+            themeRoot(true)
+        } catch (e: Exception) {
+            Log.error("[OverlayTheme] Cannot create theme folder: ${e.message}")
+            null
+        } ?: return false
         if (FileUtil.listFiles(dir).none { it.filename == NO_MEDIA }) {
             FileUtil.createFile(dir.toString(), NO_MEDIA)
         }
@@ -133,6 +142,106 @@ object OverlayTheme {
             .filter { it.isDirectory }
             .map { it.filename }
             .sortedBy { it.lowercase() }
+    }
+
+    private fun cleanName(raw: String): String =
+        raw.replace(Regex("[\\\\/:*?\"<>|]"), "_").trim().trim('.')
+
+    /** First unused "<prefix> N" name (Theme 1, Theme 2, ...). */
+    fun suggestName(prefix: String): String {
+        val taken = listThemes().map { it.lowercase() }.toSet()
+        var n = 1
+        while ("$prefix $n".lowercase() in taken) n++
+        return "$prefix $n"
+    }
+
+    /** Creates an empty theme folder. Returns its final name (made unique), or null on failure. */
+    fun createTheme(raw: String, reuseExisting: Boolean = false): String? {
+        if (!ensureThemeFolder()) return null
+        val root = themeRoot(false) ?: return null
+        val base = cleanName(raw).ifEmpty { return null }
+        val existing = listThemes()
+        if (reuseExisting) {
+            existing.firstOrNull { it.equals(base, ignoreCase = true) }?.let { return it }
+        }
+        val taken = existing.map { it.lowercase() }.toSet()
+        var name = base
+        var n = 2
+        while (name.lowercase() in taken) name = "$base ($n)".also { n++ }
+        return childDir(root, name, true)?.let { name }
+    }
+
+    /** Renames a theme folder. Returns the new name or null. Keeps the selection in sync. */
+    fun renameTheme(old: String, raw: String): String? {
+        val newName = cleanName(raw)
+        if (newName.isEmpty() || newName == old) return null
+        if (listThemes().any { it.equals(newName, ignoreCase = true) && !it.equals(old, true) }) {
+            return null
+        }
+        val uri = themeFolder(old, false) ?: return null
+        if (!FileUtil.renameFile(uri.toString(), newName)) return null
+        if (selected == old) selected = newName
+        return newName
+    }
+
+    /** Deletes a theme folder. Falls back to Default if it was selected. */
+    fun deleteTheme(name: String) {
+        val uri = themeFolder(name, false) ?: return
+        FileUtil.deleteDocument(uri.toString())
+        if (selected == name) selected = ""
+    }
+
+    /** One thumbnail in the theme preview. [custom] is false when the default image is shown. */
+    class Preview(val bitmap: Bitmap, val custom: Boolean)
+
+    private val previewCache = HashMap<String, List<Preview>>()
+    private val defaultPreviews = HashMap<String, Bitmap>()
+
+    @Synchronized
+    fun clearPreviewCache() = previewCache.clear()
+
+    @Synchronized
+    fun cachedPreview(theme: String): List<Preview>? = previewCache[theme]
+
+    /**
+     * Thumbnails of every overlay image for [theme] ("" = built-in). Images the theme doesn't
+     * replace use the built-in one (custom = false). Call from a background thread.
+     */
+    fun loadPreview(context: Context, theme: String, size: Int): List<Preview> {
+        cachedPreview(theme)?.let { return it }
+        val themeFiles: Map<String, Uri> = if (theme.isEmpty()) {
+            emptyMap()
+        } else {
+            themeFolder(theme, false)?.let { dir ->
+                FileUtil.listFiles(dir).filter { !it.isDirectory }
+                    .associate { it.filename.lowercase() to it.uri }
+            } ?: emptyMap()
+        }
+        val result = ArrayList<Preview>()
+        for (id in TEMPLATE_DRAWABLES) {
+            val name = context.resources.getResourceEntryName(id)
+            val custom = themeFiles["$name.png"]?.let { uri ->
+                try {
+                    context.contentResolver.openInputStream(uri)?.use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }?.let { Bitmap.createScaledBitmap(it, size, size, true) }
+            if (custom != null) {
+                result.add(Preview(custom, true))
+                continue
+            }
+            val key = "$id:$size"
+            val fallback = synchronized(this) { defaultPreviews[key] }
+                ?: renderDefault(context, id)?.let {
+                    Bitmap.createScaledBitmap(it, size, size, true)
+                }?.also { synchronized(this) { defaultPreviews[key] = it } }
+            if (fallback != null) result.add(Preview(fallback, theme.isEmpty()))
+        }
+        synchronized(this) { previewCache[theme] = result }
+        return result
     }
 
     /** Rescans the selected theme folder. Called whenever the overlay is built. */
@@ -177,6 +286,84 @@ object OverlayTheme {
         return success
     }
 
+    /**
+     * Imports a theme zip into theme/<zip name>. Folders inside the zip are flattened and only
+     * PNG files are kept. Returns the new theme name, or null on failure.
+     */
+    fun importZip(context: Context, source: Uri): String? {
+        if (!ensureThemeFolder()) return null
+        val root = themeRoot(false) ?: return null
+        val base = cleanName(FileUtil.getFilename(source).substringBeforeLast('.')).ifEmpty { "Imported" }
+        val existing = listThemes().map { it.lowercase() }.toSet()
+        var name = base
+        var n = 2
+        while (name.lowercase() in existing) name = "$base ($n)".also { n++ }
+
+        val dir = childDir(root, name, true) ?: return null
+        val parent = DocumentFile.fromTreeUri(context, dir) ?: return null
+        var count = 0
+        try {
+            val input = context.contentResolver.openInputStream(source) ?: return null
+            ZipInputStream(input.buffered()).use { zis ->
+                val seen = HashSet<String>()
+                var entry: ZipEntry? = zis.nextEntry
+                while (entry != null) {
+                    val fileName = entry.name.substringAfterLast('/')
+                    if (!entry.isDirectory &&
+                        !entry.name.startsWith("__MACOSX") &&
+                        !fileName.startsWith(".") &&
+                        fileName.endsWith(".png", ignoreCase = true) &&
+                        seen.add(fileName.lowercase())
+                    ) {
+                        val file = parent.createFile("image/png", fileName)
+                        if (file != null) {
+                            context.contentResolver.openOutputStream(file.uri)?.use {
+                                zis.copyTo(it)
+                            }
+                            count++
+                        }
+                    }
+                    entry = zis.nextEntry
+                }
+            }
+        } catch (e: Exception) {
+            Log.error("[OverlayTheme] Cannot import zip: ${e.message}")
+            count = 0
+        }
+        if (count == 0) {
+            FileUtil.deleteDocument(dir.toString())
+            return null
+        }
+        selected = name
+        return name
+    }
+
+    /** File name (without .zip) used when exporting [theme] ("" is the default images). */
+    fun exportName(theme: String): String = theme.ifEmpty { TEMPLATE_THEME }
+
+    /** Writes [theme] (or the default images when empty) as a zip to [destination]. */
+    fun exportZip(context: Context, destination: Uri, theme: String): Boolean {
+        return try {
+            if (theme.isEmpty() && !exportTemplate(context)) return false
+            val dir = themeFolder(exportName(theme), false) ?: return false
+            val out = context.contentResolver.openOutputStream(destination) ?: return false
+            var count = 0
+            ZipOutputStream(BufferedOutputStream(out)).use { zos ->
+                for (doc in FileUtil.listFiles(dir).filter { !it.isDirectory }) {
+                    if (!doc.filename.endsWith(".png", ignoreCase = true)) continue
+                    zos.putNextEntry(ZipEntry(doc.filename))
+                    context.contentResolver.openInputStream(doc.uri)?.use { it.copyTo(zos) }
+                    zos.closeEntry()
+                    count++
+                }
+            }
+            count > 0
+        } catch (e: Exception) {
+            Log.error("[OverlayTheme] Cannot export zip: ${e.message}")
+            false
+        }
+    }
+
     private fun renderDefault(context: Context, drawableId: Int): Bitmap? {
         val drawable = ContextCompat.getDrawable(context, drawableId) ?: return null
         val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: TEMPLATE_MIN_SIZE.toInt()
@@ -207,12 +394,18 @@ object OverlayTheme {
         }
     }
 
-    /** The theme to edit: the selected one, or a new "Custom" theme if none is selected. */
+    /**
+     * The theme edits are written to: the one selected in settings. With Default selected (or a
+     * selected theme that no longer exists) a new numbered theme ("Theme 1", "Theme 2", ...) is
+     * created and selected.
+     */
     private fun editableTheme(): String? {
         if (!ensureThemeFolder()) return null
-        val name = selected.ifEmpty { CUSTOM_THEME }
-        themeFolder(name, true) ?: return null
-        if (selected.isEmpty()) selected = name
+        val current = selected
+        if (current.isNotEmpty() && themeFolder(current, false) != null) return current
+        val prefix = CitraApplication.appContext.getString(R.string.overlay_theme_default_name)
+        val name = createTheme(suggestName(prefix)) ?: return null
+        selected = name
         return name
     }
 

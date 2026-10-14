@@ -850,16 +850,22 @@
 
     <!-- Black backgrounds theme -->
     <string name="overlay_theme">Button theme</string>
-    <string name="overlay_theme_description">Replaces the on-screen button images with the ones from a theme folder. Missing images use the default look. In Edit Overlay mode, long-press a control to change its images. Takes effect the next time the overlay loads.</string>
+    <string name="overlay_theme_description">Change the look of the on-screen buttons. Long-press a theme to export, rename or delete it</string>
     <string name="overlay_theme_default">Default</string>
-    <string name="overlay_theme_folder">Theme folder</string>
-    <string name="overlay_theme_folder_description">Creates the theme folder in your user data folder. Add one folder per theme, containing square PNG files named like the built-in images (for example button_a.png and button_a_pressed.png).</string>
-    <string name="overlay_theme_folder_ready">Theme folder is ready in your user data folder</string>
-    <string name="overlay_theme_folder_failed">Couldn\'t create the theme folder</string>
-    <string name="overlay_theme_export">Export default images</string>
-    <string name="overlay_theme_export_description">Saves the built-in button images as PNG files in the Template folder inside the theme folder. Use them as a starting point for your own theme.</string>
-    <string name="overlay_theme_export_done">Default images exported to the Template folder</string>
-    <string name="overlay_theme_export_failed">Couldn\'t export the default images</string>
+    <string name="overlay_theme_default_name">Theme</string>
+    <string name="overlay_theme_new">New Theme</string>
+    <string name="overlay_theme_create_failed">Couldn\'t create the theme</string>
+    <string name="overlay_theme_rename_failed">Couldn\'t rename the theme (the name may already be used)</string>
+    <string name="overlay_theme_menu_export">Export as .zip</string>
+    <string name="overlay_theme_menu_rename">Rename</string>
+    <string name="overlay_theme_menu_delete">Delete</string>
+    <string name="overlay_theme_delete_confirm">Delete %1$s and all of its images?</string>
+    <string name="overlay_theme_import">Import Theme</string>
+    <string name="overlay_theme_import_description">Adds a theme from a .zip file</string>
+    <string name="overlay_theme_import_done">Theme %1$s imported</string>
+    <string name="overlay_theme_import_failed">No button images found in that file</string>
+    <string name="overlay_theme_export_done">Theme exported</string>
+    <string name="overlay_theme_export_failed">Couldn\'t export the theme</string>
     <string name="overlay_theme_edit_images">Button images</string>
     <string name="overlay_theme_image_normal">Change image</string>
     <string name="overlay_theme_image_pressed">Change pressed image</string>
@@ -869,7 +875,7 @@
     <string name="overlay_theme_image_stick">Change stick image</string>
     <string name="overlay_theme_image_stick_pressed">Change pressed stick image</string>
     <string name="overlay_theme_reset_images">Reset to default</string>
-    <string name="overlay_theme_saved">Image saved to theme %1$s</string>
+    <string name="overlay_theme_saved">Image saved to %1$s</string>
     <string name="overlay_theme_save_failed">Couldn\'t save the image</string>
     <string name="use_black_backgrounds">Black Backgrounds</string>
     <string name="use_black_backgrounds_description">When using the dark theme, apply black backgrounds.</string>

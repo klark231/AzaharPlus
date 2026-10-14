@@ -74,6 +74,7 @@ class CitraDirectoryHelper(
             PermissionsHandler.setCitraDirectory(path.toString())
             DirectoryInitialization.resetCitraDirectoryState()
             DirectoryInitialization.start()
+            org.citra.citra_emu.overlay.OverlayTheme.ensureThemeFolder()
         }
     }
 }

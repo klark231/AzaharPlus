@@ -23,6 +23,16 @@
             android:focusable="false"
             android:focusableInTouchMode="false" />
 
+        <!-- Custom background image, drawn around the 3DS screens -->
+        <org.citra.citra_emu.overlay.EmulationBackgroundView
+            android:id="@+id/surface_emulation_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:clickable="false" />
+
         <!-- This is the onscreen input overlay -->
         <org.citra.citra_emu.overlay.InputOverlay
             android:id="@+id/surface_input_overlay"

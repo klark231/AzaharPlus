@@ -860,6 +860,13 @@
     <string name="overlay_theme_menu_rename">Rename</string>
     <string name="overlay_theme_menu_delete">Delete</string>
     <string name="overlay_theme_delete_confirm">Delete %1$s and all of its images?</string>
+    <string name="emulation_background">Emulation background</string>
+    <string name="emulation_background_description">Shows your own image behind the game screens, like a console shell. Tap to pick an image, long-press to remove it.</string>
+    <string name="emulation_background_set">Background image set</string>
+    <string name="emulation_background_failed">Couldn\'t load that image</string>
+    <string name="emulation_background_removed">Background image removed</string>
+    <string name="emulation_background_current">Custom image</string>
+    <string name="emulation_background_none">None</string>
     <string name="overlay_theme_import">Import Theme</string>
     <string name="overlay_theme_import_description">Adds a theme from a .zip file</string>
     <string name="overlay_theme_import_done">Theme %1$s imported</string>

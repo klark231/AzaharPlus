@@ -47,7 +47,8 @@ void EmuWindow_Android::OnTouchMoved(int x, int y) {
 }
 
 void EmuWindow_Android::OnFramebufferSizeChanged() {
-    const bool is_portrait_mode = (AndroidUtils::IsPortraitMode() && !is_secondary);
+    // Use the real surface size; the Java-side config can still be stale during rotation
+    const bool is_portrait_mode = (window_height > window_width) && !is_secondary;
     UpdateCurrentFramebufferLayout(window_width, window_height, is_portrait_mode);
 }
 

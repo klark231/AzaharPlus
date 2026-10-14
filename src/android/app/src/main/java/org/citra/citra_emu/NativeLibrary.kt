@@ -399,10 +399,14 @@ object NativeLibrary {
 
     @Keep
     @JvmStatic
-    fun isPortraitMode(): Boolean = (
-        CitraApplication.appContext.resources.configuration.orientation ==
+    fun isPortraitMode(): Boolean {
+        // Prefer the live display size of the activity; the application context
+        // configuration can lag behind a rotation.
+        val dm = sEmulationActivity.get()?.resources?.displayMetrics
+        if (dm != null) return dm.heightPixels > dm.widthPixels
+        return CitraApplication.appContext.resources.configuration.orientation ==
             Configuration.ORIENTATION_PORTRAIT
-        )
+    }
 
     @Keep
     @JvmStatic

@@ -250,6 +250,9 @@ class EmulationFragment :
         }
 
         binding.surfaceEmulation.holder.addCallback(this)
+        binding.surfaceEmulationBackground.target = binding.surfaceEmulation
+        binding.surfaceEmulationBackground.overlay = binding.surfaceInputOverlay
+        binding.surfaceInputOverlay.backgroundView = binding.surfaceEmulationBackground
         binding.doneControlConfig.setOnClickListener {
             binding.doneControlConfig.visibility = View.GONE
             binding.surfaceInputOverlay.setIsInEditMode(false)
@@ -579,6 +582,7 @@ class EmulationFragment :
     }
 
     override fun onResume() {
+        _binding?.surfaceEmulationBackground?.reload()
         super.onResume()
         // Make sure the renderer presents again (no-op if it was never suspended)
         NativeLibrary.setPresentationSuspended(false)
@@ -620,7 +624,11 @@ class EmulationFragment :
 
     override fun onPause() {
         if (NativeLibrary.isRunning()) {
-            if (BooleanSetting.KEEP_EMULATION_RUNNING.boolean) {
+            // Rotating recreates the activity and calls onPause: never pause for that,
+            // only stop presenting, so the emulation/network threads keep running.
+            if (BooleanSetting.KEEP_EMULATION_RUNNING.boolean ||
+                activity?.isChangingConfigurations == true
+            ) {
                 // Keep the game running in the background. On Vulkan the emulation thread owns
                 // the swapchain, so it must be told to stop presenting or it can block forever
                 // once Android stops consuming our buffers.
@@ -2016,6 +2024,8 @@ class EmulationFragment :
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         Log.debug("[EmulationFragment] Surface changed. Resolution: " + width + "x" + height)
         emulationState.newSurface(holder.surface)
+        // Re-apply the layout for the new orientation (fixes stale layout after rotating)
+        NativeLibrary.updateFramebuffer(height > width)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {

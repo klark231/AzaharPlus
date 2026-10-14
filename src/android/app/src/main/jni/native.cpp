@@ -1047,7 +1047,7 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onTouchEvent([[maybe_unused]] J
 
 jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getFramebufferLayout(JNIEnv* env,
                                                                          [[maybe_unused]] jobject obj) {
-    jfloatArray result = env->NewFloatArray(6);
+    jfloatArray result = env->NewFloatArray(10);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1056,15 +1056,19 @@ jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getFramebufferLayout(JNIEnv*
     }
 
     const auto& layout = window->GetFramebufferLayout();
-    const jfloat values[6] = {
+    const jfloat values[10] = {
         static_cast<jfloat>(layout.width),
         static_cast<jfloat>(layout.height),
         static_cast<jfloat>(layout.bottom_screen.left),
         static_cast<jfloat>(layout.bottom_screen.top),
         static_cast<jfloat>(layout.bottom_screen.right),
         static_cast<jfloat>(layout.bottom_screen.bottom),
+        static_cast<jfloat>(layout.top_screen_enabled ? layout.top_screen.left : 0),
+        static_cast<jfloat>(layout.top_screen_enabled ? layout.top_screen.top : 0),
+        static_cast<jfloat>(layout.top_screen_enabled ? layout.top_screen.right : 0),
+        static_cast<jfloat>(layout.top_screen_enabled ? layout.top_screen.bottom : 0),
     };
-    env->SetFloatArrayRegion(result, 0, 6, values);
+    env->SetFloatArrayRegion(result, 0, 10, values);
     return result;
 }
 

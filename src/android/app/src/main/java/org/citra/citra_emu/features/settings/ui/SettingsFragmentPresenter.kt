@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.citra.citra_emu.BuildConfig
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.features.settings.model.view.OverlayThemeSetting
+import org.citra.citra_emu.overlay.EmulationBackground
 import org.citra.citra_emu.overlay.OverlayTheme
 import org.citra.citra_emu.overlay.OverlayThemeDialog
 import org.citra.citra_emu.R
@@ -2457,6 +2458,38 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     blackBackgrounds,
                     R.string.use_black_backgrounds,
                     R.string.use_black_backgrounds_description
+                )
+            )
+
+            add(
+                RunnableSetting(
+                    R.string.emulation_background,
+                    R.string.emulation_background_description,
+                    true,
+                    R.drawable.ic_install,
+                    {
+                        EmulationBackground.pick(settingsActivity) {
+                            fragmentView.loadSettingsList()
+                        }
+                    },
+                    {
+                        settingsActivity.getString(
+                            if (EmulationBackground.exists(settingsActivity)) {
+                                R.string.emulation_background_current
+                            } else {
+                                R.string.emulation_background_none
+                            }
+                        )
+                    },
+                    {
+                        EmulationBackground.clear(settingsActivity)
+                        fragmentView.showToastMessage(
+                            settingsActivity.getString(R.string.emulation_background_removed),
+                            false
+                        )
+                        fragmentView.loadSettingsList()
+                        true
+                    }
                 )
             )
 

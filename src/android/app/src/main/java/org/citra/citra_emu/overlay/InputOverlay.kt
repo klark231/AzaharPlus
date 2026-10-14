@@ -4,6 +4,10 @@
 
 package org.citra.citra_emu.overlay
 
+import android.os.Handler
+import android.os.Looper
+import android.view.ViewConfiguration
+import kotlin.math.hypot
 import org.citra.citra_emu.utils.OverlayProfile
 import android.app.Activity
 import android.content.Context
@@ -52,6 +56,20 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     private var buttonBeingConfigured: InputOverlayDrawableButton? = null
     private var dpadBeingConfigured: InputOverlayDrawableDpad? = null
     private var joystickBeingConfigured: InputOverlayDrawableJoystick? = null
+
+    private val longPressHandler = Handler(Looper.getMainLooper())
+    private var longPressTarget: Any? = null
+    private var longPressDownX = 0f
+    private var longPressDownY = 0f
+    private val longPressRunnable = Runnable {
+        val target = longPressTarget ?: return@Runnable
+        longPressTarget = null
+        buttonBeingConfigured = null
+        dpadBeingConfigured = null
+        joystickBeingConfigured = null
+        val activity = NativeLibrary.sEmulationActivity.get() ?: return@Runnable
+        OverlayThemeDialog.show(activity, target) { refreshControls() }
+    }
     private val settingsViewModel = NativeLibrary.sEmulationActivity.get()!!.settingsViewModel
 
     // Stores the ID of the pointer that interacted with the 3DS touchscreen.
@@ -327,6 +345,16 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         return true
     }
 
+    private fun findControlAt(x: Int, y: Int): Any? =
+        overlayButtons.firstOrNull { it.bounds.contains(x, y) }
+            ?: overlayDpads.firstOrNull { it.bounds.contains(x, y) }
+            ?: overlayJoysticks.firstOrNull { it.bounds.contains(x, y) }
+
+    private fun cancelLongPress() {
+        longPressHandler.removeCallbacks(longPressRunnable)
+        longPressTarget = null
+    }
+
     fun onTouchWhileEditing(event: MotionEvent): Boolean {
         val pointerIndex = event.actionIndex
         val fingerPositionX = event.getX(pointerIndex).toInt()
@@ -339,6 +367,31 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             } else {
                 ""
             }
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                longPressDownX = event.x
+                longPressDownY = event.y
+                longPressTarget = findControlAt(fingerPositionX, fingerPositionY)
+                if (longPressTarget != null) {
+                    longPressHandler.postDelayed(
+                        longPressRunnable,
+                        ViewConfiguration.getLongPressTimeout().toLong()
+                    )
+                }
+            }
+
+            MotionEvent.ACTION_MOVE -> if (longPressTarget != null &&
+                hypot(event.x - longPressDownX, event.y - longPressDownY) >
+                ViewConfiguration.get(context).scaledTouchSlop
+            ) {
+                cancelLongPress()
+            }
+
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_CANCEL,
+            MotionEvent.ACTION_POINTER_DOWN -> cancelLongPress()
+        }
 
         // Maybe combine Button and Joystick as subclasses of the same parent?
         // Or maybe create an interface like IMoveableHUDControl?
@@ -436,6 +489,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun addOverlayControls(orientation: String) {
+        OverlayTheme.refresh()
         if (preferences.getBoolean("buttonToggle0", true)) {
             overlayButtons.add(
                 initializeOverlayButton(
@@ -1129,6 +1183,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
          * @return The scaled [Bitmap]
          */
         private fun getBitmap(context: Context, drawableId: Int, scale: Float): Bitmap {
+            OverlayTheme.loadBitmap(context, drawableId)?.let {
+                return resizeBitmap(context, it, scale)
+            }
             try {
                 val bitmap = BitmapFactory.decodeResource(context.resources, drawableId)
                 return resizeBitmap(context, bitmap, scale)
@@ -1266,6 +1323,13 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
 
             // Need to set the image's position
             overlayDrawable.setPosition(drawableX, drawableY)
+            OverlayTheme.register(
+                overlayDrawable,
+                listOf(
+                    defaultResId to R.string.overlay_theme_image_normal,
+                    pressedResId to R.string.overlay_theme_image_pressed
+                )
+            )
             return overlayDrawable
         }
 
@@ -1342,6 +1406,14 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
 
             // Need to set the image's position
             overlayDrawable.setPosition(drawableX, drawableY)
+            OverlayTheme.register(
+                overlayDrawable,
+                listOf(
+                    defaultResId to R.string.overlay_theme_image_normal,
+                    pressedOneDirectionResId to R.string.overlay_theme_image_dpad_one,
+                    pressedTwoDirectionsResId to R.string.overlay_theme_image_dpad_two
+                )
+            )
             return overlayDrawable
         }
 
@@ -1416,6 +1488,14 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
 
             // Need to set the image's position
             overlayDrawable.setPosition(drawableX, drawableY)
+            OverlayTheme.register(
+                overlayDrawable,
+                listOf(
+                    resOuter to R.string.overlay_theme_image_range,
+                    defaultResInner to R.string.overlay_theme_image_stick,
+                    pressedResInner to R.string.overlay_theme_image_stick_pressed
+                )
+            )
             return overlayDrawable
         }
     }

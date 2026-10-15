@@ -16,11 +16,41 @@
 #endif
 #include "video_core/video_core.h"
 
+#include <atomic>
+#include <mutex>
+
 #ifdef ENABLE_SDL2
 #include <SDL.h>
 #endif
 
 namespace VideoCore {
+
+namespace {
+std::mutex background_mutex;
+BackgroundImageData background_image;
+std::atomic<u64> background_generation{0};
+} // namespace
+
+void SetBackgroundImage(const u32* rgba_pixels, u32 width, u32 height) {
+    std::scoped_lock lock{background_mutex};
+    if (rgba_pixels == nullptr || width == 0 || height == 0) {
+        background_image = {};
+    } else {
+        background_image.pixels.assign(rgba_pixels, rgba_pixels + static_cast<size_t>(width) * height);
+        background_image.width = width;
+        background_image.height = height;
+    }
+    background_generation.fetch_add(1, std::memory_order_release);
+}
+
+u64 GetBackgroundImageGeneration() {
+    return background_generation.load(std::memory_order_acquire);
+}
+
+void GetBackgroundImage(BackgroundImageData& out) {
+    std::scoped_lock lock{background_mutex};
+    out = background_image;
+}
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
                                              Frontend::EmuWindow* secondary_window,

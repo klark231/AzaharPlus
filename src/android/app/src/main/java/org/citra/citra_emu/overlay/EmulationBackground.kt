@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
+import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.R
 import org.citra.citra_emu.utils.Log
 
@@ -64,6 +65,26 @@ object EmulationBackground {
 
     fun clear(context: Context) {
         file(context).delete()
+        applyToRenderer(context)
+    }
+
+    /** Sends the saved image (or none) to the renderer. Safe to call at any time. */
+    fun applyToRenderer(context: Context) {
+        try {
+            val bitmap = load(context)
+            if (bitmap == null) {
+                NativeLibrary.setBackgroundImage(null, 0, 0)
+                return
+            }
+            val width = bitmap.width
+            val height = bitmap.height
+            val pixels = IntArray(width * height)
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+            bitmap.recycle()
+            NativeLibrary.setBackgroundImage(pixels, width, height)
+        } catch (e: Throwable) {
+            Log.error("[EmulationBackground] Cannot apply image: ${e.message}")
+        }
     }
 
     /** Opens the system picker and stores the chosen image. */
@@ -77,6 +98,7 @@ object EmulationBackground {
             if (uri != null) {
                 Thread {
                     val ok = save(activity, uri)
+                    if (ok) applyToRenderer(activity)
                     activity.runOnUiThread {
                         Toast.makeText(
                             activity,

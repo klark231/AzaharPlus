@@ -2,6 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <algorithm>
+#include <cstring>
+
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "common/memory_detect.h"
@@ -14,6 +17,7 @@
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
 #include "video_core/renderer_vulkan/vk_memory_util.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
+#include "video_core/video_core.h"
 
 #include "video_core/host_shaders/vulkan_present_anaglyph_frag.h"
 #include "video_core/host_shaders/vulkan_present_frag.h"
@@ -57,7 +61,7 @@ constexpr std::array<f32, 4 * 4> MakeOrthographicMatrix(u32 width, u32 height) {
 }
 
 constexpr static std::array<vk::DescriptorSetLayoutBinding, 1> PRESENT_BINDINGS = {{
-    {0, vk::DescriptorType::eCombinedImageSampler, 3, vk::ShaderStageFlagBits::eFragment},
+    {0, vk::DescriptorType::eCombinedImageSampler, 4, vk::ShaderStageFlagBits::eFragment},
 }};
 
 namespace {
@@ -151,6 +155,8 @@ RendererVulkan::~RendererVulkan() {
         device.destroySampler(sampler);
     }
 
+    DestroyBackgroundImage();
+
     for (auto& info : screen_infos) {
         device.destroyImageView(info.texture.image_view);
         vmaDestroyImage(instance.GetAllocator(), info.texture.image, info.texture.allocation);
@@ -192,6 +198,10 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
         update_queue.AddImageSampler(present_set, 0, index, screen_infos[index].image_view,
                                      sampler);
     }
+    // Slot 3: user background image (any valid view when none is set, it's never sampled then)
+    update_queue.AddImageSampler(present_set, 0, 3,
+                                 bg_image_view ? bg_image_view : screen_infos[0].image_view,
+                                 present_samplers[0]);
 
     renderpass_cache.EndRendering();
     scheduler.Record([this, layout, frame, present_set,
@@ -256,6 +266,7 @@ void RendererVulkan::RenderToWindow(PresentWindow& window, const Layout::Framebu
         clear_color.float32[2] = Settings::values.bg_blue.GetValue();
         clear_color.float32[3] = 1.0f;
 
+        UpdateBackgroundImage();
         DrawScreens(frame, layout, flipped);
         scheduler.Flush(frame->render_ready);
         window.Present(frame);
@@ -1016,6 +1027,221 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     }
 }
 
+void RendererVulkan::DestroyBackgroundImage() {
+    if (bg_image_view) {
+        instance.GetDevice().destroyImageView(bg_image_view);
+        bg_image_view = vk::ImageView{};
+    }
+    if (bg_image) {
+        vmaDestroyImage(instance.GetAllocator(), bg_image, bg_allocation);
+        bg_image = vk::Image{};
+        bg_allocation = VmaAllocation{};
+    }
+    bg_width = 0;
+    bg_height = 0;
+}
+
+void RendererVulkan::UpdateBackgroundImage() {
+    const u64 generation = VideoCore::GetBackgroundImageGeneration();
+    if (generation == bg_generation) {
+        return;
+    }
+    bg_generation = generation;
+
+    VideoCore::BackgroundImageData data;
+    VideoCore::GetBackgroundImage(data);
+
+    // The old image may still be in use by frames in flight
+    renderpass_cache.EndRendering();
+    scheduler.Finish();
+    DestroyBackgroundImage();
+    if (data.pixels.empty()) {
+        return;
+    }
+
+    const vk::Device device = instance.GetDevice();
+    const VmaAllocator allocator = instance.GetAllocator();
+    const vk::Format format = vk::Format::eR8G8B8A8Unorm;
+    const vk::DeviceSize size = static_cast<vk::DeviceSize>(data.pixels.size()) * sizeof(u32);
+
+    // Device local image
+    const vk::ImageCreateInfo image_info = {
+        .imageType = vk::ImageType::e2D,
+        .format = format,
+        .extent = {data.width, data.height, 1},
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = vk::SampleCountFlagBits::e1,
+        .usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+    };
+    const VmaAllocationCreateInfo image_alloc_info = {
+        .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+    };
+    VkImage unsafe_image{};
+    const VkImageCreateInfo unsafe_image_info = static_cast<VkImageCreateInfo>(image_info);
+    VkResult result = vmaCreateImage(allocator, &unsafe_image_info, &image_alloc_info,
+                                     &unsafe_image, &bg_allocation, nullptr);
+    if (result != VK_SUCCESS) {
+        LOG_ERROR(Render_Vulkan, "Failed allocating background image with error {}", result);
+        bg_allocation = VmaAllocation{};
+        return;
+    }
+    bg_image = vk::Image{unsafe_image};
+
+    const vk::ImageViewCreateInfo view_info = {
+        .image = bg_image,
+        .viewType = vk::ImageViewType::e2D,
+        .format = format,
+        .subresourceRange{
+            .aspectMask = vk::ImageAspectFlagBits::eColor,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    };
+    bg_image_view = device.createImageView(view_info);
+
+    // Staging buffer with the pixels
+    const vk::BufferCreateInfo buffer_info = {
+        .size = size,
+        .usage = vk::BufferUsageFlagBits::eTransferSrc,
+    };
+    const VmaAllocationCreateInfo staging_alloc_info = {
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                 VMA_ALLOCATION_CREATE_MAPPED_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST,
+    };
+    VkBuffer unsafe_staging{};
+    VmaAllocation staging_allocation{};
+    VmaAllocationInfo staging_info{};
+    const VkBufferCreateInfo unsafe_buffer_info = static_cast<VkBufferCreateInfo>(buffer_info);
+    result = vmaCreateBuffer(allocator, &unsafe_buffer_info, &staging_alloc_info, &unsafe_staging,
+                             &staging_allocation, &staging_info);
+    if (result != VK_SUCCESS || staging_info.pMappedData == nullptr) {
+        LOG_ERROR(Render_Vulkan, "Failed allocating background staging buffer with error {}",
+                  result);
+        if (result == VK_SUCCESS) {
+            vmaDestroyBuffer(allocator, unsafe_staging, staging_allocation);
+        }
+        DestroyBackgroundImage();
+        return;
+    }
+    std::memcpy(staging_info.pMappedData, data.pixels.data(), size);
+    vmaFlushAllocation(allocator, staging_allocation, 0, size);
+
+    const vk::Buffer staging{unsafe_staging};
+    scheduler.Record([image = bg_image, staging, width = data.width,
+                      height = data.height](vk::CommandBuffer cmdbuf) {
+        const vk::ImageSubresourceRange range = {
+            .aspectMask = vk::ImageAspectFlagBits::eColor,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        };
+        const vk::ImageMemoryBarrier pre_barrier = {
+            .srcAccessMask = vk::AccessFlags{},
+            .dstAccessMask = vk::AccessFlagBits::eTransferWrite,
+            .oldLayout = vk::ImageLayout::eUndefined,
+            .newLayout = vk::ImageLayout::eTransferDstOptimal,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image,
+            .subresourceRange = range,
+        };
+        const vk::ImageMemoryBarrier post_barrier = {
+            .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
+            .dstAccessMask = vk::AccessFlagBits::eShaderRead,
+            .oldLayout = vk::ImageLayout::eTransferDstOptimal,
+            .newLayout = vk::ImageLayout::eGeneral,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image,
+            .subresourceRange = range,
+        };
+        const vk::BufferImageCopy region = {
+            .bufferOffset = 0,
+            .bufferRowLength = 0,
+            .bufferImageHeight = 0,
+            .imageSubresource =
+                {
+                    .aspectMask = vk::ImageAspectFlagBits::eColor,
+                    .mipLevel = 0,
+                    .baseArrayLayer = 0,
+                    .layerCount = 1,
+                },
+            .imageOffset = {0, 0, 0},
+            .imageExtent = {width, height, 1},
+        };
+
+        cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+                               vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags{}, {},
+                               {}, pre_barrier);
+        cmdbuf.copyBufferToImage(staging, image, vk::ImageLayout::eTransferDstOptimal, region);
+        cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                               vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlags{},
+                               {}, {}, post_barrier);
+    });
+    // Wait for the copy so the staging buffer can be released
+    scheduler.Finish();
+    vmaDestroyBuffer(allocator, unsafe_staging, staging_allocation);
+
+    bg_width = data.width;
+    bg_height = data.height;
+}
+
+void RendererVulkan::DrawBackground(const Layout::FramebufferLayout& layout) {
+    if (!bg_image_view || bg_width == 0 || bg_height == 0) {
+        return;
+    }
+
+    // Scale to cover the whole surface, cropping the overflow equally on both sides
+    const float lw = static_cast<float>(layout.width);
+    const float lh = static_cast<float>(layout.height);
+    const float scale =
+        std::max(lw / static_cast<float>(bg_width), lh / static_cast<float>(bg_height));
+    const float fu = std::min(1.0f, lw / (static_cast<float>(bg_width) * scale));
+    const float fv = std::min(1.0f, lh / (static_cast<float>(bg_height) * scale));
+    const float u0 = (1.0f - fu) * 0.5f;
+    const float v0 = (1.0f - fv) * 0.5f;
+    const float u1 = u0 + fu;
+    const float v1 = v0 + fv;
+
+    const std::array<ScreenRectVertex, 4> vertices = {{
+        ScreenRectVertex(0.0f, 0.0f, u0, v0),
+        ScreenRectVertex(lw, 0.0f, u1, v0),
+        ScreenRectVertex(0.0f, lh, u0, v1),
+        ScreenRectVertex(lw, lh, u1, v1),
+    }};
+
+    const u64 size = sizeof(ScreenRectVertex) * vertices.size();
+    auto [data, offset, invalidate] = vertex_buffer.Map(size, 16);
+    std::memcpy(data, vertices.data(), size);
+    vertex_buffer.Commit(size);
+
+    PresentUniformData info = draw_info;
+    info.i_resolution = Common::MakeVec(static_cast<f32>(bg_width) / 100.0f,
+                                        static_cast<f32>(bg_height) / 100.0f,
+                                        100.0f / static_cast<f32>(bg_width),
+                                        100.0f / static_cast<f32>(bg_height));
+    info.o_resolution = Common::MakeVec(lh, lw, 1.0f / lh, 1.0f / lw);
+    info.screen_id_l = 3;
+    info.screen_id_r = 3;
+    info.layer = 0;
+
+    scheduler.Record([this, offset = offset, info](vk::CommandBuffer cmdbuf) {
+        const u32 first_vertex = static_cast<u32>(offset) / sizeof(ScreenRectVertex);
+        cmdbuf.pushConstants(*present_pipeline_layout,
+                             vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex,
+                             0, sizeof(info), &info);
+
+        cmdbuf.bindVertexBuffers(0, vertex_buffer.Handle(), {0});
+        cmdbuf.draw(4, 1, first_vertex, 0);
+    });
+}
+
 void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& layout,
                                  bool flipped) {
     if (settings.bg_color_update_requested.exchange(false)) {
@@ -1037,6 +1263,8 @@ void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& 
 
     // Apply the initial default opacity value; Needed to avoid flickering
     ApplySecondLayerOpacity(1.0f);
+
+    DrawBackground(layout);
 
     if (!Settings::values.swap_screen.GetValue()) {
         DrawTopScreen(layout, top_screen);

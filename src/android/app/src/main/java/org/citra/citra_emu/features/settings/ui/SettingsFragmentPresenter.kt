@@ -2466,7 +2466,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.emulation_background,
                     R.string.emulation_background_description,
                     true,
-                    R.drawable.ic_install,
+                    0,
                     {
                         EmulationBackground.pick(settingsActivity) {
                             fragmentView.loadSettingsList()

@@ -65,6 +65,8 @@ private:
                                      const Pica::FramebufferConfig& framebuffer,
                                      const Pica::ColorFill& color_fill);
     void DrawScreens(const Layout::FramebufferLayout& layout, bool flipped);
+    void UpdateBackgroundImage();
+    void DrawBackground(const Layout::FramebufferLayout& layout, bool flipped);
     void ApplySecondLayerOpacity(float opacity = 1.0f);
     void ResetSecondLayerOpacity();
     void DrawBottomScreen(const Layout::FramebufferLayout& layout,
@@ -91,6 +93,13 @@ private:
     OGLVertexArray vertex_array;
     OGLBuffer vertex_buffer;
     OGLProgram shader;
+    OGLProgram bg_shader;
+    OGLTexture bg_texture;
+    u32 bg_width = 0;
+    u32 bg_height = 0;
+    u64 bg_generation = 0;
+    GLint bg_uniform_modelview_matrix = -1;
+    GLint bg_uniform_color_texture = -1;
     OGLFramebuffer screenshot_framebuffer;
     std::array<OGLSampler, 2> samplers;
 

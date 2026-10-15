@@ -18,7 +18,7 @@ layout (push_constant, std140) uniform DrawInfo {
     int reverse_interlaced;
 };
 
-layout (set = 0, binding = 0) uniform sampler2D screen_textures[3];
+layout (set = 0, binding = 0) uniform sampler2D screen_textures[4];
 
 vec4 GetScreen(int screen_id) {
 #ifdef ARRAY_DYNAMIC_INDEX
@@ -31,6 +31,8 @@ vec4 GetScreen(int screen_id) {
         return texture(screen_textures[1], frag_tex_coord);
     case 2:
         return texture(screen_textures[2], frag_tex_coord);
+    case 3:
+        return texture(screen_textures[3], frag_tex_coord);
     }
 #endif
 }

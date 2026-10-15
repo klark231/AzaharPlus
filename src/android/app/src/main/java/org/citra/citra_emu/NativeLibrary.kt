@@ -132,6 +132,12 @@ object NativeLibrary {
      */
     external fun getFramebufferLayout(): FloatArray
 
+    /**
+     * Sets the image drawn behind the emulated screens. ARGB pixels, row 0 on top.
+     * Passing null removes the background.
+     */
+    external fun setBackgroundImage(pixels: IntArray?, width: Int, height: Int)
+
     external fun reloadSettings()
 
     external fun getTitleId(filename: String): Long

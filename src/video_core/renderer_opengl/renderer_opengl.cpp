@@ -2,6 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <algorithm>
+
 #include "common/logging/log.h"
 #include "common/microprofile.h"
 #include "common/settings.h"
@@ -15,6 +17,7 @@
 #include "video_core/renderer_opengl/post_processing_opengl.h"
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/shader/generator/glsl_shader_gen.h"
+#include "video_core/video_core.h"
 
 #include "video_core/host_shaders/opengl_present_anaglyph_frag.h"
 #include "video_core/host_shaders/opengl_present_frag.h"
@@ -674,7 +677,97 @@ void RendererOpenGL::DrawSingleScreenStereo(const ScreenInfo& screen_info_l,
 /**
  * Draws the emulated screens to the emulator window.
  */
+void RendererOpenGL::UpdateBackgroundImage() {
+    const u64 generation = VideoCore::GetBackgroundImageGeneration();
+    if (generation == bg_generation) {
+        return;
+    }
+    bg_generation = generation;
+
+    VideoCore::BackgroundImageData data;
+    VideoCore::GetBackgroundImage(data);
+
+    bg_texture.Release();
+    bg_width = 0;
+    bg_height = 0;
+    if (data.pixels.empty()) {
+        return;
+    }
+
+    bg_texture.Create();
+    state.texture_units[0].texture_2d = bg_texture.handle;
+    state.Apply();
+    glActiveTexture(GL_TEXTURE0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(data.width),
+                 static_cast<GLsizei>(data.height), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 data.pixels.data());
+    state.texture_units[0].texture_2d = 0;
+    state.Apply();
+
+    bg_width = data.width;
+    bg_height = data.height;
+
+    if (bg_shader.handle == 0) {
+        // Plain present shader (no post-processing) so the image is shown unmodified
+        std::string frag_source = fragment_shader_precision_OES;
+        frag_source += HostShaders::OPENGL_PRESENT_FRAG;
+        bg_shader.Create(HostShaders::OPENGL_PRESENT_VERT, frag_source);
+        bg_uniform_modelview_matrix = glGetUniformLocation(bg_shader.handle, "modelview_matrix");
+        bg_uniform_color_texture = glGetUniformLocation(bg_shader.handle, "color_texture");
+    }
+}
+
+void RendererOpenGL::DrawBackground(const Layout::FramebufferLayout& layout, bool flipped) {
+    if (bg_texture.handle == 0 || bg_shader.handle == 0 || bg_width == 0 || bg_height == 0) {
+        return;
+    }
+
+    // Scale to cover the whole surface, cropping the overflow equally on both sides
+    const float lw = static_cast<float>(layout.width);
+    const float lh = static_cast<float>(layout.height);
+    const float scale =
+        std::max(lw / static_cast<float>(bg_width), lh / static_cast<float>(bg_height));
+    const float fu = std::min(1.0f, lw / (static_cast<float>(bg_width) * scale));
+    const float fv = std::min(1.0f, lh / (static_cast<float>(bg_height) * scale));
+    const float u0 = (1.0f - fu) * 0.5f;
+    const float v0 = (1.0f - fv) * 0.5f;
+    const float u1 = u0 + fu;
+    const float v1 = v0 + fv;
+
+    const std::array<ScreenRectVertex, 4> vertices = {{
+        ScreenRectVertex(0.0f, 0.0f, u0, v0),
+        ScreenRectVertex(lw, 0.0f, u1, v0),
+        ScreenRectVertex(0.0f, lh, u0, v1),
+        ScreenRectVertex(lw, lh, u1, v1),
+    }};
+
+    state.draw.shader_program = bg_shader.handle;
+    state.texture_units[0].texture_2d = bg_texture.handle;
+    state.texture_units[0].sampler = samplers[1].handle; // linear
+    state.Apply();
+
+    const std::array<GLfloat, 3 * 2> ortho_matrix = MakeOrthographicMatrix(lw, lh, flipped);
+    glUniformMatrix3x2fv(bg_uniform_modelview_matrix, 1, GL_FALSE, ortho_matrix.data());
+    glUniform1i(bg_uniform_color_texture, 0);
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    state.draw.shader_program = shader.handle;
+    state.texture_units[0].texture_2d = 0;
+    state.texture_units[0].sampler = 0;
+    state.Apply();
+}
+
 void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool flipped) {
+    UpdateBackgroundImage();
+
     if (settings.bg_color_update_requested.exchange(false)) {
         // Update background color before drawing
         glClearColor(Settings::values.bg_red.GetValue(), Settings::values.bg_green.GetValue(),
@@ -695,6 +788,7 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool f
     if (render_window.NeedsClearing()) {
         glClear(GL_COLOR_BUFFER_BIT);
     }
+    DrawBackground(layout, flipped);
 
     // Set projection matrix
     std::array<GLfloat, 3 * 2> ortho_matrix =

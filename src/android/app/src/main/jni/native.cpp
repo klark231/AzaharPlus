@@ -75,6 +75,7 @@
 #include "video_core/debug_utils/debug_utils.h"
 #include "video_core/gpu.h"
 #include "video_core/renderer_base.h"
+#include "video_core/video_core.h"
 
 namespace {
 
@@ -1070,6 +1071,30 @@ jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getFramebufferLayout(JNIEnv*
     };
     env->SetFloatArrayRegion(result, 0, 10, values);
     return result;
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setBackgroundImage(JNIEnv* env,
+                                                                [[maybe_unused]] jobject obj,
+                                                                jintArray jpixels, jint width,
+                                                                jint height) {
+    if (jpixels == nullptr || width <= 0 || height <= 0 ||
+        env->GetArrayLength(jpixels) < static_cast<jsize>(width) * height) {
+        VideoCore::SetBackgroundImage(nullptr, 0, 0);
+        return;
+    }
+
+    jint* argb = env->GetIntArrayElements(jpixels, nullptr);
+    if (argb == nullptr) {
+        return;
+    }
+    // Android gives ARGB; the renderers want RGBA8 bytes (R first, little endian)
+    std::vector<u32> rgba(static_cast<size_t>(width) * height);
+    for (size_t i = 0; i < rgba.size(); ++i) {
+        const u32 p = static_cast<u32>(argb[i]);
+        rgba[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | 0xFF000000u;
+    }
+    env->ReleaseIntArrayElements(jpixels, argb, JNI_ABORT);
+    VideoCore::SetBackgroundImage(rgba.data(), static_cast<u32>(width), static_cast<u32>(height));
 }
 
 void Java_org_citra_citra_1emu_NativeLibrary_onTouchMoved([[maybe_unused]] JNIEnv* env,

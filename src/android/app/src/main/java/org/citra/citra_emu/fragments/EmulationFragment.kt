@@ -87,6 +87,7 @@ import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.model.Game
 import org.citra.citra_emu.overlay.ChatOverlayManager
+import org.citra.citra_emu.overlay.EmulationBackground
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos_series
 import org.citra.citra_emu.utils.AmiiboUsageDatabase
@@ -250,9 +251,9 @@ class EmulationFragment :
         }
 
         binding.surfaceEmulation.holder.addCallback(this)
-        binding.surfaceEmulationBackground.target = binding.surfaceEmulation
-        binding.surfaceEmulationBackground.overlay = binding.surfaceInputOverlay
-        binding.surfaceInputOverlay.backgroundView = binding.surfaceEmulationBackground
+        // Hand the saved background image (if any) to the renderer
+        val appContext = requireContext().applicationContext
+        Thread { EmulationBackground.applyToRenderer(appContext) }.start()
         binding.doneControlConfig.setOnClickListener {
             binding.doneControlConfig.visibility = View.GONE
             binding.surfaceInputOverlay.setIsInEditMode(false)
@@ -582,7 +583,6 @@ class EmulationFragment :
     }
 
     override fun onResume() {
-        _binding?.surfaceEmulationBackground?.reload()
         super.onResume()
         // Make sure the renderer presents again (no-op if it was never suspended)
         NativeLibrary.setPresentationSuspended(false)

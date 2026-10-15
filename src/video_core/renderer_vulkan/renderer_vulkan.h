@@ -100,6 +100,9 @@ private:
                         bool flipped);
 
     void DrawScreens(Frame* frame, const Layout::FramebufferLayout& layout, bool flipped);
+    void UpdateBackgroundImage();
+    void DestroyBackgroundImage();
+    void DrawBackground(const Layout::FramebufferLayout& layout);
     void DrawBottomScreen(const Layout::FramebufferLayout& layout,
                           const Common::Rectangle<u32>& bottom_screen);
 
@@ -143,6 +146,12 @@ private:
     u32 current_pipeline = 0;
 
     std::array<ScreenInfo, 3> screen_infos{};
+    vk::Image bg_image{};
+    vk::ImageView bg_image_view{};
+    VmaAllocation bg_allocation{};
+    u32 bg_width = 0;
+    u32 bg_height = 0;
+    u64 bg_generation = 0;
     PresentUniformData draw_info{};
     vk::ClearColorValue clear_color{};
 

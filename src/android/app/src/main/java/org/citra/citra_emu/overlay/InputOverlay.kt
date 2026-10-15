@@ -96,11 +96,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         requestFocus()
     }
 
-    /** Set by the emulation screen so the background is painted from this (always on top) view. */
-    var backgroundView: EmulationBackgroundView? = null
-
     override fun draw(canvas: Canvas) {
-        backgroundView?.drawBackground(canvas)
         super.draw(canvas)
         overlayButtons.forEach { it.draw(canvas) }
         overlayDpads.forEach { it.draw(canvas) }

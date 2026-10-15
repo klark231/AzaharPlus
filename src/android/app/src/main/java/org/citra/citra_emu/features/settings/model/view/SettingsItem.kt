@@ -53,5 +53,6 @@ abstract class SettingsItem(
         const val TYPE_FLOAT_INPUT = 10
         const val TYPE_MULTI_CHOICE = 11
         const val TYPE_OVERLAY_THEME = 12
+        const val TYPE_EMULATION_BACKGROUND = 13
     }
 }

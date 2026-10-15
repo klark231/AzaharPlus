@@ -860,10 +860,10 @@
     <string name="overlay_theme_menu_rename">Rename</string>
     <string name="overlay_theme_menu_delete">Delete</string>
     <string name="overlay_theme_delete_confirm">Delete %1$s and all of its images?</string>
-    <string name="emulation_background_portrait">Portrait background</string>
-    <string name="emulation_background_portrait_description">Image shown behind the game screens in portrait. Tap to pick, long-press to remove.</string>
-    <string name="emulation_background_landscape">Landscape background</string>
-    <string name="emulation_background_landscape_description">Image shown behind the game screens in landscape. Tap to pick, long-press to remove. Used for portrait too if no portrait image is set.</string>
+    <string name="emulation_background">Emulation background</string>
+    <string name="emulation_background_description">Tap to pick or crop an image. Long-press to remove it.</string>
+    <string name="emulation_background_label_portrait">Portrait</string>
+    <string name="emulation_background_label_landscape">Landscape</string>
     <string name="emulation_background_set">Background image set</string>
     <string name="emulation_background_failed">Couldn\'t load that image</string>
     <string name="emulation_background_crop_hint">Drag to move, pinch to zoom. The framed area is what the game will show.</string>
@@ -871,8 +871,6 @@
     <string name="emulation_background_hide_screens">Hide screens</string>
     <string name="emulation_background_crop_done">Save</string>
     <string name="emulation_background_removed">Background image removed</string>
-    <string name="emulation_background_current">Custom</string>
-    <string name="emulation_background_none">None</string>
     <string name="overlay_theme_import">Import Theme</string>
     <string name="overlay_theme_import_description">Adds a theme from a .zip file</string>
     <string name="overlay_theme_import_done">Theme %1$s imported</string>

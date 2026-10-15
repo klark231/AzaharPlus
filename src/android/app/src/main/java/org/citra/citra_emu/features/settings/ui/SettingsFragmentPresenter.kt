@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.citra.citra_emu.BuildConfig
 import org.citra.citra_emu.CitraApplication
+import org.citra.citra_emu.features.settings.model.view.EmulationBackgroundSetting
 import org.citra.citra_emu.features.settings.model.view.OverlayThemeSetting
 import org.citra.citra_emu.overlay.EmulationBackground
 import org.citra.citra_emu.overlay.OverlayTheme
@@ -2461,69 +2462,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
-            add(
-                RunnableSetting(
-                    R.string.emulation_background_portrait,
-                    R.string.emulation_background_portrait_description,
-                    true,
-                    0,
-                    {
-                        EmulationBackground.pick(settingsActivity, true) {
-                            fragmentView.loadSettingsList()
-                        }
-                    },
-                    {
-                        settingsActivity.getString(
-                            if (EmulationBackground.exists(settingsActivity, true)) {
-                                R.string.emulation_background_current
-                            } else {
-                                R.string.emulation_background_none
-                            }
-                        )
-                    },
-                    {
-                        EmulationBackground.clear(settingsActivity, true)
-                        fragmentView.showToastMessage(
-                            settingsActivity.getString(R.string.emulation_background_removed),
-                            false
-                        )
-                        fragmentView.loadSettingsList()
-                        true
-                    }
-                )
-            )
-
-            add(
-                RunnableSetting(
-                    R.string.emulation_background_landscape,
-                    R.string.emulation_background_landscape_description,
-                    true,
-                    0,
-                    {
-                        EmulationBackground.pick(settingsActivity, false) {
-                            fragmentView.loadSettingsList()
-                        }
-                    },
-                    {
-                        settingsActivity.getString(
-                            if (EmulationBackground.exists(settingsActivity, false)) {
-                                R.string.emulation_background_current
-                            } else {
-                                R.string.emulation_background_none
-                            }
-                        )
-                    },
-                    {
-                        EmulationBackground.clear(settingsActivity, false)
-                        fragmentView.showToastMessage(
-                            settingsActivity.getString(R.string.emulation_background_removed),
-                            false
-                        )
-                        fragmentView.loadSettingsList()
-                        true
-                    }
-                )
-            )
+            add(EmulationBackgroundSetting())
 
             OverlayTheme.ensureThemeFolder()
             add(OverlayThemeSetting())

@@ -42,6 +42,27 @@ object EmulationBackground {
         }
     }
 
+    /** Small version of the saved image for previews, or null if none is set. */
+    fun loadThumbnail(context: Context, portrait: Boolean, maxSize: Int): Bitmap? {
+        val f = file(context, portrait)
+        if (!f.isFile) return null
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(f.absolutePath, bounds)
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= maxSize) {
+                sample *= 2
+            }
+            BitmapFactory.decodeFile(
+                f.absolutePath,
+                BitmapFactory.Options().apply { inSampleSize = sample }
+            )
+        } catch (e: Exception) {
+            Log.error("[EmulationBackground] Cannot load thumbnail: ${e.message}")
+            null
+        }
+    }
+
     /** Decodes a picked image, downscaled if huge. */
     private fun decode(context: Context, source: Uri): Bitmap? {
         return try {

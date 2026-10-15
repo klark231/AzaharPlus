@@ -37,6 +37,7 @@
 #include "common/thread.h"
 #include "common/string_util.h"
 #include "core/core.h"
+#include "core/frontend/framebuffer_layout.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/frontend/camera/factory.h"
 #include "core/hle/service/am/am.h"
@@ -1075,11 +1076,12 @@ jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getFramebufferLayout(JNIEnv*
 
 void Java_org_citra_citra_1emu_NativeLibrary_setBackgroundImage(JNIEnv* env,
                                                                 [[maybe_unused]] jobject obj,
+                                                                jboolean portrait,
                                                                 jintArray jpixels, jint width,
                                                                 jint height) {
     if (jpixels == nullptr || width <= 0 || height <= 0 ||
         env->GetArrayLength(jpixels) < static_cast<jsize>(width) * height) {
-        VideoCore::SetBackgroundImage(nullptr, 0, 0);
+        VideoCore::SetBackgroundImage(portrait != JNI_FALSE, nullptr, 0, 0);
         return;
     }
 
@@ -1094,7 +1096,89 @@ void Java_org_citra_citra_1emu_NativeLibrary_setBackgroundImage(JNIEnv* env,
         rgba[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | 0xFF000000u;
     }
     env->ReleaseIntArrayElements(jpixels, argb, JNI_ABORT);
-    VideoCore::SetBackgroundImage(rgba.data(), static_cast<u32>(width), static_cast<u32>(height));
+    VideoCore::SetBackgroundImage(portrait != JNI_FALSE, rgba.data(), static_cast<u32>(width),
+                                  static_cast<u32>(height));
+}
+
+/**
+ * Returns where the screens end up for a surface of the given size, using the current layout
+ * settings. Works without a running game. Format: [width, height, then left, top, right, bottom
+ * for every visible screen]. Mirrors EmuWindow::UpdateCurrentFramebufferLayout.
+ */
+jfloatArray Java_org_citra_citra_1emu_NativeLibrary_getLayoutPreview(
+    JNIEnv* env, [[maybe_unused]] jobject obj, jint jwidth, jint jheight, jboolean jportrait) {
+    const bool is_portrait_mode = jportrait != JNI_FALSE;
+    const bool swapped = Settings::values.swap_screen.GetValue();
+    const bool upright = Settings::values.upright_screen.GetValue();
+    const Settings::LayoutOption layout_option = Settings::values.layout_option.GetValue();
+
+    const auto min_size = is_portrait_mode ? Layout::GetMinimumSizeFromPortraitLayout()
+                                           : Layout::GetMinimumSizeFromLayout(layout_option, upright);
+    const u32 width = std::max(static_cast<u32>(std::max<jint>(jwidth, 1)), min_size.first);
+    const u32 height = std::max(static_cast<u32>(std::max<jint>(jheight, 1)), min_size.second);
+
+    Layout::FramebufferLayout layout;
+    if (is_portrait_mode) {
+        switch (Settings::values.portrait_layout_option.GetValue()) {
+        case Settings::PortraitLayoutOption::PortraitCustomLayout:
+            layout = Layout::CustomFrameLayout(width, height, swapped, is_portrait_mode);
+            break;
+        case Settings::PortraitLayoutOption::PortraitOriginal:
+            layout = Layout::PortraitOriginalLayout(width, height, swapped, upright);
+            break;
+        case Settings::PortraitLayoutOption::PortraitTopFullWidth:
+        default:
+            layout = Layout::PortraitTopFullFrameLayout(width, height, swapped, upright);
+            break;
+        }
+    } else {
+        switch (layout_option) {
+        case Settings::LayoutOption::CustomLayout:
+            layout = Layout::CustomFrameLayout(width, height, swapped, is_portrait_mode);
+            break;
+        case Settings::LayoutOption::SingleScreen:
+            layout = Layout::SingleFrameLayout(width, height, swapped, upright);
+            break;
+        case Settings::LayoutOption::LargeScreen:
+            layout = Layout::LargeFrameLayout(width, height, swapped, upright,
+                                              Settings::values.large_screen_proportion.GetValue(),
+                                              Settings::values.small_screen_position.GetValue());
+            break;
+        case Settings::LayoutOption::HybridScreen:
+            layout = Layout::HybridScreenLayout(width, height, swapped, upright);
+            break;
+        case Settings::LayoutOption::SideScreen:
+            layout = Layout::LargeFrameLayout(width, height, swapped, upright, 1.0f,
+                                              Settings::SmallScreenPosition::MiddleRight);
+            break;
+        case Settings::LayoutOption::Default:
+        default:
+            layout = Layout::DefaultFrameLayout(width, height, swapped, upright);
+            break;
+        }
+    }
+
+    std::vector<jfloat> values;
+    values.push_back(static_cast<jfloat>(layout.width));
+    values.push_back(static_cast<jfloat>(layout.height));
+    const auto add_screen = [&values](bool enabled, const auto& rect) {
+        if (!enabled || rect.right <= rect.left || rect.bottom <= rect.top) {
+            return;
+        }
+        values.push_back(static_cast<jfloat>(rect.left));
+        values.push_back(static_cast<jfloat>(rect.top));
+        values.push_back(static_cast<jfloat>(rect.right));
+        values.push_back(static_cast<jfloat>(rect.bottom));
+    };
+    add_screen(layout.top_screen_enabled, layout.top_screen);
+    add_screen(layout.bottom_screen_enabled, layout.bottom_screen);
+    add_screen(layout.additional_screen_enabled, layout.additional_screen);
+
+    jfloatArray result = env->NewFloatArray(static_cast<jsize>(values.size()));
+    if (result != nullptr) {
+        env->SetFloatArrayRegion(result, 0, static_cast<jsize>(values.size()), values.data());
+    }
+    return result;
 }
 
 void Java_org_citra_citra_1emu_NativeLibrary_onTouchMoved([[maybe_unused]] JNIEnv* env,

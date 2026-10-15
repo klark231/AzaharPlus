@@ -27,18 +27,19 @@ namespace VideoCore {
 
 namespace {
 std::mutex background_mutex;
-BackgroundImageData background_image;
+BackgroundImageData background_images[2]; // [0] landscape, [1] portrait
 std::atomic<u64> background_generation{0};
 } // namespace
 
-void SetBackgroundImage(const u32* rgba_pixels, u32 width, u32 height) {
+void SetBackgroundImage(bool portrait, const u32* rgba_pixels, u32 width, u32 height) {
     std::scoped_lock lock{background_mutex};
+    auto& image = background_images[portrait ? 1 : 0];
     if (rgba_pixels == nullptr || width == 0 || height == 0) {
-        background_image = {};
+        image = {};
     } else {
-        background_image.pixels.assign(rgba_pixels, rgba_pixels + static_cast<size_t>(width) * height);
-        background_image.width = width;
-        background_image.height = height;
+        image.pixels.assign(rgba_pixels, rgba_pixels + static_cast<size_t>(width) * height);
+        image.width = width;
+        image.height = height;
     }
     background_generation.fetch_add(1, std::memory_order_release);
 }
@@ -47,9 +48,11 @@ u64 GetBackgroundImageGeneration() {
     return background_generation.load(std::memory_order_acquire);
 }
 
-void GetBackgroundImage(BackgroundImageData& out) {
+void GetBackgroundImage(bool portrait, BackgroundImageData& out) {
     std::scoped_lock lock{background_mutex};
-    out = background_image;
+    const auto& preferred = background_images[portrait ? 1 : 0];
+    const auto& other = background_images[portrait ? 0 : 1];
+    out = preferred.pixels.empty() ? other : preferred;
 }
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,

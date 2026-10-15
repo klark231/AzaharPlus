@@ -100,7 +100,7 @@ private:
                         bool flipped);
 
     void DrawScreens(Frame* frame, const Layout::FramebufferLayout& layout, bool flipped);
-    void UpdateBackgroundImage();
+    void UpdateBackgroundImage(const Layout::FramebufferLayout& layout);
     void DestroyBackgroundImage();
     void DrawBackground(const Layout::FramebufferLayout& layout);
     void DrawBottomScreen(const Layout::FramebufferLayout& layout,
@@ -152,6 +152,7 @@ private:
     u32 bg_width = 0;
     u32 bg_height = 0;
     u64 bg_generation = 0;
+    bool bg_portrait = false;
     PresentUniformData draw_info{};
     vk::ClearColorValue clear_color{};
 

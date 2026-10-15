@@ -133,10 +133,16 @@ object NativeLibrary {
     external fun getFramebufferLayout(): FloatArray
 
     /**
-     * Sets the image drawn behind the emulated screens. ARGB pixels, row 0 on top.
-     * Passing null removes the background.
+     * Where the screens end up on a surface of this size with the current layout settings, no
+     * running game needed. [width, height, then left, top, right, bottom per visible screen].
      */
-    external fun setBackgroundImage(pixels: IntArray?, width: Int, height: Int)
+    external fun getLayoutPreview(width: Int, height: Int, portrait: Boolean): FloatArray
+
+    /**
+     * Sets the image drawn behind the emulated screens for portrait or landscape.
+     * ARGB pixels, row 0 on top. Passing null removes that background.
+     */
+    external fun setBackgroundImage(portrait: Boolean, pixels: IntArray?, width: Int, height: Int)
 
     external fun reloadSettings()
 

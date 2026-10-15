@@ -31,15 +31,17 @@ struct BackgroundImageData {
     u32 height = 0;
 };
 
-/// Sets the background image. Passing nullptr or a zero size removes it. Thread safe.
-void SetBackgroundImage(const u32* rgba_pixels, u32 width, u32 height);
+/// Sets the portrait or landscape background image. Passing nullptr or a zero size removes it.
+/// Thread safe.
+void SetBackgroundImage(bool portrait, const u32* rgba_pixels, u32 width, u32 height);
 
 /// Increases every time the background image changes; renderers compare it to know when to
 /// re-upload.
 u64 GetBackgroundImageGeneration();
 
-/// Copies the current background image.
-void GetBackgroundImage(BackgroundImageData& out);
+/// Copies the background image for the requested orientation. If that one isn't set, the other
+/// orientation's image is used instead (empty if neither is set).
+void GetBackgroundImage(bool portrait, BackgroundImageData& out);
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
                                              Frontend::EmuWindow* secondary_window,

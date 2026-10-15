@@ -266,7 +266,7 @@ void RendererVulkan::RenderToWindow(PresentWindow& window, const Layout::Framebu
         clear_color.float32[2] = Settings::values.bg_blue.GetValue();
         clear_color.float32[3] = 1.0f;
 
-        UpdateBackgroundImage();
+        UpdateBackgroundImage(layout);
         DrawScreens(frame, layout, flipped);
         scheduler.Flush(frame->render_ready);
         window.Present(frame);
@@ -1041,15 +1041,18 @@ void RendererVulkan::DestroyBackgroundImage() {
     bg_height = 0;
 }
 
-void RendererVulkan::UpdateBackgroundImage() {
+void RendererVulkan::UpdateBackgroundImage(const Layout::FramebufferLayout& layout) {
+    // The secondary window can have a different orientation; only follow the main one
+    const bool portrait = isSecondaryWindow ? bg_portrait : layout.height > layout.width;
     const u64 generation = VideoCore::GetBackgroundImageGeneration();
-    if (generation == bg_generation) {
+    if (generation == bg_generation && portrait == bg_portrait) {
         return;
     }
     bg_generation = generation;
+    bg_portrait = portrait;
 
     VideoCore::BackgroundImageData data;
-    VideoCore::GetBackgroundImage(data);
+    VideoCore::GetBackgroundImage(portrait, data);
 
     // The old image may still be in use by frames in flight
     renderpass_cache.EndRendering();

@@ -677,15 +677,18 @@ void RendererOpenGL::DrawSingleScreenStereo(const ScreenInfo& screen_info_l,
 /**
  * Draws the emulated screens to the emulator window.
  */
-void RendererOpenGL::UpdateBackgroundImage() {
+void RendererOpenGL::UpdateBackgroundImage(const Layout::FramebufferLayout& layout) {
+    // The secondary window can have a different orientation; only follow the main one
+    const bool portrait = isSecondaryWindow ? bg_portrait : layout.height > layout.width;
     const u64 generation = VideoCore::GetBackgroundImageGeneration();
-    if (generation == bg_generation) {
+    if (generation == bg_generation && portrait == bg_portrait) {
         return;
     }
     bg_generation = generation;
+    bg_portrait = portrait;
 
     VideoCore::BackgroundImageData data;
-    VideoCore::GetBackgroundImage(data);
+    VideoCore::GetBackgroundImage(portrait, data);
 
     bg_texture.Release();
     bg_width = 0;
@@ -766,7 +769,7 @@ void RendererOpenGL::DrawBackground(const Layout::FramebufferLayout& layout, boo
 }
 
 void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool flipped) {
-    UpdateBackgroundImage();
+    UpdateBackgroundImage(layout);
 
     if (settings.bg_color_update_requested.exchange(false)) {
         // Update background color before drawing

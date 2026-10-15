@@ -65,7 +65,7 @@ private:
                                      const Pica::FramebufferConfig& framebuffer,
                                      const Pica::ColorFill& color_fill);
     void DrawScreens(const Layout::FramebufferLayout& layout, bool flipped);
-    void UpdateBackgroundImage();
+    void UpdateBackgroundImage(const Layout::FramebufferLayout& layout);
     void DrawBackground(const Layout::FramebufferLayout& layout, bool flipped);
     void ApplySecondLayerOpacity(float opacity = 1.0f);
     void ResetSecondLayerOpacity();
@@ -98,6 +98,7 @@ private:
     u32 bg_width = 0;
     u32 bg_height = 0;
     u64 bg_generation = 0;
+    bool bg_portrait = false;
     GLint bg_uniform_modelview_matrix = -1;
     GLint bg_uniform_color_texture = -1;
     OGLFramebuffer screenshot_framebuffer;

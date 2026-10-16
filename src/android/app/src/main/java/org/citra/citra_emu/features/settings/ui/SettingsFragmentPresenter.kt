@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.citra.citra_emu.BuildConfig
 import org.citra.citra_emu.CitraApplication
+import org.citra.citra_emu.features.settings.model.view.ChatOverlayPreviewSetting
 import org.citra.citra_emu.features.settings.model.view.EmulationBackgroundSetting
 import org.citra.citra_emu.features.settings.model.view.OverlayThemeSetting
 import org.citra.citra_emu.overlay.EmulationBackground
@@ -158,6 +159,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
         sl.removeAll { item ->
             when (item.type) {
                 SettingsItem.TYPE_HEADER -> false
+                SettingsItem.TYPE_CHAT_PREVIEW -> customizedOnly
                 SettingsItem.TYPE_SUBMENU -> {
                     val key = (item as SubmenuSetting).menuKey
                     key !in allowedMenus || (customizedOnly && settings.customCount(key) == 0)
@@ -2003,7 +2005,9 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
     private fun addChatOverlaySettings(sl: ArrayList<SettingsItem>) {
         settingsActivity.setToolbarTitle(settingsActivity.getString(R.string.chat_overlay_settings))
         sl.apply {
+            add(ChatOverlayPreviewSetting())
 
+            add(HeaderSetting(R.string.chat_section_text))
             add(
                 SliderSetting(
                     IntSetting.CHAT_TEXT_SIZE,
@@ -2017,6 +2021,20 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
+            add(
+                SliderSetting(
+                    IntSetting.CHAT_MAX_LINES,
+                    R.string.chat_max_lines,
+                    R.string.chat_max_lines_description,
+                    1,
+                    20,
+                    "",
+                    IntSetting.CHAT_MAX_LINES.key,
+                    IntSetting.CHAT_MAX_LINES.defaultValue.toFloat()
+                )
+            )
+
+            add(HeaderSetting(R.string.chat_section_shadow))
             add(
                 SliderSetting(
                     IntSetting.CHAT_SHADOW_RADIUS,
@@ -2056,6 +2074,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
+            add(HeaderSetting(R.string.chat_section_background))
             add(
                 SliderSetting(
                     IntSetting.CHAT_BACKGROUND_OPACITY,
@@ -2069,6 +2088,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
 
+            add(HeaderSetting(R.string.chat_section_button))
             add(
                 SliderSetting(
                     IntSetting.CHAT_FAB_OPACITY,
@@ -2092,18 +2112,6 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     "dp",
                     IntSetting.CHAT_FAB_SIZE.key,
                     IntSetting.CHAT_FAB_SIZE.defaultValue.toFloat()
-                )
-            )
-            add(
-                SliderSetting(
-                    IntSetting.CHAT_MAX_LINES,
-                    R.string.chat_max_lines,
-                    R.string.chat_max_lines_description,
-                    1,
-                    20,
-                    "",
-                    IntSetting.CHAT_MAX_LINES.key,
-                    IntSetting.CHAT_MAX_LINES.defaultValue.toFloat()
                 )
             )
         }

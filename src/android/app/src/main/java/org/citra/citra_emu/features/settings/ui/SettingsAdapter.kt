@@ -36,6 +36,7 @@ import kotlin.math.roundToInt
 import org.citra.citra_emu.R
 import org.citra.citra_emu.databinding.DialogSliderBinding
 import org.citra.citra_emu.databinding.DialogSoftwareKeyboardBinding
+import org.citra.citra_emu.databinding.ListItemChatPreviewBinding
 import org.citra.citra_emu.databinding.ListItemEmulationBackgroundBinding
 import org.citra.citra_emu.databinding.ListItemOverlayThemeBinding
 import org.citra.citra_emu.databinding.ListItemSettingBinding
@@ -48,6 +49,7 @@ import org.citra.citra_emu.features.settings.model.AbstractSetting
 import org.citra.citra_emu.features.settings.model.AbstractShortSetting
 import org.citra.citra_emu.features.settings.model.AbstractStringSetting
 import org.citra.citra_emu.features.settings.model.FloatSetting
+import org.citra.citra_emu.features.settings.model.IntSetting
 import org.citra.citra_emu.features.settings.model.ScaledFloatSetting
 import org.citra.citra_emu.features.settings.model.view.DateTimeSetting
 import org.citra.citra_emu.features.settings.model.view.InputBindingSetting
@@ -63,6 +65,7 @@ import org.citra.citra_emu.features.settings.ui.viewholder.DateTimeViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.HeaderViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.InputBindingSettingViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.MultiChoiceViewHolder
+import org.citra.citra_emu.features.settings.ui.viewholder.ChatPreviewViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.EmulationBackgroundViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.OverlayThemeViewHolder
 import org.citra.citra_emu.features.settings.ui.viewholder.RunnableViewHolder
@@ -89,6 +92,21 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
     private var textSliderValue: TextInputEditText? = null
     private var textInputLayout: TextInputLayout? = null
     private var textInputValue: String = ""
+
+    /** The chat overlay preview card, if the chat overlay page is showing. */
+    var chatPreview: ChatPreviewViewHolder? = null
+
+    /** Applies a set of chat overlay values at once (a preset) and redraws the page. */
+    fun applyChatPreset(values: Map<IntSetting, Int>) {
+        values.forEach { (setting, value) ->
+            if (setting.int != value) {
+                setting.int = value
+                fragmentView.putSetting(setting)
+            }
+        }
+        fragmentView.onSettingChanged()
+        fragmentView.loadSettingsList()
+    }
 
     private var defaultCancelListener =
         DialogInterface.OnClickListener { _: DialogInterface?, _: Int -> closeDialog() }
@@ -141,6 +159,10 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
                     ListItemEmulationBackgroundBinding.inflate(inflater),
                     this
                 )
+            }
+
+            SettingsItem.TYPE_CHAT_PREVIEW -> {
+                ChatPreviewViewHolder(ListItemChatPreviewBinding.inflate(inflater), this)
             }
 
             SettingsItem.TYPE_OVERLAY_THEME -> {
@@ -408,6 +430,9 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
 
             addOnChangeListener { _: Slider, value: Float, _: Boolean ->
                 sliderProgress = (value * 100).roundToInt().toFloat() / 100f
+                (item.setting as? IntSetting)?.let {
+                    chatPreview?.previewValue(it.key, sliderProgress.roundToInt())
+                }
                 var sliderString = sliderProgress.toString()
                 if (item.setting !is FloatSetting) {
                     sliderString = sliderProgress.roundToInt().toString()
@@ -429,6 +454,7 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
         dialog = MaterialAlertDialogBuilder(context)
             .setTitle(item.nameId)
             .setView(sliderBinding.root)
+            .setOnDismissListener { chatPreview?.clearPreview() }
             .setPositiveButton(android.R.string.ok, this)
             .setNegativeButton(android.R.string.cancel, defaultCancelListener)
             .setNeutralButton(R.string.slider_default) { dialog: DialogInterface, which: Int ->

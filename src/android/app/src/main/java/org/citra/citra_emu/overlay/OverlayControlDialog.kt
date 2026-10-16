@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.R
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
 import org.citra.citra_emu.databinding.DialogOverlayControlBinding
 import org.citra.citra_emu.features.hotkeys.Hotkey
 import org.citra.citra_emu.utils.OverlayProfile
@@ -47,7 +48,11 @@ object OverlayControlDialog {
         Hotkey.COMBO_BUTTON_3.button -> R.string.button_combo_3
         Hotkey.COMBO_BUTTON_4.button -> R.string.button_combo_4
         Hotkey.COMBO_BUTTON_5.button -> R.string.button_combo_5
-        else -> R.string.emulation_control_adjust
+        else -> if (TouchPointButtons.isTouchButton(id)) {
+            R.string.button_touch
+        } else {
+            R.string.emulation_control_adjust
+        }
     }
 
     private fun hintOf(modeId: Int): Int = when (modeId) {
@@ -88,7 +93,14 @@ object OverlayControlDialog {
         }
 
         binding.apply {
-            title.setText(nameOf(prefId))
+            if (TouchPointButtons.isTouchButton(prefId)) {
+                title.text = activity.getString(
+                    R.string.button_touch_format,
+                    TouchPointButtons.numberOf(prefId)
+                )
+            } else {
+                title.setText(nameOf(prefId))
+            }
 
             scaleSlider.valueFrom = SCALE_OFFSET.toFloat()
             scaleSlider.valueTo = (SCALE_OFFSET + 150).toFloat()

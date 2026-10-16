@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.EmulationNavigationDirections
 import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
 import org.citra.citra_emu.R
 import org.citra.citra_emu.activities.EmulationActivity
 import org.citra.citra_emu.databinding.DialogCheckboxBinding
@@ -1515,7 +1516,10 @@ class EmulationFragment :
     private fun showToggleControlsDialog() {
         beginOverlayDialogEdit()
         val editor = OverlayProfile.prefs().edit()
-        val enabledButtons = BooleanArray(21)
+        // The fixed controls first, then one entry for every Touch button that was added in
+        // Touch Input Bindings
+        val touchButtons = TouchPointButtons.buttons()
+        val enabledButtons = BooleanArray(21 + touchButtons.size)
         enabledButtons.forEachIndexed { i: Int, _: Boolean ->
             // Buttons that are disabled by default
             var defaultValue = true
@@ -1523,16 +1527,32 @@ class EmulationFragment :
                 // TODO: Remove these magic numbers
                 6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20 -> defaultValue = false
             }
-            enabledButtons[i] = OverlayProfile.prefs().getBoolean("buttonToggle$i", defaultValue)
+            val key = if (i < 21) {
+                "buttonToggle$i"
+            } else {
+                TouchPointButtons.toggleKey(touchButtons[i - 21].overlayButton)
+            }
+            enabledButtons[i] = OverlayProfile.prefs().getBoolean(key, defaultValue)
+        }
+        val names = resources.getStringArray(R.array.n3dsButtons).toMutableList()
+        touchButtons.forEachIndexed { index, _ ->
+            names.add(getString(R.string.button_touch_format, index + 1))
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.emulation_toggle_controls)
             .setMultiChoiceItems(
-                R.array.n3dsButtons,
+                names.toTypedArray<CharSequence>(),
                 enabledButtons
             ) { _: DialogInterface?, indexSelected: Int, isChecked: Boolean ->
-                editor.putBoolean("buttonToggle$indexSelected", isChecked)
+                if (indexSelected < 21) {
+                    editor.putBoolean("buttonToggle$indexSelected", isChecked)
+                } else {
+                    editor.putBoolean(
+                        TouchPointButtons.toggleKey(touchButtons[indexSelected - 21].overlayButton),
+                        isChecked
+                    )
+                }
             }
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 editor.apply()
@@ -1692,6 +1712,9 @@ class EmulationFragment :
                 6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20 -> defaultValue = false
             }
             editor.putBoolean("buttonToggle$i", defaultValue)
+        }
+        TouchPointButtons.buttons().forEach {
+            editor.remove(TouchPointButtons.toggleKey(it.overlayButton))
         }
         editor.apply()
 

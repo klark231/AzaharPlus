@@ -21,10 +21,12 @@ import org.citra.citra_emu.R
 import org.citra.citra_emu.databinding.DialogTouchInputBindingBinding
 import org.citra.citra_emu.features.touchinput.TouchInputBinding
 import org.citra.citra_emu.features.touchinput.TouchInputBindingManager
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
 
 /**
- * Bottom sheet shown after tapping the touchscreen preview. Waits for a controller
- * key press or stick movement and binds it to the tapped position.
+ * Bottom sheet shown after tapping the touchscreen preview. Waits for a controller or
+ * keyboard key press or stick movement and binds it to the tapped position, or lets the user
+ * pick one of the on-screen overlay buttons instead.
  */
 class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
@@ -58,6 +60,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var touchY = 0f
     private var bindingAdded = false
     private var pulseAnimator: ObjectAnimator? = null
+    private var overlayMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +86,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
         listenForInput()
 
         binding.buttonCancel.setOnClickListener { dismiss() }
+        setupSourceToggle()
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -132,6 +136,34 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    /** Switches between waiting for a controller/keyboard press and picking an overlay button. */
+    private fun setupSourceToggle() {
+        binding.addOverlayButton.setOnClickListener {
+            commitBinding(
+                TouchInputBinding(
+                    overlayButton = TouchPointButtons.allocateId(),
+                    x = touchX,
+                    y = touchY
+                )
+            )
+        }
+
+        binding.sourceToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            applySource(checkedId == R.id.sourceOverlayButton)
+        }
+        applySource(false)
+    }
+
+    private fun applySource(overlay: Boolean) {
+        overlayMode = overlay
+        binding.addOverlayButton.visibility = if (overlay) View.VISIBLE else View.GONE
+        binding.iconBind.visibility = if (overlay) View.GONE else View.VISIBLE
+        binding.textMessage.setText(
+            if (overlay) R.string.touch_input_overlay_message else R.string.bind_touch_input_message
+        )
+    }
+
     private fun listenForInput() {
         val window = dialog?.window ?: return
 
@@ -147,6 +179,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
     // region Input handling
 
     private fun handleKeyEvent(event: KeyEvent): Boolean {
+        if (overlayMode) return false
         if (event.action != KeyEvent.ACTION_DOWN) return false
         if (event.device == null) return false
         if (event.keyCode == KeyEvent.KEYCODE_BACK) return false
@@ -166,6 +199,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun handleAxisEvent(event: MotionEvent): Boolean {
+        if (overlayMode) return false
         if (event.action != MotionEvent.ACTION_MOVE) return false
         if (event.source and InputDevice.SOURCE_CLASS_JOYSTICK == 0) return false
 

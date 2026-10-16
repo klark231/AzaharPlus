@@ -45,6 +45,33 @@
         android:layout_marginTop="20dp"
         android:gravity="center" />
 
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/sourceToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:checkedButton="@+id/sourceControllerButton"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sourceControllerButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:text="@string/touch_input_source_controller" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sourceOverlayButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:text="@string/touch_input_source_overlay" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textMessage"
         style="@style/TextAppearance.Material3.BodyLarge"
@@ -53,6 +80,17 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addOverlayButton"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:focusable="false"
+        android:text="@string/touch_input_add_overlay_button"
+        android:visibility="gone"
+        app:icon="@drawable/ic_touch_input" />
 
     <com.google.android.material.card.MaterialCardView
         style="@style/Widget.Azahar.TouchInput.Card.Pill"

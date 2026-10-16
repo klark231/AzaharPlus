@@ -8,8 +8,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.DashPathEffect
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Shader
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -94,26 +96,34 @@ class TouchInputBindingView @JvmOverloads constructor(
     private val successColor = themeColor(MaterialR.attr.colorTertiary)
     private val onSuccessColor = themeColor(MaterialR.attr.colorOnTertiary)
 
+    // The canvas is always a dark "screen" tinted with the theme's own colors, so the white
+    // markers stand out on every theme (blue, red, green, ..., Material You, light and dark).
+    private val canvasStart = ColorUtils.blendARGB(primaryColor, Color.BLACK, CANVAS_START_DARKEN)
+    private val canvasEnd = ColorUtils.blendARGB(successColor, Color.BLACK, CANVAS_END_DARKEN)
+    private val dotTextColor = readableOnWhite(primaryColor)
+    private val selectedAccent = brightAccent(primaryColor)
+    private val testAccent = brightAccent(successColor)
+
     private val screenPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = surfaceColor
+        color = canvasStart
     }
 
     private val outlinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = OUTLINE_WIDTH_DP * density
-        color = ColorUtils.setAlphaComponent(outlineColor, OUTLINE_ALPHA)
+        color = ColorUtils.setAlphaComponent(Color.WHITE, OUTLINE_ALPHA)
     }
 
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = ColorUtils.setAlphaComponent(outlineColor, GRID_ALPHA)
+        color = ColorUtils.setAlphaComponent(Color.WHITE, GRID_ALPHA)
     }
 
     private val crosshairPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = CROSSHAIR_WIDTH_DP * density
-        color = ColorUtils.setAlphaComponent(primaryColor, CROSSHAIR_ALPHA)
+        color = ColorUtils.setAlphaComponent(Color.WHITE, CROSSHAIR_ALPHA)
         pathEffect = DashPathEffect(floatArrayOf(4 * density, 3 * density), 0f)
     }
 
@@ -317,6 +327,15 @@ class TouchInputBindingView @JvmOverloads constructor(
         val top = (height - screenHeight) / 2f
 
         screenRect.set(left, top, left + screenWidth, top + screenHeight)
+        screenPaint.shader = LinearGradient(
+            screenRect.left,
+            screenRect.top,
+            screenRect.right,
+            screenRect.bottom,
+            canvasStart,
+            canvasEnd,
+            Shader.TileMode.CLAMP
+        )
         invalidate()
     }
 
@@ -362,10 +381,10 @@ class TouchInputBindingView @JvmOverloads constructor(
         pointRect.set(x - radius, y - radius, x + radius, y + radius)
         pullOutOfRoundedCorners(pointRect, SCREEN_CORNER_RADIUS_DP * density)
 
-        pillPaint.color = primaryContainerColor
-        canvas.drawOval(pointRect, pillPaint)
+        pillPaint.color = Color.WHITE
+        drawMarkerShape(canvas, binding)
 
-        pillTextPaint.color = onPrimaryContainerColor
+        pillTextPaint.color = dotTextColor
         val baseline = pointRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
         canvas.drawText(number.toString(), pointRect.centerX(), baseline, pillTextPaint)
 
@@ -396,13 +415,17 @@ class TouchInputBindingView @JvmOverloads constructor(
         val dotCenterX = pointRect.centerX()
         val dotCenterY = pointRect.centerY()
 
-        val accentColor = if (testHit) successColor else primaryColor
-        val onAccentColor = if (testHit) onSuccessColor else onPrimaryColor
+        val accentColor = if (testHit) testAccent else selectedAccent
+        val onAccentColor = readableOn(accentColor)
 
-        drawDotGlow(canvas, dotCenterX, dotCenterY, dotRadius)
+        drawDotGlow(canvas, dotCenterX, dotCenterY, dotRadius, accentColor)
         pillPaint.color = accentColor
-        canvas.drawOval(pointRect, pillPaint)
-        canvas.drawOval(pointRect, pillOutlinePaint)
+        drawMarkerShape(canvas, binding)
+        if (binding.isOverlayBinding) {
+            canvas.drawRoundRect(pointRect, markerCorner(), markerCorner(), pillOutlinePaint)
+        } else {
+            canvas.drawOval(pointRect, pillOutlinePaint)
+        }
 
         val label = binding.shortLabel()
         val textWidth = pillTextPaint.measureText(label)
@@ -439,6 +462,18 @@ class TouchInputBindingView @JvmOverloads constructor(
         canvas.drawText(label, bubbleRect.centerX(), baseline, pillTextPaint)
 
         return inflateForHit(pointRect)
+    }
+
+    /** Corner radius of the rounded-square marker used for overlay (Touch button) bindings. */
+    private fun markerCorner(): Float = pointRect.width() * OVERLAY_MARKER_CORNER
+
+    /** A circle for a gamepad or keyboard binding, a rounded square for an overlay button. */
+    private fun drawMarkerShape(canvas: Canvas, binding: TouchInputBinding) {
+        if (binding.isOverlayBinding) {
+            canvas.drawRoundRect(pointRect, markerCorner(), markerCorner(), pillPaint)
+        } else {
+            canvas.drawOval(pointRect, pillPaint)
+        }
     }
 
     /** Pads [rect] up to a comfortable touch target, even for a dot much smaller than that. */
@@ -490,13 +525,33 @@ class TouchInputBindingView @JvmOverloads constructor(
      * fainter than the last. Cheaper and crisper under hardware acceleration than a real blur
      * (Paint.setShadowLayer / BlurMaskFilter), and looks the same at this size.
      */
-    private fun drawDotGlow(canvas: Canvas, cx: Float, cy: Float, radius: Float) {
+    private fun drawDotGlow(canvas: Canvas, cx: Float, cy: Float, radius: Float, color: Int) {
         for (step in GLOW_STEPS downTo 1) {
             val expand = step * GLOW_STEP_DP * density
-            dotGlowPaint.color = ColorUtils.setAlphaComponent(primaryColor, GLOW_MAX_ALPHA / step)
+            dotGlowPaint.color = ColorUtils.setAlphaComponent(color, GLOW_MAX_ALPHA / step)
             canvas.drawCircle(cx, cy, radius + expand, dotGlowPaint)
         }
     }
+
+    /** A theme color made light enough to be seen on the dark canvas. */
+    private fun brightAccent(base: Int): Int =
+        if (ColorUtils.calculateLuminance(base) < ACCENT_MIN_LUMINANCE) {
+            ColorUtils.blendARGB(base, Color.WHITE, ACCENT_LIGHTEN)
+        } else {
+            base
+        }
+
+    /** Dark text for a light fill, white text for a dark one. */
+    private fun readableOn(fill: Int): Int =
+        if (ColorUtils.calculateLuminance(fill) > 0.45) DARK_TEXT else Color.WHITE
+
+    /** The theme color for the number on a white dot, darkened if the theme's own is pale. */
+    private fun readableOnWhite(base: Int): Int =
+        if (ColorUtils.calculateLuminance(base) > 0.3) {
+            ColorUtils.blendARGB(base, Color.BLACK, 0.6f)
+        } else {
+            base
+        }
 
     private fun themeColor(@AttrRes attr: Int): Int =
         MaterialColors.getColor(context, attr, Color.TRANSPARENT)
@@ -511,15 +566,21 @@ class TouchInputBindingView @JvmOverloads constructor(
         private const val SCREEN_CORNER_RADIUS_DP = 16f
         private const val INSET_DP = 2f
         private const val OUTLINE_WIDTH_DP = 1.5f
-        private const val OUTLINE_ALPHA = 130
+        private const val OUTLINE_ALPHA = 90
+
+        private const val CANVAS_START_DARKEN = 0.6f
+        private const val CANVAS_END_DARKEN = 0.5f
+        private const val ACCENT_MIN_LUMINANCE = 0.25f
+        private const val ACCENT_LIGHTEN = 0.5f
+        private const val DARK_TEXT = 0xFF1B1B1F.toInt()
 
         private const val GRID_COLUMNS = 16
         private const val GRID_ROWS = 12
         private const val GRID_DOT_RADIUS_DP = 1.1f
-        private const val GRID_ALPHA = 110
+        private const val GRID_ALPHA = 70
 
         private const val CROSSHAIR_WIDTH_DP = 1f
-        private const val CROSSHAIR_ALPHA = 130
+        private const val CROSSHAIR_ALPHA = 170
 
         // The floating label bubble shown above the selected (or test-hit) point
         private const val PILL_HEIGHT_DP = 26f
@@ -535,6 +596,9 @@ class TouchInputBindingView @JvmOverloads constructor(
         private const val SELECTED_DOT_RADIUS_DP = 6f
 
         private const val MIN_HIT_DP = 40f
+
+        // 0.5 would make the overlay button markers circles
+        private const val OVERLAY_MARKER_CORNER = 0.32f
 
         private const val GLOW_STEPS = 4
         private const val GLOW_STEP_DP = 3f

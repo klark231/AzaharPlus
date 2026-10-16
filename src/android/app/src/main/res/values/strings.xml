@@ -1278,13 +1278,13 @@
 
     <!-- Touch Input Binding -->
     <string name="touch_input_bindings">Touch Input Bindings</string>
-    <string name="touch_input_bindings_description">Map controller buttons and axes to position on the 3DS bottom touchscreen.</string>
+    <string name="touch_input_bindings_description">Press a point on the 3DS bottom screen with a gamepad or keyboard button, or with an on-screen Touch button added to the input overlay.</string>
     <string name="bind_touch_input">Bind Touch Input</string>
-    <string name="bind_touch_input_message">Press or move an input.</string>
+    <string name="bind_touch_input_message">Press a button or key, or move a stick on your gamepad or keyboard.</string>
     <string name="bind_touch_input_cancel">Cancel</string>
     <string name="touch_input_empty_title">No bindings yet</string>
-    <string name="touch_input_empty_message">Tap the preview to choose a spot, then press a button or move a stick on your controller.</string>
-    <string name="touch_input_hint_empty">Tap to place your first binding</string>
+    <string name="touch_input_empty_message">Tap the preview to choose a spot, then bind a gamepad or keyboard input, or add an on-screen Touch button.</string>
+    <string name="touch_input_hint_empty">Tap to place your first touch point</string>
     <string name="touch_input_hint_select">Tap the preview to add or select a binding</string>
     <string name="touch_input_hint_test">Press a button or key to test</string>
     <string name="touch_input_mode_edit">Edit</string>
@@ -1398,4 +1398,25 @@
     <string name="cheats_text_save">Save</string>
     <string name="cheats_text_cancel">Cancel</string>
 
+    <!-- Chat overlay preview -->
+    <string name="chat_preview_title">Preview</string>
+    <string name="chat_preview_description">This is how chat will look over the game. Pick a preset or adjust the sliders below.</string>
+    <string name="chat_preview_sample_1">➕ Alex joined the room</string>
+    <string name="chat_preview_sample_2">Sam: ready when you are!</string>
+    <string name="chat_preview_sample_3">Alex: let\'s go</string>
+    <string name="chat_preset_default">Default</string>
+    <string name="chat_preset_readable">Readable</string>
+    <string name="chat_preset_subtle">Subtle</string>
+    <string name="chat_preset_large">Large</string>
+    <string name="chat_section_text">Text</string>
+    <string name="chat_section_shadow">Text shadow</string>
+    <string name="chat_section_background">Message background</string>
+    <string name="chat_section_button">Chat button</string>
+    <string name="touch_input_source_controller">Gamepad / keyboard</string>
+    <string name="touch_input_source_overlay">Input overlay</string>
+    <string name="touch_input_overlay_message">Adds a new on-screen Touch button that presses this spot. You can show, hide and move it in Toggle Controls and Adjust Overlay.</string>
+    <string name="touch_input_add_overlay_button">Add Touch button</string>
+    <string name="button_touch">Touch Button</string>
+    <string name="button_touch_format">Touch Button %1$d</string>
+    <string name="touch_input_overlay_button_format">Touch button %1$s</string>
 </resources>

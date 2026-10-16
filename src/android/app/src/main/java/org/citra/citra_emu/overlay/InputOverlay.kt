@@ -16,6 +16,9 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.Rect
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
@@ -32,6 +35,8 @@ import java.lang.NullPointerException
 import kotlin.math.min
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.features.touchinput.TouchInputBindingManager
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
 import org.citra.citra_emu.R
 import org.citra.citra_emu.features.hotkeys.Hotkey
 import org.citra.citra_emu.features.settings.model.BooleanSetting
@@ -238,6 +243,10 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                         button.id,
                         button.status
                     )
+                    TouchInputBindingManager.handleOverlayButton(
+                        button.id,
+                        button.status == NativeLibrary.ButtonState.PRESSED
+                    )
 
                     shouldUpdateView = true
                 }
@@ -262,20 +271,36 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                         dpad.upId,
                         dpad.upStatus
                     )
+                    TouchInputBindingManager.handleOverlayButton(
+                        dpad.upId,
+                        dpad.upStatus == NativeLibrary.ButtonState.PRESSED
+                    )
                     NativeLibrary.onGamePadEvent(
                         NativeLibrary.TOUCHSCREEN_DEVICE,
                         dpad.downId,
                         dpad.downStatus
+                    )
+                    TouchInputBindingManager.handleOverlayButton(
+                        dpad.downId,
+                        dpad.downStatus == NativeLibrary.ButtonState.PRESSED
                     )
                     NativeLibrary.onGamePadEvent(
                         NativeLibrary.TOUCHSCREEN_DEVICE,
                         dpad.leftId,
                         dpad.leftStatus
                     )
+                    TouchInputBindingManager.handleOverlayButton(
+                        dpad.leftId,
+                        dpad.leftStatus == NativeLibrary.ButtonState.PRESSED
+                    )
                     NativeLibrary.onGamePadEvent(
                         NativeLibrary.TOUCHSCREEN_DEVICE,
                         dpad.rightId,
                         dpad.rightStatus
+                    )
+                    TouchInputBindingManager.handleOverlayButton(
+                        dpad.rightId,
+                        dpad.rightStatus == NativeLibrary.ButtonState.PRESSED
                     )
 
                     shouldUpdateView = true
@@ -725,6 +750,24 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 )
             }
         }
+
+        // Touch buttons: one for every binding that was added as a Touch button in Touch Input
+        // Bindings. Each is shown unless it was switched off in Toggle Controls.
+        TouchPointButtons.buttons().forEachIndexed { index, touchButton ->
+            val id = touchButton.overlayButton
+            if (preferences.getBoolean(TouchPointButtons.toggleKey(id), true)) {
+                ensureTouchButtonDefaultPosition(id, index, orientation)
+                overlayButtons.add(
+                    initializeOverlayButton(
+                        context,
+                        TouchPointButtons.DRAWABLE,
+                        TouchPointButtons.DRAWABLE_PRESSED,
+                        id,
+                        orientation
+                    )
+                )
+            }
+        }
     }
 
     /**
@@ -749,6 +792,30 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         editor.apply()
     }
 
+    /**
+     * A Touch button that has no stored position yet is put in rows under the combo buttons, so
+     * it doesn't sit on top of other controls the first time it shows up.
+     */
+    private fun ensureTouchButtonDefaultPosition(id: Int, index: Int, orientation: String) {
+        val xKey = "$id$orientation-X"
+        val yKey = "$id$orientation-Y"
+        if (preferences.contains(xKey) && preferences.contains(yKey)) return
+        val baseX = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-X", 0f)
+        val baseY = preferences.getFloat("${Hotkey.COMBO_BUTTON.button}$orientation-Y", 0f)
+        val metrics = resources.displayMetrics
+        val step = if (orientation.isEmpty()) {
+            0.11f * metrics.heightPixels
+        } else {
+            0.11f * metrics.widthPixels
+        }
+        val column = index % TOUCH_BUTTONS_PER_ROW
+        val row = index / TOUCH_BUTTONS_PER_ROW
+        preferences.edit()
+            .putFloat(xKey, baseX + step * column)
+            .putFloat(yKey, baseY + step * (1.2f + row))
+            .apply()
+    }
+
     private fun sendButtonState(button: InputOverlayDrawableButton) {
         if (button.id >= Hotkey.COMBO_BUTTON.button &&
             button.id < Hotkey.COMBO_BUTTON.button + ComboHelper.COMBO_COUNT
@@ -756,6 +823,10 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             ComboHelper.comboActivate(button.status, button.id - Hotkey.COMBO_BUTTON.button)
         }
         NativeLibrary.onGamePadEvent(NativeLibrary.TOUCHSCREEN_DEVICE, button.id, button.status)
+        TouchInputBindingManager.handleOverlayButton(
+            button.id,
+            button.status == NativeLibrary.ButtonState.PRESSED
+        )
     }
 
     // Presses and releases every running rapid fire button, about 10 times a second
@@ -804,6 +875,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                     it.id,
                     NativeLibrary.ButtonState.RELEASED
                 )
+                TouchInputBindingManager.handleOverlayButton(it.id, false)
             }
         }
     }
@@ -1059,6 +1131,10 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                     resources.getInteger(R.integer.N3DS_BUTTON_COMBO_Y).toFloat() / 1000 * maxY
                 )
         }
+        for (touchButton in TouchPointButtons.buttons()) {
+            val id = touchButton.overlayButton
+            comboEditor.remove(id.toString() + "-X").remove(id.toString() + "-Y")
+        }
         comboEditor.apply()
     }
 
@@ -1248,12 +1324,19 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                     resources.getInteger(R.integer.N3DS_BUTTON_COMBO_PORTRAIT_Y).toFloat() / 1000 * maxY
                 )
         }
+        for (touchButton in TouchPointButtons.buttons()) {
+            val id = touchButton.overlayButton
+            comboEditor.remove(id.toString() + portrait + "-X")
+                .remove(id.toString() + portrait + "-Y")
+        }
         comboEditor.apply()
     }
 
     override fun isInEditMode(): Boolean = isInEditMode
 
     companion object {
+        private const val TOUCH_BUTTONS_PER_ROW = 6
+
         // Must live here (not as instance properties declared after init {}), otherwise they
         // are still null when init calls refreshControls().
         private val COMBO_DRAWABLES = intArrayOf(
@@ -1284,6 +1367,41 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
          * @param scale         The scale factor for the bitmap.
          * @return The scaled [Bitmap]
          */
+        /**
+         * Draws [number] in a round badge in the lower right corner of a copy of [source]. The
+         * badge is dark with a white ring and white digits, so it stays readable on any image.
+         */
+        private fun stampNumber(source: Bitmap, number: Int): Bitmap {
+            val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
+            val canvas = Canvas(bitmap)
+            val size = minOf(bitmap.width, bitmap.height).toFloat()
+            val radius = size * 0.2f
+            val cx = bitmap.width - radius - size * 0.03f
+            val cy = bitmap.height - radius - size * 0.03f
+
+            val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+                color = Color.argb(235, 20, 20, 24)
+            }
+            val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+                strokeWidth = size * 0.035f
+                color = Color.WHITE
+            }
+            val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                textAlign = Paint.Align.CENTER
+                typeface = Typeface.DEFAULT_BOLD
+                // Two digit numbers get a little smaller so they fit in the badge
+                textSize = radius * if (number >= 10) 1.05f else 1.35f
+            }
+            canvas.drawCircle(cx, cy, radius, fill)
+            canvas.drawCircle(cx, cy, radius, ring)
+            val baseline = cy - (text.ascent() + text.descent()) / 2f
+            canvas.drawText(number.toString(), cx, baseline, text)
+            return bitmap
+        }
+
         private fun getBitmap(context: Context, drawableId: Int, scale: Float): Bitmap {
             OverlayTheme.loadBitmap(context, drawableId)?.let {
                 return resizeBitmap(context, it, scale)
@@ -1403,8 +1521,15 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 preferences.getBoolean("buttonRapid-$buttonId", false)
 
             // Initialize the InputOverlayDrawableButton.
-            val defaultStateBitmap = getBitmap(context, defaultResId, scale)
-            val pressedStateBitmap = getBitmap(context, pressedResId, scale)
+            var defaultStateBitmap = getBitmap(context, defaultResId, scale)
+            var pressedStateBitmap = getBitmap(context, pressedResId, scale)
+            if (TouchPointButtons.isTouchButton(buttonId)) {
+                // The number is drawn on top of whatever image the button has, including images
+                // from a button theme, and follows the buttons when one of them is deleted
+                val number = TouchPointButtons.numberOf(buttonId)
+                defaultStateBitmap = stampNumber(defaultStateBitmap, number)
+                pressedStateBitmap = stampNumber(pressedStateBitmap, number)
+            }
             val overlayDrawable =
                 InputOverlayDrawableButton(
                     res,

@@ -41,6 +41,7 @@ object TouchInputBindingManager {
 
     private val bindings = mutableListOf<TouchInputBinding>()
     private val pressedKeys = mutableSetOf<Int>()
+    private val pressedOverlayButtons = mutableSetOf<Int>()
     private val pressedAxes = mutableMapOf<AxisKey, Boolean>()
 
     init {
@@ -118,6 +119,21 @@ object TouchInputBindingManager {
         return matches.isNotEmpty()
     }
 
+    /**
+     * Called when an on-screen overlay button changes state. Presses the bound touch point while
+     * the button is held. The button still does its normal job in the game as well.
+     */
+    fun handleOverlayButton(id: Int, pressed: Boolean) {
+        if (bindings.none { it.isOverlayBinding && it.overlayButton == id }) return
+
+        val changed = if (pressed) pressedOverlayButtons.add(id) else pressedOverlayButtons.remove(id)
+        if (!changed) return
+
+        bindings
+            .filter { it.isOverlayBinding && it.overlayButton == id }
+            .forEach { sendTouch(it, pressed) }
+    }
+
     fun handleAxisMotion(event: MotionEvent): Boolean {
         if (event.action != MotionEvent.ACTION_MOVE) return false
 
@@ -180,6 +196,7 @@ object TouchInputBindingManager {
 
     private fun resetInputState() {
         pressedKeys.clear()
+        pressedOverlayButtons.clear()
         pressedAxes.clear()
     }
 

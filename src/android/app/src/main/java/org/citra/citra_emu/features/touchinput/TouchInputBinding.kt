@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import kotlin.math.roundToInt
+import org.citra.citra_emu.CitraApplication
+import org.citra.citra_emu.R
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -22,8 +24,13 @@ data class TouchInputBinding(
     val analog: Boolean = false,
     val threshold: Float = DEFAULT_THRESHOLD,
     val x: Float = DEFAULT_COORDINATE,
-    val y: Float = DEFAULT_COORDINATE
+    val y: Float = DEFAULT_COORDINATE,
+    /** An on-screen overlay button (NativeLibrary.ButtonType id), instead of a controller input. */
+    val overlayButton: Int = DEFAULT_UNBOUND
 ) {
+    val isOverlayBinding: Boolean
+        get() = overlayButton != DEFAULT_UNBOUND
+
     val isAxisBinding: Boolean
         get() = axis != DEFAULT_UNBOUND
 
@@ -32,14 +39,20 @@ data class TouchInputBinding(
 
     /** Whether this binding listens to the same physical input as [other]. */
     fun hasSameInputAs(other: TouchInputBinding): Boolean =
-        keyCode == other.keyCode &&
+        overlayButton == other.overlayButton &&
+            keyCode == other.keyCode &&
             axis == other.axis &&
             positive == other.positive &&
             analog == other.analog
 
     /** Readable name of the bound input, e.g. "Volume Up" or "Left Stick X +". */
     fun displayName(): String =
-        if (isAxisBinding) {
+        if (isOverlayBinding) {
+            CitraApplication.appContext.getString(
+                R.string.touch_input_overlay_button_format,
+                overlayLabel(overlayButton)
+            )
+        } else if (isAxisBinding) {
             val name = MotionEvent.axisToString(axis).toDisplayName(AXIS_PREFIX)
             "$name ${if (positive) "+" else "\u2212"}"
         } else {
@@ -51,7 +64,9 @@ data class TouchInputBinding(
 
     /** Compact name for the on-screen pill overlay. Keep it short; the pill grows with text. */
     fun shortLabel(): String =
-        if (isAxisBinding) {
+        if (isOverlayBinding) {
+            "T" + overlayLabel(overlayButton)
+        } else if (isAxisBinding) {
             val name = MotionEvent.axisToString(axis).removePrefix(AXIS_PREFIX).toShortName()
             "$name ${if (positive) "+" else "−"}"
         } else {
@@ -67,6 +82,7 @@ data class TouchInputBinding(
             put(JSON_THRESHOLD, threshold)
             put(JSON_X, x)
             put(JSON_Y, y)
+            put(JSON_OVERLAY_BUTTON, overlayButton)
         }
 
     companion object {
@@ -86,6 +102,9 @@ data class TouchInputBinding(
         private const val JSON_THRESHOLD = "threshold"
         private const val JSON_X = "x"
         private const val JSON_Y = "y"
+        private const val JSON_OVERLAY_BUTTON = "overlayButton"
+
+        fun overlayLabel(id: Int): String = TouchPointButtons.numberOf(id).toString()
 
         fun formatPosition(x: Float, y: Float): String =
             "X ${(x * 100).roundToInt()}% \u00B7 Y ${(y * 100).roundToInt()}%"
@@ -98,7 +117,8 @@ data class TouchInputBinding(
                 analog = json.optBoolean(JSON_ANALOG, false),
                 threshold = json.optDouble(JSON_THRESHOLD, DEFAULT_THRESHOLD.toDouble()).toFloat(),
                 x = json.optDouble(JSON_X, DEFAULT_COORDINATE.toDouble()).toFloat(),
-                y = json.optDouble(JSON_Y, DEFAULT_COORDINATE.toDouble()).toFloat()
+                y = json.optDouble(JSON_Y, DEFAULT_COORDINATE.toDouble()).toFloat(),
+                overlayButton = json.optInt(JSON_OVERLAY_BUTTON, DEFAULT_UNBOUND)
             )
 
         fun listToJson(bindings: List<TouchInputBinding>): String {

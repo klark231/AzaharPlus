@@ -72,32 +72,45 @@ object ComboHelper {
     fun setEnabled(context: Context, index: Int, enabled: Boolean) {
         if (index !in 0 until COMBO_COUNT) return
         OverlayProfile.prefs()
-            .edit().putBoolean("buttonToggle${TOGGLE_BASE + index}", enabled).apply()
+            .edit().putBoolean("buttonToggle${TOGGLE_BASE + index}", enabled).commit()
     }
 
+    private const val KEY_LIST = "combo_buttons_list_"
+
     /**
-     * Buttons a combo presses. Until the user has edited a combo it uses the defaults above;
-     * once edited (even to "none") the stored list is used as-is.
+     * Buttons a combo presses. The list lives in SharedPreferences (written synchronously) so it
+     * survives the app being closed or killed before config.ini is flushed. Until the user edits a
+     * combo the defaults above are used; once edited (even to "none") the stored list is used as-is.
      */
     fun getButtons(index: Int): List<Int> {
         val s = setting(index) ?: return emptyList()
+        val stored = prefs().getString(KEY_LIST + index, null)
+        if (stored != null) {
+            return stored.split(",").mapNotNull { it.trim().toIntOrNull() }
+        }
+        // Legacy: lists saved by older builds only in config.ini.
         if (s.list.isNotEmpty()) return s.list
-        return if (prefs().getBoolean(KEY_USER_SET + index, false)) emptyList()
-        else DEFAULT_BUTTONS[index]
+        return DEFAULT_BUTTONS[index]
     }
 
     fun setButtons(context: Context, index: Int, buttons: List<Int>) {
         val s = setting(index) ?: return
         s.list = buttons.toList()
         PreferenceManager.getDefaultSharedPreferences(context)
-            .edit().putBoolean(KEY_USER_SET + index, true).apply()
+            .edit()
+            .putString(KEY_LIST + index, buttons.joinToString(","))
+            .putBoolean(KEY_USER_SET + index, true)
+            .commit()
     }
 
     fun resetButtons(context: Context, index: Int) {
         val s = setting(index) ?: return
         s.list = listOf()
         PreferenceManager.getDefaultSharedPreferences(context)
-            .edit().putBoolean(KEY_USER_SET + index, false).apply()
+            .edit()
+            .remove(KEY_LIST + index)
+            .putBoolean(KEY_USER_SET + index, false)
+            .commit()
     }
 
     /** (native value, label) for every selectable member, in display order. */

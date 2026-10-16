@@ -601,6 +601,11 @@
     <string name="overlay_control_rapid">Rapid fire</string>
     <string name="overlay_control_rapid_description">Tap once to start auto-pressing, tap again to stop</string>
     <string name="overlay_control_change_image">Change button image</string>
+    <string name="overlay_control_image">Image</string>
+    <string name="overlay_control_mode_normal">Normal</string>
+    <string name="overlay_control_mode_hold">Hold</string>
+    <string name="overlay_control_mode_rapid">Rapid</string>
+    <string name="overlay_control_mode_normal_description">Pressed while you touch the button</string>
     <string name="overlay_control_reset">Reset</string>
     <string name="overlay_control_done">Done</string>
     <string name="overlay_control_adjust_all_description">Applies to every button and stick</string>

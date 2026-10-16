@@ -107,7 +107,9 @@ class InputOverlayDrawableButton(
             motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
         if (holdMode || rapidMode) {
             // Hold and rapid fire buttons are switched by a tap only, never by sliding over them
-            if (isActionDown) {
+            // Only the finger that just landed counts, a finger resting on the button must not
+            // flip it again when another finger touches the screen
+            if (isActionDown && pointerIndex == event.actionIndex) {
                 if (!containsPoint(xPosition, yPosition)) {
                     return false
                 }

@@ -50,6 +50,12 @@ object OverlayControlDialog {
         else -> R.string.emulation_control_adjust
     }
 
+    private fun hintOf(modeId: Int): Int = when (modeId) {
+        R.id.mode_hold -> R.string.overlay_control_hold_description
+        R.id.mode_rapid -> R.string.overlay_control_rapid_description
+        else -> R.string.overlay_control_mode_normal_description
+    }
+
     /**
      * @param id        the button id (the up id for the D-Pad), used as key for the settings
      * @param control   the drawable that was tapped, used to pick its images
@@ -82,6 +88,8 @@ object OverlayControlDialog {
         }
 
         binding.apply {
+            title.setText(nameOf(prefId))
+
             scaleSlider.valueFrom = SCALE_OFFSET.toFloat()
             scaleSlider.valueTo = (SCALE_OFFSET + 150).toFloat()
             scaleSlider.stepSize = 1f
@@ -95,50 +103,39 @@ object OverlayControlDialog {
             opacitySlider.value = startOpacity.toFloat().coerceIn(0f, 100f)
             opacityValue.text = "${opacitySlider.value.toInt()}%"
 
-            holdSwitch.isChecked = holdAllowed && startHold
-            rapidSwitch.isChecked = holdAllowed && startRapid && !startHold
-            val rowVisibility = if (holdAllowed) android.view.View.VISIBLE else android.view.View.GONE
-            holdRow.visibility = rowVisibility
-            rapidRow.visibility = rowVisibility
-            holdDivider.visibility = rowVisibility
-            holdRow.setOnClickListener { holdSwitch.toggle() }
-            rapidRow.setOnClickListener { rapidSwitch.toggle() }
+            // Normal / Hold / Rapid fire. Only one can be active, same as the old switches.
+            val startMode = when {
+                holdAllowed && startHold -> R.id.mode_hold
+                holdAllowed && startRapid -> R.id.mode_rapid
+                else -> R.id.mode_normal
+            }
+            modeGroup.check(startMode)
+            modeHint.setText(hintOf(startMode))
+            val modeVisibility = if (holdAllowed) android.view.View.VISIBLE else android.view.View.GONE
+            modeGroup.visibility = modeVisibility
+            modeHint.visibility = modeVisibility
+
+            fun saveCurrent() = save(
+                scaleSlider.value.toInt() - SCALE_OFFSET,
+                opacitySlider.value.toInt(),
+                modeGroup.checkedButtonId == R.id.mode_hold,
+                modeGroup.checkedButtonId == R.id.mode_rapid
+            )
 
             // Live preview while the sliders move
             scaleSlider.addOnChangeListener { _, value, fromUser ->
                 scaleValue.text = "${value.toInt()}%"
-                if (fromUser) {
-                    save(value.toInt() - SCALE_OFFSET, opacitySlider.value.toInt(), holdSwitch.isChecked, rapidSwitch.isChecked)
-                }
+                if (fromUser) saveCurrent()
             }
             opacitySlider.addOnChangeListener { _, value, fromUser ->
                 opacityValue.text = "${value.toInt()}%"
-                if (fromUser) {
-                    save(scaleSlider.value.toInt() - SCALE_OFFSET, value.toInt(), holdSwitch.isChecked, rapidSwitch.isChecked)
-                }
+                if (fromUser) saveCurrent()
             }
-            // Hold and rapid fire both react to a tap, so only one of them can be on
-            holdSwitch.setOnCheckedChangeListener { _, checked ->
-                if (checked && rapidSwitch.isChecked) {
-                    rapidSwitch.isChecked = false
+            modeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+                if (isChecked) {
+                    modeHint.setText(hintOf(checkedId))
+                    saveCurrent()
                 }
-                save(
-                    scaleSlider.value.toInt() - SCALE_OFFSET,
-                    opacitySlider.value.toInt(),
-                    checked,
-                    rapidSwitch.isChecked
-                )
-            }
-            rapidSwitch.setOnCheckedChangeListener { _, checked ->
-                if (checked && holdSwitch.isChecked) {
-                    holdSwitch.isChecked = false
-                }
-                save(
-                    scaleSlider.value.toInt() - SCALE_OFFSET,
-                    opacitySlider.value.toInt(),
-                    holdSwitch.isChecked,
-                    checked
-                )
             }
         }
 
@@ -154,7 +151,6 @@ object OverlayControlDialog {
         }
 
         MaterialAlertDialogBuilder(activity)
-            .setTitle(nameOf(prefId))
             .setView(binding.root)
             .setPositiveButton(R.string.overlay_control_done, null)
             .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> revert() }

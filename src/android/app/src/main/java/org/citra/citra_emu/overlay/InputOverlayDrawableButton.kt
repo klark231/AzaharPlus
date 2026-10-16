@@ -45,9 +45,17 @@ class InputOverlayDrawableButton(
     defaultStateBitmap: Bitmap,
     pressedStateBitmap: Bitmap,
     val id: Int,
-    val opacity: Int
+    val opacity: Int,
+    // Tap once to press and keep pressed, tap again to release
+    val holdMode: Boolean = false,
+    // Tap once to press over and over, tap again to stop
+    val rapidMode: Boolean = false
 ) {
     var trackId: Int
+
+    // A hold button that is kept pressed after the finger was lifted
+    var latched = false
+        private set
 
     // Part of a multi-press: stays pressed until the finger lifts, never released by sliding off
     private var heldUntilRelease = false
@@ -97,6 +105,28 @@ class InputOverlayDrawableButton(
             motionEvent == MotionEvent.ACTION_DOWN || motionEvent == MotionEvent.ACTION_POINTER_DOWN
         val isActionUp =
             motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
+        if (holdMode || rapidMode) {
+            // Hold and rapid fire buttons are switched by a tap only, never by sliding over them
+            if (isActionDown) {
+                if (!containsPoint(xPosition, yPosition)) {
+                    return false
+                }
+                trackId = pointerId
+                if (latched) {
+                    latched = false
+                    buttonUp(overlay, true)
+                } else {
+                    latched = true
+                    buttonDown(true, pointerId, overlay)
+                }
+                return true
+            }
+            if (isActionUp && trackId == pointerId) {
+                // The finger is lifted but the button stays as it is
+                trackId = -1
+            }
+            return false
+        }
         if (isActionDown) {
             // Multi-press: a touch between two buttons presses both (see InputOverlay)
             val groupSize = overlay.buttonTouchGroupSize(this, xPosition, yPosition)
@@ -165,6 +195,26 @@ class InputOverlayDrawableButton(
             trackId = -1
         }
         overlay.hapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE)
+    }
+
+    /** Flips a running rapid fire button between pressed and released. True if it flipped. */
+    fun rapidTick(): Boolean {
+        if (!rapidMode || !latched) {
+            return false
+        }
+        pressedState = !pressedState
+        return true
+    }
+
+    /** Lets go of a latched button, returns true if it was pressed. */
+    fun releaseLatched(): Boolean {
+        if (!latched) {
+            return false
+        }
+        latched = false
+        pressedState = false
+        trackId = -1
+        return true
     }
 
     fun onConfigureTouch(event: MotionEvent): Boolean {

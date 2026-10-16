@@ -71,7 +71,7 @@ import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.R
 import org.citra.citra_emu.activities.EmulationActivity
 import org.citra.citra_emu.databinding.DialogCheckboxBinding
-import org.citra.citra_emu.databinding.DialogSliderBinding
+import org.citra.citra_emu.databinding.DialogOverlayAdjustBinding
 import org.citra.citra_emu.databinding.FragmentEmulationBinding
 import org.citra.citra_emu.display.CustomLayoutManager
 import org.citra.citra_emu.display.PortraitScreenLayout
@@ -878,123 +878,8 @@ class EmulationFragment :
                     true
                 }
 
-                R.id.menu_emulation_adjust_scale_reset_all -> {
-                    resetAllScales()
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale -> {
-                    showAdjustScaleDialog("controlScale")
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_a -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_A)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_b -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_B)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_x -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_X)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_y -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_Y)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_l -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.TRIGGER_L)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_r -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.TRIGGER_R)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_zl -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_ZL)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_zr -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_ZR)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_start -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_START)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_select -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_SELECT)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_controller_dpad -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.DPAD)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_controller_circlepad -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.STICK_LEFT)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_controller_c -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.STICK_C)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_home -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_HOME)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_swap -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_SWAP)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_turbo -> {
-                    showAdjustScaleDialog("controlScale-" + NativeLibrary.ButtonType.BUTTON_TURBO)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_combo -> {
-                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON.button)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_combo_2 -> {
-                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_2.button)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_combo_3 -> {
-                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_3.button)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_combo_4 -> {
-                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_4.button)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_scale_button_combo_5 -> {
-                    showAdjustScaleDialog("controlScale-" + Hotkey.COMBO_BUTTON_5.button)
-                    true
-                }
-
-                R.id.menu_emulation_adjust_opacity -> {
-                    showAdjustOpacityDialog()
+                R.id.menu_emulation_adjust_overlay -> {
+                    showAdjustOverlayDialog()
                     true
                 }
 
@@ -1672,132 +1557,56 @@ class EmulationFragment :
         }
     }
 
-    private fun showAdjustScaleDialog(target: String) {
+    /** One dialog for the size and opacity of every button and stick at once. */
+    @SuppressLint("SetTextI18n")
+    private fun showAdjustOverlayDialog() {
         beginOverlayDialogEdit()
-        val sliderBinding = DialogSliderBinding.inflate(layoutInflater)
+        val adjustBinding = DialogOverlayAdjustBinding.inflate(layoutInflater)
+        val startScale = OverlayProfile.prefs().getInt("controlScale", 50)
+        val startOpacity = OverlayProfile.prefs().getInt("controlOpacity", 50)
 
-        sliderBinding.apply {
-            val sliderStart = 50
-            val sliderMin = 0
-            val sliderMax = 150
-            slider.valueFrom = sliderMin.toFloat()
-            slider.valueTo = sliderMax.toFloat()
-            slider.value = OverlayProfile.prefs().getInt(target, sliderStart)
-                .toFloat()
-                .coerceIn(slider.valueFrom..slider.valueTo)
-            @SuppressLint("SetTextI18n")
-            textValue.setText((slider.value + sliderStart).toInt().toString())
-            textValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) {
-                    val value = s.toString().toIntOrNull()
-                    val realValue = value?.minus(sliderStart)
-                    if (realValue == null || realValue < sliderMin || realValue > sliderMax) {
-                        textInput.error = "Inappropriate Value"
-                    } else {
-                        textInput.error = null
-                        slider.value = realValue.toFloat()
-                    }
-                }
+        adjustBinding.apply {
+            // Stored scale 0..150 is shown as 50..200%
+            scaleSlider.valueFrom = 50f
+            scaleSlider.valueTo = 200f
+            scaleSlider.stepSize = 1f
+            scaleSlider.value = (startScale + 50).toFloat().coerceIn(50f, 200f)
+            scaleValue.text = "${scaleSlider.value.toInt()}%"
+            scaleSlider.addOnChangeListener { _, value, fromUser ->
+                scaleValue.text = "${value.toInt()}%"
+                if (fromUser) setControlScale(value.toInt() - 50, "controlScale")
+            }
 
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            })
-            slider.addOnChangeListener(
-                Slider.OnChangeListener {
-                        slider: Slider,
-                        progress: Float,
-                        _: Boolean
-                    ->
-                    if (textValue.text.toString() !=
-                        (slider.value + sliderStart).toInt().toString()
-                    ) {
-                        textValue.setText((slider.value + sliderStart).toInt().toString())
-                        textValue.setSelection(textValue.length())
-                        setControlScale(slider.value.toInt(), target)
-                    }
-                }
-            )
-            textInput.suffixText = "%"
+            opacitySlider.valueFrom = 0f
+            opacitySlider.valueTo = 100f
+            opacitySlider.stepSize = 1f
+            opacitySlider.value = startOpacity.toFloat().coerceIn(0f, 100f)
+            opacityValue.text = "${opacitySlider.value.toInt()}%"
+            opacitySlider.addOnChangeListener { _, value, fromUser ->
+                opacityValue.text = "${value.toInt()}%"
+                if (fromUser) setControlOpacity(value.toInt())
+            }
         }
-        val previousProgress = sliderBinding.slider.value.toInt()
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.emulation_control_scale)
-            .setView(sliderBinding.root)
-            .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
-                setControlScale(previousProgress, target)
-                endOverlayDialogEdit(keep = false)
-            }
+            .setTitle(R.string.emulation_control_adjust)
+            .setView(adjustBinding.root)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
-                setControlScale(sliderBinding.slider.value.toInt(), target)
                 endOverlayDialogEdit(keep = true)
             }
-            .setNeutralButton(R.string.slider_default) { _: DialogInterface?, _: Int ->
-                setControlScale(50, target)
-                endOverlayDialogEdit(keep = true)
-            }
-            .setOnCancelListener {
-                setControlScale(previousProgress, target)
-                endOverlayDialogEdit(keep = false)
-            }
-            .show()
-    }
-
-    private fun showAdjustOpacityDialog() {
-        beginOverlayDialogEdit()
-        val sliderBinding = DialogSliderBinding.inflate(layoutInflater)
-
-        sliderBinding.apply {
-            slider.valueFrom = 0f
-            slider.valueTo = 100f
-            slider.value = OverlayProfile.prefs().getInt("controlOpacity", 50).toFloat()
-            textValue.setText(slider.value.toInt().toString())
-
-            textValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) {
-                    val value = s.toString().toIntOrNull()
-                    if (value == null || value < slider.valueFrom || value > slider.valueTo) {
-                        textInput.error = "Inappropriate Value"
-                    } else {
-                        textInput.error = null
-                        slider.value = value.toFloat()
-                    }
-                }
-
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            })
-
-            slider.addOnChangeListener { _: Slider, value: Float, _: Boolean ->
-
-                if (textValue.text.toString() != slider.value.toInt().toString()) {
-                    textValue.setText(slider.value.toInt().toString())
-                    textValue.setSelection(textValue.length())
-                    setControlOpacity(slider.value.toInt())
-                }
-            }
-
-            textInput.suffixText = "%"
-        }
-        val previousProgress = sliderBinding.slider.value.toInt()
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.emulation_control_opacity)
-            .setView(sliderBinding.root)
             .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
-                setControlOpacity(previousProgress)
+                setControlScale(startScale, "controlScale")
+                setControlOpacity(startOpacity)
                 endOverlayDialogEdit(keep = false)
             }
-            .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
-                setControlOpacity(sliderBinding.slider.value.toInt())
-                endOverlayDialogEdit(keep = true)
-            }
-            .setNeutralButton(R.string.slider_default) { _: DialogInterface?, _: Int ->
+            .setNeutralButton(R.string.overlay_control_adjust_all_reset) { _: DialogInterface?, _: Int ->
+                resetAllScales()
                 setControlOpacity(50)
                 endOverlayDialogEdit(keep = true)
             }
             .setOnCancelListener {
-                setControlOpacity(previousProgress)
+                setControlScale(startScale, "controlScale")
+                setControlOpacity(startOpacity)
                 endOverlayDialogEdit(keep = false)
             }
             .show()
@@ -1840,6 +1649,13 @@ class EmulationFragment :
         resetScale("controlScale-" + Hotkey.COMBO_BUTTON_3.button)
         resetScale("controlScale-" + Hotkey.COMBO_BUTTON_4.button)
         resetScale("controlScale-" + Hotkey.COMBO_BUTTON_5.button)
+        // Per-button opacity and hold mode go back to their defaults too
+        val prefs = OverlayProfile.prefs()
+        val editor = prefs.edit()
+        prefs.all.keys
+            .filter { it.startsWith("controlOpacity-") || it.startsWith("buttonHold-") || it.startsWith("buttonRapid-") }
+            .forEach { editor.remove(it) }
+        editor.apply()
         binding.surfaceInputOverlay.refreshControls()
     }
 

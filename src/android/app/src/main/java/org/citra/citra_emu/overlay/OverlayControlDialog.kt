@@ -1,0 +1,167 @@
+// Copyright Citra Emulator Project / Azahar Emulator Project
+// Licensed under GPLv2 or any later version
+// Refer to the license.txt file included.
+
+package org.citra.citra_emu.overlay
+
+import android.content.DialogInterface
+import android.view.LayoutInflater
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.R
+import org.citra.citra_emu.databinding.DialogOverlayControlBinding
+import org.citra.citra_emu.features.hotkeys.Hotkey
+import org.citra.citra_emu.utils.OverlayProfile
+
+/**
+ * The dialog that opens when a button is tapped while the overlay is being edited. Everything in
+ * it only touches that one button: its size, opacity, hold mode and image.
+ */
+object OverlayControlDialog {
+    private const val SCALE_DEFAULT = 50 // stored value, shown as 100%
+    private const val SCALE_OFFSET = 50 // shown percent = stored value + 50
+    private const val OPACITY_DEFAULT = 100 // percent of the global opacity
+
+    /** Swap and Turbo trigger an action on press, so holding them down would not make sense. */
+    fun supportsHold(id: Int): Boolean =
+        id != NativeLibrary.ButtonType.BUTTON_SWAP && id != NativeLibrary.ButtonType.BUTTON_TURBO
+
+    private fun nameOf(id: Int): Int = when (id) {
+        NativeLibrary.ButtonType.BUTTON_A -> R.string.button_a
+        NativeLibrary.ButtonType.BUTTON_B -> R.string.button_b
+        NativeLibrary.ButtonType.BUTTON_X -> R.string.button_x
+        NativeLibrary.ButtonType.BUTTON_Y -> R.string.button_y
+        NativeLibrary.ButtonType.TRIGGER_L -> R.string.button_l
+        NativeLibrary.ButtonType.TRIGGER_R -> R.string.button_r
+        NativeLibrary.ButtonType.BUTTON_ZL -> R.string.button_zl
+        NativeLibrary.ButtonType.BUTTON_ZR -> R.string.button_zr
+        NativeLibrary.ButtonType.BUTTON_START -> R.string.button_start
+        NativeLibrary.ButtonType.BUTTON_SELECT -> R.string.button_select
+        NativeLibrary.ButtonType.BUTTON_HOME -> R.string.button_home
+        NativeLibrary.ButtonType.BUTTON_SWAP -> R.string.button_swap
+        NativeLibrary.ButtonType.BUTTON_TURBO -> R.string.button_turbo
+        NativeLibrary.ButtonType.DPAD -> R.string.controller_dpad
+        Hotkey.COMBO_BUTTON.button -> R.string.button_combo
+        Hotkey.COMBO_BUTTON_2.button -> R.string.button_combo_2
+        Hotkey.COMBO_BUTTON_3.button -> R.string.button_combo_3
+        Hotkey.COMBO_BUTTON_4.button -> R.string.button_combo_4
+        Hotkey.COMBO_BUTTON_5.button -> R.string.button_combo_5
+        else -> R.string.emulation_control_adjust
+    }
+
+    /**
+     * @param id        the button id (the up id for the D-Pad), used as key for the settings
+     * @param control   the drawable that was tapped, used to pick its images
+     * @param onChanged called whenever the controls have to be redrawn
+     */
+    fun show(activity: AppCompatActivity, id: Int, control: Any, onChanged: () -> Unit) {
+        val prefId = if (control is InputOverlayDrawableDpad) NativeLibrary.ButtonType.DPAD else id
+        val scaleKey = "controlScale-$prefId"
+        val opacityKey = "controlOpacity-$prefId"
+        val holdKey = "buttonHold-$prefId"
+        val rapidKey = "buttonRapid-$prefId"
+        val prefs = OverlayProfile.prefs()
+
+        val startScale = prefs.getInt(scaleKey, SCALE_DEFAULT)
+        val startOpacity = prefs.getInt(opacityKey, OPACITY_DEFAULT)
+        val startHold = prefs.getBoolean(holdKey, false)
+        val startRapid = prefs.getBoolean(rapidKey, false)
+
+        val binding = DialogOverlayControlBinding.inflate(LayoutInflater.from(activity))
+        val holdAllowed = control is InputOverlayDrawableButton && supportsHold(id)
+
+        fun save(scale: Int, opacity: Int, hold: Boolean, rapid: Boolean) {
+            OverlayProfile.prefs().edit()
+                .putInt(scaleKey, scale)
+                .putInt(opacityKey, opacity)
+                .putBoolean(holdKey, hold)
+                .putBoolean(rapidKey, rapid)
+                .apply()
+            onChanged()
+        }
+
+        binding.apply {
+            scaleSlider.valueFrom = SCALE_OFFSET.toFloat()
+            scaleSlider.valueTo = (SCALE_OFFSET + 150).toFloat()
+            scaleSlider.stepSize = 1f
+            scaleSlider.value = (startScale + SCALE_OFFSET).toFloat()
+                .coerceIn(scaleSlider.valueFrom, scaleSlider.valueTo)
+            scaleValue.text = "${scaleSlider.value.toInt()}%"
+
+            opacitySlider.valueFrom = 0f
+            opacitySlider.valueTo = 100f
+            opacitySlider.stepSize = 1f
+            opacitySlider.value = startOpacity.toFloat().coerceIn(0f, 100f)
+            opacityValue.text = "${opacitySlider.value.toInt()}%"
+
+            holdSwitch.isChecked = holdAllowed && startHold
+            rapidSwitch.isChecked = holdAllowed && startRapid && !startHold
+            val rowVisibility = if (holdAllowed) android.view.View.VISIBLE else android.view.View.GONE
+            holdRow.visibility = rowVisibility
+            rapidRow.visibility = rowVisibility
+            holdDivider.visibility = rowVisibility
+            holdRow.setOnClickListener { holdSwitch.toggle() }
+            rapidRow.setOnClickListener { rapidSwitch.toggle() }
+
+            // Live preview while the sliders move
+            scaleSlider.addOnChangeListener { _, value, fromUser ->
+                scaleValue.text = "${value.toInt()}%"
+                if (fromUser) {
+                    save(value.toInt() - SCALE_OFFSET, opacitySlider.value.toInt(), holdSwitch.isChecked, rapidSwitch.isChecked)
+                }
+            }
+            opacitySlider.addOnChangeListener { _, value, fromUser ->
+                opacityValue.text = "${value.toInt()}%"
+                if (fromUser) {
+                    save(scaleSlider.value.toInt() - SCALE_OFFSET, value.toInt(), holdSwitch.isChecked, rapidSwitch.isChecked)
+                }
+            }
+            // Hold and rapid fire both react to a tap, so only one of them can be on
+            holdSwitch.setOnCheckedChangeListener { _, checked ->
+                if (checked && rapidSwitch.isChecked) {
+                    rapidSwitch.isChecked = false
+                }
+                save(
+                    scaleSlider.value.toInt() - SCALE_OFFSET,
+                    opacitySlider.value.toInt(),
+                    checked,
+                    rapidSwitch.isChecked
+                )
+            }
+            rapidSwitch.setOnCheckedChangeListener { _, checked ->
+                if (checked && holdSwitch.isChecked) {
+                    holdSwitch.isChecked = false
+                }
+                save(
+                    scaleSlider.value.toInt() - SCALE_OFFSET,
+                    opacitySlider.value.toInt(),
+                    holdSwitch.isChecked,
+                    checked
+                )
+            }
+        }
+
+        val imagesAvailable = OverlayTheme.imagesOf(control).isNotEmpty()
+        binding.changeImageButton.visibility =
+            if (imagesAvailable) android.view.View.VISIBLE else android.view.View.GONE
+        binding.changeImageButton.setOnClickListener {
+            OverlayThemeDialog.show(activity, control, onChanged)
+        }
+
+        val revert = {
+            save(startScale, startOpacity, startHold, startRapid)
+        }
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(nameOf(prefId))
+            .setView(binding.root)
+            .setPositiveButton(R.string.overlay_control_done, null)
+            .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> revert() }
+            .setNeutralButton(R.string.overlay_control_reset) { _: DialogInterface?, _: Int ->
+                save(SCALE_DEFAULT, OPACITY_DEFAULT, false, false)
+            }
+            .setOnCancelListener { revert() }
+            .show()
+    }
+}

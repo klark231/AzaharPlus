@@ -61,6 +61,8 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     private var longPressTarget: Any? = null
     private var longPressDownX = 0f
     private var longPressDownY = 0f
+    // A control that was touched in edit mode without being dragged opens its settings
+    private var tapTarget: Any? = null
     private val longPressRunnable = Runnable {
         val target = longPressTarget ?: return@Runnable
         longPressTarget = null
@@ -355,6 +357,16 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         longPressTarget = null
     }
 
+    private fun showControlSettings(control: Any) {
+        val activity = NativeLibrary.sEmulationActivity.get() ?: return
+        val id = when (control) {
+            is InputOverlayDrawableButton -> control.id
+            is InputOverlayDrawableDpad -> control.upId
+            else -> return
+        }
+        OverlayControlDialog.show(activity, id, control) { refreshControls() }
+    }
+
     fun onTouchWhileEditing(event: MotionEvent): Boolean {
         val pointerIndex = event.actionIndex
         val fingerPositionX = event.getX(pointerIndex).toInt()
@@ -372,25 +384,47 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             MotionEvent.ACTION_DOWN -> {
                 longPressDownX = event.x
                 longPressDownY = event.y
-                longPressTarget = findControlAt(fingerPositionX, fingerPositionY)
-                if (longPressTarget != null) {
+                val target = findControlAt(fingerPositionX, fingerPositionY)
+                if (target is InputOverlayDrawableJoystick) {
+                    // The sticks only have their images to change, which stays a long press
+                    tapTarget = null
+                    longPressTarget = target
                     longPressHandler.postDelayed(
                         longPressRunnable,
                         ViewConfiguration.getLongPressTimeout().toLong()
                     )
+                } else {
+                    tapTarget = target
+                    longPressTarget = null
                 }
             }
 
-            MotionEvent.ACTION_MOVE -> if (longPressTarget != null &&
-                hypot(event.x - longPressDownX, event.y - longPressDownY) >
+            MotionEvent.ACTION_MOVE -> if (hypot(event.x - longPressDownX, event.y - longPressDownY) >
                 ViewConfiguration.get(context).scaledTouchSlop
             ) {
+                tapTarget = null
                 cancelThemeLongPress()
             }
 
-            MotionEvent.ACTION_UP,
-            MotionEvent.ACTION_CANCEL,
-            MotionEvent.ACTION_POINTER_DOWN -> cancelThemeLongPress()
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                tapTarget = null
+                cancelThemeLongPress()
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                tapTarget = null
+                cancelThemeLongPress()
+            }
+
+            MotionEvent.ACTION_UP -> {
+                cancelThemeLongPress()
+                val tapped = tapTarget
+                tapTarget = null
+                if (tapped != null) {
+                    // Let the touch finish first, then open the settings of that control
+                    post { showControlSettings(tapped) }
+                }
+            }
         }
 
         // Maybe combine Button and Joystick as subclasses of the same parent?
@@ -715,7 +749,67 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         editor.apply()
     }
 
+    private fun sendButtonState(button: InputOverlayDrawableButton) {
+        if (button.id >= Hotkey.COMBO_BUTTON.button &&
+            button.id < Hotkey.COMBO_BUTTON.button + ComboHelper.COMBO_COUNT
+        ) {
+            ComboHelper.comboActivate(button.status, button.id - Hotkey.COMBO_BUTTON.button)
+        }
+        NativeLibrary.onGamePadEvent(NativeLibrary.TOUCHSCREEN_DEVICE, button.id, button.status)
+    }
+
+    // Presses and releases every running rapid fire button, about 10 times a second
+    private val rapidHandler = Handler(Looper.getMainLooper())
+    private val rapidRunnable = object : Runnable {
+        override fun run() {
+            var changed = false
+            for (button in overlayButtons) {
+                if (button.rapidTick()) {
+                    sendButtonState(button)
+                    changed = true
+                }
+            }
+            if (changed) {
+                invalidate()
+            }
+            rapidHandler.postDelayed(this, 50L)
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        rapidHandler.removeCallbacks(rapidRunnable)
+        rapidHandler.postDelayed(rapidRunnable, 50L)
+    }
+
+    override fun onDetachedFromWindow() {
+        rapidHandler.removeCallbacks(rapidRunnable)
+        super.onDetachedFromWindow()
+    }
+
+    /** Lets go of every hold button that is still kept pressed. */
+    private fun releaseHeldButtons() {
+        overlayButtons.forEach {
+            if (it.releaseLatched()) {
+                if (it.id >= Hotkey.COMBO_BUTTON.button &&
+                    it.id < Hotkey.COMBO_BUTTON.button + ComboHelper.COMBO_COUNT
+                ) {
+                    ComboHelper.comboActivate(
+                        NativeLibrary.ButtonState.RELEASED,
+                        it.id - Hotkey.COMBO_BUTTON.button
+                    )
+                }
+                NativeLibrary.onGamePadEvent(
+                    NativeLibrary.TOUCHSCREEN_DEVICE,
+                    it.id,
+                    NativeLibrary.ButtonState.RELEASED
+                )
+            }
+        }
+    }
+
     fun refreshControls() {
+        releaseHeldButtons()
         // Remove all the overlay buttons from the HashSet.
         overlayButtons.clear()
         overlayDpads.clear()
@@ -742,6 +836,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
     }
 
     fun setIsInEditMode(isInEditMode: Boolean) {
+        releaseHeldButtons()
         this.isInEditMode = isInEditMode
     }
 
@@ -1174,6 +1269,13 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         private val preferences
             get() = OverlayProfile.prefs()
 
+        /** Global opacity times the opacity of this one control, as 0-255. */
+        private fun controlOpacity(controlId: Int): Int {
+            val global = preferences.getInt("controlOpacity", 50)
+            val individual = preferences.getInt("controlOpacity-$controlId", 100)
+            return (global * individual * 255 / 10000).coerceIn(0, 255)
+        }
+
         /**
          * Resizes a [Bitmap] by a given scale factor
          *
@@ -1294,7 +1396,11 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             scale *= (preferences.getInt("controlScale-$buttonId", 50) + 50).toFloat()
             scale /= 100f
 
-            val opacity: Int = preferences.getInt("controlOpacity", 50) * 255 / 100
+            val opacity: Int = controlOpacity(buttonId)
+            val holdMode = OverlayControlDialog.supportsHold(buttonId) &&
+                preferences.getBoolean("buttonHold-$buttonId", false)
+            val rapidMode = !holdMode && OverlayControlDialog.supportsHold(buttonId) &&
+                preferences.getBoolean("buttonRapid-$buttonId", false)
 
             // Initialize the InputOverlayDrawableButton.
             val defaultStateBitmap = getBitmap(context, defaultResId, scale)
@@ -1305,7 +1411,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                     defaultStateBitmap,
                     pressedStateBitmap,
                     buttonId,
-                    opacity
+                    opacity,
+                    holdMode,
+                    rapidMode
                 )
 
             // The X and Y coordinates of the InputOverlayDrawableButton on the InputOverlay.
@@ -1374,7 +1482,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
 
             scale /= 100f
 
-            val opacity: Int = preferences.getInt("controlOpacity", 50) * 255 / 100
+            val opacity: Int = controlOpacity(NativeLibrary.ButtonType.DPAD)
 
             // Initialize the InputOverlayDrawableDpad.
             val defaultStateBitmap = getBitmap(context, defaultResId, scale)
@@ -1446,7 +1554,7 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             scale *= (preferences.getInt("controlScale-$joystick", 50) + 50).toFloat()
             scale /= 100f
 
-            val opacity: Int = preferences.getInt("controlOpacity", 50) * 255 / 100
+            val opacity: Int = controlOpacity(joystick)
 
             // Initialize the InputOverlayDrawableJoystick.
             val bitmapOuter = getBitmap(context, resOuter, scale)

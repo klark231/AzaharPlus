@@ -70,3 +70,4 @@ GIT-TAG
 *~
 *.swp
 *.tmp
+*.patch

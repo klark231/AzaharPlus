@@ -582,7 +582,7 @@
     <string name="emulation_haptic_feedback">Haptic Feedback</string>
     <string name="emulation_overlay_options">Overlay Options</string>
     <string name="emulation_configure_controls">Configure Controls</string>
-    <string name="emulation_edit_layout">Edit Layout</string>
+    <string name="emulation_edit_layout">Edit Overlay</string>
     <string name="emulation_done">Done</string>
     <string name="emulation_button_sliding">Button Sliding</string>
     <string name="emulation_button_sliding_disabled">Hold originally pressed button</string>
@@ -593,6 +593,18 @@
     <string name="emulation_control_scale_global">Global Scale</string>
     <string name="emulation_control_scale_reset_all">Reset All</string>
     <string name="emulation_control_opacity">Adjust Opacity</string>
+    <string name="emulation_control_adjust">Adjust Overlay</string>
+    <string name="overlay_control_scale">Size</string>
+    <string name="overlay_control_opacity">Opacity</string>
+    <string name="overlay_control_hold">Tap to hold</string>
+    <string name="overlay_control_hold_description">Tap once to press, tap again to release</string>
+    <string name="overlay_control_rapid">Rapid fire</string>
+    <string name="overlay_control_rapid_description">Tap once to start auto-pressing, tap again to stop</string>
+    <string name="overlay_control_change_image">Change button image</string>
+    <string name="overlay_control_reset">Reset</string>
+    <string name="overlay_control_done">Done</string>
+    <string name="overlay_control_adjust_all_description">Applies to every button and stick</string>
+    <string name="overlay_control_adjust_all_reset">Reset all</string>
     <string name="emulation_control_joystick_rel_center">Relative Stick Center</string>
     <string name="emulation_control_dpad_slide_enable">D-Pad Sliding</string>
     <string name="emulation_open_settings">Open Settings</string>

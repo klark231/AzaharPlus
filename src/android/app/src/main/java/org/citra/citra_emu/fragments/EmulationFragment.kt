@@ -86,6 +86,7 @@ import org.citra.citra_emu.features.settings.ui.SettingsActivity
 import org.citra.citra_emu.features.settings.utils.PerGameSettings
 import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.model.Game
+import org.citra.citra_emu.services.EmulationKeepAliveService
 import org.citra.citra_emu.overlay.ChatOverlayManager
 import org.citra.citra_emu.overlay.EmulationBackground
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos
@@ -584,6 +585,15 @@ class EmulationFragment :
 
     override fun onResume() {
         super.onResume()
+        // While a game is open with "Keep Emulation Running", a foreground service (with a
+        // notification) stops Android from freezing the app and its network in the background.
+        // It's started here, while the app is in front, because Android may refuse to start it
+        // once the app is already in the background.
+        if (BooleanSetting.KEEP_EMULATION_RUNNING.boolean) {
+            EmulationKeepAliveService.start(requireContext().applicationContext)
+        } else {
+            EmulationKeepAliveService.stop(requireContext().applicationContext)
+        }
         // Make sure the renderer presents again (no-op if it was never suspended)
         NativeLibrary.setPresentationSuspended(false)
         Choreographer.getInstance().postFrameCallback(this)
@@ -647,6 +657,9 @@ class EmulationFragment :
     }
 
     override fun onDestroy() {
+        if (requireActivity().isFinishing) {
+            EmulationKeepAliveService.stop(requireContext().applicationContext)
+        }
         if (::emulationState.isInitialized && requireActivity().isFinishing) {
             emulationState.stop()
         }

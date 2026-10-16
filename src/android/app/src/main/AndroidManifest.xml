@@ -40,6 +40,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -90,6 +93,16 @@
             </intent-filter>
 
         </activity>
+
+        <!-- Keeps a game and its multiplayer connection alive while the app is in the background -->
+        <service
+            android:name="org.citra.citra_emu.services.EmulationKeepAliveService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps a running game and its multiplayer connection alive while the app is in the background" />
+        </service>
 
         <activity
             android:name="org.citra.citra_emu.features.cheats.ui.CheatsActivity"

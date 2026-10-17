@@ -3,6 +3,7 @@
 // Refer to the misc/licenses/gplv2.txt file included.
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstring>
 #include <queue>
@@ -529,11 +530,14 @@ void NWM_UDS::HandleDeauthenticationFrame(const Network::WifiPacket& packet) {
         return;
     }
     if (node_map.find(packet.transmitter_address) == node_map.end()) {
-        LOG_ERROR(Service_NWM, "Got deauthentication frame from unknown node");
+        LOG_ERROR(Service_NWM,
+                  "[DIAG] Got deauthentication frame from unknown node (node_map has {} entries)",
+                  node_map.size());
         return;
     }
 
     Node node = node_map[packet.transmitter_address];
+    LOG_WARNING(Service_NWM, "[DIAG] Deauthentication from node {}; removing it", node.node_id);
     node_map.erase(packet.transmitter_address);
 
     if (!node.connected) {
@@ -813,7 +817,24 @@ void NWM_UDS::GetConnectionStatus(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(13, 0);
 
     rb.Push(ResultSuccess);
-    rb.PushRaw(GetConnectionStatusHLE());
+    const auto status_snapshot = GetConnectionStatusHLE();
+    {
+        // Diagnostic: log only when what the game sees changes.
+        static u32 last_status = 0xFFFFFFFF, last_reason = 0xFFFFFFFF, last_mask = 0xFFFFFFFF;
+        const u32 st = static_cast<u32>(status_snapshot.status);
+        const u32 rs = static_cast<u32>(status_snapshot.status_change_reason);
+        const u32 mk = status_snapshot.node_bitmask;
+        if (st != last_status || rs != last_reason || mk != last_mask) {
+            LOG_WARNING(Service_NWM,
+                        "[DIAG] GetConnectionStatus changed: status={} reason={} bitmask={:#06x} "
+                        "changed={:#06x} total_nodes={}",
+                        st, rs, mk, status_snapshot.changed_nodes, status_snapshot.total_nodes);
+            last_status = st;
+            last_reason = rs;
+            last_mask = mk;
+        }
+    }
+    rb.PushRaw(status_snapshot);
 
     LOG_DEBUG(Service_NWM, "called");
 }
@@ -1187,7 +1208,20 @@ void NWM_UDS::DestroyNetwork(Kernel::HLERequestContext& ctx) {
     LOG_DEBUG(Service_NWM, "called");
 }
 
+// [DIAG] traffic timing, used by the DisconnectNetwork log. Remove when done.
+static std::atomic<s64> g_diag_last_tx_ms{0};
+static std::atomic<s64> g_diag_last_rx_ms{0};
+static std::atomic<u32> g_diag_tx_count{0};
+static std::atomic<u32> g_diag_rx_count{0};
+static s64 DiagNowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
+
 void NWM_UDS::SendTo(Kernel::HLERequestContext& ctx) {
+    g_diag_last_tx_ms = DiagNowMs();
+    ++g_diag_tx_count;
     IPC::RequestParser rp(ctx);
 
     rp.Skip(1, false);
@@ -1340,6 +1374,10 @@ void NWM_UDS::PullPacket(Kernel::HLERequestContext& ctx) {
 
     IPC::RequestBuilder rb = rp.MakeBuilder(3, 2);
 
+    if (*ret > 0) {
+        g_diag_last_rx_ms = DiagNowMs();
+        ++g_diag_rx_count;
+    }
     rb.Push(ResultSuccess);
     rb.Push<u32>(*ret);
     rb.Push<u16>(secure_data.src_node_id);
@@ -1542,6 +1580,35 @@ ResultStatus NWM_UDS::DisconnectNetworkHLE() {
 }
 
 void NWM_UDS::DisconnectNetwork(Kernel::HLERequestContext& ctx) {
+    // [GUESTSTACK] Log who inside the game asked to disconnect. Remove when done.
+    {
+        auto& cpu = system.GetRunningCore();
+        auto& mem = system.Memory();
+        const u32 sp = cpu.GetReg(13);
+        LOG_ERROR(Service_NWM,
+                  "[GUESTSTACK] DisconnectNetwork pc={:08X} lr={:08X} sp={:08X} status={}",
+                  cpu.GetPC(), cpu.GetReg(14), sp, static_cast<u32>(connection_status.status));
+        const s64 now_ms = DiagNowMs();
+        LOG_ERROR(Service_NWM,
+                  "[GUESTSTACK] traffic: ms since last SendTo={} last received data={} "
+                  "(tx_count={} rx_count={})",
+                  g_diag_last_tx_ms ? now_ms - g_diag_last_tx_ms.load() : -1,
+                  g_diag_last_rx_ms ? now_ms - g_diag_last_rx_ms.load() : -1,
+                  g_diag_tx_count.load(), g_diag_rx_count.load());
+        int found = 0;
+        for (u32 off = 0; off < 0x400 && found < 24; off += 4) {
+            const u32 v = mem.Read32(sp + off);
+            if (v < 0x00100000 || v >= 0x00E00000 || (v & 3) != 0) {
+                continue;
+            }
+            // Keep only values whose previous instruction is a BL / BLX (a real return address).
+            const u32 prev = mem.Read32(v - 4);
+            if ((prev >> 24) == 0xEB || (prev & 0xFFFFFFF0) == 0xE12FFF30) {
+                LOG_ERROR(Service_NWM, "[GUESTSTACK]   sp+{:03X}: ret={:08X}", off, v);
+                ++found;
+            }
+        }
+    }
     LOG_DEBUG(Service_NWM, "disconnecting from network");
     IPC::RequestParser rp(ctx);
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
@@ -1767,6 +1834,11 @@ void NWM_UDS::CleanupTimedOutClients() {
             to.push_back(n.first);
     for (auto& c : to) {
         Node nd = node_map[c];
+        LOG_WARNING(Service_NWM,
+                    "[DIAG] Removing node {} by inactivity timeout ({} ms since last packet)",
+                    nd.node_id,
+                    std::chrono::duration_cast<std::chrono::milliseconds>(now - nd.last_activity)
+                        .count());
         node_map.erase(c);
         if (!nd.spec) {
             connection_status.node_bitmask &= ~(1 << (nd.node_id - 1));

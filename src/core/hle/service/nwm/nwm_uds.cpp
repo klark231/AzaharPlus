@@ -1542,6 +1542,28 @@ ResultStatus NWM_UDS::DisconnectNetworkHLE() {
 }
 
 void NWM_UDS::DisconnectNetwork(Kernel::HLERequestContext& ctx) {
+    // [GUESTSTACK] Log who inside the game asked to disconnect. Remove when done.
+    {
+        auto& cpu = system.GetRunningCore();
+        auto& mem = system.Memory();
+        const u32 sp = cpu.GetReg(13);
+        LOG_ERROR(Service_NWM,
+                  "[GUESTSTACK] DisconnectNetwork pc={:08X} lr={:08X} sp={:08X} status={}",
+                  cpu.GetPC(), cpu.GetReg(14), sp, static_cast<u32>(connection_status.status));
+        int found = 0;
+        for (u32 off = 0; off < 0x400 && found < 24; off += 4) {
+            const u32 v = mem.Read32(sp + off);
+            if (v < 0x00100000 || v >= 0x00E00000 || (v & 3) != 0) {
+                continue;
+            }
+            // Keep only values whose previous instruction is a BL / BLX (a real return address).
+            const u32 prev = mem.Read32(v - 4);
+            if ((prev >> 24) == 0xEB || (prev & 0xFFFFFFF0) == 0xE12FFF30) {
+                LOG_ERROR(Service_NWM, "[GUESTSTACK]   sp+{:03X}: ret={:08X}", off, v);
+                ++found;
+            }
+        }
+    }
     LOG_DEBUG(Service_NWM, "disconnecting from network");
     IPC::RequestParser rp(ctx);
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);

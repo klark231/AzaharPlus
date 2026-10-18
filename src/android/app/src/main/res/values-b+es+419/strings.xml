@@ -594,4 +594,31 @@
     <string name="multiplayer_public_room">Explorar salas públicas</string>
     <string name="original_button_text">Unirse</string>
     <string name="reset_to_default">Restablecer valores predeterminados</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Nuevo</string>
+    <string name="touch_input_rebind">Reasignar</string>
+    <string name="touch_input_all_bindings">Todas las asignaciones (%1$d)</string>
+    <string name="touch_input_touches_format">Toca la pantalla en %1$s</string>
+    <string name="touch_input_hint_drag">Arrastra un marcador para moverlo · toca un espacio vacío para agregar uno</string>
+    <string name="chat_preview_title">Vista previa</string>
+    <string name="chat_preview_description">Así se verá el chat sobre el juego. Elige un ajuste preestablecido o modifica los controles deslizantes de abajo.</string>
+    <string name="chat_preview_sample_1">➕ Alex se unió a la sala</string>
+    <string name="chat_preview_sample_2">Sam: ¡cuando quieras!</string>
+    <string name="chat_preview_sample_3">Alex: vamos</string>
+    <string name="chat_preset_default">Predeterminado</string>
+    <string name="chat_preset_readable">Legible</string>
+    <string name="chat_preset_subtle">Sutil</string>
+    <string name="chat_preset_large">Grande</string>
+    <string name="chat_section_text">Texto</string>
+    <string name="chat_section_shadow">Sombra del texto</string>
+    <string name="chat_section_background">Fondo de los mensajes</string>
+    <string name="chat_section_button">Botón del chat</string>
+    <string name="touch_input_source_controller">Dispositivo externo</string>
+    <string name="touch_input_source_overlay">Superposición de entrada</string>
+    <string name="touch_input_overlay_message">Agrega un nuevo botón táctil en pantalla que presiona este punto. Puedes mostrarlo, ocultarlo y moverlo en Alternar controles y Ajustar superposición.</string>
+    <string name="touch_input_add_overlay_button">Agregar botón táctil</string>
+    <string name="button_touch">Botón táctil</string>
+    <string name="button_touch_format">Botón táctil %1$d</string>
+    <string name="touch_input_overlay_button_format">Botón táctil %1$s</string>
 </resources>

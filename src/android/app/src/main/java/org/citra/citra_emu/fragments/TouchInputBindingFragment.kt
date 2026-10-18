@@ -45,7 +45,9 @@ class TouchInputBindingFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var profileManager: TouchInputBindingProfileManager
-    private lateinit var bindingAdapter: TouchInputBindingAdapter
+    // The binding the user chose to rebind; replaced once a new input has been captured
+    private var rebindTarget: TouchInputBinding? = null
+    private var bindingsBeforeRebind: List<TouchInputBinding> = emptyList()
 
     private var currentProfile = ""
     private var selectedBinding: TouchInputBinding? = null
@@ -129,16 +131,6 @@ class TouchInputBindingFragment : Fragment() {
     }
 
     private fun bindViews() {
-        bindingAdapter = TouchInputBindingAdapter(
-            onRowClicked = { selectBinding(if (it == selectedBinding) null else it) },
-            onEditClicked = { showEditBindingDialog(it) },
-            onDeleteClicked = { deleteBinding(it) }
-        )
-        binding.bindingList.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = bindingAdapter
-        }
-
         binding.addProfileButton.setOnClickListener { showCreateProfileDialog() }
 
         binding.touchInputBindingView.apply {
@@ -167,6 +159,13 @@ class TouchInputBindingFragment : Fragment() {
         binding.inspectorRow.inspectorDelete.setOnClickListener {
             selectedBinding?.let { deleteBinding(it) }
         }
+        binding.inspectorRow.inspectorDone.setOnClickListener { selectBinding(null) }
+        binding.inspectorRow.rebindButton.setOnClickListener {
+            selectedBinding?.let { startRebind(it) }
+        }
+        val editCoordinates = View.OnClickListener { selectedBinding?.let { showEditBindingDialog(it) } }
+        binding.inspectorRow.xField.setOnClickListener(editCoordinates)
+        binding.inspectorRow.yField.setOnClickListener(editCoordinates)
 
         applyTestModeToViews()
         rebuildProfileChips()
@@ -177,12 +176,15 @@ class TouchInputBindingFragment : Fragment() {
         parentFragmentManager.setFragmentResultListener(
             TouchInputBindingBottomSheetDialogFragment.RESULT_BINDING_ADDED,
             viewLifecycleOwner
-        ) { _, _ -> commitChanges() }
+        ) { _, _ ->
+            finishRebind()
+            commitChanges()
+        }
 
         parentFragmentManager.setFragmentResultListener(
             TouchInputBindingBottomSheetDialogFragment.RESULT_BINDING_CANCELLED,
             viewLifecycleOwner
-        ) { _, _ -> }
+        ) { _, _ -> rebindTarget = null }
     }
 
     // region Profiles
@@ -199,6 +201,7 @@ class TouchInputBindingFragment : Fragment() {
                 isCheckable = true
                 isChecked = isSelected
                 tag = name
+                styleProfileChip(this)
                 setOnClickListener {
                     if (name != currentProfile) selectProfile(name)
                 }
@@ -217,6 +220,45 @@ class TouchInputBindingFragment : Fragment() {
             }
             group.addView(chip)
         }
+    }
+
+    /** Pill-shaped profile chip: tonal and checkmarked when active, outlined when not. */
+    private fun styleProfileChip(chip: Chip) {
+        val ctx = requireContext()
+        val density = resources.displayMetrics.density
+        val checkedState = intArrayOf(android.R.attr.state_checked)
+        val uncheckedState = intArrayOf(-android.R.attr.state_checked)
+        val fill = android.content.res.ColorStateList(
+            arrayOf(checkedState, uncheckedState),
+            intArrayOf(
+                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorSecondaryContainer, 0),
+                android.graphics.Color.TRANSPARENT
+            )
+        )
+        val text = android.content.res.ColorStateList(
+            arrayOf(checkedState, uncheckedState),
+            intArrayOf(
+                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOnSecondaryContainer, 0),
+                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOnSurface, 0)
+            )
+        )
+        val stroke = android.content.res.ColorStateList(
+            arrayOf(checkedState, uncheckedState),
+            intArrayOf(
+                android.graphics.Color.TRANSPARENT,
+                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOutline, 0)
+            )
+        )
+        chip.chipBackgroundColor = fill
+        chip.setTextColor(text)
+        chip.chipStrokeColor = stroke
+        chip.chipStrokeWidth = density
+        chip.chipCornerRadius = 20f * density
+        chip.chipMinHeight = 40f * density
+        chip.isCheckedIconVisible = true
+        chip.checkedIconTint = text
+        chip.closeIconTint = text
+        chip.textSize = 14f
     }
 
     private fun selectProfile(profileName: String) {
@@ -331,11 +373,6 @@ class TouchInputBindingFragment : Fragment() {
         val isEmpty = bindings.isEmpty()
 
         binding.touchInputBindingView.setBindings(bindings)
-        bindingAdapter.submitList(bindings)
-
-        binding.bindingCount.text = bindings.size.toString()
-        binding.bindingCount.visibility = if (isEmpty) View.GONE else View.VISIBLE
-        binding.bindingsCard.visibility = if (isEmpty) View.GONE else View.VISIBLE
         binding.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
 
         if (selectedBinding !in bindings) {
@@ -350,31 +387,82 @@ class TouchInputBindingFragment : Fragment() {
     private fun selectBinding(touchBinding: TouchInputBinding?) {
         selectedBinding = touchBinding
         binding.touchInputBindingView.setSelectedBinding(touchBinding)
-        bindingAdapter.selectedBinding = touchBinding
         updateInspector()
     }
 
     private fun updateInspector() {
         val touchBinding = selectedBinding
+        val bindings = TouchInputBindingManager.getBindings()
         val showInspector = touchBinding != null && !isTestMode
 
         binding.inspectorRow.root.isVisible = showInspector
-        binding.hintRow.isVisible = !showInspector
+        binding.idleChips.root.isVisible = !showInspector && bindings.isNotEmpty()
+        rebuildBindingChips(binding.idleChips.chipsTitle, binding.idleChips.chipsGroup, bindings)
+        rebuildBindingChips(
+            binding.inspectorRow.inspectorChips.chipsTitle,
+            binding.inspectorRow.inspectorChips.chipsGroup,
+            bindings
+        )
 
-        if (touchBinding != null) {
-            binding.inspectorRow.inspectorLabel.text = touchBinding.shortLabel()
+        if (touchBinding != null && showInspector) {
             binding.inspectorRow.inspectorName.text = touchBinding.displayName()
-            binding.inspectorRow.inspectorPosition.text = touchBinding.positionLabel()
-        } else {
-            // "Your first binding" only makes sense before any binding exists; once one or more
-            // are already placed, a plain "add or select" prompt is what's actually true here.
-            binding.hintText.setText(
-                when {
-                    isTestMode -> R.string.touch_input_hint_test
-                    TouchInputBindingManager.getBindings().isEmpty() -> R.string.touch_input_hint_empty
-                    else -> R.string.touch_input_hint_select
+            binding.inspectorRow.inspectorPosition.text = getString(
+                R.string.touch_input_touches_format,
+                touchBinding.positionLabel()
+            )
+            binding.inspectorRow.xValue.text = formatShort(touchBinding.x)
+            binding.inspectorRow.yValue.text = formatShort(touchBinding.y)
+        }
+
+        binding.hintText.setText(
+            when {
+                isTestMode -> R.string.touch_input_hint_test
+                bindings.isEmpty() -> R.string.touch_input_hint_empty
+                showInspector -> R.string.touch_input_hint_drag
+                else -> R.string.touch_input_hint_select
+            }
+        )
+    }
+
+    /** One chip per binding, so any of them can be picked without leaving the panel. */
+    private fun rebuildBindingChips(
+        title: android.widget.TextView,
+        group: com.google.android.material.chip.ChipGroup,
+        bindings: List<TouchInputBinding>
+    ) {
+        title.text = getString(R.string.touch_input_all_bindings, bindings.size)
+        group.removeAllViews()
+        bindings.forEach { touchBinding ->
+            group.addView(
+                Chip(requireContext()).apply {
+                    text = touchBinding.displayName()
+                    isCheckable = true
+                    isChecked = touchBinding == selectedBinding
+                    setOnClickListener {
+                        selectBinding(if (touchBinding == selectedBinding) null else touchBinding)
+                    }
                 }
             )
+        }
+    }
+
+    private fun formatShort(value: Float): String = String.format(Locale.US, "%.2f", value)
+
+    /** Opens the bind sheet at the binding's own spot; the old input is swapped out once a new one is captured. */
+    private fun startRebind(touchBinding: TouchInputBinding) {
+        rebindTarget = touchBinding
+        bindingsBeforeRebind = TouchInputBindingManager.getBindings().toList()
+        showBindSheet(touchBinding.x, touchBinding.y)
+    }
+
+    private fun finishRebind() {
+        val old = rebindTarget ?: return
+        rebindTarget = null
+        val added = TouchInputBindingManager.getBindings().filter { it !in bindingsBeforeRebind }
+        // Choosing the very same input again changes nothing, so the old binding must stay
+        if (added.isNotEmpty()) {
+            TouchInputBindingManager.removeBinding(old)
+            selectedBinding = added.first()
         }
     }
 
@@ -425,7 +513,12 @@ class TouchInputBindingFragment : Fragment() {
         val current = selectedBinding ?: return
         if (!committed) {
             // Live feedback only; the manager isn't touched until the drag ends
-            binding.inspectorRow.inspectorPosition.text = TouchInputBinding.formatPosition(x, y)
+            binding.inspectorRow.inspectorPosition.text = getString(
+                R.string.touch_input_touches_format,
+                TouchInputBinding.formatPosition(x, y)
+            )
+            binding.inspectorRow.xValue.text = formatShort(x)
+            binding.inspectorRow.yValue.text = formatShort(y)
             return
         }
         applyMove(current, x, y)

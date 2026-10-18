@@ -571,4 +571,31 @@
     <string name="multiplayer_join_room">参加</string>
     <string name="multiplayer_public_room">公開ルームを探す</string>
     <string name="original_button_text">参加</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">新規</string>
+    <string name="touch_input_rebind">再割り当て</string>
+    <string name="touch_input_all_bindings">すべての割り当て（%1$d）</string>
+    <string name="touch_input_touches_format">画面の %1$s をタッチ</string>
+    <string name="touch_input_hint_drag">マーカーをドラッグして移動 · 空いている場所をタップして追加</string>
+    <string name="chat_preview_title">プレビュー</string>
+    <string name="chat_preview_description">ゲーム上でのチャットの表示イメージです。プリセットを選ぶか、下のスライダーで調整してください。</string>
+    <string name="chat_preview_sample_1">➕ Alex がルームに参加しました</string>
+    <string name="chat_preview_sample_2">Sam：いつでも準備OKだよ！</string>
+    <string name="chat_preview_sample_3">Alex：行こう</string>
+    <string name="chat_preset_default">デフォルト</string>
+    <string name="chat_preset_readable">見やすい</string>
+    <string name="chat_preset_subtle">控えめ</string>
+    <string name="chat_preset_large">大きめ</string>
+    <string name="chat_section_text">テキスト</string>
+    <string name="chat_section_shadow">テキストの影</string>
+    <string name="chat_section_background">メッセージの背景</string>
+    <string name="chat_section_button">チャットボタン</string>
+    <string name="touch_input_source_controller">外部デバイス</string>
+    <string name="touch_input_source_overlay">入力オーバーレイ</string>
+    <string name="touch_input_overlay_message">この位置を押す画面上の新しいタッチボタンを追加します。「コントローラーの切り替え」と「オーバーレイの調整」で表示・非表示や移動ができます。</string>
+    <string name="touch_input_add_overlay_button">タッチボタンを追加</string>
+    <string name="button_touch">タッチボタン</string>
+    <string name="button_touch_format">タッチボタン %1$d</string>
+    <string name="touch_input_overlay_button_format">タッチボタン %1$s</string>
 </resources>

@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">Nyilvános szobák böngészése</string>
     <string name="original_button_text">Csatlakozás</string>
     <string name="reset_to_default">Visszaállítás alapértelmezettre</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Új</string>
+    <string name="touch_input_rebind">Újrakötés</string>
+    <string name="touch_input_all_bindings">Összes kötés (%1$d)</string>
+    <string name="touch_input_touches_format">Megérinti a képernyőt itt: %1$s</string>
+    <string name="touch_input_hint_drag">Húzd a jelölőt az áthelyezéshez · koppints egy üres helyre egy új hozzáadásához</string>
+    <string name="chat_preview_title">Előnézet</string>
+    <string name="chat_preview_description">Így fog kinézni a csevegés a játék felett. Válassz egy előbeállítást, vagy állítsd be az alábbi csúszkákat.</string>
+    <string name="chat_preview_sample_1">➕ Alex csatlakozott a szobához</string>
+    <string name="chat_preview_sample_2">Sam: készen állok, ha te is!</string>
+    <string name="chat_preview_sample_3">Alex: gyerünk</string>
+    <string name="chat_preset_default">Alapértelmezett</string>
+    <string name="chat_preset_readable">Jól olvasható</string>
+    <string name="chat_preset_subtle">Visszafogott</string>
+    <string name="chat_preset_large">Nagy</string>
+    <string name="chat_section_text">Szöveg</string>
+    <string name="chat_section_shadow">Szövegárnyék</string>
+    <string name="chat_section_background">Üzenet háttere</string>
+    <string name="chat_section_button">Csevegés gomb</string>
+    <string name="touch_input_source_controller">Külső eszköz</string>
+    <string name="touch_input_source_overlay">Beviteli átfedés</string>
+    <string name="touch_input_overlay_message">Új, képernyőn megjelenő érintőgombot ad hozzá, amely ezt a pontot nyomja meg. A Vezérlők be- és kikapcsolása és az Átfedés beállítása menüben megjelenítheted, elrejtheted és mozgathatod.</string>
+    <string name="touch_input_add_overlay_button">Érintőgomb hozzáadása</string>
+    <string name="button_touch">Érintőgomb</string>
+    <string name="button_touch_format">Érintőgomb %1$d</string>
+    <string name="touch_input_overlay_button_format">Érintőgomb %1$s</string>
 </resources>

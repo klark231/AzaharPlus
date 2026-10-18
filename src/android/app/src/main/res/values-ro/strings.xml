@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">Răsfoiește camerele publice</string>
     <string name="original_button_text">Alătură-te</string>
     <string name="reset_to_default">Resetează la valorile implicite</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Nou</string>
+    <string name="touch_input_rebind">Realocă</string>
+    <string name="touch_input_all_bindings">Toate asocierile (%1$d)</string>
+    <string name="touch_input_touches_format">Atinge ecranul la %1$s</string>
+    <string name="touch_input_hint_drag">Trage un marcaj pentru a-l muta · atinge un spațiu gol pentru a adăuga unul</string>
+    <string name="chat_preview_title">Previzualizare</string>
+    <string name="chat_preview_description">Așa va arăta chatul peste joc. Alege o presetare sau ajustează glisoarele de mai jos.</string>
+    <string name="chat_preview_sample_1">➕ Alex s-a alăturat camerei</string>
+    <string name="chat_preview_sample_2">Sam: sunt gata când ești și tu!</string>
+    <string name="chat_preview_sample_3">Alex: hai să mergem</string>
+    <string name="chat_preset_default">Implicit</string>
+    <string name="chat_preset_readable">Lizibil</string>
+    <string name="chat_preset_subtle">Discret</string>
+    <string name="chat_preset_large">Mare</string>
+    <string name="chat_section_text">Text</string>
+    <string name="chat_section_shadow">Umbra textului</string>
+    <string name="chat_section_background">Fundalul mesajelor</string>
+    <string name="chat_section_button">Butonul de chat</string>
+    <string name="touch_input_source_controller">Dispozitiv extern</string>
+    <string name="touch_input_source_overlay">Suprapunere de intrare</string>
+    <string name="touch_input_overlay_message">Adaugă un nou buton tactil pe ecran care apasă acest punct. Îl poți afișa, ascunde și muta din Comutare controale și Ajustare suprapunere.</string>
+    <string name="touch_input_add_overlay_button">Adaugă buton tactil</string>
+    <string name="button_touch">Buton tactil</string>
+    <string name="button_touch_format">Buton tactil %1$d</string>
+    <string name="touch_input_overlay_button_format">Buton tactil %1$s</string>
 </resources>

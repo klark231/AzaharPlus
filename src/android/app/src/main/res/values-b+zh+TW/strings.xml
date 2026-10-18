@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">瀏覽公開房間</string>
     <string name="original_button_text">加入</string>
     <string name="reset_to_default">重設為預設值</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">新增</string>
+    <string name="touch_input_rebind">重新綁定</string>
+    <string name="touch_input_all_bindings">所有綁定（%1$d）</string>
+    <string name="touch_input_touches_format">觸碰螢幕位置 %1$s</string>
+    <string name="touch_input_hint_drag">拖曳標記即可移動 · 點一下空白處即可新增</string>
+    <string name="chat_preview_title">預覽</string>
+    <string name="chat_preview_description">聊天在遊戲畫面上的顯示效果如下。請選擇預設或調整下方的滑桿。</string>
+    <string name="chat_preview_sample_1">➕ Alex 加入了房間</string>
+    <string name="chat_preview_sample_2">Sam：準備好了就開始吧！</string>
+    <string name="chat_preview_sample_3">Alex：走吧</string>
+    <string name="chat_preset_default">預設</string>
+    <string name="chat_preset_readable">易讀</string>
+    <string name="chat_preset_subtle">低調</string>
+    <string name="chat_preset_large">大型</string>
+    <string name="chat_section_text">文字</string>
+    <string name="chat_section_shadow">文字陰影</string>
+    <string name="chat_section_background">訊息背景</string>
+    <string name="chat_section_button">聊天按鈕</string>
+    <string name="touch_input_source_controller">外部裝置</string>
+    <string name="touch_input_source_overlay">輸入浮層</string>
+    <string name="touch_input_overlay_message">新增一個螢幕上的觸控按鈕，按下時會觸碰此位置。您可以在「切換控制項」和「調整浮層」中顯示、隱藏和移動它。</string>
+    <string name="touch_input_add_overlay_button">新增觸控按鈕</string>
+    <string name="button_touch">觸控按鈕</string>
+    <string name="button_touch_format">觸控按鈕 %1$d</string>
+    <string name="touch_input_overlay_button_format">觸控按鈕 %1$s</string>
 </resources>

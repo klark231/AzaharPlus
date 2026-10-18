@@ -789,4 +789,31 @@
     <string name="multiplayer_join_room">Присоединиться</string>
     <string name="multiplayer_public_room">Обзор публичных комнат</string>
     <string name="original_button_text">Присоединиться</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Новый</string>
+    <string name="touch_input_rebind">Назначить заново</string>
+    <string name="touch_input_all_bindings">Все привязки (%1$d)</string>
+    <string name="touch_input_touches_format">Касается экрана в точке %1$s</string>
+    <string name="touch_input_hint_drag">Перетащите маркер, чтобы переместить его · коснитесь пустого места, чтобы добавить новый</string>
+    <string name="chat_preview_title">Предпросмотр</string>
+    <string name="chat_preview_description">Так чат будет выглядеть поверх игры. Выберите пресет или настройте ползунки ниже.</string>
+    <string name="chat_preview_sample_1">➕ Alex присоединился к комнате</string>
+    <string name="chat_preview_sample_2">Sam: готов, когда ты готов!</string>
+    <string name="chat_preview_sample_3">Alex: погнали</string>
+    <string name="chat_preset_default">По умолчанию</string>
+    <string name="chat_preset_readable">Читаемый</string>
+    <string name="chat_preset_subtle">Неброский</string>
+    <string name="chat_preset_large">Крупный</string>
+    <string name="chat_section_text">Текст</string>
+    <string name="chat_section_shadow">Тень текста</string>
+    <string name="chat_section_background">Фон сообщений</string>
+    <string name="chat_section_button">Кнопка чата</string>
+    <string name="touch_input_source_controller">Внешнее устройство</string>
+    <string name="touch_input_source_overlay">Оверлей ввода</string>
+    <string name="touch_input_overlay_message">Добавляет новую экранную сенсорную кнопку, которая нажимает эту точку. Показывать, скрывать и перемещать её можно в разделах «Переключение элементов управления» и «Настройка оверлея».</string>
+    <string name="touch_input_add_overlay_button">Добавить сенсорную кнопку</string>
+    <string name="button_touch">Сенсорная кнопка</string>
+    <string name="button_touch_format">Сенсорная кнопка %1$d</string>
+    <string name="touch_input_overlay_button_format">Сенсорная кнопка %1$s</string>
 </resources>

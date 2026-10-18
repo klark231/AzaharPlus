@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">เรียกดูห้องสาธารณะ</string>
     <string name="original_button_text">เข้าร่วม</string>
     <string name="reset_to_default">รีเซ็ตเป็นค่าเริ่มต้น</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">ใหม่</string>
+    <string name="touch_input_rebind">ผูกใหม่</string>
+    <string name="touch_input_all_bindings">การผูกทั้งหมด (%1$d)</string>
+    <string name="touch_input_touches_format">แตะหน้าจอที่ %1$s</string>
+    <string name="touch_input_hint_drag">ลากเครื่องหมายเพื่อย้าย · แตะที่ว่างเพื่อเพิ่ม</string>
+    <string name="chat_preview_title">ตัวอย่าง</string>
+    <string name="chat_preview_description">แชทจะแสดงบนเกมแบบนี้ เลือกค่าที่ตั้งไว้ล่วงหน้าหรือปรับแถบเลื่อนด้านล่าง</string>
+    <string name="chat_preview_sample_1">➕ Alex เข้าร่วมห้อง</string>
+    <string name="chat_preview_sample_2">Sam: พร้อมเมื่อไหร่บอกได้เลย!</string>
+    <string name="chat_preview_sample_3">Alex: ไปกัน</string>
+    <string name="chat_preset_default">ค่าเริ่มต้น</string>
+    <string name="chat_preset_readable">อ่านง่าย</string>
+    <string name="chat_preset_subtle">เรียบง่าย</string>
+    <string name="chat_preset_large">ใหญ่</string>
+    <string name="chat_section_text">ข้อความ</string>
+    <string name="chat_section_shadow">เงาข้อความ</string>
+    <string name="chat_section_background">พื้นหลังข้อความ</string>
+    <string name="chat_section_button">ปุ่มแชท</string>
+    <string name="touch_input_source_controller">อุปกรณ์ภายนอก</string>
+    <string name="touch_input_source_overlay">ภาพซ้อนอินพุต</string>
+    <string name="touch_input_overlay_message">เพิ่มปุ่มสัมผัสบนหน้าจอใหม่ที่กดจุดนี้ คุณสามารถแสดง ซ่อน และย้ายได้ใน สลับตัวควบคุม และ ปรับภาพซ้อน</string>
+    <string name="touch_input_add_overlay_button">เพิ่มปุ่มสัมผัส</string>
+    <string name="button_touch">ปุ่มสัมผัส</string>
+    <string name="button_touch_format">ปุ่มสัมผัส %1$d</string>
+    <string name="touch_input_overlay_button_format">ปุ่มสัมผัส %1$s</string>
 </resources>

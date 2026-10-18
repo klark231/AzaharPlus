@@ -1,35 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/Widget.Azahar.TouchInput.Card.Row">
+    android:background="@drawable/bg_touch_input_panel"
+    android:orientation="vertical"
+    android:padding="20dp">
 
+    <!-- Title row: what is selected, where it touches, and Rebind -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="4dp"
-        android:paddingBottom="8dp">
-
-        <TextView
-            android:id="@+id/inspectorLabel"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@drawable/bg_touch_input_badge"
-            android:gravity="center"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorOnPrimaryContainer"
-            tools:text="A" />
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -39,71 +27,218 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
                 android:textColor="?attr/colorOnSurface"
-                tools:text="Button A" />
+                tools:text="A button" />
 
             <TextView
                 android:id="@+id/inspectorPosition"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="X 25% &#183; Y 70%" />
+                tools:text="X 42% · Y 61%" />
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/nudgeLeft"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/touch_input_nudge_left"
-            android:padding="8dp"
-            android:src="@drawable/ic_chevron_left_small"
-            app:tint="?attr/colorOnSurfaceVariant" />
-
-        <ImageView
-            android:id="@+id/nudgeUp"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/touch_input_nudge_up"
-            android:padding="8dp"
-            android:src="@drawable/ic_chevron_up"
-            app:tint="?attr/colorOnSurfaceVariant" />
-
-        <ImageView
-            android:id="@+id/nudgeDown"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/touch_input_nudge_down"
-            android:padding="8dp"
-            android:src="@drawable/ic_chevron_down"
-            app:tint="?attr/colorOnSurfaceVariant" />
-
-        <ImageView
-            android:id="@+id/nudgeRight"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/touch_input_nudge_right"
-            android:padding="8dp"
-            android:src="@drawable/ic_chevron_right_small"
-            app:tint="?attr/colorOnSurfaceVariant" />
-
-        <ImageView
-            android:id="@+id/inspectorDelete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/delete"
-            android:padding="9dp"
-            android:src="@drawable/ic_delete_outline"
-            app:tint="?attr/colorError" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/rebindButton"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/touch_input_rebind" />
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <!-- Nudge pad and coordinates -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:alpha="0.55" />
+            <ImageView
+                android:id="@+id/nudgeUp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:contentDescription="@string/touch_input_nudge_up"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_up"
+                app:tint="?attr/colorOnSecondaryContainer" />
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:alpha="0.55" />
+            <ImageView
+                android:id="@+id/nudgeLeft"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:contentDescription="@string/touch_input_nudge_left"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_left_small"
+                app:tint="?attr/colorOnSecondaryContainer" />
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_center" />
+            <ImageView
+                android:id="@+id/nudgeRight"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:contentDescription="@string/touch_input_nudge_right"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_right_small"
+                app:tint="?attr/colorOnSecondaryContainer" />
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:alpha="0.55" />
+            <ImageView
+                android:id="@+id/nudgeDown"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:contentDescription="@string/touch_input_nudge_down"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_down"
+                app:tint="?attr/colorOnSecondaryContainer" />
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_nudge_cell"
+                android:alpha="0.55" />
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/xField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_touch_input_field"
+                android:foreground="?attr/selectableItemBackground"
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/x_coordinate"
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/xValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="0.42" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/yField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_touch_input_field"
+                android:foreground="?attr/selectableItemBackground"
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/y_coordinate"
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/yValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="0.61" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/inspectorChips"
+        layout="@layout/view_binding_chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
+
+    <!-- Delete on the left, Done on the right -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/inspectorDelete"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:textColor="?attr/colorError"
+            app:icon="@drawable/ic_delete_outline"
+            app:iconTint="?attr/colorError" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/inspectorDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="112dp"
+            android:text="@string/done" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1278,12 +1278,12 @@
 
     <!-- Touch Input Binding -->
     <string name="touch_input_bindings">Touch Input Bindings</string>
-    <string name="touch_input_bindings_description">Press a point on the 3DS bottom screen with a gamepad or keyboard button, or with an on-screen Touch button added to the input overlay.</string>
+    <string name="touch_input_bindings_description">Press a point on the 3DS bottom screen with any button, key or stick from an external device (gamepad, keyboard, controller clone, …), or with an on-screen Touch button added to the input overlay.</string>
     <string name="bind_touch_input">Bind Touch Input</string>
-    <string name="bind_touch_input_message">Press a button or key, or move a stick on your gamepad or keyboard.</string>
+    <string name="bind_touch_input_message">Press any button or key, or move a stick, on a connected external device.</string>
     <string name="bind_touch_input_cancel">Cancel</string>
     <string name="touch_input_empty_title">No bindings yet</string>
-    <string name="touch_input_empty_message">Tap the preview to choose a spot, then bind a gamepad or keyboard input, or add an on-screen Touch button.</string>
+    <string name="touch_input_empty_message">Tap the preview to choose a spot, then bind an input from an external device, or add an on-screen Touch button.</string>
     <string name="touch_input_hint_empty">Tap to place your first touch point</string>
     <string name="touch_input_hint_select">Tap the preview to add or select a binding</string>
     <string name="touch_input_hint_test">Press a button or key to test</string>
@@ -1412,11 +1412,17 @@
     <string name="chat_section_shadow">Text shadow</string>
     <string name="chat_section_background">Message background</string>
     <string name="chat_section_button">Chat button</string>
-    <string name="touch_input_source_controller">Gamepad / keyboard</string>
+    <string name="touch_input_source_controller">External device</string>
     <string name="touch_input_source_overlay">Input overlay</string>
     <string name="touch_input_overlay_message">Adds a new on-screen Touch button that presses this spot. You can show, hide and move it in Toggle Controls and Adjust Overlay.</string>
     <string name="touch_input_add_overlay_button">Add Touch button</string>
     <string name="button_touch">Touch Button</string>
     <string name="button_touch_format">Touch Button %1$d</string>
     <string name="touch_input_overlay_button_format">Touch button %1$s</string>
+
+    <string name="touch_input_new_profile">New</string>
+    <string name="touch_input_rebind">Rebind</string>
+    <string name="touch_input_all_bindings">All bindings (%1$d)</string>
+    <string name="touch_input_touches_format">Touches the screen at %1$s</string>
+    <string name="touch_input_hint_drag">Drag a marker to move it · tap empty space to add one</string>
 </resources>

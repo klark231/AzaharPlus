@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">Duyệt phòng công khai</string>
     <string name="original_button_text">Tham gia</string>
     <string name="reset_to_default">Đặt lại về mặc định</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Mới</string>
+    <string name="touch_input_rebind">Gán lại</string>
+    <string name="touch_input_all_bindings">Tất cả liên kết (%1$d)</string>
+    <string name="touch_input_touches_format">Chạm vào màn hình tại %1$s</string>
+    <string name="touch_input_hint_drag">Kéo một điểm đánh dấu để di chuyển · chạm vào chỗ trống để thêm điểm mới</string>
+    <string name="chat_preview_title">Xem trước</string>
+    <string name="chat_preview_description">Đây là cách khung chat hiển thị trên game. Chọn một cấu hình có sẵn hoặc chỉnh các thanh trượt bên dưới.</string>
+    <string name="chat_preview_sample_1">➕ Alex đã vào phòng</string>
+    <string name="chat_preview_sample_2">Sam: sẵn sàng khi bạn sẵn sàng!</string>
+    <string name="chat_preview_sample_3">Alex: đi thôi</string>
+    <string name="chat_preset_default">Mặc định</string>
+    <string name="chat_preset_readable">Dễ đọc</string>
+    <string name="chat_preset_subtle">Tinh tế</string>
+    <string name="chat_preset_large">Lớn</string>
+    <string name="chat_section_text">Văn bản</string>
+    <string name="chat_section_shadow">Bóng chữ</string>
+    <string name="chat_section_background">Nền tin nhắn</string>
+    <string name="chat_section_button">Nút chat</string>
+    <string name="touch_input_source_controller">Thiết bị ngoài</string>
+    <string name="touch_input_source_overlay">Lớp phủ đầu vào</string>
+    <string name="touch_input_overlay_message">Thêm một nút cảm ứng mới trên màn hình để nhấn vào điểm này. Bạn có thể hiện, ẩn và di chuyển nút trong Bật/tắt điều khiển và Điều chỉnh lớp phủ.</string>
+    <string name="touch_input_add_overlay_button">Thêm nút cảm ứng</string>
+    <string name="button_touch">Nút cảm ứng</string>
+    <string name="button_touch_format">Nút cảm ứng %1$d</string>
+    <string name="touch_input_overlay_button_format">Nút cảm ứng %1$s</string>
 </resources>

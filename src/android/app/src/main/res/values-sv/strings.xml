@@ -1303,4 +1303,31 @@
     <string name="system_files_download">Ladda ner systemfiler</string>
     <string name="download_system_files">Ladda ner systemfiler</string>
     <string name="download">Ladda ner</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Ny</string>
+    <string name="touch_input_rebind">Bind om</string>
+    <string name="touch_input_all_bindings">Alla bindningar (%1$d)</string>
+    <string name="touch_input_touches_format">Trycker på skärmen vid %1$s</string>
+    <string name="touch_input_hint_drag">Dra en markör för att flytta den · tryck på en tom plats för att lägga till en</string>
+    <string name="chat_preview_title">Förhandsvisning</string>
+    <string name="chat_preview_description">Så här ser chatten ut ovanpå spelet. Välj en förinställning eller justera reglagen nedan.</string>
+    <string name="chat_preview_sample_1">➕ Alex gick med i rummet</string>
+    <string name="chat_preview_sample_2">Sam: redo när du är det!</string>
+    <string name="chat_preview_sample_3">Alex: kör</string>
+    <string name="chat_preset_default">Standard</string>
+    <string name="chat_preset_readable">Läsbar</string>
+    <string name="chat_preset_subtle">Diskret</string>
+    <string name="chat_preset_large">Stor</string>
+    <string name="chat_section_text">Text</string>
+    <string name="chat_section_shadow">Textskugga</string>
+    <string name="chat_section_background">Meddelandebakgrund</string>
+    <string name="chat_section_button">Chattknapp</string>
+    <string name="touch_input_source_controller">Extern enhet</string>
+    <string name="touch_input_source_overlay">Inmatningsöverlägg</string>
+    <string name="touch_input_overlay_message">Lägger till en ny pekknapp på skärmen som trycker på den här punkten. Du kan visa, dölja och flytta den under Växla kontroller och Justera överlägg.</string>
+    <string name="touch_input_add_overlay_button">Lägg till pekknapp</string>
+    <string name="button_touch">Pekknapp</string>
+    <string name="button_touch_format">Pekknapp %1$d</string>
+    <string name="touch_input_overlay_button_format">Pekknapp %1$s</string>
 </resources>

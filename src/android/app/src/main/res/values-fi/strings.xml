@@ -322,4 +322,31 @@
     <string name="multiplayer_public_room">Selaa julkisia huoneita</string>
     <string name="original_button_text">Liity</string>
     <string name="reset_to_default">Palauta oletukset</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Uusi</string>
+    <string name="touch_input_rebind">Sido uudelleen</string>
+    <string name="touch_input_all_bindings">Kaikki sidonnat (%1$d)</string>
+    <string name="touch_input_touches_format">Koskettaa näyttöä kohdassa %1$s</string>
+    <string name="touch_input_hint_drag">Vedä merkkiä siirtääksesi sitä · napauta tyhjää kohtaa lisätäksesi uuden</string>
+    <string name="chat_preview_title">Esikatselu</string>
+    <string name="chat_preview_description">Näin chat näkyy pelin päällä. Valitse esiasetus tai säädä alla olevia liukusäätimiä.</string>
+    <string name="chat_preview_sample_1">➕ Alex liittyi huoneeseen</string>
+    <string name="chat_preview_sample_2">Sam: valmis, kun sinäkin olet!</string>
+    <string name="chat_preview_sample_3">Alex: mennään</string>
+    <string name="chat_preset_default">Oletus</string>
+    <string name="chat_preset_readable">Luettava</string>
+    <string name="chat_preset_subtle">Hillitty</string>
+    <string name="chat_preset_large">Suuri</string>
+    <string name="chat_section_text">Teksti</string>
+    <string name="chat_section_shadow">Tekstin varjo</string>
+    <string name="chat_section_background">Viestin tausta</string>
+    <string name="chat_section_button">Chat-painike</string>
+    <string name="touch_input_source_controller">Ulkoinen laite</string>
+    <string name="touch_input_source_overlay">Syöttöpeitto</string>
+    <string name="touch_input_overlay_message">Lisää uuden näytöllä olevan kosketuspainikkeen, joka painaa tätä kohtaa. Voit näyttää, piilottaa ja siirtää sen kohdissa Näytä/piilota ohjaimet ja Säädä peittoa.</string>
+    <string name="touch_input_add_overlay_button">Lisää kosketuspainike</string>
+    <string name="button_touch">Kosketuspainike</string>
+    <string name="button_touch_format">Kosketuspainike %1$d</string>
+    <string name="touch_input_overlay_button_format">Kosketuspainike %1$s</string>
 </resources>

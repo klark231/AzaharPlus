@@ -172,7 +172,6 @@ class TouchInputBindingView @JvmOverloads constructor(
 
         val corner = SCREEN_CORNER_RADIUS_DP * density
         canvas.drawRoundRect(screenRect, corner, corner, screenPaint)
-        drawGrid(canvas)
 
         val selected = selectedBinding
         if (selected != null && !testMode) {
@@ -192,7 +191,7 @@ class TouchInputBindingView @JvmOverloads constructor(
             val isTestHit = testMode && binding == testHighlight
             val rect = when {
                 isSelected -> RectF() // placeholder so hitRects stays index-aligned; replaced below
-                isTestHit -> drawPointWithLabel(canvas, binding, testHit = true, liveOverride = null)
+                isTestHit -> drawPointWithLabel(canvas, binding, index + 1, testHit = true, liveOverride = null)
                 else -> drawPoint(canvas, binding, number = index + 1)
             }
             hitRects.add(rect)
@@ -205,7 +204,7 @@ class TouchInputBindingView @JvmOverloads constructor(
             } else {
                 null
             }
-            val rect = drawPointWithLabel(canvas, selected, testHit = false, liveOverride)
+            val rect = drawPointWithLabel(canvas, selected, index + 1, testHit = false, liveOverride)
             if (index >= 0) hitRects[index] = rect
         }
     }
@@ -364,8 +363,8 @@ class TouchInputBindingView @JvmOverloads constructor(
     ) {
         val x = liveOverride?.first ?: (screenRect.left + binding.x * screenRect.width())
         val y = liveOverride?.second ?: (screenRect.top + binding.y * screenRect.height())
-        canvas.drawLine(x, screenRect.top, x, y, crosshairPaint)
-        canvas.drawLine(screenRect.left, y, x, y, crosshairPaint)
+        canvas.drawLine(x, screenRect.top, x, screenRect.bottom, crosshairPaint)
+        canvas.drawLine(screenRect.left, y, screenRect.right, y, crosshairPaint)
     }
 
     /**
@@ -386,9 +385,15 @@ class TouchInputBindingView @JvmOverloads constructor(
 
         pillTextPaint.color = dotTextColor
         val baseline = pointRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
-        canvas.drawText(number.toString(), pointRect.centerX(), baseline, pillTextPaint)
+        canvas.drawText(markerLabel(binding, number), pointRect.centerX(), baseline, pillTextPaint)
 
         return inflateForHit(pointRect)
+    }
+
+    /** The button's own short name when it fits inside a marker, otherwise its list number. */
+    private fun markerLabel(binding: TouchInputBinding, number: Int): String {
+        val label = binding.shortLabel()
+        return if (label.length <= MARKER_LABEL_MAX_CHARS) label else number.toString()
     }
 
     /**
@@ -403,6 +408,7 @@ class TouchInputBindingView @JvmOverloads constructor(
     private fun drawPointWithLabel(
         canvas: Canvas,
         binding: TouchInputBinding,
+        number: Int,
         testHit: Boolean,
         liveOverride: Pair<Float, Float>?
     ): RectF {
@@ -421,45 +427,21 @@ class TouchInputBindingView @JvmOverloads constructor(
         drawDotGlow(canvas, dotCenterX, dotCenterY, dotRadius, accentColor)
         pillPaint.color = accentColor
         drawMarkerShape(canvas, binding)
+
+        // A white ring sets the selected marker apart from the others, whatever the theme
+        pointRect.inset(-RING_WIDTH_DP * density / 2f, -RING_WIDTH_DP * density / 2f)
+        pillOutlinePaint.color = Color.WHITE
+        pillOutlinePaint.strokeWidth = RING_WIDTH_DP * density
         if (binding.isOverlayBinding) {
             canvas.drawRoundRect(pointRect, markerCorner(), markerCorner(), pillOutlinePaint)
         } else {
             canvas.drawOval(pointRect, pillOutlinePaint)
         }
-
-        val label = binding.shortLabel()
-        val textWidth = pillTextPaint.measureText(label)
-        val bubbleHeight = PILL_HEIGHT_DP * density
-        val bubbleWidth = (textWidth + 2 * PILL_PADDING_DP * density).coerceAtLeast(bubbleHeight)
-        val gap = LABEL_GAP_DP * density
-
-        // Prefer floating the label above the dot; flip below only if there's no room above.
-        val bubbleCenterY = if (dotCenterY - dotRadius - gap - bubbleHeight >= screenRect.top) {
-            dotCenterY - dotRadius - gap - bubbleHeight / 2f
-        } else {
-            dotCenterY + dotRadius + gap + bubbleHeight / 2f
-        }
-
-        bubbleRect.set(
-            dotCenterX - bubbleWidth / 2f,
-            bubbleCenterY - bubbleHeight / 2f,
-            dotCenterX + bubbleWidth / 2f,
-            bubbleCenterY + bubbleHeight / 2f
-        )
-        val dx = (screenRect.left - bubbleRect.left).coerceAtLeast(0f) +
-            (screenRect.right - bubbleRect.right).coerceAtMost(0f)
-        val dy = (screenRect.top - bubbleRect.top).coerceAtLeast(0f) +
-            (screenRect.bottom - bubbleRect.bottom).coerceAtMost(0f)
-        bubbleRect.offset(dx, dy)
-        pullOutOfRoundedCorners(bubbleRect, SCREEN_CORNER_RADIUS_DP * density)
-
-        val bubbleCorner = bubbleRect.height() / 2f
-        pillPaint.color = accentColor
-        canvas.drawRoundRect(bubbleRect, bubbleCorner, bubbleCorner, pillPaint)
+        pointRect.inset(RING_WIDTH_DP * density / 2f, RING_WIDTH_DP * density / 2f)
 
         pillTextPaint.color = onAccentColor
-        val baseline = bubbleRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
-        canvas.drawText(label, bubbleRect.centerX(), baseline, pillTextPaint)
+        val baseline = pointRect.centerY() - (pillTextPaint.ascent() + pillTextPaint.descent()) / 2f
+        canvas.drawText(markerLabel(binding, number), pointRect.centerX(), baseline, pillTextPaint)
 
         return inflateForHit(pointRect)
     }
@@ -564,7 +546,7 @@ class TouchInputBindingView @JvmOverloads constructor(
         private const val SCREEN_WIDTH = 320f
         private const val SCREEN_HEIGHT = 240f
         private const val SCREEN_CORNER_RADIUS_DP = 16f
-        private const val INSET_DP = 2f
+        private const val INSET_DP = 1f
         private const val OUTLINE_WIDTH_DP = 1.5f
         private const val OUTLINE_ALPHA = 90
 
@@ -585,15 +567,17 @@ class TouchInputBindingView @JvmOverloads constructor(
         // The floating label bubble shown above the selected (or test-hit) point
         private const val PILL_HEIGHT_DP = 26f
         private const val PILL_PADDING_DP = 9f
-        private const val PILL_TEXT_SIZE_SP = 12f
+        private const val PILL_TEXT_SIZE_SP = 13f
         private const val PILL_OUTLINE_WIDTH_DP = 1.5f
         private const val PILL_OUTLINE_ALPHA = 200
         private const val LABEL_GAP_DP = 8f
 
         // The dots themselves: a bigger one at rest (room for a 1-2 digit number), a small
         // precise one once a label is floating above it so it reads as "the exact point"
-        private const val DOT_RADIUS_DP = 11f
-        private const val SELECTED_DOT_RADIUS_DP = 6f
+        private const val DOT_RADIUS_DP = 16f
+        private const val SELECTED_DOT_RADIUS_DP = 19f
+        private const val RING_WIDTH_DP = 3f
+        private const val MARKER_LABEL_MAX_CHARS = 3
 
         private const val MIN_HIT_DP = 40f
 

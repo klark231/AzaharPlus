@@ -299,4 +299,31 @@
     <string name="multiplayer_public_room">Jelajahi Ruang Publik</string>
     <string name="original_button_text">Gabung</string>
     <string name="reset_to_default">Setel ulang ke default</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Baru</string>
+    <string name="touch_input_rebind">Petakan ulang</string>
+    <string name="touch_input_all_bindings">Semua pemetaan (%1$d)</string>
+    <string name="touch_input_touches_format">Menyentuh layar di %1$s</string>
+    <string name="touch_input_hint_drag">Seret penanda untuk memindahkannya · ketuk area kosong untuk menambahkan</string>
+    <string name="chat_preview_title">Pratinjau</string>
+    <string name="chat_preview_description">Beginilah tampilan obrolan di atas game. Pilih preset atau atur penggeser di bawah.</string>
+    <string name="chat_preview_sample_1">➕ Alex bergabung ke ruangan</string>
+    <string name="chat_preview_sample_2">Sam: siap kapan pun kamu siap!</string>
+    <string name="chat_preview_sample_3">Alex: ayo</string>
+    <string name="chat_preset_default">Default</string>
+    <string name="chat_preset_readable">Mudah dibaca</string>
+    <string name="chat_preset_subtle">Halus</string>
+    <string name="chat_preset_large">Besar</string>
+    <string name="chat_section_text">Teks</string>
+    <string name="chat_section_shadow">Bayangan teks</string>
+    <string name="chat_section_background">Latar belakang pesan</string>
+    <string name="chat_section_button">Tombol obrolan</string>
+    <string name="touch_input_source_controller">Perangkat eksternal</string>
+    <string name="touch_input_source_overlay">Overlay input</string>
+    <string name="touch_input_overlay_message">Menambahkan tombol sentuh baru di layar yang menekan titik ini. Anda dapat menampilkan, menyembunyikan, dan memindahkannya di Alihkan Kontrol dan Atur Overlay.</string>
+    <string name="touch_input_add_overlay_button">Tambah tombol sentuh</string>
+    <string name="button_touch">Tombol Sentuh</string>
+    <string name="button_touch_format">Tombol Sentuh %1$d</string>
+    <string name="touch_input_overlay_button_format">Tombol sentuh %1$s</string>
 </resources>

@@ -633,4 +633,31 @@
     <string name="multiplayer_public_room">Περιήγηση σε δημόσια δωμάτια</string>
     <string name="original_button_text">Συμμετοχή</string>
     <string name="reset_to_default">Επαναφορά στις προεπιλογές</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Νέο</string>
+    <string name="touch_input_rebind">Επανασύνδεση</string>
+    <string name="touch_input_all_bindings">Όλες οι αντιστοιχίσεις (%1$d)</string>
+    <string name="touch_input_touches_format">Αγγίζει την οθόνη στο %1$s</string>
+    <string name="touch_input_hint_drag">Σύρετε έναν δείκτη για να τον μετακινήσετε · πατήστε σε κενό σημείο για να προσθέσετε έναν</string>
+    <string name="chat_preview_title">Προεπισκόπηση</string>
+    <string name="chat_preview_description">Έτσι θα φαίνεται η συνομιλία πάνω από το παιχνίδι. Επιλέξτε μια προεπιλογή ή ρυθμίστε τα ρυθμιστικά παρακάτω.</string>
+    <string name="chat_preview_sample_1">➕ Ο Alex μπήκε στο δωμάτιο</string>
+    <string name="chat_preview_sample_2">Sam: έτοιμος όποτε είσαι κι εσύ!</string>
+    <string name="chat_preview_sample_3">Alex: πάμε</string>
+    <string name="chat_preset_default">Προεπιλογή</string>
+    <string name="chat_preset_readable">Ευανάγνωστο</string>
+    <string name="chat_preset_subtle">Διακριτικό</string>
+    <string name="chat_preset_large">Μεγάλο</string>
+    <string name="chat_section_text">Κείμενο</string>
+    <string name="chat_section_shadow">Σκιά κειμένου</string>
+    <string name="chat_section_background">Φόντο μηνυμάτων</string>
+    <string name="chat_section_button">Κουμπί συνομιλίας</string>
+    <string name="touch_input_source_controller">Εξωτερική συσκευή</string>
+    <string name="touch_input_source_overlay">Επικάλυψη εισόδου</string>
+    <string name="touch_input_overlay_message">Προσθέτει ένα νέο κουμπί αφής στην οθόνη που πατάει αυτό το σημείο. Μπορείτε να το εμφανίσετε, να το αποκρύψετε και να το μετακινήσετε στις Εναλλαγή χειριστηρίων και Προσαρμογή επικάλυψης.</string>
+    <string name="touch_input_add_overlay_button">Προσθήκη κουμπιού αφής</string>
+    <string name="button_touch">Κουμπί αφής</string>
+    <string name="button_touch_format">Κουμπί αφής %1$d</string>
+    <string name="touch_input_overlay_button_format">Κουμπί αφής %1$s</string>
 </resources>

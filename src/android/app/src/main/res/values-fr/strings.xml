@@ -1302,4 +1302,31 @@
     <string name="system_files_download">Télécharger les fichiers système</string>
     <string name="download_system_files">Télécharger les fichiers système</string>
     <string name="download">Télécharger</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Nouveau</string>
+    <string name="touch_input_rebind">Réassigner</string>
+    <string name="touch_input_all_bindings">Toutes les assignations (%1$d)</string>
+    <string name="touch_input_touches_format">Touche l\'écran à %1$s</string>
+    <string name="touch_input_hint_drag">Faites glisser un repère pour le déplacer · touchez un espace vide pour en ajouter un</string>
+    <string name="chat_preview_title">Aperçu</string>
+    <string name="chat_preview_description">Voici à quoi ressemblera le chat par-dessus le jeu. Choisissez un préréglage ou ajustez les curseurs ci-dessous.</string>
+    <string name="chat_preview_sample_1">➕ Alex a rejoint le salon</string>
+    <string name="chat_preview_sample_2">Sam : prêt quand tu veux !</string>
+    <string name="chat_preview_sample_3">Alex : c\'est parti</string>
+    <string name="chat_preset_default">Par défaut</string>
+    <string name="chat_preset_readable">Lisible</string>
+    <string name="chat_preset_subtle">Discret</string>
+    <string name="chat_preset_large">Grand</string>
+    <string name="chat_section_text">Texte</string>
+    <string name="chat_section_shadow">Ombre du texte</string>
+    <string name="chat_section_background">Arrière-plan des messages</string>
+    <string name="chat_section_button">Bouton du chat</string>
+    <string name="touch_input_source_controller">Périphérique externe</string>
+    <string name="touch_input_source_overlay">Surcouche d\'entrée</string>
+    <string name="touch_input_overlay_message">Ajoute un nouveau bouton tactile à l\'écran qui appuie sur ce point. Vous pouvez l\'afficher, le masquer et le déplacer dans Activer/désactiver les commandes et Ajuster la surcouche.</string>
+    <string name="touch_input_add_overlay_button">Ajouter un bouton tactile</string>
+    <string name="button_touch">Bouton tactile</string>
+    <string name="button_touch_format">Bouton tactile %1$d</string>
+    <string name="touch_input_overlay_button_format">Bouton tactile %1$s</string>
 </resources>

@@ -1302,4 +1302,31 @@
     <string name="system_files_download">Scarica file di sistema</string>
     <string name="download_system_files">Scarica file di sistema</string>
     <string name="download">Scarica</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Nuovo</string>
+    <string name="touch_input_rebind">Riassegna</string>
+    <string name="touch_input_all_bindings">Tutte le assegnazioni (%1$d)</string>
+    <string name="touch_input_touches_format">Tocca lo schermo in %1$s</string>
+    <string name="touch_input_hint_drag">Trascina un indicatore per spostarlo · tocca uno spazio vuoto per aggiungerne uno</string>
+    <string name="chat_preview_title">Anteprima</string>
+    <string name="chat_preview_description">Ecco come apparirà la chat sopra il gioco. Scegli un preset o regola i cursori qui sotto.</string>
+    <string name="chat_preview_sample_1">➕ Alex è entrato nella stanza</string>
+    <string name="chat_preview_sample_2">Sam: pronto quando vuoi!</string>
+    <string name="chat_preview_sample_3">Alex: andiamo</string>
+    <string name="chat_preset_default">Predefinito</string>
+    <string name="chat_preset_readable">Leggibile</string>
+    <string name="chat_preset_subtle">Discreto</string>
+    <string name="chat_preset_large">Grande</string>
+    <string name="chat_section_text">Testo</string>
+    <string name="chat_section_shadow">Ombra del testo</string>
+    <string name="chat_section_background">Sfondo dei messaggi</string>
+    <string name="chat_section_button">Pulsante della chat</string>
+    <string name="touch_input_source_controller">Dispositivo esterno</string>
+    <string name="touch_input_source_overlay">Overlay di input</string>
+    <string name="touch_input_overlay_message">Aggiunge un nuovo pulsante touch sullo schermo che preme questo punto. Puoi mostrarlo, nasconderlo e spostarlo in Attiva/disattiva controlli e Regola overlay.</string>
+    <string name="touch_input_add_overlay_button">Aggiungi pulsante touch</string>
+    <string name="button_touch">Pulsante touch</string>
+    <string name="button_touch_format">Pulsante touch %1$d</string>
+    <string name="touch_input_overlay_button_format">Pulsante touch %1$s</string>
 </resources>

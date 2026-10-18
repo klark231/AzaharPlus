@@ -260,4 +260,31 @@
     <string name="multiplayer_public_room">공개 방 찾아보기</string>
     <string name="original_button_text">참가</string>
     <string name="reset_to_default">기본값으로 재설정</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">새로 만들기</string>
+    <string name="touch_input_rebind">다시 지정</string>
+    <string name="touch_input_all_bindings">모든 바인딩 (%1$d)</string>
+    <string name="touch_input_touches_format">화면의 %1$s 지점을 터치</string>
+    <string name="touch_input_hint_drag">마커를 드래그해 이동 · 빈 곳을 탭해 추가</string>
+    <string name="chat_preview_title">미리보기</string>
+    <string name="chat_preview_description">게임 위에 채팅이 이렇게 표시됩니다. 프리셋을 고르거나 아래 슬라이더로 조절하세요.</string>
+    <string name="chat_preview_sample_1">➕ Alex님이 방에 참가했습니다</string>
+    <string name="chat_preview_sample_2">Sam: 준비되면 말해줘!</string>
+    <string name="chat_preview_sample_3">Alex: 가자</string>
+    <string name="chat_preset_default">기본값</string>
+    <string name="chat_preset_readable">읽기 쉬움</string>
+    <string name="chat_preset_subtle">은은하게</string>
+    <string name="chat_preset_large">크게</string>
+    <string name="chat_section_text">텍스트</string>
+    <string name="chat_section_shadow">텍스트 그림자</string>
+    <string name="chat_section_background">메시지 배경</string>
+    <string name="chat_section_button">채팅 버튼</string>
+    <string name="touch_input_source_controller">외부 기기</string>
+    <string name="touch_input_source_overlay">입력 오버레이</string>
+    <string name="touch_input_overlay_message">이 지점을 누르는 화면 속 새 터치 버튼을 추가합니다. 컨트롤 전환과 오버레이 조정에서 표시, 숨김, 이동할 수 있습니다.</string>
+    <string name="touch_input_add_overlay_button">터치 버튼 추가</string>
+    <string name="button_touch">터치 버튼</string>
+    <string name="button_touch_format">터치 버튼 %1$d</string>
+    <string name="touch_input_overlay_button_format">터치 버튼 %1$s</string>
 </resources>

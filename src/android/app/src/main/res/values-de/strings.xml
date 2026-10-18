@@ -1092,4 +1092,31 @@
     <string name="multiplayer_join_room">Beitreten</string>
     <string name="multiplayer_public_room">Öffentliche Räume durchsuchen</string>
     <string name="original_button_text">Beitreten</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Neu</string>
+    <string name="touch_input_rebind">Neu zuweisen</string>
+    <string name="touch_input_all_bindings">Alle Belegungen (%1$d)</string>
+    <string name="touch_input_touches_format">Berührt den Bildschirm bei %1$s</string>
+    <string name="touch_input_hint_drag">Marker ziehen, um ihn zu verschieben · leere Stelle antippen, um einen hinzuzufügen</string>
+    <string name="chat_preview_title">Vorschau</string>
+    <string name="chat_preview_description">So sieht der Chat über dem Spiel aus. Wähle eine Voreinstellung oder passe die Regler unten an.</string>
+    <string name="chat_preview_sample_1">➕ Alex ist dem Raum beigetreten</string>
+    <string name="chat_preview_sample_2">Sam: Bin bereit, wenn du es bist!</string>
+    <string name="chat_preview_sample_3">Alex: Los geht\'s</string>
+    <string name="chat_preset_default">Standard</string>
+    <string name="chat_preset_readable">Gut lesbar</string>
+    <string name="chat_preset_subtle">Dezent</string>
+    <string name="chat_preset_large">Groß</string>
+    <string name="chat_section_text">Text</string>
+    <string name="chat_section_shadow">Textschatten</string>
+    <string name="chat_section_background">Nachrichtenhintergrund</string>
+    <string name="chat_section_button">Chat-Schaltfläche</string>
+    <string name="touch_input_source_controller">Externes Gerät</string>
+    <string name="touch_input_source_overlay">Eingabe-Overlay</string>
+    <string name="touch_input_overlay_message">Fügt eine neue Touch-Schaltfläche auf dem Bildschirm hinzu, die diese Stelle drückt. Du kannst sie unter „Steuerung ein-/ausblenden“ und „Overlay anpassen“ ein- und ausblenden sowie verschieben.</string>
+    <string name="touch_input_add_overlay_button">Touch-Schaltfläche hinzufügen</string>
+    <string name="button_touch">Touch-Schaltfläche</string>
+    <string name="button_touch_format">Touch-Schaltfläche %1$d</string>
+    <string name="touch_input_overlay_button_format">Touch-Schaltfläche %1$s</string>
 </resources>

@@ -368,4 +368,31 @@
     <string name="multiplayer_public_room">Bla gjennom offentlige rom</string>
     <string name="original_button_text">Bli med</string>
     <string name="reset_to_default">Tilbakestill til standard</string>
+
+    <!-- Chat overlay and touch input additions -->
+    <string name="touch_input_new_profile">Ny</string>
+    <string name="touch_input_rebind">Tilordne på nytt</string>
+    <string name="touch_input_all_bindings">Alle tilordninger (%1$d)</string>
+    <string name="touch_input_touches_format">Berører skjermen ved %1$s</string>
+    <string name="touch_input_hint_drag">Dra en markør for å flytte den · trykk på et tomt område for å legge til en</string>
+    <string name="chat_preview_title">Forhåndsvisning</string>
+    <string name="chat_preview_description">Slik ser chatten ut oppå spillet. Velg en forhåndsinnstilling, eller juster glidebryterne nedenfor.</string>
+    <string name="chat_preview_sample_1">➕ Alex ble med i rommet</string>
+    <string name="chat_preview_sample_2">Sam: klar når du er!</string>
+    <string name="chat_preview_sample_3">Alex: kjør på</string>
+    <string name="chat_preset_default">Standard</string>
+    <string name="chat_preset_readable">Lettlest</string>
+    <string name="chat_preset_subtle">Diskret</string>
+    <string name="chat_preset_large">Stor</string>
+    <string name="chat_section_text">Tekst</string>
+    <string name="chat_section_shadow">Tekstskygge</string>
+    <string name="chat_section_background">Meldingsbakgrunn</string>
+    <string name="chat_section_button">Chat-knapp</string>
+    <string name="touch_input_source_controller">Ekstern enhet</string>
+    <string name="touch_input_source_overlay">Inndataoverlegg</string>
+    <string name="touch_input_overlay_message">Legger til en ny berøringsknapp på skjermen som trykker på dette punktet. Du kan vise, skjule og flytte den under Bytt kontroller og Juster overlegg.</string>
+    <string name="touch_input_add_overlay_button">Legg til berøringsknapp</string>
+    <string name="button_touch">Berøringsknapp</string>
+    <string name="button_touch_format">Berøringsknapp %1$d</string>
+    <string name="touch_input_overlay_button_format">Berøringsknapp %1$s</string>
 </resources>

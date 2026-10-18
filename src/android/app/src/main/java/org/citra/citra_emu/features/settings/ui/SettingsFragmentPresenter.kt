@@ -2107,7 +2107,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     IntSetting.CHAT_FAB_SIZE,
                     R.string.chat_fab_size,
                     R.string.chat_fab_size_description,
-                    40,
+                    30,
                     80,
                     "dp",
                     IntSetting.CHAT_FAB_SIZE.key,

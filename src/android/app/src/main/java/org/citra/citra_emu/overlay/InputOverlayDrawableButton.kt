@@ -32,6 +32,13 @@ enum class ButtonSlidingMode(val int: Int) {
 private const val BUTTON_HIT_ALPHA = 32
 
 /**
+ * If the visible icon covers less than this share of its square (a thin outline, a tiny symbol, a
+ * very faint colour), its shape is too small to aim at and the circle inscribed in the square is
+ * used as the touch area instead.
+ */
+private const val BUTTON_MIN_SHAPE_FILL = 0.30f
+
+/**
  * Custom [BitmapDrawable] that is capable
  * of storing it's own ID.
  *
@@ -73,13 +80,46 @@ class InputOverlayDrawableButton(
     private val pressedStateBitmap: BitmapDrawable
     private var pressedState = false
 
-    // The default icon, kept to tell the visible shape from the empty corners of its square
-    private val hitMask: Bitmap
+    // For every row of the default icon: the first and last visible pixel (-1 if the row is empty).
+    // Everything between them counts as part of the button, so holes inside the icon (rings,
+    // outlines, a letter cut out of the button) still react to touches.
+    private val shapeLeft: IntArray
+    private val shapeRight: IntArray
+    private val shapeWidth: Int
+
+    // False when the icon is too small or too faint to aim at, see BUTTON_MIN_SHAPE_FILL
+    private val useShape: Boolean
 
     init {
         this.defaultStateBitmap = BitmapDrawable(res, defaultStateBitmap)
         this.pressedStateBitmap = BitmapDrawable(res, pressedStateBitmap)
-        hitMask = defaultStateBitmap
+        shapeWidth = defaultStateBitmap.width
+        val rows = defaultStateBitmap.height
+        val left = IntArray(rows) { -1 }
+        val right = IntArray(rows) { -1 }
+        var filled = 0L
+        try {
+            val line = IntArray(shapeWidth)
+            for (y in 0 until rows) {
+                defaultStateBitmap.getPixels(line, 0, shapeWidth, 0, y, shapeWidth, 1)
+                var first = -1
+                var last = -1
+                for (x in 0 until shapeWidth) {
+                    if ((line[x] ushr 24) >= BUTTON_HIT_ALPHA) {
+                        if (first < 0) first = x
+                        last = x
+                    }
+                }
+                left[y] = first
+                right[y] = last
+                if (first >= 0) filled += (last - first + 1)
+            }
+        } catch (_: Exception) {
+            filled = 0
+        }
+        shapeLeft = left
+        shapeRight = right
+        useShape = filled >= shapeWidth.toLong() * rows * BUTTON_MIN_SHAPE_FILL
         trackId = -1
         width = this.defaultStateBitmap.intrinsicWidth
         height = this.defaultStateBitmap.intrinsicHeight
@@ -274,22 +314,36 @@ class InputOverlayDrawableButton(
         get() = defaultStateBitmap.bounds
 
     /**
-     * True if (x, y) is on the visible icon, not just inside the square around it. A round button
-     * does not react in the corners of its square, so buttons that are close together never
-     * share a touch.
+     * True if (x, y) is on the button. The touch area is made to work for any theme image, it never
+     * depends on the image being opaque:
+     *  - the circle inscribed in the button's square always reacts, so the middle of any button
+     *    works even if its image is an outline, a ring, faint or mostly transparent
+     *  - for icons with a real shape, everything between the icon's left and right edge in each
+     *    row also reacts, which covers pill shaped buttons (L/R, Start/Select) and fills holes
+     * The empty corners of the square do not react, so buttons close together never share a touch.
      */
     fun containsPoint(x: Int, y: Int): Boolean {
         val r = bounds
         if (r.width() <= 0 || r.height() <= 0 || !r.contains(x, y)) {
             return false
         }
-        val px = ((x - r.left) * hitMask.width / r.width()).coerceIn(0, hitMask.width - 1)
-        val py = ((y - r.top) * hitMask.height / r.height()).coerceIn(0, hitMask.height - 1)
-        return try {
-            (hitMask.getPixel(px, py) ushr 24) >= BUTTON_HIT_ALPHA
-        } catch (_: Exception) {
-            true
+        val dx = (x - r.exactCenterX()) / (r.width() / 2f)
+        val dy = (y - r.exactCenterY()) / (r.height() / 2f)
+        if (dx * dx + dy * dy <= 1f) {
+            return true
         }
+        if (!useShape) {
+            return false
+        }
+        val rows = shapeLeft.size
+        val px = ((x - r.left) * shapeWidth / r.width()).coerceIn(0, shapeWidth - 1)
+        val py = ((y - r.top) * rows / r.height()).coerceIn(0, rows - 1)
+        val first = shapeLeft[py]
+        if (first < 0) {
+            return false
+        }
+        val margin = shapeWidth / 50
+        return px >= first - margin && px <= shapeRight[py] + margin
     }
 
     /** Distance in pixels from (x, y) to the centre of this button. */

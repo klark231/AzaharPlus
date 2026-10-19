@@ -53,6 +53,30 @@ enum {
 };
 } // namespace ErrCodes
 
+// [DIAG6] Log full payloads for uncommon packet sizes (steady-state sizes stay short).
+static std::size_t DiagMaxBytes(std::size_t size, std::size_t dflt) {
+    switch (size) {
+    case 140: case 132: case 154: case 84: case 92: case 64: case 86: case 114: case 106:
+    case 172: case 178: case 186:
+        return dflt;
+    default:
+        return 600;
+    }
+}
+
+// [DIAG2] Hex dump helper for late-join research. Remove when done.
+static std::string DiagHex(const u8* data, std::size_t size, std::size_t max_bytes) {
+    static const char* digits = "0123456789ABCDEF";
+    std::string out;
+    const std::size_t n = std::min(size, max_bytes);
+    out.reserve(n * 2);
+    for (std::size_t i = 0; i < n; ++i) {
+        out.push_back(digits[data[i] >> 4]);
+        out.push_back(digits[data[i] & 0xF]);
+    }
+    return out;
+}
+
 // Number of beacons to store before we start dropping the old ones.
 // TODO(Subv): Find a more accurate value for this limit.
 constexpr std::size_t MaxBeaconFrames = 15;
@@ -281,10 +305,29 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
         // On a 3ds the eapol packet is only sent to packet.transmitter_address
         // while a packet containing the node information is broadcasted
         // For now we will broadcast the eapol packet instead
-        eapol_logoff.destination_address = Network::BroadcastMac;
+        // [FIX-JOIN] Stock behaviour broadcasts this frame, and a console that is still connecting
+        // takes the first logoff it sees. With two guests joining at the same moment both took the
+        // first one's node id ("The connection was lost", later a deauth from an unknown node).
+        // Send the reply to the joining console only, and a separate unicast update to every
+        // other connected node so they still learn about the new node.
+        // Set to false to get the old broadcast behaviour back.
+        constexpr bool kJoinUnicastFix = true;
         eapol_logoff.type = WifiPacket::PacketType::Data;
-
-        SendPacket(eapol_logoff);
+        if (kJoinUnicastFix) {
+            eapol_logoff.destination_address = packet.transmitter_address;
+            SendPacket(eapol_logoff);
+            for (const auto& [other_mac, other_node] : node_map) {
+                if (other_mac == packet.transmitter_address || !other_node.connected) {
+                    continue;
+                }
+                WifiPacket update = eapol_logoff;
+                update.destination_address = other_mac;
+                SendPacket(update);
+            }
+        } else {
+            eapol_logoff.destination_address = Network::BroadcastMac;
+            SendPacket(eapol_logoff);
+        }
 
         SignalEventAsync(connection_status_event);
     } else if (connection_status.status == NetworkStatus::Connecting) {
@@ -429,6 +472,13 @@ void NWM_UDS::HandleSecureDataPacket(const Network::WifiPacket& packet) {
         channel_info->second.network_node_id != secure_data.src_node_id) {
         return;
     }
+
+    // [DIAG2] log received data frame
+    LOG_ERROR(Service_NWM, "[DIAG2] RX src={} ch={} size={} head={}",
+              static_cast<u16>(secure_data.src_node_id), static_cast<u8>(secure_data.data_channel),
+              packet.data.size(),
+              DiagHex(packet.data.data(), packet.data.size(),
+                      DiagMaxBytes(packet.data.size(), 32)));
 
     // Add the received packet to the data queue.
     channel_info->second.received_packets.emplace_back(packet.data);
@@ -1159,6 +1209,10 @@ void NWM_UDS::UpdateNetworkAttribute(Kernel::HLERequestContext& ctx) {
     u16 bitmask = rp.Pop<u16>();
     u8 flag = rp.Pop<u8>();
 
+    // [DIAG2] who closes/opens the room and how
+    LOG_ERROR(Service_NWM, "[DIAG2] UpdateNetworkAttribute bitmask=0x{:04X} flag=0x{:02X}",
+              bitmask, flag);
+
     auto res = UpdateNetworkAttributeHLE(bitmask, flag);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
@@ -1310,6 +1364,11 @@ ResultStatus NWM_UDS::SendToHLE(u32 dest_node_id, u8 data_channel, u32 data_size
                   MaxSize);
         return ResultStatus::SendError_PacketSizeTooLarge;
     }
+    // [DIAG2] log sent data frame
+    LOG_ERROR(Service_NWM, "[DIAG2] TX dst={} ch={} size={} head={}", dest_node_id, data_channel,
+              data_size, DiagHex(input_buffer.data(), input_buffer.size(),
+                      DiagMaxBytes(input_buffer.size(), 16)));
+
     // TODO(B3N30): Increment the sequence number after each sent packet.
     u16 sequence_number = 0;
     std::vector<u8> data_payload =
@@ -1642,8 +1701,42 @@ void NWM_UDS::SetApplicationData(Kernel::HLERequestContext& ctx) {
         return;
     }
 
+    // [DIAG2] beacon application data (lobby vs quest state)
+    LOG_ERROR(Service_NWM, "[DIAG2] SetApplicationData size={} data={}", size,
+              DiagHex(application_data.data(), application_data.size(), 255));
+
+    // [DIAG4] Which game code builds the hall/quest state? Same scan as [GUESTSTACK].
+    {
+        auto& cpu = system.GetRunningCore();
+        auto& mem = system.Memory();
+        const u32 sp = cpu.GetReg(13);
+        LOG_ERROR(Service_NWM, "[DIAG4] SetApplicationData pc={:08X} lr={:08X} sp={:08X}",
+                  cpu.GetPC(), cpu.GetReg(14), sp);
+        int found = 0;
+        for (u32 off = 0; off < 0x600 && found < 32; off += 4) {
+            const u32 v = mem.Read32(sp + off);
+            if (v < 0x00100000 || v >= 0x00E00000 || (v & 3) != 0) {
+                continue;
+            }
+            const u32 prev = mem.Read32(v - 4);
+            if ((prev >> 24) == 0xEB || (prev & 0xFFFFFFF0) == 0xE12FFF30) {
+                LOG_ERROR(Service_NWM, "[DIAG4]   sp+{:03X}: ret={:08X}", off, v);
+                ++found;
+            }
+        }
+    }
+
     network_info.application_data_size = static_cast<u8>(size);
     std::memcpy(network_info.application_data.data(), application_data.data(), size);
+
+    // [DIAG3] EXPERIMENT: make the advertised room look "quest selected, not started" so a
+    // joiner's room list may still show it during a quest. Set to false to disable.
+    constexpr bool kDiagKeepRoomOpen = false;
+    if (kDiagKeepRoomOpen && size > 0x33 && network_info.application_data[0x32] == 0x12) {
+        network_info.application_data[0x32] = 0x11;
+        network_info.application_data[0x33] = 0x2F;
+        LOG_ERROR(Service_NWM, "[DIAG3] beacon state 0x12 rewritten to 0x11/0x2F");
+    }
 
     rb.Push(ResultSuccess);
 }

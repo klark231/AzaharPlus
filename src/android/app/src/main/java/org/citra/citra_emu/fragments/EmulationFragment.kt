@@ -1929,8 +1929,9 @@ class EmulationFragment :
     private fun setInsets() {
         if (!BooleanSetting.EXPAND_TO_CUTOUT_AREA.boolean) {
             ViewCompat.setOnApplyWindowInsetsListener(binding.surfaceEmulation, applyCutoutInsets)
+            // With "Expand to Cutout Area" the overlay covers the whole screen, like the surface
+            ViewCompat.setOnApplyWindowInsetsListener(binding.surfaceInputOverlay, applyCutoutInsets)
         }
-        ViewCompat.setOnApplyWindowInsetsListener(binding.surfaceInputOverlay, applyCutoutInsets)
         ViewCompat.setOnApplyWindowInsetsListener(
             binding.performanceOverlayShowText,
             applyCutoutInsets

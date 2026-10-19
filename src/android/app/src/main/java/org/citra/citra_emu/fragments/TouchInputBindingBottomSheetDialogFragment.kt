@@ -115,7 +115,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun bindTexts() {
         binding.textTitle.setText(R.string.bind_touch_input)
-        binding.textMessage.setText(R.string.bind_touch_input_message)
+        binding.textMessage.setText(R.string.input_dialog_description)
         binding.buttonCancel.setText(R.string.bind_touch_input_cancel)
         binding.textPosition.text = TouchInputBinding.formatPosition(touchX, touchY)
     }
@@ -160,7 +160,7 @@ class TouchInputBindingBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.addOverlayButton.visibility = if (overlay) View.VISIBLE else View.GONE
         binding.iconBind.visibility = if (overlay) View.GONE else View.VISIBLE
         binding.textMessage.setText(
-            if (overlay) R.string.touch_input_overlay_message else R.string.bind_touch_input_message
+            if (overlay) R.string.touch_input_overlay_message else R.string.input_dialog_description
         )
     }
 

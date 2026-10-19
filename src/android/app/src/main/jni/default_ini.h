@@ -409,7 +409,7 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 )") DECLARE_KEY(swap_screen) BOOST_HANA_STRING(R"(
 
 # Expands the display area to include the cutout (or notch) area
-# 0 (default): Off, 1: On
+# 0: Off, 1: On (default)
 )") DECLARE_KEY(expand_to_cutout_area) BOOST_HANA_STRING(R"(
 
 # Allows Azahar to use externally connected displays

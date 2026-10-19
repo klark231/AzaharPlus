@@ -172,16 +172,8 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
         for (pointerIndex in pointerList) {
             val pointerId = event.getPointerId(pointerIndex)
 
-            var xPosition = event.getX(pointerIndex).toInt()
-            var yPosition = event.getY(pointerIndex).toInt()
-
-            if (BooleanSetting.EXPAND_TO_CUTOUT_AREA.boolean) {
-                val cutout = ViewCompat.getRootWindowInsets(this)?.displayCutout
-                val marginsX = (cutout?.safeInsetLeft?.plus(cutout.safeInsetRight)) ?: 0
-                val marginsY = (cutout?.safeInsetTop?.plus(cutout.safeInsetBottom)) ?: 0
-                xPosition += marginsX
-                yPosition += marginsY
-            }
+            val xPosition = event.getX(pointerIndex).toInt()
+            val yPosition = event.getY(pointerIndex).toInt()
 
             // Which controls are already tracking this finger. These are computed once, before any
             // control had a chance to claim the finger. So on ACTION_DOWN (nothing tracks it yet)
@@ -969,7 +961,12 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             displayWidth = displayMetrics.widthPixels.toFloat()
             displayHeight = displayMetrics.heightPixels.toFloat()
         }
-        val cutout = ViewCompat.getRootWindowInsets(this)?.displayCutout
+        // With "Expand to Cutout Area" the overlay covers the whole display, otherwise it is inset
+        val cutout = if (BooleanSetting.EXPAND_TO_CUTOUT_AREA.boolean) {
+            null
+        } else {
+            ViewCompat.getRootWindowInsets(this)?.displayCutout
+        }
         val marginsX = (cutout?.safeInsetLeft?.plus(cutout.safeInsetRight)) ?: 0
         val marginsY = (cutout?.safeInsetTop?.plus(cutout.safeInsetBottom)) ?: 0
         var maxX = displayWidth - marginsX
@@ -1159,7 +1156,12 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             displayWidth = displayMetrics.widthPixels.toFloat()
             displayHeight = displayMetrics.heightPixels.toFloat()
         }
-        val cutout = ViewCompat.getRootWindowInsets(this)?.displayCutout
+        // With "Expand to Cutout Area" the overlay covers the whole display, otherwise it is inset
+        val cutout = if (BooleanSetting.EXPAND_TO_CUTOUT_AREA.boolean) {
+            null
+        } else {
+            ViewCompat.getRootWindowInsets(this)?.displayCutout
+        }
         val marginsX = (cutout?.safeInsetLeft?.plus(cutout.safeInsetRight)) ?: 0
         val marginsY = (cutout?.safeInsetTop?.plus(cutout.safeInsetBottom)) ?: 0
         var maxX = displayWidth - marginsX

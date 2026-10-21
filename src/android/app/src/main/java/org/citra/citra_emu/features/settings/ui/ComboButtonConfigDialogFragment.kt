@@ -36,6 +36,7 @@ class ComboButtonConfigDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val ctx = requireContext()
         val inflater = LayoutInflater.from(ctx)
+        ComboHelper.restoreFromConfig()
         val root = inflater.inflate(R.layout.dialog_combo_buttons, null)
         val container = root.findViewById<LinearLayout>(R.id.combo_container)
 

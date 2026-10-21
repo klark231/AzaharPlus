@@ -18,14 +18,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.R as MaterialR
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -36,7 +35,6 @@ import org.citra.citra_emu.features.touchinput.TouchInputBindingAdapter
 import org.citra.citra_emu.features.touchinput.TouchInputBindingManager
 import org.citra.citra_emu.features.touchinput.TouchInputBindingProfileManager
 import org.citra.citra_emu.utils.ControllerMappingHelper
-import com.google.android.material.R as MaterialR
 
 class TouchInputBindingFragment : Fragment() {
     private var _binding: FragmentTouchInputBinding? = null
@@ -52,6 +50,7 @@ class TouchInputBindingFragment : Fragment() {
     private var currentProfile = ""
     private var selectedBinding: TouchInputBinding? = null
     private var isTestMode = false
+    private var bindingAdapter: TouchInputBindingAdapter? = null
 
     // The root never changes; its content is inflated again when the configuration does
     private var contentHost: FrameLayout? = null
@@ -131,7 +130,20 @@ class TouchInputBindingFragment : Fragment() {
     }
 
     private fun bindViews() {
-        binding.addProfileButton.setOnClickListener { showCreateProfileDialog() }
+        binding.profileButton.setOnClickListener { showProfileMenu(it) }
+        binding.panel.addBindingButton.setOnClickListener {
+            selectBinding(null)
+            showBindSheet(0.5f, 0.5f)
+        }
+        bindingAdapter = TouchInputBindingAdapter(
+            onRowClicked = { selectBinding(if (it == selectedBinding) null else it) },
+            onDeleteClicked = { deleteBinding(it) }
+        )
+        binding.panel.bindingsList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = bindingAdapter
+            itemAnimator = null
+        }
 
         binding.touchInputBindingView.apply {
             isFocusable = true
@@ -152,23 +164,23 @@ class TouchInputBindingFragment : Fragment() {
         }
         binding.overflowButton.setOnClickListener { showOverflowMenu(it) }
 
-        bindHoldToRepeat(binding.inspectorRow.nudgeLeft) { nudgeSelected(-NUDGE_STEP, 0f) }
-        bindHoldToRepeat(binding.inspectorRow.nudgeRight) { nudgeSelected(NUDGE_STEP, 0f) }
-        bindHoldToRepeat(binding.inspectorRow.nudgeUp) { nudgeSelected(0f, -NUDGE_STEP) }
-        bindHoldToRepeat(binding.inspectorRow.nudgeDown) { nudgeSelected(0f, NUDGE_STEP) }
-        binding.inspectorRow.inspectorDelete.setOnClickListener {
+        bindHoldToRepeat(binding.panel.inspectorRow.nudgeLeft) { nudgeSelected(-NUDGE_STEP, 0f) }
+        bindHoldToRepeat(binding.panel.inspectorRow.nudgeRight) { nudgeSelected(NUDGE_STEP, 0f) }
+        bindHoldToRepeat(binding.panel.inspectorRow.nudgeUp) { nudgeSelected(0f, -NUDGE_STEP) }
+        bindHoldToRepeat(binding.panel.inspectorRow.nudgeDown) { nudgeSelected(0f, NUDGE_STEP) }
+        binding.panel.inspectorRow.inspectorDelete.setOnClickListener {
             selectedBinding?.let { deleteBinding(it) }
         }
-        binding.inspectorRow.inspectorDone.setOnClickListener { selectBinding(null) }
-        binding.inspectorRow.rebindButton.setOnClickListener {
+        binding.panel.inspectorRow.inspectorDone.setOnClickListener { selectBinding(null) }
+        binding.panel.inspectorRow.rebindButton.setOnClickListener {
             selectedBinding?.let { startRebind(it) }
         }
         val editCoordinates = View.OnClickListener { selectedBinding?.let { showEditBindingDialog(it) } }
-        binding.inspectorRow.xField.setOnClickListener(editCoordinates)
-        binding.inspectorRow.yField.setOnClickListener(editCoordinates)
+        binding.panel.inspectorRow.xField.setOnClickListener(editCoordinates)
+        binding.panel.inspectorRow.yField.setOnClickListener(editCoordinates)
 
         applyTestModeToViews()
-        rebuildProfileChips()
+        updateProfileButton()
         loadCurrentProfile()
     }
 
@@ -189,82 +201,51 @@ class TouchInputBindingFragment : Fragment() {
 
     // region Profiles
 
-    private fun rebuildProfileChips() {
-        val group = binding.profileChipGroup
-        group.removeAllViews()
-
-        profileManager.getProfiles().forEach { name ->
-            val isSelected = name == currentProfile
-
-            val chip = Chip(requireContext()).apply {
-                text = name
-                isCheckable = true
-                isChecked = isSelected
-                tag = name
-                styleProfileChip(this)
-                setOnClickListener {
-                    if (name != currentProfile) selectProfile(name)
-                }
-                // Long-press still works everywhere, but that's not discoverable on its own, so
-                // the active profile also gets a visible icon that opens the same menu.
-                setOnLongClickListener {
-                    showProfileChipMenu(this, name)
-                    true
-                }
-                if (isSelected) {
-                    isCloseIconVisible = true
-                    closeIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_more_vert)
-                    closeIconContentDescription = getString(R.string.profile_manage_format, name)
-                    setOnCloseIconClickListener { showProfileChipMenu(this, name) }
-                }
-            }
-            group.addView(chip)
-        }
+    private fun updateProfileButton() {
+        binding.profileButton.text = currentProfile
     }
 
-    /** Pill-shaped profile chip: tonal and checkmarked when active, outlined when not. */
-    private fun styleProfileChip(chip: Chip) {
-        val ctx = requireContext()
-        val density = resources.displayMetrics.density
-        val checkedState = intArrayOf(android.R.attr.state_checked)
-        val uncheckedState = intArrayOf(-android.R.attr.state_checked)
-        val fill = android.content.res.ColorStateList(
-            arrayOf(checkedState, uncheckedState),
-            intArrayOf(
-                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorSecondaryContainer, 0),
-                android.graphics.Color.TRANSPARENT
+    /** Dropdown with every profile (current one checked), plus "create" and the current one's rename/delete. */
+    private fun showProfileMenu(anchor: View) {
+        PopupMenu(requireContext(), anchor).apply {
+            val profiles = profileManager.getProfiles()
+            profiles.forEachIndexed { index, name ->
+                menu.add(MENU_GROUP_PROFILES, MENU_PROFILE_BASE + index, index, name).apply {
+                    isCheckable = true
+                    isChecked = name == currentProfile
+                }
+            }
+            menu.setGroupCheckable(MENU_GROUP_PROFILES, true, true)
+            menu.add(0, MENU_CREATE, profiles.size, R.string.create_profile)
+            menu.add(
+                0, MENU_RENAME, profiles.size + 1,
+                getString(R.string.profile_action_rename_format, currentProfile)
             )
-        )
-        val text = android.content.res.ColorStateList(
-            arrayOf(checkedState, uncheckedState),
-            intArrayOf(
-                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOnSecondaryContainer, 0),
-                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOnSurface, 0)
+            menu.add(
+                0, MENU_DELETE, profiles.size + 2,
+                getString(R.string.profile_action_delete_format, currentProfile)
             )
-        )
-        val stroke = android.content.res.ColorStateList(
-            arrayOf(checkedState, uncheckedState),
-            intArrayOf(
-                android.graphics.Color.TRANSPARENT,
-                com.google.android.material.color.MaterialColors.getColor(ctx, MaterialR.attr.colorOutline, 0)
-            )
-        )
-        chip.chipBackgroundColor = fill
-        chip.setTextColor(text)
-        chip.chipStrokeColor = stroke
-        chip.chipStrokeWidth = density
-        chip.chipCornerRadius = 20f * density
-        chip.chipMinHeight = 40f * density
-        chip.isCheckedIconVisible = true
-        chip.checkedIconTint = text
-        chip.closeIconTint = text
-        chip.textSize = 14f
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    MENU_CREATE -> showCreateProfileDialog()
+                    MENU_RENAME -> showRenameProfileDialog(currentProfile)
+                    MENU_DELETE -> showDeleteProfileDialog(currentProfile)
+                    else -> {
+                        val name = profiles.getOrNull(item.itemId - MENU_PROFILE_BASE)
+                            ?: return@setOnMenuItemClickListener false
+                        if (name != currentProfile) selectProfile(name)
+                    }
+                }
+                true
+            }
+            show()
+        }
     }
 
     private fun selectProfile(profileName: String) {
         currentProfile = profileName
         profileManager.setCurrentProfile(profileName)
-        rebuildProfileChips()
+        updateProfileButton()
         loadCurrentProfile()
     }
 
@@ -278,23 +259,6 @@ class TouchInputBindingFragment : Fragment() {
     private fun commitChanges() {
         profileManager.saveProfile(currentProfile, TouchInputBindingManager.getBindings())
         refreshBindings()
-    }
-
-    private fun showProfileChipMenu(anchor: View, profileName: String) {
-        PopupMenu(requireContext(), anchor).apply {
-            menu.add(0, MENU_RENAME, 0, getString(R.string.profile_action_rename_format, profileName))
-            menu.add(0, MENU_DELETE, 1, getString(R.string.profile_action_delete_format, profileName))
-
-            setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    MENU_RENAME -> showRenameProfileDialog(profileName)
-                    MENU_DELETE -> showDeleteProfileDialog(profileName)
-                    else -> return@setOnMenuItemClickListener false
-                }
-                true
-            }
-            show()
-        }
     }
 
     private fun showCreateProfileDialog() {
@@ -338,7 +302,7 @@ class TouchInputBindingFragment : Fragment() {
 
                 if (profileManager.renameProfile(targetProfile, newName)) {
                     currentProfile = profileManager.getCurrentProfile()
-                    rebuildProfileChips()
+                    updateProfileButton()
                 } else {
                     showToast(R.string.profile_name_already_exists)
                 }
@@ -356,7 +320,7 @@ class TouchInputBindingFragment : Fragment() {
                     showToast(R.string.profile_deleted)
                     val wasActive = currentProfile == targetProfile
                     currentProfile = profileManager.getCurrentProfile()
-                    rebuildProfileChips()
+                    updateProfileButton()
                     if (wasActive) loadCurrentProfile()
                 }
             }
@@ -373,7 +337,7 @@ class TouchInputBindingFragment : Fragment() {
         val isEmpty = bindings.isEmpty()
 
         binding.touchInputBindingView.setBindings(bindings)
-        binding.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.panel.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
 
         if (selectedBinding !in bindings) {
             selectBinding(null)
@@ -395,23 +359,22 @@ class TouchInputBindingFragment : Fragment() {
         val bindings = TouchInputBindingManager.getBindings()
         val showInspector = touchBinding != null && !isTestMode
 
-        binding.inspectorRow.root.isVisible = showInspector
-        binding.idleChips.root.isVisible = !showInspector && bindings.isNotEmpty()
-        rebuildBindingChips(binding.idleChips.chipsTitle, binding.idleChips.chipsGroup, bindings)
-        rebuildBindingChips(
-            binding.inspectorRow.inspectorChips.chipsTitle,
-            binding.inspectorRow.inspectorChips.chipsGroup,
-            bindings
-        )
+        binding.panel.inspectorRow.root.isVisible = showInspector
+        binding.panel.bindingsTitle.text =
+            getString(R.string.touch_input_all_bindings, bindings.size)
+        bindingAdapter?.selectedBinding = touchBinding
+        if (bindingAdapter?.currentList != bindings) bindingAdapter?.submitList(bindings.toList())
 
         if (touchBinding != null && showInspector) {
-            binding.inspectorRow.inspectorName.text = touchBinding.displayName()
-            binding.inspectorRow.inspectorPosition.text = getString(
+            val number = bindings.indexOf(touchBinding) + 1
+            binding.panel.inspectorRow.inspectorBadge.text = number.toString()
+            binding.panel.inspectorRow.inspectorName.text = touchBinding.displayName()
+            binding.panel.inspectorRow.inspectorPosition.text = getString(
                 R.string.touch_input_touches_format,
                 touchBinding.positionLabel()
             )
-            binding.inspectorRow.xValue.text = formatShort(touchBinding.x)
-            binding.inspectorRow.yValue.text = formatShort(touchBinding.y)
+            binding.panel.inspectorRow.xValue.text = formatShort(touchBinding.x)
+            binding.panel.inspectorRow.yValue.text = formatShort(touchBinding.y)
         }
 
         binding.hintText.setText(
@@ -422,28 +385,6 @@ class TouchInputBindingFragment : Fragment() {
                 else -> R.string.touch_input_hint_select
             }
         )
-    }
-
-    /** One chip per binding, so any of them can be picked without leaving the panel. */
-    private fun rebuildBindingChips(
-        title: android.widget.TextView,
-        group: com.google.android.material.chip.ChipGroup,
-        bindings: List<TouchInputBinding>
-    ) {
-        title.text = getString(R.string.touch_input_all_bindings, bindings.size)
-        group.removeAllViews()
-        bindings.forEach { touchBinding ->
-            group.addView(
-                Chip(requireContext()).apply {
-                    text = touchBinding.displayName()
-                    isCheckable = true
-                    isChecked = touchBinding == selectedBinding
-                    setOnClickListener {
-                        selectBinding(if (touchBinding == selectedBinding) null else touchBinding)
-                    }
-                }
-            )
-        }
     }
 
     private fun formatShort(value: Float): String = String.format(Locale.US, "%.2f", value)
@@ -513,12 +454,12 @@ class TouchInputBindingFragment : Fragment() {
         val current = selectedBinding ?: return
         if (!committed) {
             // Live feedback only; the manager isn't touched until the drag ends
-            binding.inspectorRow.inspectorPosition.text = getString(
+            binding.panel.inspectorRow.inspectorPosition.text = getString(
                 R.string.touch_input_touches_format,
                 TouchInputBinding.formatPosition(x, y)
             )
-            binding.inspectorRow.xValue.text = formatShort(x)
-            binding.inspectorRow.yValue.text = formatShort(y)
+            binding.panel.inspectorRow.xValue.text = formatShort(x)
+            binding.panel.inspectorRow.yValue.text = formatShort(y)
             return
         }
         applyMove(current, x, y)
@@ -725,6 +666,9 @@ class TouchInputBindingFragment : Fragment() {
 
         private const val TEXT_FIELD_CORNER_RADIUS_DP = 28
 
+        private const val MENU_GROUP_PROFILES = 10
+        private const val MENU_PROFILE_BASE = 1000
+        private const val MENU_CREATE = 4
         private const val MENU_RENAME = 1
         private const val MENU_DELETE = 2
         private const val MENU_DELETE_ALL = 3

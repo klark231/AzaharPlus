@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Landscape: the preview takes the full height on the left, a side sheet holds everything else -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,115 +8,19 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <!-- Left pane: profiles, Edit/Test and the framed preview, which fills the remaining height -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.1"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingBottom="@dimen/touch_input_margin">
+        android:paddingStart="@dimen/touch_input_margin"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp">
 
-        <!-- Profile chips: the row scrolls, the add button stays put -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:clipToPadding="false"
-            android:paddingStart="@dimen/touch_input_margin"
-            android:paddingEnd="@dimen/touch_input_margin"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/profileChipGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:chipSpacingHorizontal="8dp"
-                    app:singleLine="true"
-                    app:singleSelection="true" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/addProfileButton"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="@string/create_profile"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingHorizontal="16dp"
-                    android:text="@string/touch_input_new_profile"
-                    app:cornerRadius="20dp"
-                    app:icon="@drawable/ic_add"
-                    app:iconGravity="textStart"
-                    app:iconPadding="6dp" />
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
-
-        <!-- Edit / Test: a full-width segmented control above the preview -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginStart="@dimen/touch_input_margin"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp">
-
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/editTestToggle"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                app:selectionRequired="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/editModeButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/touch_input_mode_edit" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/testModeButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/touch_input_mode_test" />
-
-            </com.google.android.material.button.MaterialButtonToggleGroup>
-
-            <ImageView
-                android:id="@+id/overflowButton"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/more_options"
-                android:padding="10dp"
-                android:src="@drawable/ic_more_vert"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-        </LinearLayout>
-
-        <!-- The preview sits in a dark frame, like the 3DS bottom screen in its bezel -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="@dimen/touch_input_margin"
-            android:layout_marginEnd="8dp"
             app:cardBackgroundColor="#FF35353B"
             app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
@@ -129,20 +34,17 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Caption under the preview -->
         <LinearLayout
             android:id="@+id/hintRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/touch_input_margin"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="8dp"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_touch_input"
                 app:tint="?attr/colorOnSurfaceVariant" />
@@ -151,9 +53,9 @@
                 android:id="@+id/hintText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="8dp"
                 android:ellipsize="end"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:text="@string/touch_input_hint_empty"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="?attr/colorOnSurfaceVariant" />
@@ -162,69 +64,96 @@
 
     </LinearLayout>
 
-    <!-- Right pane: the inspector panel (or the list of bindings), scrolling on its own -->
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.9"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/touch_input_margin">
+        android:layout_marginStart="@dimen/touch_input_margin"
+        android:layout_weight="0.85"
+        android:background="@drawable/bg_touch_input_sheet_side"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="2dp">
 
-        <include
-            android:id="@+id/inspectorRow"
-            layout="@layout/view_binding_inspector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="@dimen/touch_input_margin"
-            android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileButton"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/touch_input_select_profile"
+                android:ellipsize="end"
+                android:gravity="start|center_vertical"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingStart="14dp"
+                android:paddingEnd="8dp"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_arrow_drop_down"
+                app:iconGravity="end" />
 
-        <include
-            android:id="@+id/idleChips"
-            layout="@layout/view_binding_chips"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="@dimen/touch_input_margin" />
-
-        <LinearLayout
-            android:id="@+id/emptyState"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingHorizontal="32dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="32dp"
-            android:visibility="gone">
-
-            <TextView
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/editTestToggle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/touch_input_empty_title"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnSurface" />
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:text="@string/touch_input_empty_message"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/editModeButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/touch_input_mode_edit" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/testModeButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/touch_input_mode_test" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <ImageView
+                android:id="@+id/overflowButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/more_options"
+                android:padding="10dp"
+                android:src="@drawable/ic_more_vert"
+                app:tint="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
 
-        </LinearLayout>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false">
 
-    </androidx.core.widget.NestedScrollView>
+            <include
+                android:id="@+id/panel"
+                layout="@layout/view_touch_input_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -233,6 +233,40 @@ object SettingsFile {
         }
     }
 
+    /**
+     * Reads plain `key=value` entries of one section straight from the ini, for values that are
+     * not backed by an [AbstractSetting]. Missing keys (or an unreadable file) are left out.
+     */
+    fun readValues(fileName: String, section: String, keys: Collection<String>): Map<String, String> {
+        return try {
+            val ini = getSettingsFile(fileName)
+            val context: Context = CitraApplication.appContext
+            context.contentResolver.openInputStream(ini.uri)?.use { stream ->
+                val reader = Wini(stream)
+                keys.mapNotNull { key -> reader[section, key]?.let { key to it } }.toMap()
+            } ?: emptyMap()
+        } catch (e: Exception) {
+            Log.error("[SettingsFile] Could not read $fileName.ini: ${e.message}")
+            emptyMap()
+        }
+    }
+
+    /** Writes plain `key=value` entries into one section, keeping everything else in the file. */
+    fun writeValues(fileName: String, section: String, values: Map<String, String>) {
+        try {
+            val ini = getSettingsFile(fileName)
+            val context: Context = CitraApplication.appContext
+            val writer = context.contentResolver.openInputStream(ini.uri)!!.use { Wini(it) }
+            values.forEach { (key, value) -> writer.put(section, key, value) }
+            context.contentResolver.openOutputStream(ini.uri, "wt")!!.use {
+                writer.store(it)
+                it.flush()
+            }
+        } catch (e: Exception) {
+            Log.error("[SettingsFile] Could not write $fileName.ini: ${e.message}")
+        }
+    }
+
     fun saveFile(fileName: String, setting: AbstractSetting) {
         val ini = getSettingsFile(fileName)
         try {

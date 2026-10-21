@@ -3,6 +3,7 @@
 // Refer to the misc/licenses/gplv2.txt file included.
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstring>
 #include <queue>
@@ -280,10 +281,29 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
         // On a 3ds the eapol packet is only sent to packet.transmitter_address
         // while a packet containing the node information is broadcasted
         // For now we will broadcast the eapol packet instead
-        eapol_logoff.destination_address = Network::BroadcastMac;
+        // [FIX-JOIN] Stock behaviour broadcasts this frame, and a console that is still connecting
+        // takes the first logoff it sees. With two guests joining at the same moment both took the
+        // first one's node id ("The connection was lost", later a deauth from an unknown node).
+        // Send the reply to the joining console only, and a separate unicast update to every
+        // other connected node so they still learn about the new node.
+        // Set to false to get the old broadcast behaviour back.
+        constexpr bool kJoinUnicastFix = true;
         eapol_logoff.type = WifiPacket::PacketType::Data;
-
-        SendPacket(eapol_logoff);
+        if (kJoinUnicastFix) {
+            eapol_logoff.destination_address = packet.transmitter_address;
+            SendPacket(eapol_logoff);
+            for (const auto& [other_mac, other_node] : node_map) {
+                if (other_mac == packet.transmitter_address || !other_node.connected) {
+                    continue;
+                }
+                WifiPacket update = eapol_logoff;
+                update.destination_address = other_mac;
+                SendPacket(update);
+            }
+        } else {
+            eapol_logoff.destination_address = Network::BroadcastMac;
+            SendPacket(eapol_logoff);
+        }
 
         SignalEventAsync(connection_status_event);
     } else if (connection_status.status == NetworkStatus::Connecting) {
@@ -529,11 +549,12 @@ void NWM_UDS::HandleDeauthenticationFrame(const Network::WifiPacket& packet) {
         return;
     }
     if (node_map.find(packet.transmitter_address) == node_map.end()) {
-        LOG_ERROR(Service_NWM, "Got deauthentication frame from unknown node");
+        LOG_DEBUG(Service_NWM, "Got deauthentication frame from an unknown node");
         return;
     }
 
     Node node = node_map[packet.transmitter_address];
+    LOG_DEBUG(Service_NWM, "Deauthentication from node {}; removing it", node.node_id);
     node_map.erase(packet.transmitter_address);
 
     if (!node.connected) {
@@ -813,7 +834,8 @@ void NWM_UDS::GetConnectionStatus(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(13, 0);
 
     rb.Push(ResultSuccess);
-    rb.PushRaw(GetConnectionStatusHLE());
+    const auto status_snapshot = GetConnectionStatusHLE();
+    rb.PushRaw(status_snapshot);
 
     LOG_DEBUG(Service_NWM, "called");
 }
@@ -1767,6 +1789,7 @@ void NWM_UDS::CleanupTimedOutClients() {
             to.push_back(n.first);
     for (auto& c : to) {
         Node nd = node_map[c];
+        LOG_DEBUG(Service_NWM, "Removing node {} by inactivity timeout", nd.node_id);
         node_map.erase(c);
         if (!nd.spec) {
             connection_status.node_bitmask &= ~(1 << (nd.node_id - 1));

@@ -11,6 +11,8 @@ import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.R
 import org.citra.citra_emu.features.hotkeys.Hotkey
 import org.citra.citra_emu.features.settings.model.IntListSetting
+import org.citra.citra_emu.features.settings.model.Settings
+import org.citra.citra_emu.features.settings.utils.SettingsFile
 
 object ComboHelper {
     const val COMBO_COUNT = 5
@@ -73,6 +75,64 @@ object ComboHelper {
         if (index !in 0 until COMBO_COUNT) return
         OverlayProfile.prefs()
             .edit().putBoolean("buttonToggle${TOGGLE_BASE + index}", enabled).commit()
+        syncToConfig()
+    }
+
+    // ---- config.ini mirror -------------------------------------------------------------------
+    // The on/off switches live in SharedPreferences, which Android wipes on uninstall. They are
+    // mirrored into config.ini ([Controls] combo_button_enabled, combo_button_enabled_2, ...) which
+    // sits in the user directory and survives a reinstall; on the next start they are restored.
+
+    private fun enabledKey(index: Int) =
+        if (index == 0) "combo_button_enabled" else "combo_button_enabled_${index + 1}"
+
+    private fun listKey(index: Int) =
+        if (index == 0) "combo_button_buttons" else "combo_button_buttons_${index + 1}"
+
+    @Volatile
+    private var restored = false
+
+    /** Writes the current switches and button lists of all combos to config.ini. */
+    fun syncToConfig() {
+        val values = HashMap<String, String>()
+        for (i in 0 until COMBO_COUNT) {
+            values[enabledKey(i)] = isEnabled(CitraApplication.appContext, i).toString()
+            values[listKey(i)] = getButtons(i).joinToString()
+        }
+        SettingsFile.writeValues(SettingsFile.FILE_NAME_CONFIG, Settings.SECTION_CONTROLS, values)
+    }
+
+    /**
+     * Copies switches and button lists from config.ini into the preferences for every combo the
+     * app does not know yet (fresh install). Existing preferences always win. Runs once per process.
+     */
+    fun restoreFromConfig() {
+        if (restored) return
+        restored = true
+        val global = prefs()
+        val stored = SettingsFile.readValues(
+            SettingsFile.FILE_NAME_CONFIG,
+            Settings.SECTION_CONTROLS,
+            (0 until COMBO_COUNT).flatMap { listOf(enabledKey(it), listKey(it)) }
+        )
+        if (stored.isEmpty()) return
+        val editor = global.edit()
+        for (i in 0 until COMBO_COUNT) {
+            val toggleKey = "buttonToggle${TOGGLE_BASE + i}"
+            stored[enabledKey(i)]?.let {
+                if (!global.contains(toggleKey)) editor.putBoolean(toggleKey, it.trim().toBoolean())
+            }
+            stored[listKey(i)]?.let { raw ->
+                if (!global.contains(KEY_LIST + i)) {
+                    val list = raw.split(",").mapNotNull { it.trim().toIntOrNull() }
+                    if (list.isNotEmpty()) {
+                        editor.putString(KEY_LIST + i, list.joinToString(","))
+                        setting(i)?.list = list
+                    }
+                }
+            }
+        }
+        editor.commit()
     }
 
     private const val KEY_LIST = "combo_buttons_list_"
@@ -101,6 +161,7 @@ object ComboHelper {
             .putString(KEY_LIST + index, buttons.joinToString(","))
             .putBoolean(KEY_USER_SET + index, true)
             .commit()
+        syncToConfig()
     }
 
     fun resetButtons(context: Context, index: Int) {
@@ -111,6 +172,7 @@ object ComboHelper {
             .remove(KEY_LIST + index)
             .putBoolean(KEY_USER_SET + index, false)
             .commit()
+        syncToConfig()
     }
 
     /** (native value, label) for every selectable member, in display order. */

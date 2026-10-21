@@ -1422,6 +1422,8 @@
 
     <string name="touch_input_new_profile">New</string>
     <string name="touch_input_rebind">Rebind</string>
+    <string name="touch_input_add_binding">Add binding</string>
+    <string name="touch_input_select_profile">Switch profile</string>
     <string name="touch_input_all_bindings">All bindings (%1$d)</string>
     <string name="touch_input_touches_format">Touches %1$s</string>
     <string name="touch_input_hint_drag">Drag to move · tap empty space to add</string>

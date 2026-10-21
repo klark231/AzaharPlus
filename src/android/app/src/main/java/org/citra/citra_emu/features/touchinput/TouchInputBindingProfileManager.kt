@@ -6,10 +6,14 @@ package org.citra.citra_emu.features.touchinput
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.preference.PreferenceManager
 import org.citra.citra_emu.CitraApplication
+import org.citra.citra_emu.features.settings.model.Settings
+import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * Stores named sets of touch input bindings. Every profile is equally editable and deletable —
@@ -23,10 +27,20 @@ class TouchInputBindingProfileManager(context: Context) {
             context.applicationContext ?: CitraApplication.appContext
         )
 
+    // Off while starting up so a fresh empty profile never overwrites a backup in config.ini
+    private var mirrorEnabled = false
+
     init {
+        if (getProfiles().isEmpty()) {
+            restoreFromConfig()
+        }
         if (getProfiles().isEmpty()) {
             replaceAllProfilesWithFreshOne()
         }
+    }
+
+    init {
+        mirrorEnabled = true
     }
 
     fun getCurrentProfile(): String =
@@ -34,6 +48,7 @@ class TouchInputBindingProfileManager(context: Context) {
 
     fun setCurrentProfile(profileName: String) {
         preferences.edit().putString(KEY_CURRENT_PROFILE, profileName).apply()
+        mirrorToConfig()
     }
 
     fun getProfiles(): List<String> {
@@ -105,6 +120,7 @@ class TouchInputBindingProfileManager(context: Context) {
         preferences.edit()
             .putString(getStorageKey(profileName), TouchInputBinding.listToJson(bindings))
             .apply()
+        mirrorToConfig()
     }
 
     fun loadProfile(profileName: String): List<TouchInputBinding> =
@@ -129,11 +145,81 @@ class TouchInputBindingProfileManager(context: Context) {
         val array = JSONArray()
         profiles.forEach { array.put(it) }
         preferences.edit().putString(KEY_PROFILES_LIST, array.toString()).apply()
+        mirrorToConfig()
+    }
+
+    // ---- config.ini mirror ---------------------------------------------------------------------
+    // Profiles live in SharedPreferences, which Android wipes on uninstall. They are mirrored into
+    // config.ini ([Controls] touch_input_profiles, one Base64 JSON blob) in the user directory, and
+    // restored from there on a fresh install.
+
+    private fun mirrorToConfig() {
+        if (!mirrorEnabled) return
+        try {
+            val profiles = getProfiles()
+            if (profiles.isEmpty()) return
+            val root = JSONObject()
+            root.put("current", preferences.getString(KEY_CURRENT_PROFILE, null) ?: profiles.first())
+            val list = JSONArray()
+            profiles.forEach { name ->
+                list.put(
+                    JSONObject()
+                        .put("name", name)
+                        .put(
+                            "bindings",
+                            JSONArray(
+                                TouchInputBinding.listToJson(loadProfile(name))
+                            )
+                        )
+                )
+            }
+            root.put("profiles", list)
+            val encoded = Base64.encodeToString(
+                root.toString().toByteArray(Charsets.UTF_8),
+                Base64.NO_WRAP or Base64.URL_SAFE
+            )
+            SettingsFile.writeValues(
+                SettingsFile.FILE_NAME_CONFIG,
+                Settings.SECTION_CONTROLS,
+                mapOf(CONFIG_KEY to encoded)
+            )
+        } catch (_: Exception) {
+            // Best effort; the preferences stay the source of truth for this run
+        }
+    }
+
+    private fun restoreFromConfig() {
+        try {
+            val encoded = SettingsFile.readValues(
+                SettingsFile.FILE_NAME_CONFIG,
+                Settings.SECTION_CONTROLS,
+                listOf(CONFIG_KEY)
+            )[CONFIG_KEY]?.trim()?.takeIf { it.isNotEmpty() } ?: return
+            val root = JSONObject(
+                String(Base64.decode(encoded, Base64.NO_WRAP or Base64.URL_SAFE), Charsets.UTF_8)
+            )
+            val list = root.getJSONArray("profiles")
+            if (list.length() == 0) return
+            val names = JSONArray()
+            val editor = preferences.edit()
+            for (i in 0 until list.length()) {
+                val entry = list.getJSONObject(i)
+                val name = entry.getString("name")
+                names.put(name)
+                editor.putString(getStorageKey(name), entry.getJSONArray("bindings").toString())
+            }
+            editor.putString(KEY_PROFILES_LIST, names.toString())
+            editor.putString(KEY_CURRENT_PROFILE, root.optString("current", names.getString(0)))
+            editor.commit()
+        } catch (_: Exception) {
+            // Unreadable or missing: start with a fresh profile instead
+        }
     }
 
     private fun getStorageKey(profileName: String): String = "$KEY_BINDINGS_PREFIX$profileName"
 
     companion object {
+        private const val CONFIG_KEY = "touch_input_profiles"
         private const val PROFILE_NAME_PREFIX = "Profile"
 
         private const val KEY_CURRENT_PROFILE = "current_profile"

@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.fragments
 
+import org.citra.citra_emu.utils.ComboHelper
 import org.citra.citra_emu.utils.CustomLayoutProfile
 import org.citra.citra_emu.utils.LayoutFiles
 import org.citra.citra_emu.utils.OverlayProfile
@@ -152,6 +153,7 @@ class EmulationFragment :
      * Initialize anything that doesn't depend on the layout / views in here.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        ComboHelper.restoreFromConfig()
         super.onCreate(savedInstanceState)
 
         AmiiboUsageDatabase.initialize()
@@ -1555,7 +1557,8 @@ class EmulationFragment :
                 }
             }
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
-                editor.apply()
+                editor.commit()
+                ComboHelper.syncToConfig()
                 binding.surfaceInputOverlay.refreshControls()
                 endOverlayDialogEdit(keep = true)
             }

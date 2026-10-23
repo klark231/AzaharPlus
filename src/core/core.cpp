@@ -17,6 +17,7 @@
 #include "core/hle/service/cam/cam.h"
 #include "core/hle/service/hid/hid.h"
 #include "core/hle/service/ir/ir_user.h"
+#include "core/hle/service/nwm/netsync.h"
 #if CITRA_ARCH(x86_64) || CITRA_ARCH(arm64)
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #endif
@@ -229,6 +230,10 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         status_details = "Cannot perform save state operation due to pending async operations";
         return ResultStatus::ErrorSavestate;
     }
+
+    // Net sync: if we are well ahead of a peer we are playing with (it stalled), wait for it so the
+    // game does not see its silence as a lost connection. Cheap no-op without peers.
+    Service::NWM::NetSync::WaitIfAhead(*this);
 
     // All cores should have executed the same amount of ticks. If this is not the case an event was
     // scheduled with a cycles_into_future smaller then the current downcount.

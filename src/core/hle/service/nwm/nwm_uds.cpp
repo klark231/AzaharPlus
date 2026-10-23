@@ -25,6 +25,7 @@
 #include "core/hle/result.h"
 #include "core/hle/service/cfg/cfg.h"
 #include "core/hle/service/cfg/cfg_u.h"
+#include "core/hle/service/nwm/netsync.h"
 #include "core/hle/service/nwm/nwm_uds.h"
 #include "core/hle/service/nwm/uds_beacon.h"
 #include "core/hle/service/nwm/uds_connection.h"
@@ -437,6 +438,9 @@ void NWM_UDS::HandleSecureDataPacket(const Network::WifiPacket& packet) {
     // TODO(B3N30): We don't currently send nor handle management frames.
     ASSERT(!secure_data.is_management);
 
+    // This peer is playing with us (used by net sync).
+    NetSync::NoteGameData(packet.transmitter_address);
+
     // TODO(B3N30): Allow more than one bind node per channel.
     auto channel_info = channel_data.find(secure_data.data_channel);
     // Ignore packets from channels we're not interested in.
@@ -619,6 +623,9 @@ void NWM_UDS::OnWifiPacketReceived(const Network::WifiPacket& packet) {
     case Network::WifiPacket::PacketType::NodeMap:
         HandleNodeMapPacket(packet);
         break;
+    case static_cast<Network::WifiPacket::PacketType>(NetSync::kPacketType):
+        NetSync::HandleReport(packet, GetMacAddress());
+        break;
     }
 }
 
@@ -646,6 +653,8 @@ void NWM_UDS::ShutdownHLE() {
     initialized = false;
 
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
+    system.CoreTiming().UnscheduleEvent(netsync_event, 0);
+    NetSync::Reset();
     system.CoreTiming().UnscheduleEvent(handle_async_event_signals_event, 0);
     system.CoreTiming().UnscheduleEvent(reconnect_event, 0);
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
@@ -1170,6 +1179,8 @@ Result NWM_UDS::DestroyNetworkHLE() {
     // Unschedule the beacon broadcast event.
     system.CoreTiming().UnscheduleEvent(beacon_broadcast_event, 0);
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
+    system.CoreTiming().UnscheduleEvent(netsync_event, 0);
+    NetSync::Reset();
 
     // Only a host can destroy
     std::scoped_lock lock(connection_status_mutex);
@@ -1524,6 +1535,8 @@ void NWM_UDS::ConnectToNetworkDeprecated(Kernel::HLERequestContext& ctx) {
 
 ResultStatus NWM_UDS::DisconnectNetworkHLE() {
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
+    system.CoreTiming().UnscheduleEvent(netsync_event, 0);
+    NetSync::Reset();
     system.CoreTiming().UnscheduleEvent(reconnect_event, 0);
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
     using Network::WifiPacket;
@@ -1804,6 +1817,12 @@ void NWM_UDS::CleanupTimedOutClients() {
 void NWM_UDS::ScheduleHeartbeat() {
     system.CoreTiming().ScheduleEvent(
         msToCycles(static_cast<int>(HEARTBEAT_INTERVAL.count())), heartbeat_event, 0);
+    ScheduleNetSync();
+}
+
+void NWM_UDS::ScheduleNetSync() {
+    system.CoreTiming().ScheduleEvent(
+        msToCycles(static_cast<int>(NetSync::kReportInterval.count())), netsync_event, 0);
 }
 
 void NWM_UDS::ScheduleHealthCheck() {
@@ -1817,6 +1836,16 @@ void NWM_UDS::HeartbeatCallback(std::uintptr_t, s64 cl) {
         SendHeartbeat();
         system.CoreTiming().ScheduleEvent(
             msToCycles(static_cast<int>(HEARTBEAT_INTERVAL.count())) - cl, heartbeat_event, 0);
+    }
+}
+
+void NWM_UDS::NetSyncCallback(std::uintptr_t, s64 cl) {
+    if (connection_status.status == NetworkStatus::ConnectedAsHost ||
+        connection_status.status == NetworkStatus::ConnectedAsClient ||
+        connection_status.status == NetworkStatus::ConnectedAsSpectator) {
+        NetSync::SendReport(system.CoreTiming().GetGlobalTimeUs().count());
+        system.CoreTiming().ScheduleEvent(
+            msToCycles(static_cast<int>(NetSync::kReportInterval.count())) - cl, netsync_event, 0);
     }
 }
 
@@ -1923,6 +1952,16 @@ NWM_UDS::NWM_UDS(Core::System& system) : ServiceFramework("nwm::UDS"), system(sy
         "UDS::HeartbeatCallback", [this](std::uintptr_t u, s64 c) {
             HeartbeatCallback(u, c);
         });
+    netsync_event = system.CoreTiming().RegisterEvent(
+        "UDS::NetSyncCallback", [this](std::uintptr_t u, s64 c) { NetSyncCallback(u, c); });
+    NetSync::SetSender([this](const std::vector<u8>& data) {
+        Network::WifiPacket packet;
+        packet.type = static_cast<Network::WifiPacket::PacketType>(NetSync::kPacketType);
+        packet.data = data;
+        packet.destination_address = Network::BroadcastMac;
+        packet.channel = network_channel;
+        SendPacket(packet);
+    });
     health_check_event = system.CoreTiming().RegisterEvent(
         "UDS::HealthCheckCallback", [this](std::uintptr_t u, s64 c) {
             HealthCheckCallback(u, c);
@@ -1948,6 +1987,8 @@ NWM_UDS::NWM_UDS(Core::System& system) : ServiceFramework("nwm::UDS"), system(sy
 }
 
 NWM_UDS::~NWM_UDS() {
+    NetSync::ClearSender();
+    NetSync::Reset();
     if (auto room_member = Network::GetRoomMember().lock())
         room_member->Unbind(wifi_packet_received);
 
@@ -1955,6 +1996,8 @@ NWM_UDS::~NWM_UDS() {
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
     system.CoreTiming().UnscheduleEvent(beacon_broadcast_event, 0);
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
+    system.CoreTiming().UnscheduleEvent(netsync_event, 0);
+    NetSync::Reset();
 }
 
 } // namespace Service::NWM

@@ -578,6 +578,10 @@ private:
     void SendHeartbeat();
     void ScheduleHeartbeat();
     void HeartbeatCallback(std::uintptr_t user_data, s64 cycles_late);
+
+    // Net sync reports (see netsync.h)
+    void ScheduleNetSync();
+    void NetSyncCallback(std::uintptr_t user_data, s64 cycles_late);
     
     // Health monitoring - detects connection loss
     void CheckConnectionHealth();
@@ -663,6 +667,7 @@ private:
     // Event that will generate and send the 802.11 beacon frames.
     Core::TimingEventType* beacon_broadcast_event;
     Core::TimingEventType* heartbeat_event = nullptr;
+    Core::TimingEventType* netsync_event = nullptr;
     Core::TimingEventType* health_check_event = nullptr;
     Core::TimingEventType* reconnect_event = nullptr;
     Core::TimingEventType* handle_async_event_signals_event = nullptr;

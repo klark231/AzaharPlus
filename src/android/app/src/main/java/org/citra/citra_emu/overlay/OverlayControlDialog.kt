@@ -72,23 +72,26 @@ object OverlayControlDialog {
         val opacityKey = "controlOpacity-$prefId"
         val holdKey = "buttonHold-$prefId"
         val rapidKey = "buttonRapid-$prefId"
+        val badgeKey = "buttonBadge-$prefId"
         val prefs = OverlayProfile.prefs()
 
         val startScale = prefs.getInt(scaleKey, SCALE_DEFAULT)
         val startOpacity = prefs.getInt(opacityKey, OPACITY_DEFAULT)
         val startHold = prefs.getBoolean(holdKey, false)
         val startRapid = prefs.getBoolean(rapidKey, false)
+        val startBadge = prefs.getBoolean(badgeKey, true)
 
         val binding = DialogOverlayControlBinding.inflate(LayoutInflater.from(activity))
         val holdAllowed = control is InputOverlayDrawableButton && supportsHold(id)
 
-        fun save(scale: Int, opacity: Int, hold: Boolean, rapid: Boolean) {
-            OverlayProfile.prefs().edit()
+        fun save(scale: Int, opacity: Int, hold: Boolean, rapid: Boolean, badge: Boolean = true) {
+            val editor = OverlayProfile.prefs().edit()
                 .putInt(scaleKey, scale)
                 .putInt(opacityKey, opacity)
                 .putBoolean(holdKey, hold)
                 .putBoolean(rapidKey, rapid)
-                .apply()
+            if (TouchPointButtons.isTouchButton(prefId)) editor.putBoolean(badgeKey, badge)
+            editor.apply()
             onChanged()
         }
 
@@ -127,12 +130,19 @@ object OverlayControlDialog {
             modeGroup.visibility = modeVisibility
             modeHint.visibility = modeVisibility
 
+            // Number badge on a Touch button's image (Touch buttons only)
+            val isTouch = TouchPointButtons.isTouchButton(prefId)
+            badgeSwitch.visibility = if (isTouch) android.view.View.VISIBLE else android.view.View.GONE
+            badgeSwitch.isChecked = startBadge
+
             fun saveCurrent() = save(
                 scaleSlider.value.toInt() - SCALE_OFFSET,
                 opacitySlider.value.toInt(),
                 modeGroup.checkedButtonId == R.id.mode_hold,
-                modeGroup.checkedButtonId == R.id.mode_rapid
+                modeGroup.checkedButtonId == R.id.mode_rapid,
+                badgeSwitch.isChecked
             )
+            badgeSwitch.setOnCheckedChangeListener { _, _ -> saveCurrent() }
 
             // Live preview while the sliders move
             scaleSlider.addOnChangeListener { _, value, fromUser ->
@@ -159,7 +169,7 @@ object OverlayControlDialog {
         }
 
         val revert = {
-            save(startScale, startOpacity, startHold, startRapid)
+            save(startScale, startOpacity, startHold, startRapid, startBadge)
         }
 
         MaterialAlertDialogBuilder(activity)
@@ -167,7 +177,7 @@ object OverlayControlDialog {
             .setPositiveButton(R.string.overlay_control_done, null)
             .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> revert() }
             .setNeutralButton(R.string.overlay_control_reset) { _: DialogInterface?, _: Int ->
-                save(SCALE_DEFAULT, OPACITY_DEFAULT, false, false)
+                save(SCALE_DEFAULT, OPACITY_DEFAULT, false, false, true)
             }
             .setOnCancelListener { revert() }
             .show()

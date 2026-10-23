@@ -59,6 +59,18 @@ data class TouchInputBinding(
             KeyEvent.keyCodeToString(keyCode).toDisplayName(KEYCODE_PREFIX)
         }
 
+    /** Text of the marker on the preview: the short name if it fits, otherwise the list [number]. */
+    fun markerLabel(number: Int): String {
+        val label = shortLabel()
+        return if (label.length <= MARKER_LABEL_MAX_CHARS) label else number.toString()
+    }
+
+    /** "Controller" or "On-screen button", for the second line of a list row. */
+    fun sourceLabel(): String = CitraApplication.appContext.getString(
+        if (isOverlayBinding) R.string.touch_input_source_overlay_short
+        else R.string.touch_input_source_controller
+    )
+
     /** Touch position as percentages, e.g. "X 90% · Y 90%". */
     fun positionLabel(): String = formatPosition(x, y)
 
@@ -87,6 +99,7 @@ data class TouchInputBinding(
 
     companion object {
         const val DEFAULT_UNBOUND = -1
+        const val MARKER_LABEL_MAX_CHARS = 3
         const val DEFAULT_THRESHOLD = 0.5f
         const val DEFAULT_COORDINATE = 0.5f
 

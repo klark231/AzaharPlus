@@ -18,8 +18,9 @@
         android:paddingBottom="8dp">
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             app:cardBackgroundColor="#FF35353B"
             app:cardCornerRadius="28dp"
@@ -28,7 +29,7 @@
 
             <org.citra.citra_emu.features.touchinput.TouchInputBindingView
                 android:id="@+id/touchInputBindingView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="8dp" />
 

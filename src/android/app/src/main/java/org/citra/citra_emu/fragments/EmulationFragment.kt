@@ -4,6 +4,7 @@
 
 package org.citra.citra_emu.fragments
 
+import org.citra.citra_emu.overlay.OverlayTheme
 import org.citra.citra_emu.utils.ComboHelper
 import org.citra.citra_emu.utils.CustomLayoutProfile
 import org.citra.citra_emu.utils.LayoutFiles
@@ -1476,6 +1477,10 @@ class EmulationFragment :
     }
 
     private fun applyImportedLayout(layout: LayoutFiles.Layout, gameId: String?, forGame: Boolean) {
+        // Use the button theme (images) the layout was saved with, if it exists on this device
+        if (layout.theme.isNotEmpty() && OverlayTheme.listThemes().contains(layout.theme)) {
+            OverlayTheme.selected = layout.theme
+        }
         if (layout.controls.isNotEmpty()) {
             if (forGame && gameId != null) {
                 OverlayProfile.importForGame(gameId, layout.controls)

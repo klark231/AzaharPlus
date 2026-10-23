@@ -59,13 +59,23 @@ class TouchInputBindingAdapter(
         fun bind(position: Int, touchBinding: TouchInputBinding) {
             refresh(position, touchBinding)
             binding.bindingName.text = touchBinding.displayName()
-            binding.bindingCoordinates.text = touchBinding.positionLabel()
+            binding.bindingCoordinates.text =
+                "${touchBinding.sourceLabel()} \u00B7 ${touchBinding.positionLabel()}"
             binding.root.setOnClickListener { onRowClicked(touchBinding) }
             binding.deleteButton.setOnClickListener { onDeleteClicked(touchBinding) }
         }
 
         fun refresh(position: Int, touchBinding: TouchInputBinding) {
-            binding.bindingNumber.text = (position + 1).toString()
+            // Same marker as on the preview: a circle with the number, or a rounded square with
+            // the Touch button's own name (T1, T2, ...)
+            binding.bindingNumber.text = touchBinding.markerLabel(position + 1)
+            binding.bindingNumber.setBackgroundResource(
+                if (touchBinding.isOverlayBinding) {
+                    R.drawable.bg_touch_input_badge_square
+                } else {
+                    R.drawable.bg_touch_input_badge
+                }
+            )
             binding.root.setBackgroundResource(
                 if (touchBinding == selectedBinding) {
                     R.drawable.bg_touch_input_row_selected

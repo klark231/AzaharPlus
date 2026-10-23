@@ -142,5 +142,12 @@
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             tools:text="Pressed while you touch the button" />
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/badge_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/overlay_control_badge"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

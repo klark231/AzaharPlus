@@ -9,6 +9,7 @@ import androidx.documentfile.provider.DocumentFile
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.NativeLibrary
 import org.citra.citra_emu.features.hotkeys.Hotkey
+import org.citra.citra_emu.overlay.OverlayTheme
 import org.citra.citra_emu.utils.DirectoryInitialization.userDirectory
 
 /**
@@ -27,7 +28,9 @@ object LayoutFiles {
     class Layout(
         val controls: Map<String, Any>,
         val landscape: Map<Int, Int>,
-        val portrait: Map<Int, Int>
+        val portrait: Map<Int, Int>,
+        /** Name of the button theme (images) the layout was saved with, or empty. */
+        val theme: String = ""
     ) {
         val isEmpty: Boolean get() = controls.isEmpty() && landscape.isEmpty() && portrait.isEmpty()
     }
@@ -35,6 +38,7 @@ object LayoutFiles {
     private const val SECTION_LANDSCAPE = "Screens Landscape"
     private const val SECTION_PORTRAIT = "Screens Portrait"
     private const val SECTION_CONTROLS = "Controls"
+    private const val SECTION_THEME = "Button Theme"
 
     /** Same order as CustomLayoutManager.layoutSettings(). */
     private val screenNames = listOf(
@@ -43,7 +47,7 @@ object LayoutFiles {
     )
 
     private val positionKey = Regex("^\\d+(-[A-Za-z]+)?-[XY]$")
-    private val boolKey = Regex("^buttonToggle\\d+$|^OverlayInit$|^isTouchEnabled$")
+    private val boolKey = Regex("^buttonToggle\\d+$|^button(Hold|Rapid|Badge)-\\d+$|^OverlayInit$|^isTouchEnabled$")
 
     /** Only used for the comments in the file, so a wrong name can not break anything. */
     private val controlNames: Map<Int, String> = mapOf(
@@ -80,7 +84,12 @@ object LayoutFiles {
 
     private fun numericId(key: String): Int = key.takeWhile { it.isDigit() }.toIntOrNull() ?: Int.MAX_VALUE
 
-    private fun build(controls: Map<String, Any>, landscape: List<Int>, portrait: List<Int>) =
+    private fun build(
+        controls: Map<String, Any>,
+        landscape: List<Int>,
+        portrait: List<Int>,
+        theme: String
+    ) =
         buildString {
             append("; AzaharPlus layout file.\n")
             append("; Edit the numbers, then use \"Layout files\" in the in-game overlay menu to import it.\n")
@@ -96,6 +105,12 @@ object LayoutFiles {
             }
             screens(SECTION_LANDSCAPE, landscape)
             screens(SECTION_PORTRAIT, portrait)
+            if (theme.isNotEmpty()) {
+                append("; Button theme (the images of the on-screen buttons, including every Touch button).\n")
+                append("; Import the theme .zip in Settings > Button theme if it is not on this device yet.\n")
+                append("[").append(SECTION_THEME).append("]\n")
+                append("theme=").append(theme).append("\n\n")
+            }
             append("[").append(SECTION_CONTROLS).append("]\n")
             controls.entries
                 .sortedWith(compareBy<Map.Entry<String, Any>>({ numericId(it.key) }, { it.key }))
@@ -117,7 +132,7 @@ object LayoutFiles {
         val file = dir.findFile("$name.ini")
             ?: dir.createFile("application/octet-stream", "$name.ini")
             ?: return false
-        val text = build(controls, landscape, portrait)
+        val text = build(controls, landscape, portrait, OverlayTheme.selected)
         return try {
             CitraApplication.appContext.contentResolver.openOutputStream(file.uri, "wt")?.use {
                 it.write(text.toByteArray())
@@ -167,6 +182,7 @@ object LayoutFiles {
         val landscape = LinkedHashMap<Int, Int>()
         val portrait = LinkedHashMap<Int, Int>()
         var section = ""
+        var theme = ""
         for (raw in text.lineSequence()) {
             val line = raw.trim()
             if (line.isEmpty() || line.startsWith(";") || line.startsWith("#")) continue
@@ -183,10 +199,11 @@ object LayoutFiles {
                     parseScreen(key, value)?.let { (index, number) -> landscape[index] = number }
                 SECTION_PORTRAIT.lowercase() ->
                     parseScreen(key, value)?.let { (index, number) -> portrait[index] = number }
+                SECTION_THEME.lowercase() -> if (key.equals("theme", ignoreCase = true)) theme = value
                 SECTION_CONTROLS.lowercase() ->
                     parseControl(key, value)?.let { controls[key] = it }
             }
         }
-        return Layout(controls, landscape, portrait)
+        return Layout(controls, landscape, portrait, theme)
     }
 }

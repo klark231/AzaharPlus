@@ -34,6 +34,8 @@ import org.citra.citra_emu.features.touchinput.TouchInputBinding
 import org.citra.citra_emu.features.touchinput.TouchInputBindingAdapter
 import org.citra.citra_emu.features.touchinput.TouchInputBindingManager
 import org.citra.citra_emu.features.touchinput.TouchInputBindingProfileManager
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
+import org.citra.citra_emu.overlay.OverlayTheme
 import org.citra.citra_emu.utils.ControllerMappingHelper
 
 class TouchInputBindingFragment : Fragment() {
@@ -515,8 +517,18 @@ class TouchInputBindingFragment : Fragment() {
             .setMessage(R.string.delete_touch_input_confirm)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 if (touchBinding == selectedBinding) selectBinding(null)
+                // Theme images belong to a button's number, so they have to follow the renumbering
+                val touchNumber = if (touchBinding.isOverlayBinding) {
+                    TouchPointButtons.numberOf(touchBinding.overlayButton)
+                } else {
+                    -1
+                }
+                val countBefore = TouchPointButtons.buttons().size
                 TouchInputBindingManager.removeBinding(touchBinding)
                 commitChanges()
+                if (touchNumber > 0) {
+                    Thread { OverlayTheme.onTouchButtonRemoved(touchNumber, countBefore) }.start()
+                }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -539,8 +551,10 @@ class TouchInputBindingFragment : Fragment() {
             .setMessage(R.string.delete_all_touch_input_confirm)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 selectBinding(null)
+                val hadTouchButtons = TouchPointButtons.buttons().isNotEmpty()
                 TouchInputBindingManager.clearBindings()
                 commitChanges()
+                if (hadTouchButtons) Thread { OverlayTheme.onAllTouchButtonsRemoved() }.start()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

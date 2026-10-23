@@ -25,7 +25,7 @@ object OverlayProfile {
     /** Every preference key that belongs to the layout of the on-screen controls. */
     private val layoutKey = Regex(
         "^\\d+(-[A-Za-z]+)?-[XY]$|^buttonToggle\\d+$|^controlScale.*$|" +
-            "^controlOpacity(-\\d+)?$|^button(Hold|Rapid)-\\d+$|^OverlayInit$|^isTouchEnabled$"
+            "^controlOpacity(-\\d+)?$|^button(Hold|Rapid|Badge)-\\d+$|^OverlayInit$|^isTouchEnabled$"
     )
 
     /** The game that is being played right now (null in the game list). */

@@ -895,6 +895,7 @@
     <string name="overlay_theme_import_failed">No button images found in that file</string>
     <string name="overlay_theme_export_done">Theme exported</string>
     <string name="overlay_theme_export_failed">Couldn\'t export the theme</string>
+    <string name="overlay_control_badge">Show number badge</string>
     <string name="overlay_theme_edit_images">Button images</string>
     <string name="overlay_theme_image_normal">Change image</string>
     <string name="overlay_theme_image_pressed">Change pressed image</string>
@@ -1423,6 +1424,7 @@
     <string name="touch_input_new_profile">New</string>
     <string name="touch_input_rebind">Rebind</string>
     <string name="touch_input_add_binding">Add binding</string>
+    <string name="touch_input_source_overlay_short">On-screen button</string>
     <string name="touch_input_select_profile">Switch profile</string>
     <string name="touch_input_all_bindings">All bindings (%1$d)</string>
     <string name="touch_input_touches_format">Touches %1$s</string>

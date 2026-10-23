@@ -153,6 +153,17 @@ class TouchInputBindingView @JvmOverloads constructor(
         val widthPx = MeasureSpec.getSize(widthMeasureSpec)
         val naturalHeight = (widthPx - 2 * inset) * SCREEN_HEIGHT / SCREEN_WIDTH + 2 * inset
 
+        // Side-by-side layout: height is fixed and the width should hug the 4:3 screen instead of
+        // leaving wide empty bars on both sides of it
+        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY &&
+            MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY
+        ) {
+            val h = MeasureSpec.getSize(heightMeasureSpec)
+            val wanted = ((h - 2 * inset) * SCREEN_WIDTH / SCREEN_HEIGHT + 2 * inset).toInt()
+            setMeasuredDimension(min(wanted, widthPx.takeIf { it > 0 } ?: wanted), h)
+            return
+        }
+
         val heightPx = when (MeasureSpec.getMode(heightMeasureSpec)) {
             MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec).toFloat()
             MeasureSpec.AT_MOST -> min(naturalHeight, MeasureSpec.getSize(heightMeasureSpec).toFloat())
@@ -391,10 +402,8 @@ class TouchInputBindingView @JvmOverloads constructor(
     }
 
     /** The button's own short name when it fits inside a marker, otherwise its list number. */
-    private fun markerLabel(binding: TouchInputBinding, number: Int): String {
-        val label = binding.shortLabel()
-        return if (label.length <= MARKER_LABEL_MAX_CHARS) label else number.toString()
-    }
+    private fun markerLabel(binding: TouchInputBinding, number: Int): String =
+        binding.markerLabel(number)
 
     /**
      * The selected binding in edit mode, or whichever one just fired in test mode: a small dot

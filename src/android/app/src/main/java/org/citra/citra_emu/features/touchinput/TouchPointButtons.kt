@@ -25,6 +25,31 @@ object TouchPointButtons {
 
     fun isTouchButton(id: Int): Boolean = id >= BASE_ID
 
+    // ---- per-button images ------------------------------------------------------------------
+    // Button themes are keyed by drawable name, but Touch buttons are created at run time and all
+    // use the same built-in drawable. Every Touch button therefore gets a "virtual image id"
+    // (below the range of real resource ids) that maps to its own theme file:
+    //   button_touch_<n>.png / button_touch_<n>_pressed.png   -> only Touch button n
+    //   button_touch.png / button_touch_pressed.png           -> every Touch button without its own
+    private const val IMAGE_BASE = 0x7E000000
+    private const val IMAGE_END = 0x7F000000
+
+    /** Virtual image id for Touch button number [number] (1, 2, ...). */
+    fun imageId(number: Int, pressed: Boolean): Int = IMAGE_BASE + number * 2 + if (pressed) 1 else 0
+
+    fun isImageId(id: Int): Boolean = id in IMAGE_BASE until IMAGE_END
+
+    /** Theme file names (without .png) to try for a virtual image id, most specific first. */
+    fun imageNames(id: Int): List<String> {
+        val number = (id - IMAGE_BASE) / 2
+        val suffix = if ((id - IMAGE_BASE) % 2 == 1) "_pressed" else ""
+        return listOf("button_touch_$number$suffix", "button_touch$suffix")
+    }
+
+    /** The built-in drawable that stands in for a virtual image id. */
+    fun builtInDrawable(id: Int): Int =
+        if ((id - IMAGE_BASE) % 2 == 1) DRAWABLE_PRESSED else DRAWABLE
+
     /** A new id that has not been used before, so no old position or size can come back. */
     fun allocateId(): Int {
         val prefs = PreferenceManager.getDefaultSharedPreferences(CitraApplication.appContext)

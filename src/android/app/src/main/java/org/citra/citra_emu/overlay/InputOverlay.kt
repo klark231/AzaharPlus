@@ -752,8 +752,8 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
                 overlayButtons.add(
                     initializeOverlayButton(
                         context,
-                        TouchPointButtons.DRAWABLE,
-                        TouchPointButtons.DRAWABLE_PRESSED,
+                        TouchPointButtons.imageId(index + 1, false),
+                        TouchPointButtons.imageId(index + 1, true),
                         id,
                         orientation
                     )
@@ -1408,6 +1408,12 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             OverlayTheme.loadBitmap(context, drawableId)?.let {
                 return resizeBitmap(context, it, scale)
             }
+            @Suppress("NAME_SHADOWING")
+            val drawableId = if (TouchPointButtons.isImageId(drawableId)) {
+                TouchPointButtons.builtInDrawable(drawableId)
+            } else {
+                drawableId
+            }
             try {
                 val bitmap = BitmapFactory.decodeResource(context.resources, drawableId)
                 return resizeBitmap(context, bitmap, scale)
@@ -1525,7 +1531,9 @@ class InputOverlay(context: Context?, attrs: AttributeSet?) :
             // Initialize the InputOverlayDrawableButton.
             var defaultStateBitmap = getBitmap(context, defaultResId, scale)
             var pressedStateBitmap = getBitmap(context, pressedResId, scale)
-            if (TouchPointButtons.isTouchButton(buttonId)) {
+            if (TouchPointButtons.isTouchButton(buttonId) &&
+                preferences.getBoolean("buttonBadge-$buttonId", true)
+            ) {
                 // The number is drawn on top of whatever image the button has, including images
                 // from a button theme, and follows the buttons when one of them is deleted
                 val number = TouchPointButtons.numberOf(buttonId)

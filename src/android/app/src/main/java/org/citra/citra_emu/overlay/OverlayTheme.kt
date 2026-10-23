@@ -21,6 +21,7 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import org.citra.citra_emu.CitraApplication
 import org.citra.citra_emu.R
+import org.citra.citra_emu.features.touchinput.TouchPointButtons
 import org.citra.citra_emu.utils.DirectoryInitialization
 import org.citra.citra_emu.utils.FileUtil
 import org.citra.citra_emu.utils.Log
@@ -80,6 +81,38 @@ object OverlayTheme {
         R.drawable.button_combo_5,
         R.drawable.button_combo_5_pressed,
     )
+
+    /**
+     * Every image a theme can replace: the fixed ones, the shared Touch button image and one
+     * extra pair for each Touch button that currently exists (button_touch_1.png, ...).
+     */
+    private fun templateIds(): List<Int> {
+        val ids = ArrayList<Int>(TEMPLATE_DRAWABLES.size + 2)
+        ids.addAll(TEMPLATE_DRAWABLES.toList())
+        ids.add(TouchPointButtons.DRAWABLE)
+        ids.add(TouchPointButtons.DRAWABLE_PRESSED)
+        for (number in 1..TouchPointButtons.buttons().size) {
+            ids.add(TouchPointButtons.imageId(number, false))
+            ids.add(TouchPointButtons.imageId(number, true))
+        }
+        return ids
+    }
+
+    /** The file this image is saved to (without .png). */
+    private fun entryName(context: Context, id: Int): String =
+        if (TouchPointButtons.isImageId(id)) {
+            TouchPointButtons.imageNames(id).first()
+        } else {
+            context.resources.getResourceEntryName(id)
+        }
+
+    /** File names to look for when drawing this image, most specific first. */
+    private fun candidateNames(context: Context, id: Int): List<String> =
+        if (TouchPointButtons.isImageId(id)) {
+            TouchPointButtons.imageNames(id)
+        } else {
+            listOf(context.resources.getResourceEntryName(id))
+        }
 
     private var files: Map<String, Uri> = emptyMap()
     private val bitmaps = HashMap<String, Bitmap>()
@@ -218,9 +251,8 @@ object OverlayTheme {
             } ?: emptyMap()
         }
         val result = ArrayList<Preview>()
-        for (id in TEMPLATE_DRAWABLES) {
-            val name = context.resources.getResourceEntryName(id)
-            val custom = themeFiles["$name.png"]?.let { uri ->
+        for (id in templateIds()) {
+            val custom = candidateNames(context, id).firstNotNullOfOrNull { themeFiles["$it.png"] }?.let { uri ->
                 try {
                     context.contentResolver.openInputStream(uri)?.use {
                         BitmapFactory.decodeStream(it)
@@ -259,16 +291,20 @@ object OverlayTheme {
     /** Returns the themed image for a built-in drawable, or null to use the default one. */
     fun loadBitmap(context: Context, drawableId: Int): Bitmap? {
         if (files.isEmpty()) return null
-        val name = context.resources.getResourceEntryName(drawableId)
-        bitmaps[name]?.let { return it }
-        val uri = files["$name.png"] ?: return null
-        return try {
-            context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
-                ?.also { bitmaps[name] = it }
-        } catch (e: Exception) {
-            Log.error("[OverlayTheme] Cannot load $name.png: ${e.message}")
-            null
+        for (name in candidateNames(context, drawableId)) {
+            bitmaps[name]?.let { return it }
+            val uri = files["$name.png"] ?: continue
+            try {
+                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+                    ?.let {
+                        bitmaps[name] = it
+                        return it
+                    }
+            } catch (e: Exception) {
+                Log.error("[OverlayTheme] Cannot load $name.png: ${e.message}")
+            }
         }
+        return null
     }
 
     /** Saves the built-in images as PNG files in theme/Template. */
@@ -277,8 +313,8 @@ object OverlayTheme {
         val dir = themeFolder(TEMPLATE_THEME, true) ?: return false
         val existing = FileUtil.listFiles(dir).map { it.filename.lowercase() }.toSet()
         var success = true
-        for (id in TEMPLATE_DRAWABLES) {
-            val name = context.resources.getResourceEntryName(id)
+        for (id in templateIds()) {
+            val name = entryName(context, id)
             if ("$name.png" in existing) continue
             val bitmap = renderDefault(context, id)
             success = (bitmap != null && writePng(context, dir, "$name.png", bitmap)) && success
@@ -365,7 +401,12 @@ object OverlayTheme {
     }
 
     private fun renderDefault(context: Context, drawableId: Int): Bitmap? {
-        val drawable = ContextCompat.getDrawable(context, drawableId) ?: return null
+        val real = if (TouchPointButtons.isImageId(drawableId)) {
+            TouchPointButtons.builtInDrawable(drawableId)
+        } else {
+            drawableId
+        }
+        val drawable = ContextCompat.getDrawable(context, real) ?: return null
         val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: TEMPLATE_MIN_SIZE.toInt()
         val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: TEMPLATE_MIN_SIZE.toInt()
         val scale = maxOf(1f, TEMPLATE_MIN_SIZE / maxOf(width, height))
@@ -414,7 +455,7 @@ object OverlayTheme {
         val name = editableTheme() ?: return null
         val dir = themeFolder(name, false) ?: return null
         val bitmap = decodeSquare(context, source) ?: return null
-        val entry = context.resources.getResourceEntryName(drawableId)
+        val entry = entryName(context, drawableId)
         val saved = writePng(context, dir, "$entry.png", bitmap)
         refresh()
         return if (saved) name else null
@@ -445,12 +486,50 @@ object OverlayTheme {
         }
     }
 
+    private val perButtonImage = Regex("^button_touch_(\\d+)(_pressed)?\\.png$", RegexOption.IGNORE_CASE)
+
+    /**
+     * Touch button [number] was deleted while [countBefore] existed. Its own images are removed
+     * from every theme and the images of the buttons after it move down one number, because
+     * those buttons are renumbered. Images therefore stay with the button they were set for.
+     * Call from a background thread.
+     */
+    fun onTouchButtonRemoved(number: Int, countBefore: Int) {
+        for (theme in listThemes()) {
+            val dir = themeFolder(theme, false) ?: continue
+            val docs = FileUtil.listFiles(dir).filter { !it.isDirectory }
+            fun find(name: String) = docs.firstOrNull { it.filename.equals("$name.png", true) }
+            for (suffix in listOf("", "_pressed")) {
+                find("button_touch_$number$suffix")?.let { FileUtil.deleteDocument(it.uri.toString()) }
+                for (k in number + 1..countBefore) {
+                    find("button_touch_$k$suffix")?.let {
+                        FileUtil.renameFile(it.uri.toString(), "button_touch_${k - 1}$suffix.png")
+                    }
+                }
+            }
+        }
+        clearPreviewCache()
+        refresh()
+    }
+
+    /** All Touch buttons were deleted: drop every per-button image (the shared one stays). */
+    fun onAllTouchButtonsRemoved() {
+        for (theme in listThemes()) {
+            val dir = themeFolder(theme, false) ?: continue
+            FileUtil.listFiles(dir)
+                .filter { !it.isDirectory && perButtonImage.matches(it.filename) }
+                .forEach { FileUtil.deleteDocument(it.uri.toString()) }
+        }
+        clearPreviewCache()
+        refresh()
+    }
+
     /** Removes custom images from the selected theme so the default ones show again. */
     fun resetImages(context: Context, drawableIds: List<Int>) {
         val name = selected
         if (name.isEmpty()) return
         val dir = themeFolder(name, false) ?: return
-        val names = drawableIds.map { context.resources.getResourceEntryName(it) + ".png" }
+        val names = drawableIds.map { entryName(context, it) + ".png" }
         FileUtil.listFiles(dir)
             .filter { doc -> names.any { it.equals(doc.filename, ignoreCase = true) } }
             .forEach { DocumentFile.fromSingleUri(context, it.uri)?.delete() }

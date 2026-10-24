@@ -67,6 +67,8 @@ public:
     std::atomic<bool> have_join{false};      ///< last_join is valid (we joined by user request)
     std::atomic<bool> quiet{false};          ///< auto rejoin in progress: do not invoke callbacks
     std::atomic<bool> rejoin_cancel{false};
+    std::atomic<bool> rejoin_nudge{false};
+    std::atomic<s64> last_rejoin_ns{0};
     std::atomic<Error> last_error{Error::UnknownError};
     std::mutex rejoin_mutex;
     std::thread rejoin_thread;
@@ -344,9 +346,14 @@ void RoomMember::RoomMemberImpl::RejoinLoop() {
     const auto deadline = steady_clock::now() + window;
     const auto sleep_unless_cancelled = [this](milliseconds total) {
         for (milliseconds t{0}; t < total && !rejoin_cancel; t += milliseconds{50}) {
+            // The network just came back: do not wait out the rest of the delay
+            if (t >= milliseconds{300} && rejoin_nudge.exchange(false)) {
+                break;
+            }
             std::this_thread::sleep_for(milliseconds{50});
         }
     };
+    rejoin_nudge = false;
 
     LOG_INFO(Network, "Lost connection to the room server, trying to rejoin for up to {} s",
              window.count());
@@ -399,6 +406,7 @@ void RoomMember::RoomMemberImpl::RejoinLoop() {
     quiet = false;
     if (success) {
         LOG_INFO(Network, "Rejoined the room");
+        last_rejoin_ns = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
         Invoke<State>(state);
     } else {
         LOG_ERROR(Network, "Could not rejoin the room, giving up");
@@ -926,6 +934,17 @@ void RoomMember::Join(const std::string& nick, const std::string& console_id_has
 
 bool RoomMember::IsConnected() const {
     return room_member_impl->IsConnected();
+}
+
+void RoomMember::NudgeRejoin() {
+    if (room_member_impl->quiet) {
+        room_member_impl->rejoin_nudge = true;
+    }
+}
+
+std::chrono::steady_clock::time_point RoomMember::LastRejoinTime() const {
+    return std::chrono::steady_clock::time_point{
+        std::chrono::nanoseconds{room_member_impl->last_rejoin_ns.load()}};
 }
 
 bool RoomMember::IsRejoining() const {

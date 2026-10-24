@@ -146,6 +146,9 @@ object NativeLibrary {
 
     external fun reloadSettings()
 
+    /** The device got a network connection (back): lets an automatic room rejoin retry now. */
+    external fun onNetworkAvailable()
+
     external fun getTitleId(filename: String): Long
 
     external fun getIsSystemTitle(path: String): Boolean

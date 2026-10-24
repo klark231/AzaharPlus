@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -126,6 +127,7 @@ class EmulationActivity : AppCompatActivity() {
             return
         }
 
+        registerNetworkCallback()
         settingsViewModel.settings.loadSettings()
         // Per game overrides of the settings only the frontend uses (orientation, cutout, ...)
         OverlayProfile.setActiveGame(null)
@@ -277,7 +279,35 @@ class EmulationActivity : AppCompatActivity() {
         isRotationBlocked = savedInstanceState.getBoolean("isRotationBlocked", isRotationBlocked)
     }
 
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
+    /** Wakes the room auto rejoin as soon as Android reports a usable network again. */
+    private fun registerNetworkCallback() {
+        try {
+            val manager = getSystemService(ConnectivityManager::class.java) ?: return
+            val callback = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: android.net.Network) {
+                    NativeLibrary.onNetworkAvailable()
+                }
+            }
+            manager.registerDefaultNetworkCallback(callback)
+            networkCallback = callback
+        } catch (e: Exception) {
+            // Not critical: the rejoin still retries on its own timer
+        }
+    }
+
+    private fun unregisterNetworkCallback() {
+        val callback = networkCallback ?: return
+        networkCallback = null
+        try {
+            getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(callback)
+        } catch (e: Exception) {
+        }
+    }
+
     override fun onDestroy() {
+        unregisterNetworkCallback()
         if(!NativeLibrary.isRunning()) {
             NativeLibrary.resetProgramId()
             NativeLibrary.importQueuedZipPass()

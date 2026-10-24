@@ -122,6 +122,16 @@ object PerGameSettings {
 
     /** Reloads the global config into the (process wide) setting objects. */
     fun restoreGlobal() {
+        // Reading the ini only touches the keys that are written in it. A key that is missing from
+        // the global file is at its default, so put those back first, otherwise the value of the
+        // previous game (e.g. its own screen layout) would stay in the shared setting objects.
+        for (setting in allOverridableSettings()) {
+            when (setting) {
+                is IntSetting -> setting.int = setting.defaultValue
+                is BooleanSetting -> setting.boolean = setting.defaultValue
+                else -> Unit
+            }
+        }
         for (name in Settings.configFileNames) {
             SettingsFile.readFile(name)
         }

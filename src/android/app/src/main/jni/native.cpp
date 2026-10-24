@@ -55,6 +55,8 @@
 #include "jni/camera/still_image_camera.h"
 #include "jni/config.h"
 #include "network/announce_multiplayer_session.h"
+#include "network/network.h"
+#include "network/room_member.h"
 #include "core/loader/ncch.h"
 
 #ifdef ENABLE_OPENGL
@@ -1252,6 +1254,14 @@ void Java_org_citra_citra_1emu_NativeLibrary_logUserDirectory(JNIEnv* env,
     std::string_view path = env->GetStringUTFChars(j_path, 0);
     LOG_INFO(Frontend, "User directory path: {}", path);
     env->ReleaseStringUTFChars(j_path, path.data());
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_onNetworkAvailable([[maybe_unused]] JNIEnv* env,
+                                                                [[maybe_unused]] jobject obj) {
+    // The device has a network again: if we are getting back into a room, try right now.
+    if (auto room_member = Network::GetRoomMember().lock()) {
+        room_member->NudgeRejoin();
+    }
 }
 
 void Java_org_citra_citra_1emu_NativeLibrary_reloadSettings([[maybe_unused]] JNIEnv* env,

@@ -146,7 +146,8 @@ void NoteGameData(const Mac& peer);
 /// Sends one report now (emulation thread, from a core-timing event). `clock_us` = emulated time.
 void SendReport(s64 clock_us);
 /// Run-loop hook: blocks (bounded) while we are too far ahead of a peer we are playing with.
-void WaitIfAhead(Core::System& system);
+/// Returns true if the caller should skip running emulation this iteration (we are waiting).
+bool WaitIfAhead(Core::System& system);
 /// Forget all peers (connection ended).
 void Reset();
 

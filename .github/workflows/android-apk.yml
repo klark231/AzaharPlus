@@ -13,9 +13,19 @@ on:
 env:
   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
   CCACHE_DIR: /home/runner/.ccache
-  CCACHE_MAXSIZE: 2G
+  CCACHE_MAXSIZE: 3G
+  # The NDK is (re)installed on every run, so its files get new timestamps. The default
+  # "mtime" compiler check would then miss on every single file; hash the compiler instead.
+  CCACHE_COMPILERCHECK: content
+  CCACHE_SLOPPINESS: time_macros
+  CCACHE_COMPRESS: "true"
+  NDK_CCACHE: /usr/bin/ccache
   CMAKE_C_COMPILER_LAUNCHER: ccache
   CMAKE_CXX_COMPILER_LAUNCHER: ccache
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -59,7 +69,7 @@ jobs:
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.1" \
-            "ndk;27.0.12077973"
+            "ndk;27.3.13750724"
           # 如果 app/build.gradle 里还声明了 cmake 版本，请在此补一行，例如：
           # "cmake;3.22.1"
 
@@ -73,11 +83,14 @@ jobs:
       - name: Install ccache
         run: sudo apt-get update && sudo apt-get install -y ccache
 
-      - uses: actions/cache@v4
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-debug-${{ github.sha }}
+          key: ccache-${{ runner.os }}-debug-${{ github.run_id }}
           restore-keys: ccache-${{ runner.os }}-debug-
+
+      - run: ccache -z
 
 
       - name: Restore signing keystore
@@ -91,9 +104,18 @@ jobs:
         working-directory: src/android
         run: |
           ./gradlew --stacktrace --no-daemon \
+            -PabiFilter=arm64-v8a \
             :app:assembleVanillaDebug
 
-      - run: ccache -s
+      - name: ccache stats
+        if: always()
+        run: ccache -s
+      - name: Save ccache (even if the build failed)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-debug-${{ github.run_id }}
       - name: List APK files (Debug)
         working-directory: src/android
         run: find app/build/outputs/apk -name "*.apk" -type f | head -20
@@ -140,7 +162,7 @@ jobs:
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.1" \
-            "ndk;27.0.12077973"
+            "ndk;27.3.13750724"
 
       - uses: actions/cache@v4
         with:
@@ -152,11 +174,14 @@ jobs:
       - name: Install ccache
         run: sudo apt-get update && sudo apt-get install -y ccache
 
-      - uses: actions/cache@v4
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-release-${{ github.sha }}
+          key: ccache-${{ runner.os }}-release-${{ github.run_id }}
           restore-keys: ccache-${{ runner.os }}-release-
+
+      - run: ccache -z
 
 
       - name: Restore signing keystore
@@ -176,7 +201,15 @@ jobs:
             -Pandroid.injected.signing.key.password="android" \
             :app:assembleVanillaRelease
 
-      - run: ccache -s
+      - name: ccache stats
+        if: always()
+        run: ccache -s
+      - name: Save ccache (even if the build failed)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-release-${{ github.run_id }}
       - name: List APK files (Release)
         working-directory: src/android
         run: find app/build/outputs/apk -name "*.apk" -type f | head -20

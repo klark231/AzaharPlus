@@ -233,7 +233,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
 
     // Net sync: if we are well ahead of a peer we are playing with (it stalled), wait for it so the
     // game does not see its silence as a lost connection. Cheap no-op without peers.
-    Service::NWM::NetSync::WaitIfAhead(*this);
+    if (Service::NWM::NetSync::WaitIfAhead(*this)) {
+        return ResultStatus::Success; // waiting for a peer / rejoining: do not run the game
+    }
 
     // All cores should have executed the same amount of ticks. If this is not the case an event was
     // scheduled with a cycles_into_future smaller then the current downcount.

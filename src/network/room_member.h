@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
@@ -166,6 +167,18 @@ public:
      * currently in progress.
      */
     bool IsRejoining() const;
+
+    /**
+     * Tells an automatic rejoin that is waiting between attempts to try again right now, e.g.
+     * because the device just got a network connection back. Does nothing otherwise.
+     */
+    void NudgeRejoin();
+
+    /**
+     * Time of the last successful automatic rejoin (default constructed time point if there was
+     * none). Used to give everybody a fresh inactivity timer after a gap.
+     */
+    std::chrono::steady_clock::time_point LastRejoinTime() const;
 
     /**
      * Attempts to join a room at the specified address and port, using the specified nickname.

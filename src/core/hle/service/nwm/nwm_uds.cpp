@@ -64,6 +64,17 @@ constexpr u16 BroadcastNetworkNodeId = 0xFFFF;
 // Heartbeat and connection timeout settings for network stability.
 constexpr std::chrono::milliseconds HEARTBEAT_INTERVAL{250};
 constexpr std::chrono::milliseconds CONNECTION_TIMEOUT{30000};
+
+// How long a silent peer is kept. It has to outlast the room auto rejoin window, otherwise a player
+// who is busy getting back into the room would be evicted before it manages to.
+std::chrono::milliseconds ConnectionTimeout() {
+    if (Settings::values.auto_rejoin.GetValue()) {
+        const auto rejoin = std::chrono::seconds(Settings::values.auto_rejoin_window.GetValue() + 10);
+        return std::max(CONNECTION_TIMEOUT,
+                        std::chrono::duration_cast<std::chrono::milliseconds>(rejoin));
+    }
+    return CONNECTION_TIMEOUT;
+}
 constexpr u8 HEARTBEAT_CHANNEL = 0xF;
 
 // The Host has always dest_node_id 1
@@ -1750,9 +1761,17 @@ void NWM_UDS::SendHeartbeat() {
 }
 
 void NWM_UDS::CheckConnectionHealth() {
+    // Our own link to the room was down: nobody could reach us, so nobody was silent on purpose.
+    std::chrono::steady_clock::time_point rejoined{};
+    if (auto room_member = Network::GetRoomMember().lock()) {
+        if (room_member->IsRejoining()) {
+            return;
+        }
+        rejoined = room_member->LastRejoinTime();
+    }
     auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - last_packet_time);
-    if (e > CONNECTION_TIMEOUT) {
+        std::chrono::steady_clock::now() - std::max(last_packet_time, rejoined));
+    if (e > ConnectionTimeout()) {
         if (connection_status.status == NetworkStatus::ConnectedAsClient ||
             connection_status.status == NetworkStatus::ConnectedAsSpectator) {
             LOG_WARNING(Service_NWM, "No packets for a long time, keeping connection");
@@ -1764,10 +1783,16 @@ void NWM_UDS::CheckConnectionHealth() {
 
 void NWM_UDS::CleanupTimedOutClients() {
     auto now = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point rejoined{};
+    if (auto room_member = Network::GetRoomMember().lock()) {
+        rejoined = room_member->LastRejoinTime();
+    }
+    const auto timeout = ConnectionTimeout();
     std::vector<Network::MacAddress> to;
     for (auto& n : node_map)
         if (n.second.connected && !n.second.spec &&
-            std::chrono::duration_cast<std::chrono::milliseconds>(now - n.second.last_activity) > CONNECTION_TIMEOUT)
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - std::max(n.second.last_activity, rejoined)) > timeout)
             to.push_back(n.first);
     for (auto& c : to) {
         Node nd = node_map[c];

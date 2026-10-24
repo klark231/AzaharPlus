@@ -96,7 +96,7 @@ void SendReport(s64 clock_us) {
     }
 }
 
-void WaitIfAhead(Core::System& system) {
+bool WaitIfAhead(Core::System& system) {
     // The room server dropped us and we are getting back in: hold emulated time so the game
     // cannot time the connection out while we are away. Independent of the net sync switch.
     if (Settings::values.auto_rejoin_pause.GetValue()) {
@@ -106,7 +106,7 @@ void WaitIfAhead(Core::System& system) {
             while (room_member->IsRejoining() && Clock::now() - start < kSlice) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
-            return; // the run loop does one tiny slice, then we hold again
+            return true; // skip the slice entirely: no audio bursts (ticking) while held
         }
     }
     if (!IsEnabled()) {
@@ -115,16 +115,16 @@ void WaitIfAhead(Core::System& system) {
             std::scoped_lock lock{g_mtx};
             g_waiting_for.reset();
         }
-        return;
+        return false;
     }
     if (!g_active.load(std::memory_order_relaxed)) {
-        return;
+        return false;
     }
     Mac my_mac{};
     if (auto room_member = Network::GetRoomMember().lock(); room_member && room_member->IsConnected()) {
         my_mac = room_member->GetMacAddress();
     } else {
-        return;
+        return false;
     }
 
     const auto timeout = Timeout(); // read once per call
@@ -135,7 +135,7 @@ void WaitIfAhead(Core::System& system) {
         {
             std::scoped_lock lock{g_mtx};
             if (wall < g_cooldown_until) {
-                return;
+                return false;
             }
         }
         const s64 now_us = system.CoreTiming().GetGlobalTimeUs().count();
@@ -149,7 +149,7 @@ void WaitIfAhead(Core::System& system) {
                                   wall - g_wait_started).count());
                 }
                 g_waiting_for.reset();
-                return;
+                return false;
             }
             if (!g_waiting_for) {
                 g_wait_started = wall;
@@ -161,11 +161,11 @@ void WaitIfAhead(Core::System& system) {
                 LOG_DEBUG(Service_NWM, "NetSync: gave up waiting after {} s", timeout.count() / 1000);
                 g_waiting_for.reset();
                 g_cooldown_until = wall + kCooldown;
-                return;
+                return false;
             }
         }
         if (wall - start >= kSlice) {
-            return; // let the run loop do one slice, we look again on the next call
+            return true; // still waiting: skip this slice (keeps audio silent, not ticking)
         }
         if (wall - last_report >= kReportInterval) {
             // Our clock is frozen while we wait: tell the peers we are alive and whom we wait for.

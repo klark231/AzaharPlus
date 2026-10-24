@@ -58,6 +58,8 @@ enum class IntSetting(
     USE_FRAME_LIMIT(SettingKeys.use_frame_limit(), Settings.SECTION_RENDERER, 1),
     DELAY_RENDER_THREAD_US(SettingKeys.delay_game_render_thread_us(), Settings.SECTION_RENDERER, 0),
     ORIENTATION_OPTION(SettingKeys.screen_orientation(), Settings.SECTION_LAYOUT, 2),
+    NETSYNC_TIMEOUT(SettingKeys.netsync_timeout(), Settings.SECTION_MULTIPLAYER, 6),
+    AUTO_REJOIN_WINDOW(SettingKeys.auto_rejoin_window(), Settings.SECTION_MULTIPLAYER, 60),
     TURBO_LIMIT(SettingKeys.turbo_limit(), Settings.SECTION_CORE, 200),
     PERFORMANCE_OVERLAY_POSITION(
         SettingKeys.performance_overlay_position(),

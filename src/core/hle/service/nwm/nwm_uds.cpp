@@ -64,8 +64,6 @@ constexpr u16 BroadcastNetworkNodeId = 0xFFFF;
 // Heartbeat and connection timeout settings for network stability.
 constexpr std::chrono::milliseconds HEARTBEAT_INTERVAL{250};
 constexpr std::chrono::milliseconds CONNECTION_TIMEOUT{30000};
-constexpr std::chrono::milliseconds RECONNECT_DELAY{1000};
-constexpr int MAX_RECONNECT_ATTEMPTS = 5;
 constexpr u8 HEARTBEAT_CHANNEL = 0xF;
 
 // The Host has always dest_node_id 1
@@ -335,7 +333,6 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
 
         if (conn_type == ConnectionType::Client) {
             connection_status.status = NetworkStatus::ConnectedAsClient;
-            reconnect_attempts = 0;
             ScheduleHeartbeat();
             ScheduleHealthCheck();
         } else if (conn_type == ConnectionType::Spectator) {
@@ -656,7 +653,6 @@ void NWM_UDS::ShutdownHLE() {
     system.CoreTiming().UnscheduleEvent(netsync_event, 0);
     NetSync::Reset();
     system.CoreTiming().UnscheduleEvent(handle_async_event_signals_event, 0);
-    system.CoreTiming().UnscheduleEvent(reconnect_event, 0);
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
     for (auto& bind_node : channel_data) {
         SignalEventAsync(bind_node.second.event);
@@ -1537,7 +1533,6 @@ ResultStatus NWM_UDS::DisconnectNetworkHLE() {
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
     system.CoreTiming().UnscheduleEvent(netsync_event, 0);
     NetSync::Reset();
-    system.CoreTiming().UnscheduleEvent(reconnect_event, 0);
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
     using Network::WifiPacket;
     WifiPacket deauth;
@@ -1767,32 +1762,6 @@ void NWM_UDS::CheckConnectionHealth() {
     }
 }
 
-void NWM_UDS::HandleConnectionLost() {
-    if (reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
-        reconnect_attempts++;
-        {
-            std::scoped_lock lk(connection_status_mutex);
-            connection_status.status = NetworkStatus::NotConnected;
-            node_map.clear();
-            SignalEventAsync(connection_status_event);
-            Network::WifiPacket deauth;
-            deauth.channel = network_channel;
-            deauth.destination_address = network_info.host_mac_address;
-            deauth.type = Network::WifiPacket::PacketType::Deauthentication;
-            SendPacket(deauth);
-        }
-        system.CoreTiming().ScheduleEvent(
-            msToCycles(static_cast<int>(RECONNECT_DELAY.count())), reconnect_event, 0);
-    } else {
-        reconnect_attempts = 0;
-    }
-}
-
-void NWM_UDS::AttemptReconnection() {
-    if (reconnect_attempts <= MAX_RECONNECT_ATTEMPTS)
-        StartConnectionSequence(network_info.host_mac_address);
-}
-
 void NWM_UDS::CleanupTimedOutClients() {
     auto now = std::chrono::steady_clock::now();
     std::vector<Network::MacAddress> to;
@@ -1854,8 +1823,6 @@ void NWM_UDS::HealthCheckCallback(std::uintptr_t, s64 cl) {
     if (connection_status.status != NetworkStatus::NotConnected)
         system.CoreTiming().ScheduleEvent(msToCycles(5000) - cl, health_check_event, 0);
 }
-
-void NWM_UDS::ReconnectCallback(std::uintptr_t, s64) { AttemptReconnection(); }
 
 Network::MacAddress NWM_UDS::GetMacAddress() {
     MacAddress mac;
@@ -1966,10 +1933,6 @@ NWM_UDS::NWM_UDS(Core::System& system) : ServiceFramework("nwm::UDS"), system(sy
         "UDS::HealthCheckCallback", [this](std::uintptr_t u, s64 c) {
             HealthCheckCallback(u, c);
         });
-    reconnect_event = system.CoreTiming().RegisterEvent(
-        "UDS::ReconnectCallback", [this](std::uintptr_t u, s64 c) {
-            ReconnectCallback(u, c);
-        });
 
     handle_async_event_signals_event = system.CoreTiming().RegisterEvent(
         "UDS::handle_async_event_signals_event",
@@ -1992,7 +1955,6 @@ NWM_UDS::~NWM_UDS() {
     if (auto room_member = Network::GetRoomMember().lock())
         room_member->Unbind(wifi_packet_received);
 
-    system.CoreTiming().UnscheduleEvent(reconnect_event, 0);
     system.CoreTiming().UnscheduleEvent(health_check_event, 0);
     system.CoreTiming().UnscheduleEvent(beacon_broadcast_event, 0);
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);

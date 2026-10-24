@@ -111,6 +111,11 @@ object SettingKeys {
     external fun input_type(): String
     external fun input_device(): String
     external fun delay_start_for_lle_modules(): String
+    external fun netsync_enabled(): String
+    external fun netsync_timeout(): String
+    external fun auto_rejoin(): String
+    external fun auto_rejoin_window(): String
+    external fun auto_rejoin_pause(): String
     external fun use_gdbstub(): String
     external fun gdbstub_port(): String
     external fun instant_debug_log(): String

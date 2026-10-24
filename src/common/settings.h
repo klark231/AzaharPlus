@@ -662,6 +662,13 @@ struct Values {
     bool record_frame_times;
     std::unordered_map<std::string, bool> lle_modules;
     Setting<bool> delay_start_for_lle_modules{true, Keys::delay_start_for_lle_modules};
+
+    // Multiplayer helpers
+    Setting<bool> netsync_enabled{true, Keys::netsync_enabled};
+    Setting<u16> netsync_timeout{6, Keys::netsync_timeout};          ///< seconds (1-60)
+    Setting<bool> auto_rejoin{true, Keys::auto_rejoin};
+    Setting<u16> auto_rejoin_window{60, Keys::auto_rejoin_window};   ///< seconds (5-600)
+    Setting<bool> auto_rejoin_pause{true, Keys::auto_rejoin_pause};  ///< hold the game while rejoining
     Setting<bool> use_gdbstub{false, Keys::use_gdbstub};
     Setting<u16> gdbstub_port{24689, Keys::gdbstub_port};
     Setting<bool> instant_debug_log{false, Keys::instant_debug_log};

@@ -589,16 +589,12 @@ private:
     void HealthCheckCallback(std::uintptr_t user_data, s64 cycles_late);
     
     // Reconnection - automatic recovery
-    void HandleConnectionLost();
-    void AttemptReconnection();
-    void ReconnectCallback(std::uintptr_t user_data, s64 cycles_late);
     
     // Host-side client management
     void CleanupTimedOutClients();
     
     // Connection monitoring state
     std::chrono::steady_clock::time_point last_packet_time;
-    int reconnect_attempts = 0;
     
     // ============================================================
 
@@ -669,7 +665,6 @@ private:
     Core::TimingEventType* heartbeat_event = nullptr;
     Core::TimingEventType* netsync_event = nullptr;
     Core::TimingEventType* health_check_event = nullptr;
-    Core::TimingEventType* reconnect_event = nullptr;
     Core::TimingEventType* handle_async_event_signals_event = nullptr;
     std::queue<std::shared_ptr<Kernel::Event>> pending_async_event_signals;
     std::mutex pending_async_event_signals_mutex;

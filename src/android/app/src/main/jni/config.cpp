@@ -463,6 +463,11 @@ void Config::ReadValues() {
     ReadSetting("Debugging", Settings::values.gdbstub_port);
     ReadSetting("Debugging", Settings::values.instant_debug_log);
     ReadSetting("Debugging", Settings::values.enable_rpc_server);
+    ReadSetting("Multiplayer", Settings::values.netsync_enabled);
+    ReadSetting("Multiplayer", Settings::values.netsync_timeout);
+    ReadSetting("Multiplayer", Settings::values.auto_rejoin);
+    ReadSetting("Multiplayer", Settings::values.auto_rejoin_window);
+    ReadSetting("Multiplayer", Settings::values.auto_rejoin_pause);
     ReadSetting("Debugging", Settings::values.toggle_unique_data_console_type);
     ReadSetting("Debugging", Settings::values.enable_exception_handler);
 

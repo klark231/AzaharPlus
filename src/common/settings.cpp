@@ -176,6 +176,11 @@ void LogSettings() {
     log_setting("System_PluginLoaderAllowed", values.allow_plugin_loader.GetValue());
     log_setting("System_ApplyRegionFreePatch", values.apply_region_free_patch.GetValue());
     log_setting("Debugging_DelayStartForLLEModules", values.delay_start_for_lle_modules.GetValue());
+    log_setting("Multiplayer_NetSyncEnabled", values.netsync_enabled.GetValue());
+    log_setting("Multiplayer_NetSyncTimeout", values.netsync_timeout.GetValue());
+    log_setting("Multiplayer_AutoRejoin", values.auto_rejoin.GetValue());
+    log_setting("Multiplayer_AutoRejoinWindow", values.auto_rejoin_window.GetValue());
+    log_setting("Multiplayer_AutoRejoinPause", values.auto_rejoin_pause.GetValue());
     log_setting("Debugging_UseGdbstub", values.use_gdbstub.GetValue());
     log_setting("Debugging_GdbstubPort", values.gdbstub_port.GetValue());
     log_setting("Debugging_InstantDebugLog", values.instant_debug_log.GetValue());

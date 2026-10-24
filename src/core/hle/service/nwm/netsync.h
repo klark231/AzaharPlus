@@ -12,7 +12,7 @@
 // more than kLeadLimitUs of its own emulated time since the last report of a peer it is playing
 // with simply waits (in wall time) until the next report arrives. Reports say whom the sender is
 // waiting for, so two consoles that each think they are ahead do not wait for each other forever.
-// A peer that is silent for kSilence of wall time (paused, gone) is left to the game.
+// A peer that is silent for Timeout() of wall time (paused, gone) is left to the game.
 //
 // Reports are Wi-Fi packets of type 0x4D, which no 3DS frame uses: room servers relay Wi-Fi
 // packets without looking at the type and the UDS service ignores types it does not know, so
@@ -41,15 +41,18 @@ namespace Service::NWM::NetSync {
 using Mac = std::array<u8, 6>;
 using Clock = std::chrono::steady_clock;
 
-/// Master switch. Set to false to remove all net sync behaviour (no waiting, no reports).
-constexpr bool kEnabled = true;
+/// Master switch, from the "Net Sync" setting (read live, so it can be toggled while playing).
+bool IsEnabled();
+/// How long (wall time) we wait for a stalled peer / treat a peer as gone, from the "Net Sync
+/// Timeout" setting (1-60 s, default 6 s).
+std::chrono::milliseconds Timeout();
 
 constexpr u8 kPacketType = 0x4D;
 constexpr std::chrono::milliseconds kReportInterval{50};  ///< emulated time between reports
 constexpr s64 kLeadLimitUs = 300'000;                      ///< wait when this far ahead (own emulated time)
 constexpr s64 kPlayWindowUs = 3'000'000;                   ///< "playing with us": game data within this
-constexpr std::chrono::milliseconds kSilence{6000};        ///< peer silent this long (wall): ignore it
-constexpr std::chrono::milliseconds kMaxWait{6000};        ///< never wait this long in one go (wall)
+// A peer silent for Timeout() of wall time (paused, gone) is ignored, and we never wait longer
+// than Timeout() in one go.
 constexpr std::chrono::milliseconds kCooldown{3000};       ///< after giving up, free-run this long
 constexpr std::chrono::milliseconds kSlice{100};           ///< max block per RunLoop call (wall)
 
@@ -77,7 +80,8 @@ public:
     /// game data are stamped here, with our own emulated clock, the first time we look after they
     /// arrived: while our own emulation is stalled that clock does not move, so a report that
     /// arrives during our own stall never makes us wait afterwards.
-    std::optional<Mac> Evaluate(s64 now_us, const Mac& my_mac, Clock::time_point wall) {
+    std::optional<Mac> Evaluate(s64 now_us, const Mac& my_mac, Clock::time_point wall,
+                                std::chrono::milliseconds silence) {
         std::scoped_lock lock{mtx};
         std::optional<Mac> result;
         s64 worst = 0;
@@ -96,7 +100,7 @@ public:
             if (p.stamp_report_us < 0) {
                 continue; // never heard a report: peer has no net sync
             }
-            if (wall - p.last_report_wall > kSilence) {
+            if (wall - p.last_report_wall > silence) {
                 continue; // silent (paused, gone): leave it to the game
             }
             if (p.peer_waiting && p.waiting_for == my_mac &&

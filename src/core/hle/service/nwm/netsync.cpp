@@ -1,10 +1,12 @@
 // Copyright Azahar Emulator Project / AzaharPlus
 // Licensed under GPLv2 or any later version
 
+#include <algorithm>
 #include <atomic>
 #include <cstring>
 #include <thread>
 #include "common/logging/log.h"
+#include "common/settings.h"
 #include "core/core.h"
 #include "core/core_timing.h"
 #include "core/hle/service/nwm/netsync.h"
@@ -38,6 +40,15 @@ std::vector<u8> BuildReport(s64 clock_us) {
 }
 } // namespace
 
+bool IsEnabled() {
+    return Settings::values.netsync_enabled.GetValue();
+}
+
+std::chrono::milliseconds Timeout() {
+    const int s = std::clamp<int>(Settings::values.netsync_timeout.GetValue(), 1, 60);
+    return std::chrono::seconds(s);
+}
+
 void SetSender(std::function<void(const std::vector<u8>&)> sender) {
     std::scoped_lock lock{g_mtx};
     g_sender = std::move(sender);
@@ -49,7 +60,7 @@ void ClearSender() {
 }
 
 void HandleReport(const Network::WifiPacket& packet, const Mac& my_mac) {
-    if constexpr (!kEnabled) {
+    if (!IsEnabled()) {
         return;
     }
     const auto& d = packet.data;
@@ -66,13 +77,13 @@ void HandleReport(const Network::WifiPacket& packet, const Mac& my_mac) {
 }
 
 void NoteGameData(const Mac& peer) {
-    if constexpr (kEnabled) {
+    if (IsEnabled()) {
         g_tracker.OnGameData(peer);
     }
 }
 
 void SendReport(s64 clock_us) {
-    if constexpr (!kEnabled) {
+    if (!IsEnabled()) {
         return;
     }
     std::function<void(const std::vector<u8>&)> sender;
@@ -86,7 +97,24 @@ void SendReport(s64 clock_us) {
 }
 
 void WaitIfAhead(Core::System& system) {
-    if constexpr (!kEnabled) {
+    // The room server dropped us and we are getting back in: hold emulated time so the game
+    // cannot time the connection out while we are away. Independent of the net sync switch.
+    if (Settings::values.auto_rejoin_pause.GetValue()) {
+        if (auto room_member = Network::GetRoomMember().lock();
+            room_member && room_member->IsRejoining()) {
+            const auto start = Clock::now();
+            while (room_member->IsRejoining() && Clock::now() - start < kSlice) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            }
+            return; // the run loop does one tiny slice, then we hold again
+        }
+    }
+    if (!IsEnabled()) {
+        // Switched off (possibly while waiting): make sure we do not keep advertising a wait.
+        if (g_active.load(std::memory_order_relaxed)) {
+            std::scoped_lock lock{g_mtx};
+            g_waiting_for.reset();
+        }
         return;
     }
     if (!g_active.load(std::memory_order_relaxed)) {
@@ -99,6 +127,7 @@ void WaitIfAhead(Core::System& system) {
         return;
     }
 
+    const auto timeout = Timeout(); // read once per call
     const auto start = Clock::now();
     auto last_report = start - std::chrono::hours(1);
     while (true) {
@@ -110,7 +139,7 @@ void WaitIfAhead(Core::System& system) {
             }
         }
         const s64 now_us = system.CoreTiming().GetGlobalTimeUs().count();
-        const auto target = g_tracker.Evaluate(now_us, my_mac, wall);
+        const auto target = g_tracker.Evaluate(now_us, my_mac, wall, timeout);
         {
             std::scoped_lock lock{g_mtx};
             if (!target) {
@@ -127,9 +156,9 @@ void WaitIfAhead(Core::System& system) {
                 LOG_DEBUG(Service_NWM, "NetSync: waiting for a peer (we are ahead of it)");
             }
             g_waiting_for = target;
-            if (wall - g_wait_started > kMaxWait) {
+            if (wall - g_wait_started > timeout) {
                 // Waited long enough: leave it to the game and free-run for a while.
-                LOG_DEBUG(Service_NWM, "NetSync: gave up waiting after 6 s");
+                LOG_DEBUG(Service_NWM, "NetSync: gave up waiting after {} s", timeout.count() / 1000);
                 g_waiting_for.reset();
                 g_cooldown_until = wall + kCooldown;
                 return;

@@ -639,6 +639,27 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 
 # To LLE a service module add "LLE\<module name>=true"
 
+[Multiplayer]
+# Net sync: when playing online, wait (up to the timeout) for a peer that stalled so the game does not drop it
+# 0: Off, 1 (default): On
+)") DECLARE_KEY(netsync_enabled) BOOST_HANA_STRING(R"(
+
+# Net sync: longest time in seconds to wait for a stalled peer (1-60)
+# 6 (default)
+)") DECLARE_KEY(netsync_timeout) BOOST_HANA_STRING(R"(
+
+# Automatically rejoin the room if the connection to the room server is lost
+# 0: Off, 1 (default): On
+)") DECLARE_KEY(auto_rejoin) BOOST_HANA_STRING(R"(
+
+# Auto rejoin: how many seconds to keep trying to get back into the room (5-600)
+# 60 (default)
+)") DECLARE_KEY(auto_rejoin_window) BOOST_HANA_STRING(R"(
+
+# Auto rejoin: hold the game (emulated time stands still) while rejoining, so game timeouts cannot run out
+# 0: Off, 1 (default): On
+)") DECLARE_KEY(auto_rejoin_pause) BOOST_HANA_STRING(R"(
+
 [WebService]
 # URL for Web API
 )") DECLARE_KEY(web_api_url) BOOST_HANA_STRING(R"(

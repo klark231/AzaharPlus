@@ -162,6 +162,12 @@ public:
     bool IsConnected() const;
 
     /**
+     * Returns whether the connection to the room server was lost and an automatic rejoin is
+     * currently in progress.
+     */
+    bool IsRejoining() const;
+
+    /**
      * Attempts to join a room at the specified address and port, using the specified nickname.
      * A console ID hash is passed in to check console ID conflicts.
      * This may fail if the username or console ID is already taken.

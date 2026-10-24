@@ -4,11 +4,13 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <list>
 #include <mutex>
 #include <set>
 #include <thread>
 #include "common/assert.h"
+#include "common/settings.h"
 #include "enet/enet.h"
 #include "network/packet.h"
 #include "network/room_member.h"
@@ -46,6 +48,35 @@ public:
     MacAddress mac_address; ///< The mac_address of this member.
 
     std::string server_address; ///< The address this member connected to.
+
+    // ---- Auto rejoin -------------------------------------------------------------------------
+    // If the connection to the room server drops while we are in a room, keep trying to get back
+    // in with the same nickname / MAC / password. While that happens the UI is told nothing
+    // ("quiet"); it only hears about the final result (joined again, or gave up).
+    struct JoinParams {
+        std::string nickname;
+        std::string console_id_hash;
+        std::string server_addr;
+        std::string password;
+        std::string token;
+        u16 server_port = 0;
+        u16 client_port = 0;
+        MacAddress preferred_mac{};
+    };
+    JoinParams last_join;
+    std::atomic<bool> have_join{false};      ///< last_join is valid (we joined by user request)
+    std::atomic<bool> quiet{false};          ///< auto rejoin in progress: do not invoke callbacks
+    std::atomic<bool> rejoin_cancel{false};
+    std::atomic<Error> last_error{Error::UnknownError};
+    std::mutex rejoin_mutex;
+    std::thread rejoin_thread;
+
+    void DoJoin(const JoinParams& p);
+    void DoLeave();
+    bool ShouldAutoRejoin() const;
+    void BeginRejoin();   ///< called from the loop thread when the server connection dropped
+    void RejoinLoop();    ///< rejoin thread
+    void CancelRejoin();  ///< user leaves / joins elsewhere / destroyed
 
     std::mutex network_mutex; ///< Mutex that controls access to the `client` variable.
     /// Thread that receives and dispatches network packets
@@ -150,12 +181,17 @@ public:
 void RoomMember::RoomMemberImpl::SetState(const State new_state) {
     if (state != new_state) {
         state = new_state;
-        Invoke<State>(state);
+        if (!quiet) {
+            Invoke<State>(state);
+        }
     }
 }
 
 void RoomMember::RoomMemberImpl::SetError(const Error new_error) {
-    Invoke<Error>(new_error);
+    last_error = new_error;
+    if (!quiet) {
+        Invoke<Error>(new_error);
+    }
 }
 
 bool RoomMember::RoomMemberImpl::IsConnected() const {
@@ -190,6 +226,9 @@ void RoomMember::RoomMemberImpl::MemberLoop() {
                     ASSERT_MSG(member_information.size() > 0,
                                "We have not yet received member information.");
                     HandleJoinPacket(&event); // Get the MAC Address for the client
+                    if (have_join) {
+                        last_join.preferred_mac = mac_address; // rejoin with the same MAC
+                    }
                     if (event.packet->data[0] == IdJoinSuccessAsMod) {
                         SetState(State::Moderator);
                     } else {
@@ -249,8 +288,13 @@ void RoomMember::RoomMemberImpl::MemberLoop() {
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 if (state == State::Joined || state == State::Moderator) {
-                    SetState(State::Idle);
-                    SetError(Error::LostConnection);
+                    if (ShouldAutoRejoin()) {
+                        server = nullptr; // ENet already dropped the peer; skip the slow Disconnect()
+                        BeginRejoin();
+                    } else {
+                        SetState(State::Idle);
+                        SetError(Error::LostConnection);
+                    }
                 }
                 break;
             case ENET_EVENT_TYPE_NONE:
@@ -277,6 +321,168 @@ void RoomMember::RoomMemberImpl::MemberLoop() {
     }
     Disconnect();
 };
+
+bool RoomMember::RoomMemberImpl::ShouldAutoRejoin() const {
+    return have_join && Settings::values.auto_rejoin.GetValue();
+}
+
+void RoomMember::RoomMemberImpl::BeginRejoin() {
+    quiet = true;
+    rejoin_cancel = false;
+    state = State::Idle; // silently: lets this loop end, the UI is not told yet
+    std::lock_guard lock(rejoin_mutex);
+    if (rejoin_thread.joinable()) {
+        rejoin_thread.join(); // a previous, finished rejoin
+    }
+    rejoin_thread = std::thread(&RoomMember::RoomMemberImpl::RejoinLoop, this);
+}
+
+void RoomMember::RoomMemberImpl::RejoinLoop() {
+    using namespace std::chrono;
+    const auto window =
+        seconds(std::clamp<int>(Settings::values.auto_rejoin_window.GetValue(), 5, 600));
+    const auto deadline = steady_clock::now() + window;
+    const auto sleep_unless_cancelled = [this](milliseconds total) {
+        for (milliseconds t{0}; t < total && !rejoin_cancel; t += milliseconds{50}) {
+            std::this_thread::sleep_for(milliseconds{50});
+        }
+    };
+
+    LOG_INFO(Network, "Lost connection to the room server, trying to rejoin for up to {} s",
+             window.count());
+    bool success = false;
+    bool first = true;
+    bool fatal = false;
+    while (!rejoin_cancel && !fatal && steady_clock::now() < deadline) {
+        sleep_unless_cancelled(first ? milliseconds{500} : milliseconds{2000});
+        first = false;
+        if (rejoin_cancel) {
+            break;
+        }
+        {
+            // Whatever piled up while we were away is stale.
+            std::lock_guard lock(send_list_mutex);
+            send_list.clear();
+        }
+        last_error = Error::UnknownError;
+        DoJoin(last_join);
+
+        // Wait for the room's answer (join success or an error)
+        const auto answer_deadline = steady_clock::now() + seconds{10};
+        while (!rejoin_cancel && state == State::Joining &&
+               steady_clock::now() < answer_deadline) {
+            std::this_thread::sleep_for(milliseconds{50});
+        }
+        if (rejoin_cancel) {
+            break;
+        }
+        if (state == State::Joined || state == State::Moderator) {
+            success = true;
+            break;
+        }
+        switch (last_error.load()) {
+        case Error::WrongPassword:
+        case Error::HostBanned:
+        case Error::HostKicked:
+        case Error::WrongVersion:
+            fatal = true; // retrying cannot help
+            break;
+        default:
+            // NameCollision / MacCollision / ConsoleIdCollision usually mean the room still holds
+            // our old, dead connection: it goes away on its own, so keep trying.
+            break;
+        }
+    }
+    if (rejoin_cancel) {
+        return; // CancelRejoin tells the UI
+    }
+    quiet = false;
+    if (success) {
+        LOG_INFO(Network, "Rejoined the room");
+        Invoke<State>(state);
+    } else {
+        LOG_ERROR(Network, "Could not rejoin the room, giving up");
+        have_join = false;
+        state = State::Idle;
+        Invoke<State>(State::Idle);
+        Invoke<Error>(Error::LostConnection);
+    }
+}
+
+void RoomMember::RoomMemberImpl::CancelRejoin() {
+    const bool was_quiet = quiet.load();
+    rejoin_cancel = true;
+    {
+        std::lock_guard lock(rejoin_mutex);
+        if (rejoin_thread.joinable() && rejoin_thread.get_id() != std::this_thread::get_id()) {
+            rejoin_thread.join();
+        }
+    }
+    rejoin_cancel = false;
+    if (was_quiet) {
+        quiet = false;
+        // The UI still believes we are in the room.
+        Invoke<State>(State::Idle);
+    }
+}
+
+void RoomMember::RoomMemberImpl::DoLeave() {
+    SetState(State::Idle);
+    if (loop_thread) {
+        if (loop_thread->joinable()) {
+            loop_thread->join();
+        }
+        loop_thread.reset();
+    }
+    if (client) {
+        enet_host_destroy(client);
+        client = nullptr;
+    }
+}
+
+void RoomMember::RoomMemberImpl::DoJoin(const JoinParams& p) {
+    // If the member is connected, kill the connection first
+    if (loop_thread) {
+        DoLeave();
+    }
+
+    if (!client) {
+        client = enet_host_create(nullptr, 1, NumChannels, 0, 0);
+        ASSERT_MSG(client != nullptr, "Could not create client");
+    }
+
+    SetState(State::Joining);
+    server_address = p.server_addr;
+
+    ENetAddress address{};
+    enet_address_set_host(&address, p.server_addr.c_str());
+    address.port = p.server_port;
+    server = enet_host_connect(client, &address, NumChannels, 0);
+
+    if (!server) {
+        SetState(State::Idle);
+        SetError(Error::UnknownError);
+        return;
+    }
+
+    ENetEvent event{};
+    int net = enet_host_service(client, &event, ConnectionTimeoutMs);
+    if (net > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+        nickname = p.nickname;
+        StartLoop();
+        SendJoinRequest(p.nickname, p.console_id_hash, p.preferred_mac, p.password, p.token);
+        // Same as RoomMember::SendGameInfo(current_game_info)
+        Packet packet;
+        packet << static_cast<u8>(IdSetGameInfo);
+        packet << current_game_info.name;
+        packet << current_game_info.id;
+        Send(std::move(packet));
+    } else {
+        enet_peer_disconnect(server, 0);
+        SetState(State::Idle);
+        SetError(Error::CouldNotConnect);
+    }
+}
 
 void RoomMember::RoomMemberImpl::StartLoop() {
     loop_thread = std::make_unique<std::thread>(&RoomMember::RoomMemberImpl::MemberLoop, this);
@@ -656,6 +862,8 @@ RoomMember::CallbackHandle<T> RoomMember::RoomMemberImpl::Bind(
 RoomMember::RoomMember() : room_member_impl{std::make_unique<RoomMemberImpl>()} {}
 
 RoomMember::~RoomMember() {
+    room_member_impl->have_join = false;
+    room_member_impl->CancelRejoin();
     ASSERT_MSG(!IsConnected(), "RoomMember is being destroyed while connected");
     if (room_member_impl->loop_thread) {
         Leave();
@@ -699,54 +907,35 @@ void RoomMember::Join(const std::string& nick, const std::string& console_id_has
                       const char* server_addr, u16 server_port, u16 client_port,
                       const MacAddress& preferred_mac, const std::string& password,
                       const std::string& token) {
-    // If the member is connected, kill the connection first
-    if (room_member_impl->loop_thread && room_member_impl->loop_thread->joinable()) {
-        Leave();
-    }
-    // If the thread isn't running but the ptr still exists, reset it
-    else if (room_member_impl->loop_thread) {
-        room_member_impl->loop_thread.reset();
-    }
+    // A join requested by the user replaces any automatic rejoin in progress.
+    room_member_impl->CancelRejoin();
 
-    if (!room_member_impl->client) {
-        room_member_impl->client = enet_host_create(nullptr, 1, NumChannels, 0, 0);
-        ASSERT_MSG(room_member_impl->client != nullptr, "Could not create client");
-    }
-
-    room_member_impl->SetState(State::Joining);
-    room_member_impl->server_address = server_addr;
-
-    ENetAddress address{};
-    enet_address_set_host(&address, server_addr);
-    address.port = server_port;
-    room_member_impl->server =
-        enet_host_connect(room_member_impl->client, &address, NumChannels, 0);
-
-    if (!room_member_impl->server) {
-        room_member_impl->SetState(State::Idle);
-        room_member_impl->SetError(Error::UnknownError);
-        return;
-    }
-
-    ENetEvent event{};
-    int net = enet_host_service(room_member_impl->client, &event, ConnectionTimeoutMs);
-    if (net > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
-        room_member_impl->nickname = nick;
-        room_member_impl->StartLoop();
-        room_member_impl->SendJoinRequest(nick, console_id_hash, preferred_mac, password, token);
-        SendGameInfo(room_member_impl->current_game_info);
-    } else {
-        enet_peer_disconnect(room_member_impl->server, 0);
-        room_member_impl->SetState(State::Idle);
-        room_member_impl->SetError(Error::CouldNotConnect);
-    }
+    RoomMemberImpl::JoinParams p;
+    p.nickname = nick;
+    p.console_id_hash = console_id_hash;
+    p.server_addr = server_addr;
+    p.server_port = server_port;
+    p.client_port = client_port;
+    p.preferred_mac = preferred_mac;
+    p.password = password;
+    p.token = token;
+    room_member_impl->last_join = p;
+    room_member_impl->have_join = true;
+    room_member_impl->DoJoin(p);
 }
 
 bool RoomMember::IsConnected() const {
     return room_member_impl->IsConnected();
 }
 
+bool RoomMember::IsRejoining() const {
+    return room_member_impl->quiet.load();
+}
+
 void RoomMember::SendWifiPacket(const WifiPacket& wifi_packet) {
+    if (room_member_impl->quiet) {
+        return; // auto rejoin in progress: nobody is listening
+    }
     Packet packet;
     packet << static_cast<u8>(IdWifiPacket);
     packet << static_cast<u8>(wifi_packet.type);
@@ -839,12 +1028,10 @@ void RoomMember::Unbind(CallbackHandle<T> handle) {
 }
 
 void RoomMember::Leave() {
-    room_member_impl->SetState(State::Idle);
-    room_member_impl->loop_thread->join();
-    room_member_impl->loop_thread.reset();
-
-    enet_host_destroy(room_member_impl->client);
-    room_member_impl->client = nullptr;
+    // The user (or app) leaves on purpose: no automatic rejoin.
+    room_member_impl->have_join = false;
+    room_member_impl->CancelRejoin();
+    room_member_impl->DoLeave();
 }
 
 template void RoomMember::Unbind(CallbackHandle<WifiPacket>);

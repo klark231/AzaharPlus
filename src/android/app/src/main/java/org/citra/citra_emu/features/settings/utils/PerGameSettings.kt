@@ -32,6 +32,7 @@ object PerGameSettings {
         Settings.SECTION_LAYOUT,
         Settings.SECTION_AUDIO,
         Settings.SECTION_DEBUG,
+        Settings.SECTION_MULTIPLAYER,
         Settings.SECTION_UTILITY,
         Settings.SECTION_CHAT_OVERLAY,
         Settings.SECTION_MISC

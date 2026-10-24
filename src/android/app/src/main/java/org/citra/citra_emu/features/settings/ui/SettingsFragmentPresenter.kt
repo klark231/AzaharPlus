@@ -123,6 +123,8 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
 
             Settings.SECTION_NETWORK -> addNetworkSettings(sl)
 
+            Settings.SECTION_MULTIPLAYER -> addMultiplayerSettings(sl)
+
             Settings.SECTION_AUDIO -> addAudioSettings(sl)
 
             Settings.SECTION_DEBUG -> addDebugSettings(sl)
@@ -2002,6 +2004,71 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
         }
     }
 
+    private fun addMultiplayerSettings(sl: ArrayList<SettingsItem>) {
+        settingsActivity.setToolbarTitle(
+            settingsActivity.getString(R.string.preferences_multiplayer)
+        )
+        sl.apply {
+            add(HeaderSetting(R.string.netsync_header))
+            add(
+                SwitchSetting(
+                    BooleanSetting.NETSYNC_ENABLED,
+                    R.string.netsync_enabled,
+                    R.string.netsync_enabled_description,
+                    BooleanSetting.NETSYNC_ENABLED.key,
+                    BooleanSetting.NETSYNC_ENABLED.defaultValue
+                )
+            )
+            add(
+                SliderSetting(
+                    IntSetting.NETSYNC_TIMEOUT,
+                    R.string.netsync_timeout,
+                    R.string.netsync_timeout_description,
+                    1,
+                    60,
+                    " s",
+                    IntSetting.NETSYNC_TIMEOUT.key,
+                    IntSetting.NETSYNC_TIMEOUT.defaultValue.toFloat(),
+                    isEnabled = BooleanSetting.NETSYNC_ENABLED.boolean
+                )
+            )
+
+            add(HeaderSetting(R.string.auto_rejoin_header))
+            add(
+                SwitchSetting(
+                    BooleanSetting.AUTO_REJOIN,
+                    R.string.auto_rejoin,
+                    R.string.auto_rejoin_description,
+                    BooleanSetting.AUTO_REJOIN.key,
+                    BooleanSetting.AUTO_REJOIN.defaultValue
+                )
+            )
+            add(
+                SliderSetting(
+                    IntSetting.AUTO_REJOIN_WINDOW,
+                    R.string.auto_rejoin_window,
+                    R.string.auto_rejoin_window_description,
+                    5,
+                    600,
+                    " s",
+                    IntSetting.AUTO_REJOIN_WINDOW.key,
+                    IntSetting.AUTO_REJOIN_WINDOW.defaultValue.toFloat(),
+                    isEnabled = BooleanSetting.AUTO_REJOIN.boolean
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.AUTO_REJOIN_PAUSE,
+                    R.string.auto_rejoin_pause,
+                    R.string.auto_rejoin_pause_description,
+                    BooleanSetting.AUTO_REJOIN_PAUSE.key,
+                    BooleanSetting.AUTO_REJOIN_PAUSE.defaultValue,
+                    isEnabled = BooleanSetting.AUTO_REJOIN.boolean
+                )
+            )
+        }
+    }
+
     private fun addChatOverlaySettings(sl: ArrayList<SettingsItem>) {
         settingsActivity.setToolbarTitle(settingsActivity.getString(R.string.chat_overlay_settings))
         sl.apply {
@@ -2315,6 +2382,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.deterministic_async_operations_description,
                     BooleanSetting.DETERMINISTIC_ASYNC_OPERATIONS.key,
                     BooleanSetting.DETERMINISTIC_ASYNC_OPERATIONS.defaultValue
+                )
+            )
+
+            // Multiplayer submenu (no icon, same style as the Chat Overlay one)
+            add(
+                SubmenuSetting(
+                    R.string.preferences_multiplayer,
+                    R.string.preferences_multiplayer_description,
+                    0,
+                    Settings.SECTION_MULTIPLAYER
                 )
             )
             add(HeaderSetting(R.string.miscellaneous))

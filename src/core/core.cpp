@@ -1058,7 +1058,7 @@ void System::serialize(Archive& ar, const unsigned int file_version) {
 void System::ReduceDowncountSlice(bool enabled, u32 num_cores) {
     // The same shift for every core. MAX_SLICE_LENGTH >> 5 is about 36k ticks (0.13 ms), close to
     // the 20k-tick slice of the original Citra. Raise for fewer, longer slices (less overhead).
-    static constexpr u32 kReducedSliceShift = 5;
+    static constexpr u32 kReducedSliceShift = 6;
     for (u32 i = 0; i < num_cores && i < 4; ++i) {
         timing->GetTimer(i)->ReduceDowncountSlice(enabled ? kReducedSliceShift : 0);
     }

@@ -242,11 +242,10 @@ void Timing::Timer::SetNextSlice(s64 max_slice_length) {
             std::min<s64>(event_queue.front().time - executed_ticks, max_slice_length));
     }
 
-    // Shrink the whole slice (not only the downcount) so executed tick accounting
-    // (slice_length - downcount) stays correct. Never go below one tick.
-    if (downcount_slice != 0) {
-        slice_length = std::max<s64>(slice_length >> downcount_slice, 1);
-    }
+    // Note: "Reduce Downcount Slice" is NOT applied here. Shrinking the slice per core (and again
+    // on top of the previous core's already shortened slice) made the cores drift apart every
+    // round and forced System::RunLoop into its slow catch-up path. The reduction is applied
+    // once, uniformly for all cores, where the round's max_slice is chosen (System::RunLoop).
 
     downcount = slice_length;
 }

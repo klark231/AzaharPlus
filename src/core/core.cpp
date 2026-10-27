@@ -285,6 +285,12 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         // with a max slice that is the minimum of all max slices of all cores
         // TODO: Make special check for idle since we can easily revert the time of idle cores
         s64 max_slice = Timing::MAX_SLICE_LENGTH;
+        if (const u32 slice_shift = cpu_cores.empty() ? 0 : cpu_cores[0]->GetTimer().GetDowncountSlice();
+            slice_shift != 0) {
+            // "Reduce Downcount Slice": one shorter slice shared by every core, so they stay in
+            // lockstep (the previous per-core shifts desynchronised them).
+            max_slice = std::max<s64>(max_slice >> slice_shift, 1);
+        }
         for (const auto& cpu_core : cpu_cores) {
             running_core = cpu_core.get();
             kernel->SetRunningCPU(running_core);
@@ -1050,10 +1056,11 @@ void System::serialize(Archive& ar, const unsigned int file_version) {
 }
 
 void System::ReduceDowncountSlice(bool enabled, u32 num_cores) {
-    // Per-core shift amounts (app core, system core, extra N3DS cores)
-    static constexpr u32 values[4] = {1, 4, 2, 2};
+    // The same shift for every core. MAX_SLICE_LENGTH >> 5 is about 36k ticks (0.13 ms), close to
+    // the 20k-tick slice of the original Citra. Raise for fewer, longer slices (less overhead).
+    static constexpr u32 kReducedSliceShift = 5;
     for (u32 i = 0; i < num_cores && i < 4; ++i) {
-        timing->GetTimer(i)->ReduceDowncountSlice(enabled ? values[i] : 0);
+        timing->GetTimer(i)->ReduceDowncountSlice(enabled ? kReducedSliceShift : 0);
     }
 }
 

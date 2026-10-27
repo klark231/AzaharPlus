@@ -205,9 +205,13 @@ public:
 
         void ForceExceptionCheck(s64 cycles);
 
-        /// Shifts every new time slice right by `value` bits (0 = off)
+        /// Shifts the round's maximum time slice right by `value` bits (0 = off)
         void ReduceDowncountSlice(u32 value) {
             downcount_slice = value;
+        }
+
+        u32 GetDowncountSlice() const {
+            return downcount_slice;
         }
 
         void MoveEvents();

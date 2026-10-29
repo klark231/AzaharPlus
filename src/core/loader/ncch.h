@@ -75,6 +75,10 @@ public:
 
     ResultStatus DumpRomFS(const std::string& target_path) override;
 
+    ResultStatus DumpExeFS(const std::string& target_path) override;
+
+    ResultStatus DumpUpdateExeFS(const std::string& target_path) override;
+
     ResultStatus DumpUpdateRomFS(const std::string& target_path) override;
 
     ResultStatus ReadTitle(std::string& title) override;

@@ -414,4 +414,8 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="button_touch">Aanraakknop</string>
     <string name="button_touch_format">Aanraakknop %1$d</string>
     <string name="touch_input_overlay_button_format">Aanraakknop %1$s</string>
+    <string name="game_context_dump_romfs_exefs">RomFS + ExeFS dumpen</string>
+    <string name="dumping_romfs_exefs">RomFS en ExeFS worden gedumpt, even geduld…</string>
+    <string name="romfs_exefs_dumped">RomFS en ExeFS gedumpt naar de map dump</string>
+    <string name="romfs_exefs_dump_failed">RomFS en ExeFS konden niet worden gedumpt. Raadpleeg het logboek voor details.</string>
 </resources>

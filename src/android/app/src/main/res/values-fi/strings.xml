@@ -349,4 +349,8 @@
     <string name="button_touch">Kosketuspainike</string>
     <string name="button_touch_format">Kosketuspainike %1$d</string>
     <string name="touch_input_overlay_button_format">Kosketuspainike %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Pura RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Puretaan RomFS:ää ja ExeFS:ää, odota…</string>
+    <string name="romfs_exefs_dumped">RomFS ja ExeFS purettu dump-kansioon</string>
+    <string name="romfs_exefs_dump_failed">RomFS:n ja ExeFS:n purkaminen epäonnistui. Katso lisätietoja lokista.</string>
 </resources>

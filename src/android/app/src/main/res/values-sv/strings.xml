@@ -1330,4 +1330,8 @@
     <string name="button_touch">Pekknapp</string>
     <string name="button_touch_format">Pekknapp %1$d</string>
     <string name="touch_input_overlay_button_format">Pekknapp %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Dumpa RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Dumpar RomFS och ExeFS, vänta…</string>
+    <string name="romfs_exefs_dumped">RomFS och ExeFS dumpades till mappen dump</string>
+    <string name="romfs_exefs_dump_failed">Kunde inte dumpa RomFS och ExeFS. Se loggen för mer information.</string>
 </resources>

@@ -1329,4 +1329,8 @@
     <string name="button_touch">Bouton tactile</string>
     <string name="button_touch_format">Bouton tactile %1$d</string>
     <string name="touch_input_overlay_button_format">Bouton tactile %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Extraire RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Extraction du RomFS et de l\'ExeFS, veuillez patienter…</string>
+    <string name="romfs_exefs_dumped">RomFS et ExeFS extraits dans le dossier dump</string>
+    <string name="romfs_exefs_dump_failed">Impossible d\'extraire le RomFS et l\'ExeFS. Consultez le journal pour plus de détails.</string>
 </resources>

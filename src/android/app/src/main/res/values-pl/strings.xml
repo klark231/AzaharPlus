@@ -1218,4 +1218,8 @@
     <string name="button_touch">Przycisk dotykowy</string>
     <string name="button_touch_format">Przycisk dotykowy %1$d</string>
     <string name="touch_input_overlay_button_format">Przycisk dotykowy %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Zrzuć RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Zrzucanie RomFS i ExeFS, proszę czekać…</string>
+    <string name="romfs_exefs_dumped">RomFS i ExeFS zrzucono do folderu dump</string>
+    <string name="romfs_exefs_dump_failed">Nie udało się zrzucić RomFS i ExeFS. Szczegóły znajdziesz w dzienniku.</string>
 </resources>

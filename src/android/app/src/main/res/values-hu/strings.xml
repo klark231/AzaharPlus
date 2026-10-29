@@ -287,4 +287,8 @@
     <string name="button_touch">Érintőgomb</string>
     <string name="button_touch_format">Érintőgomb %1$d</string>
     <string name="touch_input_overlay_button_format">Érintőgomb %1$s</string>
+    <string name="game_context_dump_romfs_exefs">RomFS + ExeFS kimentése</string>
+    <string name="dumping_romfs_exefs">RomFS és ExeFS kimentése, kérlek várj…</string>
+    <string name="romfs_exefs_dumped">A RomFS és az ExeFS kimentve a dump mappába</string>
+    <string name="romfs_exefs_dump_failed">A RomFS és az ExeFS kimentése sikertelen. Részletekért nézd meg a naplót.</string>
 </resources>

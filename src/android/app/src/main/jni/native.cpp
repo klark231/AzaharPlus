@@ -1220,6 +1220,48 @@ jlong Java_org_citra_citra_1emu_NativeLibrary_getTitleId(JNIEnv* env, [[maybe_un
     return static_cast<jlong>(title_id);
 }
 
+/**
+ * Dumps the RomFS and ExeFS (including the update's, if installed) of a title to the
+ * user's dump folder (dump/romfs/<title id> and dump/exefs/<title id>).
+ * @return bit 0 set if the RomFS was dumped, bit 1 set if the ExeFS was dumped
+ */
+jint Java_org_citra_citra_1emu_NativeLibrary_dumpRomFSAndExeFS(JNIEnv* env,
+                                                               [[maybe_unused]] jobject obj,
+                                                               jstring j_filename) {
+    const std::string filepath = GetJString(env, j_filename);
+
+    auto loader = Loader::GetLoader(filepath);
+    if (!loader) {
+        return 0;
+    }
+
+    u64 program_id{};
+    if (loader->ReadProgramId(program_id) != Loader::ResultStatus::Success) {
+        return 0;
+    }
+
+    const std::string dump_dir = FileUtil::GetUserPath(FileUtil::UserPath::DumpDir);
+    const auto romfs_path = fmt::format("{}romfs/{:016X}", dump_dir, program_id);
+    const auto update_romfs_path =
+        fmt::format("{}romfs/{:016X}", dump_dir, program_id | 0x0004000e00000000);
+    const auto exefs_path = fmt::format("{}exefs/{:016X}", dump_dir, program_id);
+    const auto update_exefs_path =
+        fmt::format("{}exefs/{:016X}", dump_dir, program_id | 0x0004000e00000000);
+
+    jint result = 0;
+    if (loader->DumpRomFS(romfs_path) == Loader::ResultStatus::Success) {
+        result |= 1;
+        // The update RomFS is optional, so its result is ignored
+        loader->DumpUpdateRomFS(update_romfs_path);
+    }
+    if (loader->DumpExeFS(exefs_path) == Loader::ResultStatus::Success) {
+        result |= 2;
+        // The update ExeFS is optional, so its result is ignored
+        loader->DumpUpdateExeFS(update_exefs_path);
+    }
+    return result;
+}
+
 jboolean Java_org_citra_citra_1emu_NativeLibrary_getIsSystemTitle(JNIEnv* env,
                                                                   [[maybe_unused]] jobject obj,
                                                                   jstring path) {

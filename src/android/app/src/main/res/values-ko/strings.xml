@@ -287,4 +287,8 @@
     <string name="button_touch">터치 버튼</string>
     <string name="button_touch_format">터치 버튼 %1$d</string>
     <string name="touch_input_overlay_button_format">터치 버튼 %1$s</string>
+    <string name="game_context_dump_romfs_exefs">RomFS + ExeFS 덤프</string>
+    <string name="dumping_romfs_exefs">RomFS와 ExeFS를 덤프하는 중입니다. 잠시 기다려 주세요…</string>
+    <string name="romfs_exefs_dumped">RomFS와 ExeFS를 dump 폴더에 덤프했습니다</string>
+    <string name="romfs_exefs_dump_failed">RomFS와 ExeFS를 덤프할 수 없습니다. 자세한 내용은 로그를 확인하세요.</string>
 </resources>

@@ -250,6 +250,24 @@ public:
     }
 
     /**
+     * Dump the ExeFS of the application
+     * @param target_path The target path to dump to
+     * @return ResultStatus result of function
+     */
+    virtual ResultStatus DumpExeFS([[maybe_unused]] const std::string& target_path) {
+        return ResultStatus::ErrorNotImplemented;
+    }
+
+    /**
+     * Dump the update ExeFS of the application
+     * @param target_path The target path to dump to
+     * @return ResultStatus result of function
+     */
+    virtual ResultStatus DumpUpdateExeFS([[maybe_unused]] const std::string& target_path) {
+        return ResultStatus::ErrorNotImplemented;
+    }
+
+    /**
      * Get the update RomFS of the application
      * Since the RomFS can be huge, we return a file reference instead of copying to a buffer
      * @param romfs_file The file containing the RomFS

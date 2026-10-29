@@ -856,6 +856,119 @@ Loader::ResultStatus NCCHContainer::DumpRomFS(const std::string& target_path) {
     return Loader::ResultStatus::Success;
 }
 
+Loader::ResultStatus NCCHContainer::DumpExeFS(const std::string& target_path) {
+    Loader::ResultStatus result = Load();
+    if (result != Loader::ResultStatus::Success)
+        return result;
+
+    if (!has_exefs || !exefs_file || !exefs_file->IsOpen())
+        return Loader::ResultStatus::ErrorNotUsed;
+
+    std::string path = target_path;
+    while (!path.empty() && (path.back() == '/' || path.back() == '\\')) {
+        path.pop_back();
+    }
+    path += '/';
+    if (!FileUtil::CreateFullPath(path)) {
+        LOG_ERROR(Service_FS, "Could not create path {}", path);
+        return Loader::ResultStatus::Error;
+    }
+
+    const auto write_file = [](const std::string& file_path, const std::vector<u8>& data) {
+        FileUtil::IOFile out(file_path, "wb");
+        if (!out) {
+            LOG_ERROR(Service_FS, "Could not open file {}", file_path);
+            return false;
+        }
+        if (out.WriteBytes(data.data(), data.size()) != data.size()) {
+            LOG_ERROR(Service_FS, "Could not write to file {}", file_path);
+            return false;
+        }
+        return true;
+    };
+
+    const int block_size = is_proto ? 1 : kBlockSize;
+    bool dumped_logo = false;
+    bool dumped_any = false;
+
+    for (unsigned section_number = 0; section_number < kMaxSections; section_number++) {
+        const auto& section = exefs_header.section[section_number];
+        if (section.name[0] == '\0' || section.size == 0)
+            continue;
+
+        // Make sure the name is terminated before using it
+        char name[9]{};
+        std::memcpy(name, section.name, sizeof(section.name));
+
+        // Read the raw section (reads are limited to the declared size)
+        const s64 section_offset =
+            is_proto ? section.offset : (section.offset + sizeof(ExeFs_Header));
+        exefs_file->Seek(section_offset, SEEK_SET);
+
+        const bool is_primary = std::strcmp(name, "icon") == 0 || std::strcmp(name, "banner") == 0;
+        const auto& key = is_primary ? primary_key : secondary_key;
+        CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption dec(key.data(), key.size(),
+                                                          exefs_ctr.data());
+        dec.Seek(section.offset + sizeof(ExeFs_Header));
+
+        const size_t section_size = is_proto ? Common::AlignUp(section.size, 0x10) : section.size;
+        std::vector<u8> buffer(section_size);
+        if (exefs_file->ReadBytes(buffer.data(), section_size) != section_size) {
+            LOG_ERROR(Service_FS, "Could not read ExeFS section {}", name);
+            return Loader::ResultStatus::Error;
+        }
+        if (is_encrypted) {
+            dec.ProcessData(buffer.data(), buffer.data(), section.size);
+        }
+
+        if (std::strcmp(name, ".code") == 0 && is_compressed) {
+            std::vector<u8> decompressed(LZSS_GetDecompressedSize(buffer));
+            if (!LZSS_Decompress(buffer, decompressed)) {
+                return Loader::ResultStatus::ErrorInvalidFormat;
+            }
+            buffer = std::move(decompressed);
+        }
+
+        // Map the section name to the name used by the ExeFS override feature
+        std::string file_name;
+        if (std::strcmp(name, ".code") == 0)
+            file_name = "code.bin";
+        else if (std::strcmp(name, "icon") == 0)
+            file_name = "icon.bin";
+        else if (std::strcmp(name, "banner") == 0)
+            file_name = "banner.bnr";
+        else if (std::strcmp(name, "logo") == 0) {
+            file_name = "logo.bcma.lz";
+            dumped_logo = true;
+        } else {
+            file_name = name[0] == '.' ? std::string(name + 1) : std::string(name);
+        }
+
+        LOG_INFO(Service_FS, "Dumping ExeFS section {} to {}", name, path + file_name);
+        if (!write_file(path + file_name, buffer))
+            return Loader::ResultStatus::Error;
+        dumped_any = true;
+    }
+
+    // Since firmware 5.0.0-11 the logo lives outside of the ExeFS, next to the access descriptor.
+    if (!dumped_logo && ncch_header.logo_region_offset && ncch_header.logo_region_size) {
+        const std::size_t logo_offset = ncch_header.logo_region_offset * block_size;
+        const std::size_t logo_size = ncch_header.logo_region_size * block_size;
+
+        std::vector<u8> logo(logo_size);
+        file->Seek(logo_offset, SEEK_SET);
+        if (file->ReadBytes(logo.data(), logo_size) != logo_size) {
+            LOG_ERROR(Service_FS, "Could not read NCCH logo");
+            return Loader::ResultStatus::Error;
+        }
+        if (!write_file(path + "logo.bcma.lz", logo))
+            return Loader::ResultStatus::Error;
+        dumped_any = true;
+    }
+
+    return dumped_any ? Loader::ResultStatus::Success : Loader::ResultStatus::ErrorNotUsed;
+}
+
 Loader::ResultStatus NCCHContainer::ReadOverrideRomFS(std::shared_ptr<RomFSReader>& romfs_file) {
     // Check for RomFS overrides
     std::string split_filepath = filepath + ".romfs";

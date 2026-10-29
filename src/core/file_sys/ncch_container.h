@@ -301,6 +301,15 @@ public:
     Loader::ResultStatus DumpRomFS(const std::string& target_path);
 
     /**
+     * Dump the ExeFS of the NCCH container to the user folder. The sections are written using the
+     * same file names the ExeFS override feature expects (code.bin, icon.bin, banner.bnr,
+     * logo.bcma.lz), with the .code section decompressed if needed.
+     * @param target_path target path to dump to
+     * @return ResultStatus result of function.
+     */
+    Loader::ResultStatus DumpExeFS(const std::string& target_path);
+
+    /**
      * Get the override RomFS of the NCCH container
      * Since the RomFS can be huge, we return a file reference instead of copying to a buffer
      * @param romfs_file The file containing the RomFS

@@ -287,4 +287,8 @@
     <string name="button_touch">Buton tactil</string>
     <string name="button_touch_format">Buton tactil %1$d</string>
     <string name="touch_input_overlay_button_format">Buton tactil %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Extrage RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Se extrag RomFS și ExeFS, te rugăm să aștepți…</string>
+    <string name="romfs_exefs_dumped">RomFS și ExeFS au fost extrase în folderul dump</string>
+    <string name="romfs_exefs_dump_failed">Nu s-au putut extrage RomFS și ExeFS. Consultă jurnalul pentru detalii.</string>
 </resources>

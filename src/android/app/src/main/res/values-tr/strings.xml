@@ -1175,4 +1175,8 @@
     <string name="button_touch">Dokunma Düğmesi</string>
     <string name="button_touch_format">Dokunma Düğmesi %1$d</string>
     <string name="touch_input_overlay_button_format">Dokunma düğmesi %1$s</string>
+    <string name="game_context_dump_romfs_exefs">RomFS + ExeFS Dök</string>
+    <string name="dumping_romfs_exefs">RomFS ve ExeFS dökülüyor, lütfen bekleyin…</string>
+    <string name="romfs_exefs_dumped">RomFS ve ExeFS dump klasörüne döküldü</string>
+    <string name="romfs_exefs_dump_failed">RomFS ve ExeFS dökülemedi. Ayrıntılar için günlüğe bakın.</string>
 </resources>

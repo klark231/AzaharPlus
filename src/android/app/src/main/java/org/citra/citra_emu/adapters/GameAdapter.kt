@@ -304,6 +304,28 @@ class GameAdapter(
         )
     }
 
+    private fun dumpRomFSAndExeFS(view: View, game: Game) {
+        val progToast = Toast.makeText(
+            CitraApplication.appContext,
+            R.string.dumping_romfs_exefs,
+            Toast.LENGTH_LONG
+        )
+        progToast.show()
+
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val result = NativeLibrary.dumpRomFSAndExeFS(game.path)
+
+            activity.runOnUiThread {
+                progToast.cancel()
+                Toast.makeText(
+                    CitraApplication.appContext,
+                    if (result != 0) R.string.romfs_exefs_dumped else R.string.romfs_exefs_dump_failed,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
     private fun showOpenContextMenu(view: View, game: Game) {
         val dirs = getGameDirectories(game)
 
@@ -324,6 +346,11 @@ class GameAdapter(
         }
 
         popup.setOnMenuItemClickListener { menuItem ->
+            if (menuItem.itemId == R.id.game_context_dump_romfs_exefs) {
+                dumpRomFSAndExeFS(view, game)
+                return@setOnMenuItemClickListener true
+            }
+
             val intent = Intent(Intent.ACTION_VIEW)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -403,6 +403,19 @@ ResultStatus AppLoader_NCCH::DumpRomFS(const std::string& target_path) {
     return base_ncch.DumpRomFS(target_path);
 }
 
+ResultStatus AppLoader_NCCH::DumpExeFS(const std::string& target_path) {
+    return base_ncch.DumpExeFS(target_path);
+}
+
+ResultStatus AppLoader_NCCH::DumpUpdateExeFS(const std::string& target_path) {
+    u64 program_id;
+    ReadProgramId(program_id);
+    u64 update_tid = (program_id & 0xFFFFFFFFULL) | UPDATE_TID_HIGH;
+    update_ncch.OpenFile(
+        Service::AM::GetTitleContentPath(Service::FS::MediaType::SDMC, update_tid));
+    return update_ncch.DumpExeFS(target_path);
+}
+
 ResultStatus AppLoader_NCCH::DumpUpdateRomFS(const std::string& target_path) {
     u64 program_id;
     ReadProgramId(program_id);

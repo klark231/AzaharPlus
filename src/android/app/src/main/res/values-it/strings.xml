@@ -1329,4 +1329,8 @@
     <string name="button_touch">Pulsante touch</string>
     <string name="button_touch_format">Pulsante touch %1$d</string>
     <string name="touch_input_overlay_button_format">Pulsante touch %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Estrai RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Estrazione di RomFS ed ExeFS in corso, attendi…</string>
+    <string name="romfs_exefs_dumped">RomFS ed ExeFS estratti nella cartella dump</string>
+    <string name="romfs_exefs_dump_failed">Impossibile estrarre RomFS ed ExeFS. Consulta il log per i dettagli.</string>
 </resources>

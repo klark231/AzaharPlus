@@ -154,6 +154,12 @@ object NativeLibrary {
     external fun getIsSystemTitle(path: String): Boolean
 
     /**
+     * Dumps the RomFS and ExeFS of a game to the user's dump folder.
+     * @return bit 0 set if the RomFS was dumped, bit 1 set if the ExeFS was dumped
+     */
+    external fun dumpRomFSAndExeFS(path: String): Int
+
+    /**
      * Sets the current working user directory
      * If not set, it auto-detects a location
      */

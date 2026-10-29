@@ -287,4 +287,8 @@
     <string name="button_touch">Nút cảm ứng</string>
     <string name="button_touch_format">Nút cảm ứng %1$d</string>
     <string name="touch_input_overlay_button_format">Nút cảm ứng %1$s</string>
+    <string name="game_context_dump_romfs_exefs">Trích xuất RomFS + ExeFS</string>
+    <string name="dumping_romfs_exefs">Đang trích xuất RomFS và ExeFS, vui lòng đợi…</string>
+    <string name="romfs_exefs_dumped">Đã trích xuất RomFS và ExeFS vào thư mục dump</string>
+    <string name="romfs_exefs_dump_failed">Không thể trích xuất RomFS và ExeFS. Xem nhật ký để biết chi tiết.</string>
 </resources>

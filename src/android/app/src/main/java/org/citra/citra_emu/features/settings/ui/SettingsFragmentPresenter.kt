@@ -1129,6 +1129,17 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
             add(
+                SingleChoiceSetting(
+                    IntSetting.VK_LIGHTER_SURFACES,
+                    R.string.lighter_surfaces,
+                    R.string.lighter_surfaces_description,
+                    R.array.lighterSurfacesNames,
+                    R.array.lighterSurfacesValues,
+                    IntSetting.VK_LIGHTER_SURFACES.key,
+                    IntSetting.VK_LIGHTER_SURFACES.defaultValue
+                )
+            )
+            add(
                 SwitchSetting(
                     BooleanSetting.ASYNC_SHADERS,
                     R.string.async_shaders,
@@ -1989,6 +2000,16 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.web_api_url_description,
                     StringSetting.WEB_API_URL.key,
                     StringSetting.WEB_API_URL.defaultValue
+                )
+            )
+
+            add(
+                StringInputSetting(
+                    StringSetting.WEB_API_URL_2,
+                    R.string.web_api_url_2,
+                    R.string.web_api_url_2_description,
+                    StringSetting.WEB_API_URL_2.key,
+                    StringSetting.WEB_API_URL_2.defaultValue
                 )
             )
             

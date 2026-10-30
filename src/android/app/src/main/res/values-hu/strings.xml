@@ -291,4 +291,17 @@
     <string name="dumping_romfs_exefs">RomFS és ExeFS kimentése, kérlek várj…</string>
     <string name="romfs_exefs_dumped">A RomFS és az ExeFS kimentve a dump mappába</string>
     <string name="romfs_exefs_dump_failed">A RomFS és az ExeFS kimentése sikertelen. Részletekért nézd meg a naplót.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Könnyített felületek</string>
+    <string name="lighter_surfaces_description">Kísérleti (Vulkan). Kihagyja a tárolási használatot, amelyre a legtöbb játéknak nincs szüksége, így az Adreno és Mali GPU-k tömöríthetik a felületeket, és kevesebb memória-sávszélességet használnak. Az „Árnyék nélkül” kikapcsolja az árnyékhatásokat. Az „Árnyékkal” megtartja őket, az első megjelenéskor rövid megakadással. A játék következő indításakor lép életbe.</string>
+    <string name="lighter_surfaces_off">Ki (alapértelmezett)</string>
+    <string name="lighter_surfaces_no_shadows">Könnyített, árnyék nélkül</string>
+    <string name="lighter_surfaces_with_shadows">Könnyített, árnyékkal</string>
+    <string name="touch_input_add_binding">Kötés hozzáadása</string>
+    <string name="touch_input_select_profile">Profil váltása</string>
+    <string name="touch_input_source_overlay_short">Képernyőgomb</string>
+    <string name="delete">Törlés</string>
+    <string name="done">Kész</string>
+    <string name="input_dialog_description">Nyomj meg vagy mozgass egy bemenetet.</string>
 </resources>

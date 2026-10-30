@@ -418,4 +418,15 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="dumping_romfs_exefs">RomFS en ExeFS worden gedumpt, even geduld…</string>
     <string name="romfs_exefs_dumped">RomFS en ExeFS gedumpt naar de map dump</string>
     <string name="romfs_exefs_dump_failed">RomFS en ExeFS konden niet worden gedumpt. Raadpleeg het logboek voor details.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Lichtere oppervlakken</string>
+    <string name="lighter_surfaces_description">Experimenteel (Vulkan). Slaat opslaggebruik over dat de meeste games niet nodig hebben, zodat Adreno- en Mali-GPU\'s oppervlakken kunnen comprimeren en minder geheugenbandbreedte gebruiken. ‘Geen schaduwen’ schakelt schaduweffecten uit. ‘Met schaduwen’ behoudt ze, met een korte haper de eerste keer dat er een verschijnt. Gaat in bij de volgende keer dat een game start.</string>
+    <string name="lighter_surfaces_off">Uit (standaard)</string>
+    <string name="lighter_surfaces_no_shadows">Lichter, geen schaduwen</string>
+    <string name="lighter_surfaces_with_shadows">Lichter, met schaduwen</string>
+    <string name="touch_input_add_binding">Toewijzing toevoegen</string>
+    <string name="touch_input_select_profile">Profiel wisselen</string>
+    <string name="touch_input_source_overlay_short">Knop op het scherm</string>
+    <string name="delete">Verwijderen</string>
 </resources>

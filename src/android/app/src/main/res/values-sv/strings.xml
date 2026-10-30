@@ -1334,4 +1334,14 @@
     <string name="dumping_romfs_exefs">Dumpar RomFS och ExeFS, vänta…</string>
     <string name="romfs_exefs_dumped">RomFS och ExeFS dumpades till mappen dump</string>
     <string name="romfs_exefs_dump_failed">Kunde inte dumpa RomFS och ExeFS. Se loggen för mer information.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Lättare ytor</string>
+    <string name="lighter_surfaces_description">Experimentell (Vulkan). Hoppar över lagringsanvändning som de flesta spel inte behöver, så att Adreno- och Mali-GPU:er kan komprimera ytor och använda mindre minnesbandbredd. ”Utan skuggor” stänger av skuggeffekter. ”Med skuggor” behåller dem, med ett kort hack första gången en skugga visas. Börjar gälla nästa gång ett spel startas.</string>
+    <string name="lighter_surfaces_off">Av (standard)</string>
+    <string name="lighter_surfaces_no_shadows">Lättare, utan skuggor</string>
+    <string name="lighter_surfaces_with_shadows">Lättare, med skuggor</string>
+    <string name="touch_input_add_binding">Lägg till bindning</string>
+    <string name="touch_input_select_profile">Byt profil</string>
+    <string name="touch_input_source_overlay_short">Knapp på skärmen</string>
 </resources>

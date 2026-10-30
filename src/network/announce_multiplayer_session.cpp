@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <algorithm>
 #include <chrono>
 #include <future>
 #include <vector>
@@ -144,7 +145,52 @@ void AnnounceMultiplayerSession::AnnounceMultiplayerLoop() {
 }
 
 AnnounceMultiplayerRoom::RoomList AnnounceMultiplayerSession::GetRoomList() {
+#ifdef ENABLE_WEB_SERVICE
+    using AnnounceMultiplayerRoom::RoomList;
+
+    // Query the secondary server (if configured) in parallel so a slow or dead server doesn't add
+    // to the wait of the primary one.
+    const std::string primary_url = Settings::values.web_api_url.GetValue();
+    const std::string secondary_url = Settings::values.web_api_url_2.GetValue();
+    std::future<RoomList> secondary;
+    if (!secondary_url.empty() && secondary_url != primary_url) {
+        secondary = std::async(
+            std::launch::async,
+            [secondary_url, name = username, token = Settings::values.network_token.GetValue()] {
+                try {
+                    return WebService::RoomJson{secondary_url, name, token}.GetRoomList();
+                } catch (const std::exception& e) {
+                    LOG_ERROR(WebService, "Failed to get room list from {}: {}", secondary_url,
+                              e.what());
+                    return RoomList{};
+                }
+            });
+    }
+
+    // A failing server must never hide the rooms of the other one.
+    RoomList rooms;
+    try {
+        rooms = backend->GetRoomList();
+    } catch (const std::exception& e) {
+        LOG_ERROR(WebService, "Failed to get room list from {}: {}", primary_url, e.what());
+    }
+
+    if (secondary.valid()) {
+        for (auto& room : secondary.get()) {
+            // The same room can be announced to both servers, only show it once.
+            const bool duplicate =
+                std::any_of(rooms.begin(), rooms.end(), [&room](const auto& existing) {
+                    return existing.ip == room.ip && existing.port == room.port;
+                });
+            if (!duplicate) {
+                rooms.push_back(std::move(room));
+            }
+        }
+    }
+    return rooms;
+#else
     return backend->GetRoomList();
+#endif
 }
 
 bool AnnounceMultiplayerSession::IsRunning() const {

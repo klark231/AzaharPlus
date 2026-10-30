@@ -39,6 +39,7 @@ object SettingKeys {
     external fun renderer_debug(): String
     external fun spirv_shader_gen(): String
     external fun disable_spirv_optimizer(): String
+    external fun vk_lighter_surfaces(): String
     external fun async_shader_compilation(): String
     external fun async_presentation(): String
     external fun use_hw_shader(): String
@@ -142,6 +143,7 @@ object SettingKeys {
     external fun udp_pad_index(): String
     external fun record_frame_times(): String
     external fun web_api_url(): String
+    external fun web_api_url_2(): String
     external fun network_token(): String
     external fun check_for_update_on_start(): String
     external fun update_check_channel(): String

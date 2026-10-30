@@ -820,4 +820,14 @@
     <string name="dumping_romfs_exefs">Извлечение RomFS и ExeFS, подождите…</string>
     <string name="romfs_exefs_dumped">RomFS и ExeFS извлечены в папку dump</string>
     <string name="romfs_exefs_dump_failed">Не удалось извлечь RomFS и ExeFS. Подробности смотрите в журнале.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Облегчённые поверхности</string>
+    <string name="lighter_surfaces_description">Экспериментально (Vulkan). Отключает использование хранилища, которое не нужно большинству игр, чтобы GPU Adreno и Mali могли сжимать поверхности и меньше нагружать пропускную способность памяти. «Без теней» отключает эффекты теней. «С тенями» сохраняет их, но при первом появлении тени возможен короткий подлаг. Применяется при следующем запуске игры.</string>
+    <string name="lighter_surfaces_off">Выкл. (по умолчанию)</string>
+    <string name="lighter_surfaces_no_shadows">Облегчённые, без теней</string>
+    <string name="lighter_surfaces_with_shadows">Облегчённые, с тенями</string>
+    <string name="touch_input_add_binding">Добавить привязку</string>
+    <string name="touch_input_select_profile">Сменить профиль</string>
+    <string name="touch_input_source_overlay_short">Экранная кнопка</string>
 </resources>

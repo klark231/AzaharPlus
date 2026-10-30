@@ -353,4 +353,17 @@
     <string name="dumping_romfs_exefs">Puretaan RomFS:ää ja ExeFS:ää, odota…</string>
     <string name="romfs_exefs_dumped">RomFS ja ExeFS purettu dump-kansioon</string>
     <string name="romfs_exefs_dump_failed">RomFS:n ja ExeFS:n purkaminen epäonnistui. Katso lisätietoja lokista.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Kevyemmät pinnat</string>
+    <string name="lighter_surfaces_description">Kokeellinen (Vulkan). Jättää pois tallennuskäytön, jota useimmat pelit eivät tarvitse, jotta Adreno- ja Mali-GPU:t voivat pakata pinnat ja käyttää vähemmän muistin kaistanleveyttä. ”Ei varjoja” poistaa varjotehosteet käytöstä. ”Varjoilla” säilyttää ne, ja ensimmäisellä kerralla varjon ilmestyessä tulee lyhyt nykäys. Tulee voimaan, kun peli käynnistetään seuraavan kerran.</string>
+    <string name="lighter_surfaces_off">Pois (oletus)</string>
+    <string name="lighter_surfaces_no_shadows">Kevyempi, ei varjoja</string>
+    <string name="lighter_surfaces_with_shadows">Kevyempi, varjoilla</string>
+    <string name="touch_input_add_binding">Lisää sidonta</string>
+    <string name="touch_input_select_profile">Vaihda profiilia</string>
+    <string name="touch_input_source_overlay_short">Näytön painike</string>
+    <string name="delete">Poista</string>
+    <string name="done">Valmis</string>
+    <string name="input_dialog_description">Paina tai liikuta syötettä.</string>
 </resources>

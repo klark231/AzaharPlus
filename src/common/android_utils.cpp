@@ -336,7 +336,11 @@ std::string TranslateFilePath(const std::string& filepath) {
 }
 
 bool CanUseRawFS() {
-    return AndroidUtils::GetBuildFlavor() != AndroidBuildFlavors::GOOGLEPLAY;
+    // The build flavor never changes at runtime. This is called for every single stat()/opendir()
+    // on Android, and GetBuildFlavor() is a JNI round trip, so only ask once.
+    static const bool can_use_raw_fs =
+        AndroidUtils::GetBuildFlavor() != AndroidBuildFlavors::GOOGLEPLAY;
+    return can_use_raw_fs;
 }
 
 #define FR(FunctionName, ReturnValue, JMethodID, Caller, JMethodName, Signature)                   \

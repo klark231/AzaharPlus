@@ -44,6 +44,16 @@
        <widget class="QLineEdit" name="web_api_url_lineedit"/>
       </item>
       <item>
+       <widget class="QLabel" name="label_web_api_url_2">
+        <property name="text">
+         <string>Second Network Web API URL (rooms are added to the room browser):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="web_api_url_2_lineedit"/>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Network Token:</string>

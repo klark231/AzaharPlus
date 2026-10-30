@@ -21,6 +21,8 @@ enum class SurfaceFlagBits : u32 {
     Custom = 1 << 3,       ///< Surface texture has been replaced with a custom texture.
     ShadowSource = 1 << 4, ///< Surface is used as a shadow source.
     RenderTarget = 1 << 5, ///< Surface was a render target.
+    NoStorage = 1 << 6,    ///< RGBA8 surface made without storage usage (Vulkan, "with shadows"); it is
+                           ///< replaced by one with storage if a shadow needs it.
 };
 DECLARE_ENUM_FLAG_OPERATORS(SurfaceFlagBits);
 

@@ -291,4 +291,17 @@
     <string name="dumping_romfs_exefs">กำลังดัมพ์ RomFS และ ExeFS โปรดรอสักครู่…</string>
     <string name="romfs_exefs_dumped">ดัมพ์ RomFS และ ExeFS ไปยังโฟลเดอร์ dump แล้ว</string>
     <string name="romfs_exefs_dump_failed">ไม่สามารถดัมพ์ RomFS และ ExeFS ได้ ดูรายละเอียดในบันทึก</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">พื้นผิวแบบเบา</string>
+    <string name="lighter_surfaces_description">ทดลอง (Vulkan) ข้ามการใช้งานพื้นที่เก็บข้อมูลที่เกมส่วนใหญ่ไม่ต้องการ เพื่อให้ GPU Adreno และ Mali บีบอัดพื้นผิวได้และใช้แบนด์วิดท์หน่วยความจำน้อยลง “ไม่มีเงา” จะปิดเอฟเฟกต์เงา “มีเงา” จะคงเงาไว้ แต่จะกระตุกเล็กน้อยเมื่อเงาปรากฏครั้งแรก มีผลเมื่อเริ่มเกมครั้งถัดไป</string>
+    <string name="lighter_surfaces_off">ปิด (ค่าเริ่มต้น)</string>
+    <string name="lighter_surfaces_no_shadows">แบบเบา ไม่มีเงา</string>
+    <string name="lighter_surfaces_with_shadows">แบบเบา มีเงา</string>
+    <string name="touch_input_add_binding">เพิ่มการผูก</string>
+    <string name="touch_input_select_profile">สลับโปรไฟล์</string>
+    <string name="touch_input_source_overlay_short">ปุ่มบนหน้าจอ</string>
+    <string name="delete">ลบ</string>
+    <string name="done">เสร็จสิ้น</string>
+    <string name="input_dialog_description">กดหรือขยับอินพุต</string>
 </resources>

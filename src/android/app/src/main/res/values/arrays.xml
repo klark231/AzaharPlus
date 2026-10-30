@@ -777,6 +777,17 @@
         <item>1</item>
     </integer-array>
 
+    <string-array name="lighterSurfacesNames">
+        <item>@string/lighter_surfaces_off</item>
+        <item>@string/lighter_surfaces_no_shadows</item>
+        <item>@string/lighter_surfaces_with_shadows</item>
+    </string-array>
+    <integer-array name="lighterSurfacesValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
     <string-array name="cpuAffinityModes">
         <item>@string/cpu_affinity_default</item>
         <item>@string/cpu_affinity_big</item>

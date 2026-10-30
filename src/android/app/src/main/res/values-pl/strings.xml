@@ -1222,4 +1222,14 @@
     <string name="dumping_romfs_exefs">Zrzucanie RomFS i ExeFS, proszę czekać…</string>
     <string name="romfs_exefs_dumped">RomFS i ExeFS zrzucono do folderu dump</string>
     <string name="romfs_exefs_dump_failed">Nie udało się zrzucić RomFS i ExeFS. Szczegóły znajdziesz w dzienniku.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Lżejsze powierzchnie</string>
+    <string name="lighter_surfaces_description">Eksperymentalne (Vulkan). Pomija użycie przechowywania (storage), którego większość gier nie potrzebuje, dzięki czemu układy GPU Adreno i Mali mogą kompresować powierzchnie i zużywać mniej przepustowości pamięci. „Bez cieni” wyłącza efekty cieni. „Z cieniami” zachowuje je, z krótkim przycięciem przy pierwszym pojawieniu się cienia. Zacznie działać przy następnym uruchomieniu gry.</string>
+    <string name="lighter_surfaces_off">Wyłączone (domyślnie)</string>
+    <string name="lighter_surfaces_no_shadows">Lżejsze, bez cieni</string>
+    <string name="lighter_surfaces_with_shadows">Lżejsze, z cieniami</string>
+    <string name="touch_input_add_binding">Dodaj przypisanie</string>
+    <string name="touch_input_select_profile">Przełącz profil</string>
+    <string name="touch_input_source_overlay_short">Przycisk na ekranie</string>
 </resources>

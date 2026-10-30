@@ -42,6 +42,7 @@ foreach(KEY IN ITEMS
     "dump_command_buffers"
     "spirv_shader_gen"
     "disable_spirv_optimizer"
+    "vk_lighter_surfaces"
     "async_shader_compilation"
     "async_presentation"
     "use_hw_shader"
@@ -161,6 +162,7 @@ foreach(KEY IN ITEMS
     "record_frame_times"
     "language" # FIXME: DUPLICATE KEY (libretro equivalent: language_value)
     "web_api_url"
+    "web_api_url_2"
     "network_token"
     "check_for_update_on_start"
     "update_check_channel"

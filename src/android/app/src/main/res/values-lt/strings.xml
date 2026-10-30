@@ -496,4 +496,16 @@
     <string name="dumping_romfs_exefs">Išgaunami RomFS ir ExeFS, palaukite…</string>
     <string name="romfs_exefs_dumped">RomFS ir ExeFS išgauti į aplanką dump</string>
     <string name="romfs_exefs_dump_failed">Nepavyko išgauti RomFS ir ExeFS. Išsamią informaciją rasite žurnale.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Lengvesni paviršiai</string>
+    <string name="lighter_surfaces_description">Eksperimentinis (Vulkan). Praleidžia saugyklos naudojimą, kurio daugumai žaidimų nereikia, todėl Adreno ir Mali GPU gali suspausti paviršius ir naudoti mažiau atminties pralaidumo. „Be šešėlių“ išjungia šešėlių efektus. „Su šešėliais“ juos palieka, o pirmą kartą pasirodžius šešėliui trumpam trūkteli. Įsigalioja kitą kartą paleidus žaidimą.</string>
+    <string name="lighter_surfaces_off">Išjungta (numatytasis)</string>
+    <string name="lighter_surfaces_no_shadows">Lengvesni, be šešėlių</string>
+    <string name="lighter_surfaces_with_shadows">Lengvesni, su šešėliais</string>
+    <string name="touch_input_add_binding">Pridėti susiejimą</string>
+    <string name="touch_input_select_profile">Perjungti profilį</string>
+    <string name="touch_input_source_overlay_short">Ekrano mygtukas</string>
+    <string name="delete">Ištrinti</string>
+    <string name="input_dialog_description">Paspauskite arba pajudinkite įvestį.</string>
 </resources>

@@ -291,4 +291,17 @@
     <string name="dumping_romfs_exefs">RomFS와 ExeFS를 덤프하는 중입니다. 잠시 기다려 주세요…</string>
     <string name="romfs_exefs_dumped">RomFS와 ExeFS를 dump 폴더에 덤프했습니다</string>
     <string name="romfs_exefs_dump_failed">RomFS와 ExeFS를 덤프할 수 없습니다. 자세한 내용은 로그를 확인하세요.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">경량 서피스</string>
+    <string name="lighter_surfaces_description">실험적 기능(Vulkan). 대부분의 게임에 필요하지 않은 스토리지 사용을 생략해 Adreno 및 Mali GPU가 서피스를 압축하고 메모리 대역폭을 덜 사용할 수 있게 합니다. “그림자 없음”은 그림자 효과를 끕니다. “그림자 포함”은 그림자를 유지하지만 그림자가 처음 나타날 때 잠깐 끊길 수 있습니다. 다음에 게임을 시작할 때 적용됩니다.</string>
+    <string name="lighter_surfaces_off">끔(기본값)</string>
+    <string name="lighter_surfaces_no_shadows">경량, 그림자 없음</string>
+    <string name="lighter_surfaces_with_shadows">경량, 그림자 포함</string>
+    <string name="touch_input_add_binding">바인딩 추가</string>
+    <string name="touch_input_select_profile">프로필 전환</string>
+    <string name="touch_input_source_overlay_short">화면 버튼</string>
+    <string name="delete">삭제</string>
+    <string name="done">완료</string>
+    <string name="input_dialog_description">입력을 누르거나 움직이세요.</string>
 </resources>

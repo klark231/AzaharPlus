@@ -939,6 +939,7 @@ void QtConfig::ReadWebServiceValues() {
     qt_config->beginGroup(QStringLiteral("WebService"));
 
     ReadBasicSetting(Settings::values.web_api_url);
+    ReadBasicSetting(Settings::values.web_api_url_2);
     ReadBasicSetting(Settings::values.network_token);
 
     qt_config->endGroup();
@@ -1473,6 +1474,7 @@ void QtConfig::SaveWebServiceValues() {
     qt_config->beginGroup(QStringLiteral("WebService"));
 
     WriteBasicSetting(Settings::values.web_api_url);
+    WriteBasicSetting(Settings::values.web_api_url_2);
     WriteBasicSetting(Settings::values.network_token);
 
     qt_config->endGroup();

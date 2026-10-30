@@ -242,8 +242,17 @@ public:
 
     /// Returns the R32 image view used for atomic load/store.
     vk::ImageView StorageView() noexcept {
+        if (!has_storage && instance.DropRgba8Storage()) {
+            // created without storage usage (see Instance::DropRgba8Storage): a null view
+            return vk::ImageView{};
+        }
         is_storage = true;
         return ImageView(ViewType::Storage);
+    }
+
+    /// Whether the image was created with storage usage
+    [[nodiscard]] bool HasStorage() const noexcept {
+        return has_storage;
     }
 
     /// Uploads pixel data in staging to a rectangle region of the surface texture
@@ -288,6 +297,7 @@ public:
     vk::UniqueImageView storage_view;
     bool is_framebuffer{};
     bool is_storage{};
+    bool has_storage{};
 };
 
 class Framebuffer : public VideoCore::FramebufferParams {

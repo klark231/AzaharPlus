@@ -3,6 +3,11 @@
 // Refer to the misc/licenses/gplv2.txt file included.
 
 #include <json.hpp>
+#ifdef ANDROID
+#include <dirent.h>
+#include <sys/stat.h>
+#include "common/android_utils.h"
+#endif
 #include "common/file_util.h"
 #include "common/literals.h"
 #include "common/memory_detect.h"
@@ -51,6 +56,59 @@ MapType MakeMapType(std::string_view ext) {
     LOG_ERROR(Render, "Unknown material extension {}", ext);
     return MapType::Color;
 }
+
+#ifdef ANDROID
+/// Recursively collects every regular file below native_dir without any per-file JNI calls.
+/// The generic FileUtil::ScanDirectoryTree() calls IsDirectory() and GetSize() for every file and
+/// each of those resolves the user directory through JNI (SharedPreferences + storage lookups),
+/// which takes minutes for packs with tens of thousands of textures.
+/// virtual_dir is the path in the emulator's virtual form, which is what IOFile expects later.
+void ScanNativeDirectory(const std::string& native_dir, const std::string& virtual_dir,
+                         unsigned int recursion, std::vector<FileUtil::FSTEntry>& out) {
+    DIR* const dir = opendir(native_dir.c_str());
+    if (!dir) {
+        return;
+    }
+    while (const dirent* const ent = readdir(dir)) {
+        const std::string name{ent->d_name};
+        if (name == "." || name == "..") {
+            continue;
+        }
+        const std::string native_path = native_dir + '/' + name;
+        const std::string virtual_path = virtual_dir + '/' + name;
+
+        bool is_dir = ent->d_type == DT_DIR;
+        if (ent->d_type == DT_UNKNOWN || ent->d_type == DT_LNK) {
+            // Some filesystems (FUSE/sdcardfs) don't report d_type, fall back to stat().
+            struct stat st{};
+            if (stat(native_path.c_str(), &st) != 0) {
+                continue;
+            }
+            is_dir = S_ISDIR(st.st_mode);
+        }
+        if (is_dir) {
+            if (recursion > 0) {
+                ScanNativeDirectory(native_path, virtual_path, recursion - 1, out);
+            }
+            continue;
+        }
+        FileUtil::FSTEntry entry{};
+        entry.isDirectory = false;
+        entry.size = 0; // Never used for custom textures
+        entry.virtualName = name;
+        entry.physicalName = virtual_path;
+        out.push_back(std::move(entry));
+    }
+    closedir(dir);
+}
+
+std::string StripTrailingSlashes(std::string path) {
+    while (path.size() > 1 && path.back() == '/') {
+        path.pop_back();
+    }
+    return path;
+}
+#endif
 
 } // Anonymous namespace
 
@@ -378,8 +436,19 @@ std::vector<FileUtil::FSTEntry> CustomTexManager::GetTextures(u64 title_id) {
         FileUtil::CreateFullPath(load_path);
     }
 
-    FileUtil::FSTEntry texture_dir;
     std::vector<FileUtil::FSTEntry> textures;
+#ifdef ANDROID
+    if (AndroidUtils::CanUseRawFS()) {
+        // Resolve the native path once and walk it with plain readdir().
+        const std::string native_root = AndroidUtils::TranslateFilePath(load_path);
+        if (!native_root.empty()) {
+            ScanNativeDirectory(StripTrailingSlashes(native_root), StripTrailingSlashes(load_path),
+                                64, textures);
+            return textures;
+        }
+    }
+#endif
+    FileUtil::FSTEntry texture_dir;
     FileUtil::ScanDirectoryTree(load_path, texture_dir, 64);
     FileUtil::GetAllFilesFromNestedEntries(texture_dir, textures);
     return textures;

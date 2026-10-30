@@ -664,4 +664,15 @@
     <string name="dumping_romfs_exefs">Εξαγωγή RomFS και ExeFS, παρακαλώ περιμένετε…</string>
     <string name="romfs_exefs_dumped">Το RomFS και το ExeFS εξήχθησαν στον φάκελο dump</string>
     <string name="romfs_exefs_dump_failed">Δεν ήταν δυνατή η εξαγωγή του RomFS και του ExeFS. Δείτε το αρχείο καταγραφής για λεπτομέρειες.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Ελαφρύτερες επιφάνειες</string>
+    <string name="lighter_surfaces_description">Πειραματικό (Vulkan). Παραλείπει τη χρήση αποθήκευσης που δεν χρειάζονται τα περισσότερα παιχνίδια, ώστε οι GPU Adreno και Mali να συμπιέζουν τις επιφάνειες και να χρησιμοποιούν λιγότερο εύρος ζώνης μνήμης. Το «Χωρίς σκιές» απενεργοποιεί τις σκιές. Το «Με σκιές» τις διατηρεί, με μια σύντομη καθυστέρηση την πρώτη φορά που εμφανίζεται μία. Ισχύει την επόμενη φορά που θα ξεκινήσει ένα παιχνίδι.</string>
+    <string name="lighter_surfaces_off">Ανενεργό (προεπιλογή)</string>
+    <string name="lighter_surfaces_no_shadows">Ελαφρύτερες, χωρίς σκιές</string>
+    <string name="lighter_surfaces_with_shadows">Ελαφρύτερες, με σκιές</string>
+    <string name="touch_input_add_binding">Προσθήκη αντιστοίχισης</string>
+    <string name="touch_input_select_profile">Αλλαγή προφίλ</string>
+    <string name="touch_input_source_overlay_short">Κουμπί στην οθόνη</string>
+    <string name="input_dialog_description">Πατήστε ή μετακινήστε μια είσοδο.</string>
 </resources>

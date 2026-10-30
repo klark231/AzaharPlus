@@ -1179,4 +1179,14 @@
     <string name="dumping_romfs_exefs">RomFS ve ExeFS dökülüyor, lütfen bekleyin…</string>
     <string name="romfs_exefs_dumped">RomFS ve ExeFS dump klasörüne döküldü</string>
     <string name="romfs_exefs_dump_failed">RomFS ve ExeFS dökülemedi. Ayrıntılar için günlüğe bakın.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Hafif Yüzeyler</string>
+    <string name="lighter_surfaces_description">Deneysel (Vulkan). Çoğu oyunun ihtiyaç duymadığı depolama kullanımını atlar; böylece Adreno ve Mali GPU\'lar yüzeyleri sıkıştırabilir ve daha az bellek bant genişliği kullanır. “Gölgesiz” gölge efektlerini kapatır. “Gölgeli” gölgeleri korur, ancak bir gölge ilk göründüğünde kısa bir takılma olur. Oyun bir sonraki başlatıldığında geçerli olur.</string>
+    <string name="lighter_surfaces_off">Kapalı (varsayılan)</string>
+    <string name="lighter_surfaces_no_shadows">Hafif, gölgesiz</string>
+    <string name="lighter_surfaces_with_shadows">Hafif, gölgeli</string>
+    <string name="touch_input_add_binding">Atama ekle</string>
+    <string name="touch_input_select_profile">Profil değiştir</string>
+    <string name="touch_input_source_overlay_short">Ekran düğmesi</string>
 </resources>

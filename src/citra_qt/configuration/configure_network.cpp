@@ -18,6 +18,7 @@ ConfigureWeb::ConfigureWeb(QWidget* parent)
 #endif
 #ifndef ENABLE_WEB_SERVICE
     ui->web_api_url_lineedit->setEnabled(false);
+    ui->web_api_url_2_lineedit->setEnabled(false);
     ui->token_lineedit->setEnabled(false);
 #endif
     SetConfiguration();
@@ -29,6 +30,8 @@ void ConfigureWeb::SetConfiguration() {
 
     ui->web_api_url_lineedit->setText(
         QString::fromStdString(Settings::values.web_api_url.GetValue()));
+    ui->web_api_url_2_lineedit->setText(
+        QString::fromStdString(Settings::values.web_api_url_2.GetValue()));
     ui->token_lineedit->setText(QString::fromStdString(Settings::values.network_token.GetValue()));
 
 #ifdef ENABLE_DISCORD_RPC
@@ -42,6 +45,7 @@ void ConfigureWeb::ApplyConfiguration() {
 #endif
 
     Settings::values.web_api_url = ui->web_api_url_lineedit->text().toStdString();
+    Settings::values.web_api_url_2 = ui->web_api_url_2_lineedit->text().toStdString();
     Settings::values.network_token = ui->token_lineedit->text().toStdString();
 }
 

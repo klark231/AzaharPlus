@@ -143,6 +143,11 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0: Enabled, 1: Disabled (default)
 )") DECLARE_KEY(disable_spirv_optimizer) BOOST_HANA_STRING(R"(
 
+# Vulkan only. Makes surfaces without the storage usage most games do not need, so tile-based GPUs
+# (Adreno, Mali) can compress them. Takes effect the next time a game starts.
+# 0 (default): Off, 1: Lighter, no shadows, 2: Lighter, with shadows (a surface that needs storage is rebuilt once)
+)") DECLARE_KEY(vk_lighter_surfaces) BOOST_HANA_STRING(R"(
+
 # Whether to use hardware shaders to emulate 3DS shaders
 # 0: Software, 1 (default): Hardware
 )") DECLARE_KEY(use_hw_shader) BOOST_HANA_STRING(R"(
@@ -663,6 +668,8 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 [WebService]
 # URL for Web API
 )") DECLARE_KEY(web_api_url) BOOST_HANA_STRING(R"(
+# URL for secondary Web API (rooms from it are added to the room browser, empty to disable)
+)") DECLARE_KEY(web_api_url_2) BOOST_HANA_STRING(R"(
 # Token for Web Service
 )") DECLARE_KEY(network_token) BOOST_HANA_STRING("\n")
 

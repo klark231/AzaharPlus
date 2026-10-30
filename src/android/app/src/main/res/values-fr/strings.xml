@@ -1333,4 +1333,14 @@
     <string name="dumping_romfs_exefs">Extraction du RomFS et de l\'ExeFS, veuillez patienter…</string>
     <string name="romfs_exefs_dumped">RomFS et ExeFS extraits dans le dossier dump</string>
     <string name="romfs_exefs_dump_failed">Impossible d\'extraire le RomFS et l\'ExeFS. Consultez le journal pour plus de détails.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Surfaces allégées</string>
+    <string name="lighter_surfaces_description">Expérimental (Vulkan). Ignore l\'usage de stockage dont la plupart des jeux n\'ont pas besoin, afin que les GPU Adreno et Mali puissent compresser les surfaces et utiliser moins de bande passante mémoire. « Sans ombres » désactive les effets d\'ombre. « Avec ombres » les conserve, avec une brève saccade la première fois qu\'une ombre apparaît. Pris en compte au prochain lancement d\'un jeu.</string>
+    <string name="lighter_surfaces_off">Désactivé (par défaut)</string>
+    <string name="lighter_surfaces_no_shadows">Allégées, sans ombres</string>
+    <string name="lighter_surfaces_with_shadows">Allégées, avec ombres</string>
+    <string name="touch_input_add_binding">Ajouter une assignation</string>
+    <string name="touch_input_select_profile">Changer de profil</string>
+    <string name="touch_input_source_overlay_short">Bouton à l\'écran</string>
 </resources>

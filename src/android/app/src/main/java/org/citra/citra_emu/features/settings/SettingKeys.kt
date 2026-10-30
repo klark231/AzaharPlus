@@ -39,6 +39,7 @@ object SettingKeys {
     external fun renderer_debug(): String
     external fun spirv_shader_gen(): String
     external fun disable_spirv_optimizer(): String
+    external fun vk_lighter_surfaces(): String
     external fun async_shader_compilation(): String
     external fun async_presentation(): String
     external fun use_hw_shader(): String

@@ -1324,4 +1324,14 @@
     <string name="dumping_romfs_exefs">Extraindo RomFS e ExeFS, aguarde…</string>
     <string name="romfs_exefs_dumped">RomFS e ExeFS extraídos para a pasta dump</string>
     <string name="romfs_exefs_dump_failed">Não foi possível extrair o RomFS e o ExeFS. Consulte o registro para mais detalhes.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Superfícies leves</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Ignora o uso de armazenamento de que a maioria dos jogos não precisa, para que as GPUs Adreno e Mali possam comprimir as superfícies e usar menos largura de banda de memória. “Sem sombras” desativa os efeitos de sombra. “Com sombras” os mantém, com uma breve travada na primeira vez que uma aparece. Entra em vigor na próxima vez que um jogo for iniciado.</string>
+    <string name="lighter_surfaces_off">Desativado (padrão)</string>
+    <string name="lighter_surfaces_no_shadows">Leves, sem sombras</string>
+    <string name="lighter_surfaces_with_shadows">Leves, com sombras</string>
+    <string name="touch_input_add_binding">Adicionar mapeamento</string>
+    <string name="touch_input_select_profile">Trocar de perfil</string>
+    <string name="touch_input_source_overlay_short">Botão na tela</string>
 </resources>

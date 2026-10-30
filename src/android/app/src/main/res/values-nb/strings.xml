@@ -399,4 +399,17 @@
     <string name="dumping_romfs_exefs">Dumper RomFS og ExeFS, vent litt…</string>
     <string name="romfs_exefs_dumped">RomFS og ExeFS ble dumpet til mappen dump</string>
     <string name="romfs_exefs_dump_failed">Kunne ikke dumpe RomFS og ExeFS. Se loggen for detaljer.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Lettere overflater</string>
+    <string name="lighter_surfaces_description">Eksperimentell (Vulkan). Hopper over lagringsbruk som de fleste spill ikke trenger, slik at Adreno- og Mali-GPU-er kan komprimere overflater og bruke mindre minnebåndbredde. «Uten skygger» slår av skyggeeffekter. «Med skygger» beholder dem, med et kort hakk første gang en skygge vises. Trer i kraft neste gang et spill startes.</string>
+    <string name="lighter_surfaces_off">Av (standard)</string>
+    <string name="lighter_surfaces_no_shadows">Lettere, uten skygger</string>
+    <string name="lighter_surfaces_with_shadows">Lettere, med skygger</string>
+    <string name="touch_input_add_binding">Legg til tilordning</string>
+    <string name="touch_input_select_profile">Bytt profil</string>
+    <string name="touch_input_source_overlay_short">Knapp på skjermen</string>
+    <string name="delete">Slett</string>
+    <string name="done">Ferdig</string>
+    <string name="input_dialog_description">Trykk på eller flytt en inndata.</string>
 </resources>

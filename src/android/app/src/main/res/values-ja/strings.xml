@@ -602,4 +602,15 @@
     <string name="dumping_romfs_exefs">RomFS と ExeFS をダンプしています。しばらくお待ちください…</string>
     <string name="romfs_exefs_dumped">RomFS と ExeFS を dump フォルダにダンプしました</string>
     <string name="romfs_exefs_dump_failed">RomFS と ExeFS をダンプできませんでした。詳細はログを確認してください。</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">軽量サーフェス</string>
+    <string name="lighter_surfaces_description">実験的（Vulkan）。多くのゲームで不要なストレージ用途を省き、AdrenoやMali GPUがサーフェスを圧縮してメモリ帯域の使用量を抑えられるようにします。「影なし」は影の効果をオフにします。「影あり」は影を残しますが、影が初めて表示されるときに一瞬カクつきます。次回のゲーム起動時に反映されます。</string>
+    <string name="lighter_surfaces_off">オフ（デフォルト）</string>
+    <string name="lighter_surfaces_no_shadows">軽量、影なし</string>
+    <string name="lighter_surfaces_with_shadows">軽量、影あり</string>
+    <string name="touch_input_add_binding">割り当てを追加</string>
+    <string name="touch_input_select_profile">プロファイルを切り替え</string>
+    <string name="touch_input_source_overlay_short">画面上のボタン</string>
+    <string name="done">完了</string>
 </resources>

@@ -1139,4 +1139,14 @@
     <string name="dumping_romfs_exefs">正在转储 RomFS 和 ExeFS，请稍候…</string>
     <string name="romfs_exefs_dumped">RomFS 和 ExeFS 已转储到 dump 文件夹</string>
     <string name="romfs_exefs_dump_failed">无法转储 RomFS 和 ExeFS。详情请查看日志。</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">轻量表面</string>
+    <string name="lighter_surfaces_description">实验性（Vulkan）。跳过大多数游戏用不到的存储用途，让 Adreno 和 Mali GPU 能够压缩表面并减少内存带宽占用。“无阴影”会关闭阴影效果。“含阴影”会保留阴影，但阴影首次出现时会短暂卡顿。下次启动游戏时生效。</string>
+    <string name="lighter_surfaces_off">关闭（默认）</string>
+    <string name="lighter_surfaces_no_shadows">轻量，无阴影</string>
+    <string name="lighter_surfaces_with_shadows">轻量，含阴影</string>
+    <string name="touch_input_add_binding">添加绑定</string>
+    <string name="touch_input_select_profile">切换配置文件</string>
+    <string name="touch_input_source_overlay_short">屏幕按钮</string>
 </resources>

@@ -101,6 +101,7 @@ void LogSettings() {
     log_setting("Renderer_AsyncPresentation", values.async_presentation.GetValue());
     log_setting("Renderer_SpirvShaderGen", values.spirv_shader_gen.GetValue());
     log_setting("Renderer_DisableSpirvOptimizer", values.disable_spirv_optimizer.GetValue());
+    log_setting("Renderer_LighterSurfaces", values.vk_lighter_surfaces.GetValue());
     log_setting("Renderer_Debug", values.renderer_debug.GetValue());
     log_setting("Renderer_PicaDebugging", values.pica_debugging.GetValue());
     log_setting("Renderer_UseHwShader", values.use_hw_shader.GetValue());
@@ -276,6 +277,7 @@ void RestoreGlobalState(bool is_powered_on) {
     values.enable_required_online_lle_modules.SetGlobal(true);
     values.region_value.SetGlobal(true);
     values.disable_spirv_optimizer.SetGlobal(true);
+    values.vk_lighter_surfaces.SetGlobal(true);
     values.use_display_refresh_rate_detection.SetGlobal(true);
     values.turbo_limit.SetGlobal(true);
     values.aspect_ratio.SetGlobal(true);

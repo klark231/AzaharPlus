@@ -114,7 +114,10 @@ public:
                                         const SurfaceFlagBits& create_initial_flags = {});
 
     /// Get a surface based on the texture configuration
-    Surface& GetTextureSurface(const Pica::TexturingRegs::FullTextureConfig& config);
+    /// shadow_source: the texture is the lighting shadow map, so it must be created with storage
+    /// usage (matters with "Lighter surfaces"); only applied to RGBA8 textures.
+    Surface& GetTextureSurface(const Pica::TexturingRegs::FullTextureConfig& config,
+                               bool shadow_source = false);
     SurfaceId GetTextureSurface(const Pica::Texture::TextureInfo& info, u32 max_level = 0);
 
     /// Get a texture cube based on the texture configuration
@@ -169,6 +172,9 @@ private:
 
     /// Removes any framebuffers that reference the provided surface_id.
     void RemoveFramebuffers(SurfaceId surface_id);
+
+    /// Replaces a surface made without storage usage (NoStorage) by one with it, keeping its id.
+    void UpgradeToStorage(SurfaceId surface_id);
 
     /// Removes any references of the provided surface id from cached texture cubes.
     void RemoveTextureCubeFace(SurfaceId surface_id);

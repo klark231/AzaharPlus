@@ -156,6 +156,24 @@ public:
         return null_descriptor;
     }
 
+    /// How RGBA8 surfaces are made ("Lighter surfaces" setting). 0: Azahar's own, with storage
+    /// usage. 1: without storage usage and the mutable-format flag, which (on tile-based mobile
+    /// GPUs) lets the driver keep framebuffer compression on; no shadows at all. 2: the same, but
+    /// a surface a shadow needs is replaced by one with storage. Needs null descriptors: a
+    /// storage-less surface bound for shadows becomes a null view instead.
+    int RgbaStorageMode() const {
+        return rgba_storage_mode;
+    }
+
+    bool DropRgba8Storage() const {
+        return rgba_storage_mode != 0;
+    }
+
+    /// Mode 2: surfaces known (or found out) to be shadow surfaces keep or get storage usage.
+    bool KeepShadowStorage() const {
+        return rgba_storage_mode == 2;
+    }
+
     /// Returns true when VK_EXT_fragment_shader_interlock is supported
     bool IsFragmentShaderInterlockSupported() const {
         return fragment_shader_interlock;
@@ -334,6 +352,7 @@ protected:
     bool custom_border_color{};
     bool index_type_uint8{};
     bool null_descriptor{};
+    int rgba_storage_mode{};
     bool fragment_shader_interlock{};
     bool image_format_list{};
     bool pipeline_creation_cache_control{};

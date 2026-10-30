@@ -568,6 +568,20 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         return true;
     }
 
+    if (shadow_rendering && !framebuffer->ImageView(SurfaceType::Color)) {
+        // Lighter surfaces, "no shadows": this target has no storage usage, so it cannot take
+        // shadow writes and the draw is skipped. "With shadows" swaps such a surface for one
+        // with storage before it gets here.
+        static bool warned = false;
+        if (!warned) {
+            warned = true;
+            LOG_WARNING(Render_Vulkan,
+                        "Shadow rendering into a surface without storage usage skipped "
+                        "(Lighter surfaces: shadows are off in that mode)");
+        }
+        return true;
+    }
+
     pipeline_info.state.attachments.color = framebuffer->Format(SurfaceType::Color);
     pipeline_info.state.attachments.depth = framebuffer->Format(SurfaceType::Depth);
 
@@ -731,8 +745,18 @@ void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
     } else if (shadow_reading) {
         const u32 shadow_texture_unit = regs.lighting.config0.shadow_selector.Value();
         const auto shadow_texture = regs.texturing.GetTextures()[shadow_texture_unit];
-        Surface& shadow_surface = res_cache.GetTextureSurface(shadow_texture);
-        update_queue.AddStorageImage(utility_set, 0, shadow_surface.StorageView());
+        Surface& shadow_surface = res_cache.GetTextureSurface(shadow_texture, true);
+        const vk::ImageView shadow_view = shadow_surface.StorageView();
+        if (!shadow_view) {
+            static bool warned = false;
+            if (!warned) {
+                warned = true;
+                LOG_WARNING(Render_Vulkan,
+                            "Shadow texture without storage usage read as empty "
+                            "(Lighter surfaces: shadows are off in that mode)");
+            }
+        }
+        update_queue.AddStorageImage(utility_set, 0, shadow_view);
     } else {
         if (instance.IsNullDescriptorSupported()) {
             update_queue.AddStorageImage(utility_set, 0, vk::ImageView{});

@@ -1129,6 +1129,17 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
             add(
+                SingleChoiceSetting(
+                    IntSetting.VK_LIGHTER_SURFACES,
+                    R.string.lighter_surfaces,
+                    R.string.lighter_surfaces_description,
+                    R.array.lighterSurfacesNames,
+                    R.array.lighterSurfacesValues,
+                    IntSetting.VK_LIGHTER_SURFACES.key,
+                    IntSetting.VK_LIGHTER_SURFACES.defaultValue
+                )
+            )
+            add(
                 SwitchSetting(
                     BooleanSetting.ASYNC_SHADERS,
                     R.string.async_shaders,

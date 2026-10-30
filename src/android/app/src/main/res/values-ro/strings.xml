@@ -291,4 +291,17 @@
     <string name="dumping_romfs_exefs">Se extrag RomFS și ExeFS, te rugăm să aștepți…</string>
     <string name="romfs_exefs_dumped">RomFS și ExeFS au fost extrase în folderul dump</string>
     <string name="romfs_exefs_dump_failed">Nu s-au putut extrage RomFS și ExeFS. Consultă jurnalul pentru detalii.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Suprafețe ușoare</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Omite utilizarea de stocare de care majoritatea jocurilor nu au nevoie, astfel încât GPU-urile Adreno și Mali să poată comprima suprafețele și să folosească mai puțină lățime de bandă a memoriei. „Fără umbre” dezactivează efectele de umbră. „Cu umbre” le păstrează, cu o scurtă sacadare prima dată când apare una. Se aplică la următoarea pornire a unui joc.</string>
+    <string name="lighter_surfaces_off">Dezactivat (implicit)</string>
+    <string name="lighter_surfaces_no_shadows">Ușoare, fără umbre</string>
+    <string name="lighter_surfaces_with_shadows">Ușoare, cu umbre</string>
+    <string name="touch_input_add_binding">Adaugă asociere</string>
+    <string name="touch_input_select_profile">Schimbă profilul</string>
+    <string name="touch_input_source_overlay_short">Buton pe ecran</string>
+    <string name="delete">Șterge</string>
+    <string name="done">Gata</string>
+    <string name="input_dialog_description">Apasă sau mută o intrare.</string>
 </resources>

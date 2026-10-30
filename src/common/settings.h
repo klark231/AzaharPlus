@@ -538,6 +538,8 @@ struct Values {
     Setting<bool> dump_command_buffers{false, Keys::dump_command_buffers};
     SwitchableSetting<bool> spirv_shader_gen{true, Keys::spirv_shader_gen};
     SwitchableSetting<bool> disable_spirv_optimizer{true, Keys::disable_spirv_optimizer};
+    /// Vulkan: 0 off, 1 lighter surfaces without shadows, 2 lighter surfaces with shadows
+    SwitchableSetting<s32, true> vk_lighter_surfaces{0, 0, 2, Keys::vk_lighter_surfaces};
     SwitchableSetting<bool> async_shader_compilation{false, Keys::async_shader_compilation};
     SwitchableSetting<bool> async_presentation{true, Keys::async_presentation};
     SwitchableSetting<bool> use_hw_shader{true, Keys::use_hw_shader};

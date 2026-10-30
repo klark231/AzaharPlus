@@ -1335,4 +1335,14 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="dumping_romfs_exefs">Bolcant RomFS i ExeFS, espera un moment…</string>
     <string name="romfs_exefs_dumped">RomFS i ExeFS bolcats a la carpeta dump</string>
     <string name="romfs_exefs_dump_failed">No s\'ha pogut bolcar RomFS i ExeFS. Consulta el registre per a més detalls.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Superfícies lleugeres</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Omet l\'ús d\'emmagatzematge que la majoria de jocs no necessiten, de manera que les GPU Adreno i Mali puguen comprimir les superfícies i usar menys ample de banda de memòria. «Sense ombres» desactiva els efectes d\'ombra. «Amb ombres» els manté, amb un breu alentiment la primera vegada que n\'apareix una. S\'aplica la pròxima vegada que s\'inicie un joc.</string>
+    <string name="lighter_surfaces_off">Desactivat (per defecte)</string>
+    <string name="lighter_surfaces_no_shadows">Lleugeres, sense ombres</string>
+    <string name="lighter_surfaces_with_shadows">Lleugeres, amb ombres</string>
+    <string name="touch_input_add_binding">Afig assignació</string>
+    <string name="touch_input_select_profile">Canvia de perfil</string>
+    <string name="touch_input_source_overlay_short">Botó en pantalla</string>
 </resources>

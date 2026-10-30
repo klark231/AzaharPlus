@@ -767,6 +767,26 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
     u32 num_images{};
     std::array<vk::Image, 2> raw_images;
 
+    // Storage usage is added when available in case it is found out later that this is a
+    // shadow-source texture that will get used in the utility descriptor-set. With "Lighter
+    // surfaces" only surfaces already known to be shadow sources get it, and only in the mode
+    // that keeps shadows (this must be worked out before the local `flags` below hides the
+    // surface's own).
+    has_storage = traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support &&
+                  (!instance.DropRgba8Storage() ||
+                   (instance.KeepShadowStorage() &&
+                    True(flags & VideoCore::SurfaceFlagBits::ShadowSource)));
+    if (instance.KeepShadowStorage() && instance.DropRgba8Storage() && !has_storage &&
+        traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support) {
+        // Lets the rasterizer cache swap this surface for one with storage if a shadow needs it.
+        flags |= VideoCore::SurfaceFlagBits::NoStorage;
+    }
+
+    if (instance.DropRgba8Storage() && !has_storage) {
+        // the mutable format is only there for the R32 storage view
+        is_mutable = false;
+    }
+
     vk::ImageCreateFlags flags{};
     if (texture_type == VideoCore::TextureType::CubeMap) {
         flags |= vk::ImageCreateFlagBits::eCubeCompatible;
@@ -782,9 +802,7 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
     if (is_color) {
         usage |= vk::ImageUsageFlagBits::eColorAttachment;
     }
-    if (traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support) {
-        // Add Storage-usage support when available in case it is found out later that this is a
-        // shadow-source texture that will get used in the utility descriptor-set
+    if (has_storage) {
         usage |= vk::ImageUsageFlagBits::eStorage;
     }
 
@@ -1119,7 +1137,8 @@ void Surface::ScaleUp(u32 new_scale) {
 
     res_scale = new_scale;
 
-    const bool is_mutable = pixel_format == VideoCore::PixelFormat::RGBA8;
+    const bool is_mutable = pixel_format == VideoCore::PixelFormat::RGBA8 &&
+                            (has_storage || !instance.DropRgba8Storage());
 
     vk::ImageCreateFlags flags{};
     if (texture_type == VideoCore::TextureType::CubeMap) {
@@ -1129,8 +1148,14 @@ void Surface::ScaleUp(u32 new_scale) {
         flags |= vk::ImageCreateFlagBits::eMutableFormat;
     }
 
+    // traits.usage has no storage in the lighter modes: a surface that was given it
+    // (a shadow source) keeps it on the scaled image
+    auto scaled_usage = traits.usage;
+    if (has_storage) {
+        scaled_usage |= vk::ImageUsageFlagBits::eStorage;
+    }
     handles[Type::Scaled].Create(GetScaledWidth(), GetScaledHeight(), levels, texture_type,
-                                 traits.native, traits.usage, flags, traits.aspect, false,
+                                 traits.native, scaled_usage, flags, traits.aspect, false,
                                  DebugName(true));
     current = Type::Scaled;
 

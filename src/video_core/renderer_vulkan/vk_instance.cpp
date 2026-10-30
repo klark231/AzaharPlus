@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <algorithm>
 #include <span>
 #include <boost/container/static_vector.hpp>
 #include <fmt/ranges.h>
@@ -160,6 +161,18 @@ Instance::Instance(Frontend::EmuWindow& window, u32 physical_device_index)
     }
 
     CreateDevice();
+    {
+        // "Lighter surfaces": needs null descriptors, else it is ignored
+        const int requested = std::clamp(
+            static_cast<int>(Settings::values.vk_lighter_surfaces.GetValue()), 0, 2);
+        rgba_storage_mode = null_descriptor ? requested : 0;
+        if (requested != 0) {
+            LOG_INFO(Render_Vulkan, "Lighter surfaces: {}",
+                     !null_descriptor ? "requested but ignored (driver lacks nullDescriptor)"
+                     : requested == 1 ? "active, shadows off"
+                                      : "active, shadows kept");
+        }
+    }
     CreateFormatTable();
     CollectToolingInfo();
     CreateCustomFormatTable();
@@ -252,7 +265,8 @@ FormatTraits Instance::DetermineTraits(VideoCore::PixelFormat pixel_format, vk::
     }
     // Storage flag is only needed for shadow rendering with RGBA8 texture.
     // Keeping it disables can boost performance on mobile drivers.
-    if (supports_storage && pixel_format == VideoCore::PixelFormat::RGBA8) {
+    if (supports_storage && pixel_format == VideoCore::PixelFormat::RGBA8 &&
+        !DropRgba8Storage()) {
         best_usage |= vk::ImageUsageFlagBits::eStorage;
     }
 

@@ -146,6 +146,30 @@ void RasterizerCache<T>::RunGarbageCollector() {
 }
 
 template <class T>
+void RasterizerCache<T>::UpgradeToStorage(SurfaceId surface_id) {
+    // Same in-place swap as a custom texture upload: the id stays, so the page table and dirty
+    // regions still point at it, and the old image waits in `sentenced` until the GPU is done.
+    const SurfaceFlagBits old_flags = slot_surfaces[surface_id].flags;
+    // The newest copy may only be on the GPU: write it back so the new image can load it
+    FlushRegion(slot_surfaces[surface_id].addr, slot_surfaces[surface_id].size, surface_id);
+
+    // (copied: the old object is moved out of its slot before the new one is built)
+    const SurfaceParams params = slot_surfaces[surface_id];
+    const SurfaceId old_id =
+        slot_surfaces.swap_and_insert(surface_id, runtime, params, SurfaceFlagBits::ShadowSource);
+    slot_surfaces[old_id].flags &= ~SurfaceFlagBits::Registered;
+    sentenced.emplace_back(old_id, runtime.GetResourceTick());
+    RemoveFramebuffers(surface_id);
+
+    Surface& surface = slot_surfaces[surface_id];
+    surface.flags = (old_flags | SurfaceFlagBits::ShadowSource) & ~SurfaceFlagBits::NoStorage;
+    surface.MarkInvalid(surface.GetInterval());
+    ValidateSurface(surface_id, surface.addr, surface.size);
+    LOG_INFO(HW_GPU, "shadow surface {:#x} ({}x{}) replaced by one with storage usage",
+             params.addr, params.width, params.height);
+}
+
+template <class T>
 void RasterizerCache<T>::RemoveFramebuffers(SurfaceId surface_id) {
     for (auto it = framebuffers.begin(); it != framebuffers.end();) {
         const auto& params = it->first;
@@ -554,8 +578,11 @@ typename RasterizerCache<T>::SurfaceRect_Tuple RasterizerCache<T>::GetSurfaceSub
 
 template <class T>
 typename T::Surface& RasterizerCache<T>::GetTextureSurface(
-    const Pica::TexturingRegs::FullTextureConfig& config) {
-    const auto info = Pica::Texture::TextureInfo::FromPicaRegister(config.config, config.format);
+    const Pica::TexturingRegs::FullTextureConfig& config, bool shadow_source) {
+    auto info = Pica::Texture::TextureInfo::FromPicaRegister(config.config, config.format);
+    if (shadow_source && PixelFormatFromTextureFormat(info.format) == PixelFormat::RGBA8) {
+        info.is_shadow_source = true;
+    }
     const u32 max_level = MipLevels(info.width, info.height, config.config.lod.max_level) - 1;
     const SurfaceId surface_id = GetTextureSurface(info, max_level);
     return slot_surfaces[surface_id];
@@ -622,6 +649,10 @@ SurfaceId RasterizerCache<T>::GetTextureSurface(const Pica::Texture::TextureInfo
     }
 
     SurfaceId surface_id = GetSurface(params, ScaleMatch::Ignore, true, initial_flags);
+    if (surface_id && info.is_shadow_source &&
+        True(slot_surfaces[surface_id].flags & SurfaceFlagBits::NoStorage)) {
+        UpgradeToStorage(surface_id);
+    }
     return surface_id ? surface_id : NULL_SURFACE_ID;
 }
 
@@ -745,8 +776,23 @@ FramebufferHelper<T> RasterizerCache<T>::GetFramebufferSurfaces(bool using_color
     Common::Rectangle<u32> color_rect{};
     SurfaceId color_id{};
     u32 color_level{};
-    if (using_color_fb)
-        std::tie(color_id, color_rect) = GetSurfaceSubRect(color_params, ScaleMatch::Exact, false);
+    if (using_color_fb) {
+        // Shadow rendering writes through an R32 storage view, so an RGBA8 target made for it
+        // must have storage usage (matters with "Lighter surfaces", harmless otherwise).
+        SurfaceFlagBits color_flags{};
+        const bool shadow_target = regs.framebuffer.IsShadowRendering() &&
+                                   color_params.pixel_format == PixelFormat::RGBA8;
+        if (shadow_target) {
+            color_flags |= SurfaceFlagBits::ShadowSource;
+        }
+        std::tie(color_id, color_rect) =
+            GetSurfaceSubRect(color_params, ScaleMatch::Exact, false, color_flags);
+        // An older surface at this address made without storage: swap it (same id, same rect)
+        if (shadow_target && color_id &&
+            True(slot_surfaces[color_id].flags & SurfaceFlagBits::NoStorage)) {
+            UpgradeToStorage(color_id);
+        }
+    }
 
     Common::Rectangle<u32> depth_rect{};
     SurfaceId depth_id{};
@@ -1378,6 +1424,9 @@ SurfaceId RasterizerCache<T>::CreateSurface(const SurfaceParams& params,
                    // Only recycle the texture if its resolution scale is equal or less than the
                    // incoming texture
                    (slot_surfaces[pair.first].res_scale <= params.res_scale) &&
+                   // A shadow surface needs storage usage, which a NoStorage one does not have
+                   (False(initial_flags & SurfaceFlagBits::ShadowSource) ||
+                    False(slot_surfaces[pair.first].flags & SurfaceFlagBits::NoStorage)) &&
                    // Only recycle the texture if the texture runtime is completely done with it
                    (resource_free_tick > pair.second);
         });

@@ -330,4 +330,16 @@
     <string name="dumping_romfs_exefs">Sedang melakukan dump RomFS dan ExeFS, harap tunggu…</string>
     <string name="romfs_exefs_dumped">RomFS dan ExeFS berhasil di-dump ke folder dump</string>
     <string name="romfs_exefs_dump_failed">Tidak dapat melakukan dump RomFS dan ExeFS. Lihat log untuk detailnya.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Permukaan Ringan</string>
+    <string name="lighter_surfaces_description">Eksperimental (Vulkan). Melewati penggunaan penyimpanan yang tidak dibutuhkan sebagian besar game, sehingga GPU Adreno dan Mali dapat mengompresi permukaan dan memakai lebih sedikit bandwidth memori. “Tanpa bayangan” mematikan efek bayangan. “Dengan bayangan” tetap mempertahankannya, dengan jeda singkat saat bayangan muncul pertama kali. Berlaku saat game dimulai berikutnya.</string>
+    <string name="lighter_surfaces_off">Mati (default)</string>
+    <string name="lighter_surfaces_no_shadows">Ringan, tanpa bayangan</string>
+    <string name="lighter_surfaces_with_shadows">Ringan, dengan bayangan</string>
+    <string name="touch_input_add_binding">Tambah pemetaan</string>
+    <string name="touch_input_select_profile">Ganti profil</string>
+    <string name="touch_input_source_overlay_short">Tombol di layar</string>
+    <string name="delete">Hapus</string>
+    <string name="input_dialog_description">Tekan atau gerakkan input.</string>
 </resources>

@@ -1123,4 +1123,14 @@
     <string name="dumping_romfs_exefs">RomFS und ExeFS werden gedumpt, bitte warten…</string>
     <string name="romfs_exefs_dumped">RomFS und ExeFS wurden in den Ordner dump gedumpt</string>
     <string name="romfs_exefs_dump_failed">RomFS und ExeFS konnten nicht gedumpt werden. Details findest du im Protokoll.</string>
+
+    <!-- Lighter surfaces and touch input additions -->
+    <string name="lighter_surfaces">Leichtere Oberflächen</string>
+    <string name="lighter_surfaces_description">Experimentell (Vulkan). Verzichtet auf die Storage-Nutzung, die die meisten Spiele nicht brauchen, damit Adreno- und Mali-GPUs Oberflächen komprimieren und weniger Speicherbandbreite nutzen können. „Ohne Schatten“ schaltet Schatteneffekte ab. „Mit Schatten“ behält sie bei, mit einem kurzen Ruckler, wenn zum ersten Mal einer erscheint. Wirkt sich beim nächsten Spielstart aus.</string>
+    <string name="lighter_surfaces_off">Aus (Standard)</string>
+    <string name="lighter_surfaces_no_shadows">Leichter, ohne Schatten</string>
+    <string name="lighter_surfaces_with_shadows">Leichter, mit Schatten</string>
+    <string name="touch_input_add_binding">Belegung hinzufügen</string>
+    <string name="touch_input_select_profile">Profil wechseln</string>
+    <string name="touch_input_source_overlay_short">Bildschirm-Schaltfläche</string>
 </resources>

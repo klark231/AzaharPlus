@@ -1225,11 +1225,15 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Lżejsze powierzchnie</string>
-    <string name="lighter_surfaces_description">Eksperymentalne (Vulkan). Pomija użycie przechowywania (storage), którego większość gier nie potrzebuje, dzięki czemu układy GPU Adreno i Mali mogą kompresować powierzchnie i zużywać mniej przepustowości pamięci. „Bez cieni” wyłącza efekty cieni. „Z cieniami” zachowuje je, z krótkim przycięciem przy pierwszym pojawieniu się cienia. Zacznie działać przy następnym uruchomieniu gry.</string>
+    <string name="lighter_surfaces_description">Eksperymentalne (Vulkan). Pomija użycie przechowywania (storage), którego większość gier nie potrzebuje, dzięki czemu układy GPU Adreno i Mali mogą kompresować powierzchnie i zużywać mniej przepustowości pamięci. „Bez cieni” wyłącza efekty cieni. „Z cieniami” zachowuje je, z krótkim przycięciem przy pierwszym pojawieniu się cienia.</string>
     <string name="lighter_surfaces_off">Wyłączone (domyślnie)</string>
     <string name="lighter_surfaces_no_shadows">Lżejsze, bez cieni</string>
     <string name="lighter_surfaces_with_shadows">Lżejsze, z cieniami</string>
     <string name="touch_input_add_binding">Dodaj przypisanie</string>
     <string name="touch_input_select_profile">Przełącz profil</string>
     <string name="touch_input_source_overlay_short">Przycisk na ekranie</string>
+    <string name="draw_batching">Grupowanie wywołań rysowania</string>
+    <string name="draw_batching_description">Eksperymentalne (Vulkan). Łączy kolejne wywołania rysowania o identycznym stanie w jedno, zmniejszając obciążenie procesora i sterownika. Jeśli widzisz brakującą lub zniekształconą geometrię, wyłącz tę opcję.</string>
+    <string name="web_api_urls">Adresy URL Web API</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

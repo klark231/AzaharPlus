@@ -294,7 +294,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Bề mặt nhẹ</string>
-    <string name="lighter_surfaces_description">Thử nghiệm (Vulkan). Bỏ qua việc dùng bộ nhớ lưu trữ mà hầu hết game không cần, để GPU Adreno và Mali có thể nén bề mặt và dùng ít băng thông bộ nhớ hơn. “Không bóng” tắt hiệu ứng bóng. “Có bóng” vẫn giữ lại, nhưng sẽ khựng nhẹ lần đầu bóng xuất hiện. Có hiệu lực ở lần chạy game tiếp theo.</string>
+    <string name="lighter_surfaces_description">Thử nghiệm (Vulkan). Bỏ qua việc dùng bộ nhớ lưu trữ mà hầu hết game không cần, để GPU Adreno và Mali có thể nén bề mặt và dùng ít băng thông bộ nhớ hơn. “Không bóng” tắt hiệu ứng bóng. “Có bóng” vẫn giữ lại, nhưng sẽ khựng nhẹ lần đầu bóng xuất hiện.</string>
     <string name="lighter_surfaces_off">Tắt (mặc định)</string>
     <string name="lighter_surfaces_no_shadows">Nhẹ, không bóng</string>
     <string name="lighter_surfaces_with_shadows">Nhẹ, có bóng</string>
@@ -304,4 +304,8 @@
     <string name="delete">Xóa</string>
     <string name="done">Xong</string>
     <string name="input_dialog_description">Nhấn hoặc di chuyển một đầu vào.</string>
+    <string name="draw_batching">Gộp lệnh vẽ</string>
+    <string name="draw_batching_description">Thử nghiệm (Vulkan). Gộp các lệnh vẽ liên tiếp có trạng thái giống hệt nhau thành một, giúp giảm tải cho CPU và trình điều khiển. Nếu thấy hình học bị thiếu hoặc méo, hãy tắt tùy chọn này.</string>
+    <string name="web_api_urls">URL Web API</string>
+    <string name="web_api_url_2_hint">URL Web API 2</string>
 </resources>

@@ -1337,11 +1337,15 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Lättare ytor</string>
-    <string name="lighter_surfaces_description">Experimentell (Vulkan). Hoppar över lagringsanvändning som de flesta spel inte behöver, så att Adreno- och Mali-GPU:er kan komprimera ytor och använda mindre minnesbandbredd. ”Utan skuggor” stänger av skuggeffekter. ”Med skuggor” behåller dem, med ett kort hack första gången en skugga visas. Börjar gälla nästa gång ett spel startas.</string>
+    <string name="lighter_surfaces_description">Experimentell (Vulkan). Hoppar över lagringsanvändning som de flesta spel inte behöver, så att Adreno- och Mali-GPU:er kan komprimera ytor och använda mindre minnesbandbredd. ”Utan skuggor” stänger av skuggeffekter. ”Med skuggor” behåller dem, med ett kort hack första gången en skugga visas.</string>
     <string name="lighter_surfaces_off">Av (standard)</string>
     <string name="lighter_surfaces_no_shadows">Lättare, utan skuggor</string>
     <string name="lighter_surfaces_with_shadows">Lättare, med skuggor</string>
     <string name="touch_input_add_binding">Lägg till bindning</string>
     <string name="touch_input_select_profile">Byt profil</string>
     <string name="touch_input_source_overlay_short">Knapp på skärmen</string>
+    <string name="draw_batching">Draw-batching</string>
+    <string name="draw_batching_description">Experimentell (Vulkan). Slår ihop på varandra följande ritanrop med identiskt tillstånd till ett, vilket minskar belastningen på CPU och drivrutin. Om du ser saknad eller förvrängd geometri, stäng av detta.</string>
+    <string name="web_api_urls">Webb-API-URL:er</string>
+    <string name="web_api_url_2_hint">Webb-API-URL 2</string>
 </resources>

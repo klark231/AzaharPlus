@@ -294,7 +294,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">輕量表面</string>
-    <string name="lighter_surfaces_description">實驗性（Vulkan）。略過大多數遊戲用不到的儲存用途，讓 Adreno 與 Mali GPU 能壓縮表面並減少記憶體頻寬用量。「無陰影」會關閉陰影效果。「含陰影」會保留陰影，但陰影首次出現時會短暫卡頓。下次啟動遊戲時生效。</string>
+    <string name="lighter_surfaces_description">實驗性（Vulkan）。略過大多數遊戲用不到的儲存用途，讓 Adreno 與 Mali GPU 能壓縮表面並減少記憶體頻寬用量。「無陰影」會關閉陰影效果。「含陰影」會保留陰影，但陰影首次出現時會短暫卡頓。</string>
     <string name="lighter_surfaces_off">關閉（預設）</string>
     <string name="lighter_surfaces_no_shadows">輕量，無陰影</string>
     <string name="lighter_surfaces_with_shadows">輕量，含陰影</string>
@@ -304,4 +304,8 @@
     <string name="delete">刪除</string>
     <string name="done">完成</string>
     <string name="input_dialog_description">按下或移動一個輸入。</string>
+    <string name="draw_batching">繪製批次處理</string>
+    <string name="draw_batching_description">實驗性（Vulkan）。將狀態完全相同的連續繪製呼叫合併為一次，降低 CPU 與驅動程式負擔。若出現幾何缺失或變形，請關閉此選項。</string>
+    <string name="web_api_urls">Web API 網址</string>
+    <string name="web_api_url_2_hint">Web API 網址 2</string>
 </resources>

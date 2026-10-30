@@ -15,6 +15,7 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.view.LayoutInflater
+import android.widget.LinearLayout
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -489,7 +490,48 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
         ).show(activity.supportFragmentManager, MotionBottomSheetDialogFragment.TAG)
     }
 
+    private fun showWebApiUrlsDialog(item: StringInputSetting) {
+        val second = item.secondSetting ?: return
+        val inflater = LayoutInflater.from(context)
+        val firstBinding = DialogSoftwareKeyboardBinding.inflate(inflater)
+        val secondBinding = DialogSoftwareKeyboardBinding.inflate(inflater)
+
+        firstBinding.root.hint = context.getString(R.string.web_api_url)
+        secondBinding.root.hint = context.getString(item.secondHintId)
+        firstBinding.editTextInput.setText(item.selectedValue)
+        secondBinding.editTextInput.setText(second.valueAsString)
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(firstBinding.root)
+            addView(secondBinding.root)
+        }
+
+        dialog = MaterialAlertDialogBuilder(context)
+            .setView(container)
+            .setTitle(item.nameId)
+            .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
+                val firstValue = firstBinding.editTextInput.text?.toString()?.trim() ?: ""
+                val secondValue = secondBinding.editTextInput.text?.toString()?.trim() ?: ""
+                if (item.selectedValue != firstValue || second.valueAsString != secondValue) {
+                    fragmentView?.onSettingChanged()
+                }
+                fragmentView?.putSetting(item.setSelectedValue(firstValue))
+                second.string = secondValue
+                fragmentView?.putSetting(second)
+                fragmentView.loadSettingsList()
+                closeDialog()
+            }
+            .setNegativeButton(android.R.string.cancel, defaultCancelListener)
+            .show()
+    }
+
     fun onStringInputClick(item: StringInputSetting, position: Int) {
+        if (item.secondSetting != null) {
+            showWebApiUrlsDialog(item)
+            return
+        }
+
         clickedItem = item
         clickedPosition = position
         textInputValue = item.selectedValue

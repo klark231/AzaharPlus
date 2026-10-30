@@ -402,7 +402,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Lettere overflater</string>
-    <string name="lighter_surfaces_description">Eksperimentell (Vulkan). Hopper over lagringsbruk som de fleste spill ikke trenger, slik at Adreno- og Mali-GPU-er kan komprimere overflater og bruke mindre minnebåndbredde. «Uten skygger» slår av skyggeeffekter. «Med skygger» beholder dem, med et kort hakk første gang en skygge vises. Trer i kraft neste gang et spill startes.</string>
+    <string name="lighter_surfaces_description">Eksperimentell (Vulkan). Hopper over lagringsbruk som de fleste spill ikke trenger, slik at Adreno- og Mali-GPU-er kan komprimere overflater og bruke mindre minnebåndbredde. «Uten skygger» slår av skyggeeffekter. «Med skygger» beholder dem, med et kort hakk første gang en skygge vises.</string>
     <string name="lighter_surfaces_off">Av (standard)</string>
     <string name="lighter_surfaces_no_shadows">Lettere, uten skygger</string>
     <string name="lighter_surfaces_with_shadows">Lettere, med skygger</string>
@@ -412,4 +412,8 @@
     <string name="delete">Slett</string>
     <string name="done">Ferdig</string>
     <string name="input_dialog_description">Trykk på eller flytt en inndata.</string>
+    <string name="draw_batching">Draw-batching</string>
+    <string name="draw_batching_description">Eksperimentell (Vulkan). Slår sammen påfølgende tegnekall med identisk tilstand til ett, noe som reduserer belastningen på CPU og driver. Hvis du ser manglende eller forvrengt geometri, slå dette av.</string>
+    <string name="web_api_urls">Web API-URL-er</string>
+    <string name="web_api_url_2_hint">Web API-URL 2</string>
 </resources>

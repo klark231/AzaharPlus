@@ -129,6 +129,45 @@ private:
     VertexArrayInfo vertex_info;
     PipelineInfo pipeline_info{};
 
+    /// Data of the accelerated draw that is currently being processed
+    struct StagedDraw {
+        std::vector<u8> vertex_data;
+        std::array<u32, 16> binding_start{};
+        std::array<u32, 16> binding_bytes{};
+        std::array<u8, 512> fixed{};
+        u32 fixed_size = 0;
+        std::vector<u16> indices;
+    };
+
+    /// Consecutive draws with identical GPU state, waiting to be recorded as one draw call
+    struct DrawBatch {
+        bool open = false;
+        bool indexed = false;
+        u32 binding_count = 0; // loader bindings + the fixed attribute binding
+        std::array<std::vector<u8>, 16> binding_data;
+        std::array<u8, 512> fixed{};
+        u32 fixed_size = 0;
+        std::vector<u16> indices;
+        u32 vertex_total = 0;
+        u32 draw_count = 0;
+        u32 byte_total = 0;
+    };
+
+    void CommitStagedDraw(bool is_indexed);
+    void FlushDrawBatch();
+    void ReuseDescriptorSets(const DescriptorUpdateQueue::Mark& mark);
+
+    bool batching_enabled = false;
+    bool flushing_batch = false;
+    StagedDraw staged;
+    DrawBatch batch;
+
+    bool have_last_descriptors = false;
+    u64 last_descriptor_hash = 0;
+    u64 last_descriptor_tick = 0;
+    vk::DescriptorSet last_texture_set{};
+    vk::DescriptorSet last_utility_set{};
+
     StreamBuffer stream_buffer;     ///< Vertex+Index buffer
     StreamBuffer uniform_buffer;    ///< Uniform buffer
     StreamBuffer texture_buffer;    ///< Texture buffer

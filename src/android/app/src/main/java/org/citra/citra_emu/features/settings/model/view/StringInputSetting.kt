@@ -18,7 +18,10 @@ class StringInputSetting(
     val characterLimit: Int = 0,
     override var isEnabled: Boolean = true,
     @StringRes override var disabledMessage: Int =
-        R.string.setting_disabled_description_incompatible_setting
+        R.string.setting_disabled_description_incompatible_setting,
+    /** When set, the item opens one dialog that edits both this setting and [secondSetting]. */
+    val secondSetting: AbstractStringSetting? = null,
+    @StringRes val secondHintId: Int = 0
 ) : SettingsItem(setting, titleId, descriptionId) {
     override val type = TYPE_STRING_INPUT
 

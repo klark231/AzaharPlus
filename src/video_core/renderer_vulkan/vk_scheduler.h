@@ -50,6 +50,9 @@ public:
     /// Records the command to the current chunk.
     template <typename T>
     void Record(T&& command) {
+        if (pre_record) {
+            pre_record();
+        }
         if (chunk->Record(command)) {
             return;
         }
@@ -80,6 +83,11 @@ public:
     /// Registers a callback to perform on queue submission.
     void RegisterOnDispatch(std::function<void()>&& func) {
         on_dispatch = std::move(func);
+    }
+
+    /// Registers a callback that runs before any command is recorded or work is submitted.
+    void SetPreRecordCallback(std::function<void()>&& func) {
+        pre_record = std::move(func);
     }
 
     /// Returns the current command buffer tick.
@@ -202,6 +210,7 @@ private:
     StateFlags state{};
     std::function<void()> on_submit;
     std::function<void()> on_dispatch;
+    std::function<void()> pre_record;
     std::mutex execution_mutex;
     std::mutex reserve_mutex;
     std::mutex queue_mutex;

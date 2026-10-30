@@ -363,6 +363,39 @@ void PipelineCache::SwitchDiskCache(u64 title_id, const std::atomic_bool& stop_l
     }
 }
 
+namespace {
+
+/// Mirrors every dynamic state comparison done by the command recorded in BindPipeline.
+bool DynamicStateUnchanged(const PipelineInfo& a, const PipelineInfo& b) {
+    const auto& da = a.dynamic_info;
+    const auto& db = b.dynamic_info;
+    if (da.viewport != db.viewport || da.scissor != db.scissor ||
+        da.stencil_compare_mask != db.stencil_compare_mask ||
+        da.stencil_write_mask != db.stencil_write_mask ||
+        da.stencil_reference != db.stencil_reference || da.blend_color != db.blend_color) {
+        return false;
+    }
+    const auto& ra = a.state.rasterization;
+    const auto& rb = b.state.rasterization;
+    if (ra.cull_mode != rb.cull_mode || ra.flip_viewport != rb.flip_viewport ||
+        ra.topology != rb.topology) {
+        return false;
+    }
+    const auto& sa = a.state.depth_stencil;
+    const auto& sb = b.state.depth_stencil;
+    if (sa.depth_compare_op != sb.depth_compare_op || sa.depth_test_enable != sb.depth_test_enable ||
+        sa.depth_write_enable != sb.depth_write_enable ||
+        sa.stencil_test_enable != sb.stencil_test_enable ||
+        sa.stencil_fail_op != sb.stencil_fail_op || sa.stencil_pass_op != sb.stencil_pass_op ||
+        sa.stencil_depth_fail_op != sb.stencil_depth_fail_op ||
+        sa.stencil_compare_op != sb.stencil_compare_op) {
+        return false;
+    }
+    return true;
+}
+
+} // Anonymous namespace
+
 bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
     MICROPROFILE_SCOPE(Vulkan_Bind);
 
@@ -377,6 +410,16 @@ bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
 
     const bool is_dirty = scheduler.IsStateDirty(StateFlags::Pipeline);
     const bool pipeline_dirty = (current_pipeline != pipeline) || is_dirty;
+
+    // Nothing would change on the GPU: skip recording so consecutive draws can be batched.
+    if (skip_redundant_binds && !pipeline_dirty && last_recorded_valid &&
+        !scheduler.IsStateDirty(StateFlags::DescriptorSets) &&
+        bound_descriptor_sets == last_recorded_sets && offsets == last_recorded_offsets &&
+        DynamicStateUnchanged(current_info, info)) {
+        current_info = info;
+        return true;
+    }
+
     scheduler.Record([this, is_dirty, pipeline_dirty, pipeline,
                       current_dynamic = current_info.dynamic_info, dynamic = info.dynamic_info,
                       descriptor_sets = bound_descriptor_sets, offsets = offsets,
@@ -489,6 +532,9 @@ bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
                                   descriptor_sets, offsets);
     });
 
+    last_recorded_sets = bound_descriptor_sets;
+    last_recorded_offsets = offsets;
+    last_recorded_valid = true;
     current_info = info;
     current_pipeline = pipeline;
     scheduler.MarkStateNonDirty(StateFlags::Pipeline | StateFlags::DescriptorSets);

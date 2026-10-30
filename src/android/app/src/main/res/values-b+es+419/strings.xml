@@ -628,7 +628,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Superficies ligeras</string>
-    <string name="lighter_surfaces_description">Experimental (Vulkan). Omite el uso de almacenamiento que la mayoría de los juegos no necesita, para que las GPU Adreno y Mali puedan comprimir las superficies y usar menos ancho de banda de memoria. «Sin sombras» desactiva los efectos de sombra. «Con sombras» los conserva, con un breve tirón la primera vez que aparece una. Se aplica la próxima vez que se inicie un juego.</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Omite el uso de almacenamiento que la mayoría de los juegos no necesita, para que las GPU Adreno y Mali puedan comprimir las superficies y usar menos ancho de banda de memoria. «Sin sombras» desactiva los efectos de sombra. «Con sombras» los conserva, con un breve tirón la primera vez que aparece una.</string>
     <string name="lighter_surfaces_off">Desactivado (predeterminado)</string>
     <string name="lighter_surfaces_no_shadows">Ligeras, sin sombras</string>
     <string name="lighter_surfaces_with_shadows">Ligeras, con sombras</string>
@@ -636,4 +636,8 @@
     <string name="touch_input_select_profile">Cambiar de perfil</string>
     <string name="touch_input_source_overlay_short">Botón en pantalla</string>
     <string name="delete">Eliminar</string>
+    <string name="draw_batching">Agrupación de llamadas de dibujo</string>
+    <string name="draw_batching_description">Experimental (Vulkan). Combina en una sola las llamadas de dibujo consecutivas con un estado idéntico, lo que reduce la carga de la CPU y del controlador. Si ves geometría faltante o deformada, desactívalo.</string>
+    <string name="web_api_urls">URLs de la Web API</string>
+    <string name="web_api_url_2_hint">URL de la Web API 2</string>
 </resources>

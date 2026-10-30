@@ -1129,17 +1129,6 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 )
             )
             add(
-                SingleChoiceSetting(
-                    IntSetting.VK_LIGHTER_SURFACES,
-                    R.string.lighter_surfaces,
-                    R.string.lighter_surfaces_description,
-                    R.array.lighterSurfacesNames,
-                    R.array.lighterSurfacesValues,
-                    IntSetting.VK_LIGHTER_SURFACES.key,
-                    IntSetting.VK_LIGHTER_SURFACES.defaultValue
-                )
-            )
-            add(
                 SwitchSetting(
                     BooleanSetting.ASYNC_SHADERS,
                     R.string.async_shaders,
@@ -1408,6 +1397,26 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.disable_flush_cpu_write_description,
                     BooleanSetting.DISABLE_FLUSH_CPU_WRITE.key,
                     BooleanSetting.DISABLE_FLUSH_CPU_WRITE.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.VK_DRAW_BATCHING,
+                    R.string.draw_batching,
+                    R.string.draw_batching_description,
+                    BooleanSetting.VK_DRAW_BATCHING.key,
+                    BooleanSetting.VK_DRAW_BATCHING.defaultValue
+                )
+            )
+            add(
+                SingleChoiceSetting(
+                    IntSetting.VK_LIGHTER_SURFACES,
+                    R.string.lighter_surfaces,
+                    R.string.lighter_surfaces_description,
+                    R.array.lighterSurfacesNames,
+                    R.array.lighterSurfacesValues,
+                    IntSetting.VK_LIGHTER_SURFACES.key,
+                    IntSetting.VK_LIGHTER_SURFACES.defaultValue
                 )
             )
 
@@ -1996,20 +2005,12 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
             add(
                 StringInputSetting(
                     StringSetting.WEB_API_URL,
-                    R.string.web_api_url,
+                    R.string.web_api_urls,
                     R.string.web_api_url_description,
                     StringSetting.WEB_API_URL.key,
-                    StringSetting.WEB_API_URL.defaultValue
-                )
-            )
-
-            add(
-                StringInputSetting(
-                    StringSetting.WEB_API_URL_2,
-                    R.string.web_api_url_2,
-                    R.string.web_api_url_2_description,
-                    StringSetting.WEB_API_URL_2.key,
-                    StringSetting.WEB_API_URL_2.defaultValue
+                    StringSetting.WEB_API_URL.defaultValue,
+                    secondSetting = StringSetting.WEB_API_URL_2,
+                    secondHintId = R.string.web_api_url_2_hint
                 )
             )
             

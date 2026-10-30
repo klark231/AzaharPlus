@@ -148,6 +148,11 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0 (default): Off, 1: Lighter, no shadows, 2: Lighter, with shadows (a surface that needs storage is rebuilt once)
 )") DECLARE_KEY(vk_lighter_surfaces) BOOST_HANA_STRING(R"(
 
+# Vulkan only. Experimental. Merges consecutive draw calls that use identical state into one.
+# Takes effect the next time a game starts.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(vk_draw_batching) BOOST_HANA_STRING(R"(
+
 # Whether to use hardware shaders to emulate 3DS shaders
 # 0: Software, 1 (default): Hardware
 )") DECLARE_KEY(use_hw_shader) BOOST_HANA_STRING(R"(

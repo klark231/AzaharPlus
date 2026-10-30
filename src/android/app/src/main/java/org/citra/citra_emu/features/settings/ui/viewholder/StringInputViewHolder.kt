@@ -24,7 +24,10 @@ class StringInputViewHolder(val binding: ListItemSettingBinding, adapter: Settin
             binding.textSettingDescription.visibility = View.GONE
         }
         binding.textSettingValue.visibility = View.VISIBLE
-        binding.textSettingValue.text = setting.setting?.valueAsString
+        val firstValue = setting.setting?.valueAsString.orEmpty()
+        val secondValue = (setting as? StringInputSetting)?.secondSetting?.valueAsString.orEmpty()
+        binding.textSettingValue.text =
+            if (secondValue.isNotEmpty()) "$firstValue\n$secondValue" else firstValue
 
         if (setting.isActive) {
             binding.textSettingName.alpha = 1f

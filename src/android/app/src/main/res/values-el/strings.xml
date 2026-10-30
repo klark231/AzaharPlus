@@ -667,7 +667,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Ελαφρύτερες επιφάνειες</string>
-    <string name="lighter_surfaces_description">Πειραματικό (Vulkan). Παραλείπει τη χρήση αποθήκευσης που δεν χρειάζονται τα περισσότερα παιχνίδια, ώστε οι GPU Adreno και Mali να συμπιέζουν τις επιφάνειες και να χρησιμοποιούν λιγότερο εύρος ζώνης μνήμης. Το «Χωρίς σκιές» απενεργοποιεί τις σκιές. Το «Με σκιές» τις διατηρεί, με μια σύντομη καθυστέρηση την πρώτη φορά που εμφανίζεται μία. Ισχύει την επόμενη φορά που θα ξεκινήσει ένα παιχνίδι.</string>
+    <string name="lighter_surfaces_description">Πειραματικό (Vulkan). Παραλείπει τη χρήση αποθήκευσης που δεν χρειάζονται τα περισσότερα παιχνίδια, ώστε οι GPU Adreno και Mali να συμπιέζουν τις επιφάνειες και να χρησιμοποιούν λιγότερο εύρος ζώνης μνήμης. Το «Χωρίς σκιές» απενεργοποιεί τις σκιές. Το «Με σκιές» τις διατηρεί, με μια σύντομη καθυστέρηση την πρώτη φορά που εμφανίζεται μία.</string>
     <string name="lighter_surfaces_off">Ανενεργό (προεπιλογή)</string>
     <string name="lighter_surfaces_no_shadows">Ελαφρύτερες, χωρίς σκιές</string>
     <string name="lighter_surfaces_with_shadows">Ελαφρύτερες, με σκιές</string>
@@ -675,4 +675,8 @@
     <string name="touch_input_select_profile">Αλλαγή προφίλ</string>
     <string name="touch_input_source_overlay_short">Κουμπί στην οθόνη</string>
     <string name="input_dialog_description">Πατήστε ή μετακινήστε μια είσοδο.</string>
+    <string name="draw_batching">Ομαδοποίηση κλήσεων σχεδίασης</string>
+    <string name="draw_batching_description">Πειραματικό (Vulkan). Συγχωνεύει διαδοχικές κλήσεις σχεδίασης με πανομοιότυπη κατάσταση σε μία, μειώνοντας το φορτίο της CPU και του προγράμματος οδήγησης. Αν δείτε γεωμετρία που λείπει ή παραμορφώνεται, απενεργοποιήστε το.</string>
+    <string name="web_api_urls">Web API URLs</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

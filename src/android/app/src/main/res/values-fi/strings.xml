@@ -356,7 +356,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Kevyemmät pinnat</string>
-    <string name="lighter_surfaces_description">Kokeellinen (Vulkan). Jättää pois tallennuskäytön, jota useimmat pelit eivät tarvitse, jotta Adreno- ja Mali-GPU:t voivat pakata pinnat ja käyttää vähemmän muistin kaistanleveyttä. ”Ei varjoja” poistaa varjotehosteet käytöstä. ”Varjoilla” säilyttää ne, ja ensimmäisellä kerralla varjon ilmestyessä tulee lyhyt nykäys. Tulee voimaan, kun peli käynnistetään seuraavan kerran.</string>
+    <string name="lighter_surfaces_description">Kokeellinen (Vulkan). Jättää pois tallennuskäytön, jota useimmat pelit eivät tarvitse, jotta Adreno- ja Mali-GPU:t voivat pakata pinnat ja käyttää vähemmän muistin kaistanleveyttä. ”Ei varjoja” poistaa varjotehosteet käytöstä. ”Varjoilla” säilyttää ne, ja ensimmäisellä kerralla varjon ilmestyessä tulee lyhyt nykäys.</string>
     <string name="lighter_surfaces_off">Pois (oletus)</string>
     <string name="lighter_surfaces_no_shadows">Kevyempi, ei varjoja</string>
     <string name="lighter_surfaces_with_shadows">Kevyempi, varjoilla</string>
@@ -366,4 +366,8 @@
     <string name="delete">Poista</string>
     <string name="done">Valmis</string>
     <string name="input_dialog_description">Paina tai liikuta syötettä.</string>
+    <string name="draw_batching">Piirtokutsujen yhdistäminen</string>
+    <string name="draw_batching_description">Kokeellinen (Vulkan). Yhdistää peräkkäiset piirtokutsut, joilla on identtinen tila, yhdeksi, mikä vähentää suorittimen ja ajurin kuormitusta. Jos näet puuttuvaa tai vääristynyttä geometriaa, poista tämä käytöstä.</string>
+    <string name="web_api_urls">Web API -URL-osoitteet</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

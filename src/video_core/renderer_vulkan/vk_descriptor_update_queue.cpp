@@ -2,6 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <cstdint>
+#include <type_traits>
 #include "video_core/renderer_vulkan/vk_descriptor_update_queue.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 
@@ -17,6 +19,7 @@ void DescriptorUpdateQueue::Flush() {
     if (descriptor_write_end == 0) {
         return;
     }
+    ++flush_count;
     device.updateDescriptorSets({std::span(descriptor_writes.get(), descriptor_write_end)}, {});
     descriptor_write_end = 0;
 }
@@ -104,6 +107,75 @@ void DescriptorUpdateQueue::AddTexelBuffer(vk::DescriptorSet target, u8 binding,
         .descriptorType = vk::DescriptorType::eUniformTexelBuffer,
         .pTexelBufferView = &buffer_info,
     };
+}
+
+namespace {
+
+template <typename T>
+u64 HandleBits(const T& handle) {
+    using Raw = typename T::CType;
+    const Raw raw = static_cast<Raw>(handle);
+    if constexpr (std::is_pointer_v<Raw>) {
+        return static_cast<u64>(reinterpret_cast<std::uintptr_t>(raw));
+    } else {
+        return static_cast<u64>(raw);
+    }
+}
+
+} // Anonymous namespace
+
+bool DescriptorUpdateQueue::HashSince(const Mark& mark, u64& hash) const {
+    if (mark.flush_count != flush_count || mark.pending >= descriptor_write_end) {
+        return false;
+    }
+
+    u64 h = 0xcbf29ce484222325ULL;
+    const auto mix = [&h](u64 value) {
+        h ^= value;
+        h *= 0x100000001b3ULL;
+    };
+
+    for (u32 i = mark.pending; i < descriptor_write_end; ++i) {
+        const vk::WriteDescriptorSet& write = descriptor_writes[i];
+        mix(write.dstBinding);
+        mix(write.dstArrayElement);
+        mix(static_cast<u64>(write.descriptorType));
+        switch (write.descriptorType) {
+        case vk::DescriptorType::eCombinedImageSampler:
+        case vk::DescriptorType::eSampledImage:
+        case vk::DescriptorType::eStorageImage: {
+            const auto& info = descriptor_infos[i].image_info;
+            mix(HandleBits(info.sampler));
+            mix(HandleBits(info.imageView));
+            mix(static_cast<u64>(info.imageLayout));
+            break;
+        }
+        case vk::DescriptorType::eUniformBuffer:
+        case vk::DescriptorType::eUniformBufferDynamic: {
+            const auto& info = descriptor_infos[i].buffer_info;
+            mix(HandleBits(info.buffer));
+            mix(static_cast<u64>(info.offset));
+            mix(static_cast<u64>(info.range));
+            break;
+        }
+        case vk::DescriptorType::eUniformTexelBuffer:
+            mix(HandleBits(descriptor_infos[i].buffer_view));
+            break;
+        default:
+            return false;
+        }
+    }
+    mix(descriptor_write_end - mark.pending);
+    hash = h;
+    return true;
+}
+
+bool DescriptorUpdateQueue::DiscardSince(const Mark& mark) {
+    if (mark.flush_count != flush_count || mark.pending > descriptor_write_end) {
+        return false;
+    }
+    descriptor_write_end = mark.pending;
+    return true;
 }
 
 } // namespace Vulkan

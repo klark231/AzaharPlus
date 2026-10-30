@@ -58,6 +58,22 @@ public:
         offsets[binding] = offset;
     }
 
+    /// Returns the descriptor set currently selected for the heap type
+    [[nodiscard]] vk::DescriptorSet GetBoundSet(DescriptorHeapType type) const {
+        return bound_descriptor_sets[static_cast<u32>(type)];
+    }
+
+    /// Selects an already written descriptor set instead of the one that was just acquired
+    void SetBoundSet(DescriptorHeapType type, vk::DescriptorSet set) {
+        bound_descriptor_sets[static_cast<u32>(type)] = set;
+    }
+
+    /// When enabled, BindPipeline records nothing if pipeline, dynamic state and descriptors
+    /// are identical to the previous call.
+    void SetSkipRedundantBinds(bool enable) {
+        skip_redundant_binds = enable;
+    }
+
     /// Loads the driver pipeline cache and the disk shader cache
     void LoadCache(const std::atomic_bool& stop_loading = std::atomic_bool{false},
                    const VideoCore::DiskResourceLoadCallback& callback = {});
@@ -154,6 +170,10 @@ private:
     std::array<DescriptorHeap, NumDescriptorHeaps> descriptor_heaps;
     std::array<vk::DescriptorSet, NumRasterizerSets> bound_descriptor_sets{};
     std::array<u32, NumDynamicOffsets> offsets{};
+    std::array<vk::DescriptorSet, NumRasterizerSets> last_recorded_sets{};
+    std::array<u32, NumDynamicOffsets> last_recorded_offsets{};
+    bool last_recorded_valid{};
+    bool skip_redundant_binds{};
 
     std::array<u64, MAX_SHADER_STAGES> shader_hashes;
     std::array<Shader*, MAX_SHADER_STAGES> current_shaders;

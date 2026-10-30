@@ -294,7 +294,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Suprafețe ușoare</string>
-    <string name="lighter_surfaces_description">Experimental (Vulkan). Omite utilizarea de stocare de care majoritatea jocurilor nu au nevoie, astfel încât GPU-urile Adreno și Mali să poată comprima suprafețele și să folosească mai puțină lățime de bandă a memoriei. „Fără umbre” dezactivează efectele de umbră. „Cu umbre” le păstrează, cu o scurtă sacadare prima dată când apare una. Se aplică la următoarea pornire a unui joc.</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Omite utilizarea de stocare de care majoritatea jocurilor nu au nevoie, astfel încât GPU-urile Adreno și Mali să poată comprima suprafețele și să folosească mai puțină lățime de bandă a memoriei. „Fără umbre” dezactivează efectele de umbră. „Cu umbre” le păstrează, cu o scurtă sacadare prima dată când apare una.</string>
     <string name="lighter_surfaces_off">Dezactivat (implicit)</string>
     <string name="lighter_surfaces_no_shadows">Ușoare, fără umbre</string>
     <string name="lighter_surfaces_with_shadows">Ușoare, cu umbre</string>
@@ -304,4 +304,8 @@
     <string name="delete">Șterge</string>
     <string name="done">Gata</string>
     <string name="input_dialog_description">Apasă sau mută o intrare.</string>
+    <string name="draw_batching">Gruparea apelurilor de desenare</string>
+    <string name="draw_batching_description">Experimental (Vulkan). Combină apelurile de desenare consecutive cu stare identică într-unul singur, reducând încărcarea CPU-ului și a driverului. Dacă observi geometrie lipsă sau deformată, dezactivează opțiunea.</string>
+    <string name="web_api_urls">URL-uri Web API</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

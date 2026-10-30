@@ -333,7 +333,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Permukaan Ringan</string>
-    <string name="lighter_surfaces_description">Eksperimental (Vulkan). Melewati penggunaan penyimpanan yang tidak dibutuhkan sebagian besar game, sehingga GPU Adreno dan Mali dapat mengompresi permukaan dan memakai lebih sedikit bandwidth memori. “Tanpa bayangan” mematikan efek bayangan. “Dengan bayangan” tetap mempertahankannya, dengan jeda singkat saat bayangan muncul pertama kali. Berlaku saat game dimulai berikutnya.</string>
+    <string name="lighter_surfaces_description">Eksperimental (Vulkan). Melewati penggunaan penyimpanan yang tidak dibutuhkan sebagian besar game, sehingga GPU Adreno dan Mali dapat mengompresi permukaan dan memakai lebih sedikit bandwidth memori. “Tanpa bayangan” mematikan efek bayangan. “Dengan bayangan” tetap mempertahankannya, dengan jeda singkat saat bayangan muncul pertama kali.</string>
     <string name="lighter_surfaces_off">Mati (default)</string>
     <string name="lighter_surfaces_no_shadows">Ringan, tanpa bayangan</string>
     <string name="lighter_surfaces_with_shadows">Ringan, dengan bayangan</string>
@@ -342,4 +342,8 @@
     <string name="touch_input_source_overlay_short">Tombol di layar</string>
     <string name="delete">Hapus</string>
     <string name="input_dialog_description">Tekan atau gerakkan input.</string>
+    <string name="draw_batching">Draw Batching</string>
+    <string name="draw_batching_description">Eksperimental (Vulkan). Menggabungkan panggilan gambar berurutan dengan status identik menjadi satu, sehingga mengurangi beban CPU dan driver. Jika terlihat geometri hilang atau terdistorsi, matikan opsi ini.</string>
+    <string name="web_api_urls">URL Web API</string>
+    <string name="web_api_url_2_hint">URL Web API 2</string>
 </resources>

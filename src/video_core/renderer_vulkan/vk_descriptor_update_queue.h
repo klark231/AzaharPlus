@@ -29,6 +29,23 @@ public:
 
     void Flush();
 
+    /// Position in the queue, used to hash or discard the writes queued after it.
+    struct Mark {
+        u32 pending;
+        u32 flush_count;
+    };
+
+    [[nodiscard]] Mark GetMark() const noexcept {
+        return {descriptor_write_end, flush_count};
+    }
+
+    /// Hashes the writes queued since the mark (the target sets are ignored).
+    /// Returns false when there is nothing to hash or the queue was flushed since the mark.
+    [[nodiscard]] bool HashSince(const Mark& mark, u64& hash) const;
+
+    /// Drops the writes queued since the mark. Returns false if the queue was flushed since.
+    bool DiscardSince(const Mark& mark);
+
     void AddStorageImage(vk::DescriptorSet target, u8 binding, vk::ImageView image_view,
                          vk::ImageLayout image_layout = vk::ImageLayout::eGeneral);
 
@@ -48,6 +65,7 @@ private:
     std::unique_ptr<DescriptorInfoUnion[]> descriptor_infos;
     std::unique_ptr<vk::WriteDescriptorSet[]> descriptor_writes;
     u32 descriptor_write_end = 0;
+    u32 flush_count = 0;
 };
 
 } // namespace Vulkan

@@ -823,11 +823,15 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Облегчённые поверхности</string>
-    <string name="lighter_surfaces_description">Экспериментально (Vulkan). Отключает использование хранилища, которое не нужно большинству игр, чтобы GPU Adreno и Mali могли сжимать поверхности и меньше нагружать пропускную способность памяти. «Без теней» отключает эффекты теней. «С тенями» сохраняет их, но при первом появлении тени возможен короткий подлаг. Применяется при следующем запуске игры.</string>
+    <string name="lighter_surfaces_description">Экспериментально (Vulkan). Отключает использование хранилища, которое не нужно большинству игр, чтобы GPU Adreno и Mali могли сжимать поверхности и меньше нагружать пропускную способность памяти. «Без теней» отключает эффекты теней. «С тенями» сохраняет их, но при первом появлении тени возможен короткий подлаг.</string>
     <string name="lighter_surfaces_off">Выкл. (по умолчанию)</string>
     <string name="lighter_surfaces_no_shadows">Облегчённые, без теней</string>
     <string name="lighter_surfaces_with_shadows">Облегчённые, с тенями</string>
     <string name="touch_input_add_binding">Добавить привязку</string>
     <string name="touch_input_select_profile">Сменить профиль</string>
     <string name="touch_input_source_overlay_short">Экранная кнопка</string>
+    <string name="draw_batching">Пакетирование вызовов отрисовки</string>
+    <string name="draw_batching_description">Экспериментально (Vulkan). Объединяет последовательные вызовы отрисовки с одинаковым состоянием в один, снижая нагрузку на CPU и драйвер. Если пропадает или искажается геометрия, отключите эту функцию.</string>
+    <string name="web_api_urls">URL Web API</string>
+    <string name="web_api_url_2_hint">URL Web API 2</string>
 </resources>

@@ -540,6 +540,8 @@ struct Values {
     SwitchableSetting<bool> disable_spirv_optimizer{true, Keys::disable_spirv_optimizer};
     /// Vulkan: 0 off, 1 lighter surfaces without shadows, 2 lighter surfaces with shadows
     SwitchableSetting<s32, true> vk_lighter_surfaces{0, 0, 2, Keys::vk_lighter_surfaces};
+    /// Vulkan: merge consecutive draws with identical state (experimental)
+    SwitchableSetting<bool> vk_draw_batching{false, Keys::vk_draw_batching};
     SwitchableSetting<bool> async_shader_compilation{false, Keys::async_shader_compilation};
     SwitchableSetting<bool> async_presentation{true, Keys::async_presentation};
     SwitchableSetting<bool> use_hw_shader{true, Keys::use_hw_shader};

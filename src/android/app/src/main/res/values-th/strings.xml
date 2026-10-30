@@ -294,7 +294,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">พื้นผิวแบบเบา</string>
-    <string name="lighter_surfaces_description">ทดลอง (Vulkan) ข้ามการใช้งานพื้นที่เก็บข้อมูลที่เกมส่วนใหญ่ไม่ต้องการ เพื่อให้ GPU Adreno และ Mali บีบอัดพื้นผิวได้และใช้แบนด์วิดท์หน่วยความจำน้อยลง “ไม่มีเงา” จะปิดเอฟเฟกต์เงา “มีเงา” จะคงเงาไว้ แต่จะกระตุกเล็กน้อยเมื่อเงาปรากฏครั้งแรก มีผลเมื่อเริ่มเกมครั้งถัดไป</string>
+    <string name="lighter_surfaces_description">ทดลอง (Vulkan) ข้ามการใช้งานพื้นที่เก็บข้อมูลที่เกมส่วนใหญ่ไม่ต้องการ เพื่อให้ GPU Adreno และ Mali บีบอัดพื้นผิวได้และใช้แบนด์วิดท์หน่วยความจำน้อยลง “ไม่มีเงา” จะปิดเอฟเฟกต์เงา “มีเงา” จะคงเงาไว้ แต่จะกระตุกเล็กน้อยเมื่อเงาปรากฏครั้งแรก</string>
     <string name="lighter_surfaces_off">ปิด (ค่าเริ่มต้น)</string>
     <string name="lighter_surfaces_no_shadows">แบบเบา ไม่มีเงา</string>
     <string name="lighter_surfaces_with_shadows">แบบเบา มีเงา</string>
@@ -304,4 +304,8 @@
     <string name="delete">ลบ</string>
     <string name="done">เสร็จสิ้น</string>
     <string name="input_dialog_description">กดหรือขยับอินพุต</string>
+    <string name="draw_batching">การรวมคำสั่งวาด</string>
+    <string name="draw_batching_description">ทดลอง (Vulkan) รวมคำสั่งวาดที่ต่อเนื่องกันและมีสถานะเหมือนกันให้เป็นหนึ่งเดียว ช่วยลดภาระของ CPU และไดรเวอร์ หากพบรูปทรงหายไปหรือบิดเบี้ยว ให้ปิดตัวเลือกนี้</string>
+    <string name="web_api_urls">URL ของ Web API</string>
+    <string name="web_api_url_2_hint">URL ของ Web API 2</string>
 </resources>

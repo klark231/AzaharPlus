@@ -61,11 +61,17 @@ Scheduler::Scheduler(const Instance& instance)
 Scheduler::~Scheduler() = default;
 
 void Scheduler::Flush(vk::Semaphore signal, vk::Semaphore wait) {
+    if (pre_record) {
+        pre_record();
+    }
     // When flushing, we only send data to the worker thread; no waiting is necessary.
     SubmitExecution(signal, wait);
 }
 
 void Scheduler::Finish(vk::Semaphore signal, vk::Semaphore wait) {
+    if (pre_record) {
+        pre_record();
+    }
     // When finishing, we need to wait for the submission to have executed on the device.
     const u64 presubmit_tick = CurrentTick();
     SubmitExecution(signal, wait);

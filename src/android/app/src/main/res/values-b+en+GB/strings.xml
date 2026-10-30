@@ -1305,4 +1305,8 @@
     <string name="dumping_romfs_exefs">Dumping RomFS and ExeFS, please wait…</string>
     <string name="romfs_exefs_dumped">RomFS and ExeFS dumped to the dump folder</string>
     <string name="romfs_exefs_dump_failed">Could not dump RomFS and ExeFS. Refer to the log for details.</string>
+    <string name="draw_batching">Draw Batching</string>
+    <string name="draw_batching_description">Experimental (Vulkan). Merges consecutive draw calls that use identical state into one, reducing CPU and driver overhead. If you see missing or distorted geometry, turn this off.</string>
+    <string name="web_api_urls">Web API URLs</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

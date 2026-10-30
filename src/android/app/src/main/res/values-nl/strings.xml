@@ -421,7 +421,7 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Lichtere oppervlakken</string>
-    <string name="lighter_surfaces_description">Experimenteel (Vulkan). Slaat opslaggebruik over dat de meeste games niet nodig hebben, zodat Adreno- en Mali-GPU\'s oppervlakken kunnen comprimeren en minder geheugenbandbreedte gebruiken. ‘Geen schaduwen’ schakelt schaduweffecten uit. ‘Met schaduwen’ behoudt ze, met een korte haper de eerste keer dat er een verschijnt. Gaat in bij de volgende keer dat een game start.</string>
+    <string name="lighter_surfaces_description">Experimenteel (Vulkan). Slaat opslaggebruik over dat de meeste games niet nodig hebben, zodat Adreno- en Mali-GPU\'s oppervlakken kunnen comprimeren en minder geheugenbandbreedte gebruiken. ‘Geen schaduwen’ schakelt schaduweffecten uit. ‘Met schaduwen’ behoudt ze, met een korte haper de eerste keer dat er een verschijnt.</string>
     <string name="lighter_surfaces_off">Uit (standaard)</string>
     <string name="lighter_surfaces_no_shadows">Lichter, geen schaduwen</string>
     <string name="lighter_surfaces_with_shadows">Lichter, met schaduwen</string>
@@ -429,4 +429,8 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="touch_input_select_profile">Profiel wisselen</string>
     <string name="touch_input_source_overlay_short">Knop op het scherm</string>
     <string name="delete">Verwijderen</string>
+    <string name="draw_batching">Draw-batching</string>
+    <string name="draw_batching_description">Experimenteel (Vulkan). Voegt opeenvolgende tekenaanroepen met identieke status samen tot één, waardoor de belasting van CPU en driver afneemt. Zie je ontbrekende of vervormde geometrie, zet dit dan uit.</string>
+    <string name="web_api_urls">Web API-URL\'s</string>
+    <string name="web_api_url_2_hint">Web API-URL 2</string>
 </resources>

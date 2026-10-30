@@ -1327,11 +1327,15 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Superfícies leves</string>
-    <string name="lighter_surfaces_description">Experimental (Vulkan). Ignora o uso de armazenamento de que a maioria dos jogos não precisa, para que as GPUs Adreno e Mali possam comprimir as superfícies e usar menos largura de banda de memória. “Sem sombras” desativa os efeitos de sombra. “Com sombras” os mantém, com uma breve travada na primeira vez que uma aparece. Entra em vigor na próxima vez que um jogo for iniciado.</string>
+    <string name="lighter_surfaces_description">Experimental (Vulkan). Ignora o uso de armazenamento de que a maioria dos jogos não precisa, para que as GPUs Adreno e Mali possam comprimir as superfícies e usar menos largura de banda de memória. “Sem sombras” desativa os efeitos de sombra. “Com sombras” os mantém, com uma breve travada na primeira vez que uma aparece.</string>
     <string name="lighter_surfaces_off">Desativado (padrão)</string>
     <string name="lighter_surfaces_no_shadows">Leves, sem sombras</string>
     <string name="lighter_surfaces_with_shadows">Leves, com sombras</string>
     <string name="touch_input_add_binding">Adicionar mapeamento</string>
     <string name="touch_input_select_profile">Trocar de perfil</string>
     <string name="touch_input_source_overlay_short">Botão na tela</string>
+    <string name="draw_batching">Agrupamento de chamadas de desenho</string>
+    <string name="draw_batching_description">Experimental (Vulkan). Combina em uma só as chamadas de desenho consecutivas com estado idêntico, reduzindo a carga da CPU e do driver. Se notar geometria ausente ou distorcida, desative.</string>
+    <string name="web_api_urls">URLs da API Web</string>
+    <string name="web_api_url_2_hint">URL da API Web 2</string>
 </resources>

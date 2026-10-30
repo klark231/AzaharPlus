@@ -294,7 +294,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Könnyített felületek</string>
-    <string name="lighter_surfaces_description">Kísérleti (Vulkan). Kihagyja a tárolási használatot, amelyre a legtöbb játéknak nincs szüksége, így az Adreno és Mali GPU-k tömöríthetik a felületeket, és kevesebb memória-sávszélességet használnak. Az „Árnyék nélkül” kikapcsolja az árnyékhatásokat. Az „Árnyékkal” megtartja őket, az első megjelenéskor rövid megakadással. A játék következő indításakor lép életbe.</string>
+    <string name="lighter_surfaces_description">Kísérleti (Vulkan). Kihagyja a tárolási használatot, amelyre a legtöbb játéknak nincs szüksége, így az Adreno és Mali GPU-k tömöríthetik a felületeket, és kevesebb memória-sávszélességet használnak. Az „Árnyék nélkül” kikapcsolja az árnyékhatásokat. Az „Árnyékkal” megtartja őket, az első megjelenéskor rövid megakadással.</string>
     <string name="lighter_surfaces_off">Ki (alapértelmezett)</string>
     <string name="lighter_surfaces_no_shadows">Könnyített, árnyék nélkül</string>
     <string name="lighter_surfaces_with_shadows">Könnyített, árnyékkal</string>
@@ -304,4 +304,8 @@
     <string name="delete">Törlés</string>
     <string name="done">Kész</string>
     <string name="input_dialog_description">Nyomj meg vagy mozgass egy bemenetet.</string>
+    <string name="draw_batching">Rajzolási hívások csoportosítása</string>
+    <string name="draw_batching_description">Kísérleti (Vulkan). Az azonos állapotú, egymást követő rajzolási hívásokat eggyé vonja össze, csökkentve a CPU és az illesztőprogram terhelését. Ha hiányzó vagy torz geometriát látsz, kapcsold ki.</string>
+    <string name="web_api_urls">Web API URL-ek</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

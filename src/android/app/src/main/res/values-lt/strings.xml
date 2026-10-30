@@ -499,7 +499,7 @@
 
     <!-- Lighter surfaces and touch input additions -->
     <string name="lighter_surfaces">Lengvesni paviršiai</string>
-    <string name="lighter_surfaces_description">Eksperimentinis (Vulkan). Praleidžia saugyklos naudojimą, kurio daugumai žaidimų nereikia, todėl Adreno ir Mali GPU gali suspausti paviršius ir naudoti mažiau atminties pralaidumo. „Be šešėlių“ išjungia šešėlių efektus. „Su šešėliais“ juos palieka, o pirmą kartą pasirodžius šešėliui trumpam trūkteli. Įsigalioja kitą kartą paleidus žaidimą.</string>
+    <string name="lighter_surfaces_description">Eksperimentinis (Vulkan). Praleidžia saugyklos naudojimą, kurio daugumai žaidimų nereikia, todėl Adreno ir Mali GPU gali suspausti paviršius ir naudoti mažiau atminties pralaidumo. „Be šešėlių“ išjungia šešėlių efektus. „Su šešėliais“ juos palieka, o pirmą kartą pasirodžius šešėliui trumpam trūkteli.</string>
     <string name="lighter_surfaces_off">Išjungta (numatytasis)</string>
     <string name="lighter_surfaces_no_shadows">Lengvesni, be šešėlių</string>
     <string name="lighter_surfaces_with_shadows">Lengvesni, su šešėliais</string>
@@ -508,4 +508,8 @@
     <string name="touch_input_source_overlay_short">Ekrano mygtukas</string>
     <string name="delete">Ištrinti</string>
     <string name="input_dialog_description">Paspauskite arba pajudinkite įvestį.</string>
+    <string name="draw_batching">Piešimo iškvietimų grupavimas</string>
+    <string name="draw_batching_description">Eksperimentinis (Vulkan). Sujungia iš eilės einančius piešimo iškvietimus su identiška būsena į vieną, taip sumažindamas procesoriaus ir tvarkyklės apkrovą. Jei matote trūkstamą ar iškraipytą geometriją, išjunkite.</string>
+    <string name="web_api_urls">Web API URL adresai</string>
+    <string name="web_api_url_2_hint">Web API URL 2</string>
 </resources>

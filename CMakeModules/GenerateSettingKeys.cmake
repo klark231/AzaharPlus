@@ -44,6 +44,7 @@ foreach(KEY IN ITEMS
     "disable_spirv_optimizer"
     "vk_lighter_surfaces"
     "vk_draw_batching"
+    "vk_relaxed_precision"
     "async_shader_compilation"
     "async_presentation"
     "use_hw_shader"

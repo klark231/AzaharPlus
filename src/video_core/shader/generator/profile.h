@@ -47,6 +47,9 @@ struct Profile {
 
     u8 is_vulkan{};
 
+    /// Mark TEV blending math as RelaxedPrecision (Mali/Adreno)
+    u8 vk_relaxed_precision{};
+
     auto operator<=>(const Profile&) const = default;
 };
 

@@ -512,4 +512,6 @@
     <string name="draw_batching_description">Eksperimentinis (Vulkan). Sujungia iš eilės einančius piešimo iškvietimus su identiška būsena į vieną, taip sumažindamas procesoriaus ir tvarkyklės apkrovą. Jei matote trūkstamą ar iškraipytą geometriją, išjunkite.</string>
     <string name="web_api_urls">Web API URL adresai</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Sumažinto tikslumo šešėliuokliai</string>
+    <string name="relaxed_precision_description">Eksperimentinis (Vulkan). Šešėliuoklių spalvų maišymui naudoja 16 bitų skaičiavimus, o tai gali pagerinti našumą Mali ir Adreno GPU. Su kai kuriomis tvarkyklėmis gali sukelti nedidelių spalvų skirtumų ar grafikos triktis.</string>
 </resources>

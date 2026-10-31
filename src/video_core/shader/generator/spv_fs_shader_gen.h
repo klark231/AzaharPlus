@@ -84,6 +84,9 @@ private:
     /// Rounds the provided variable to the nearest 1/255th
     [[nodiscard]] Id Byteround(Id variable_id, u32 size = 1);
 
+    /// Marks the result as RelaxedPrecision when the profile asks for it (Mali/Adreno)
+    Id Relax(Id id);
+
     /// LUT sampling uitlity
     /// For NoiseLUT/ColorMap/AlphaMap, coord=0.0 is lut[0], coord=127.0/128.0 is lut[127] and
     /// coord=1.0 is lut[127]+lut_diff[127]. For other indices, the result is interpolated using

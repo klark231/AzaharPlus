@@ -109,6 +109,11 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .vk_disable_spirv_optimizer = Settings::values.disable_spirv_optimizer.GetValue(),
         .vk_use_spirv_generator = Settings::values.spirv_shader_gen.GetValue(),
         .is_vulkan = true,
+        .vk_relaxed_precision =
+            Settings::values.vk_relaxed_precision.GetValue() &&
+            (instance.GetDriverID() == vk::DriverId::eArmProprietary ||
+             instance.GetDriverID() == vk::DriverId::eQualcommProprietary ||
+             instance.GetDriverID() == vk::DriverId::eMesaTurnip),
     };
 
     const auto& traits = instance.GetAllTraits();

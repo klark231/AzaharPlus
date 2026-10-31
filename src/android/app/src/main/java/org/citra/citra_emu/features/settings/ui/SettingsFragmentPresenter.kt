@@ -1419,6 +1419,17 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     IntSetting.VK_LIGHTER_SURFACES.defaultValue
                 )
             )
+            if (GraphicsUtil.supportsRelaxedPrecision()) {
+                add(
+                    SwitchSetting(
+                        BooleanSetting.VK_RELAXED_PRECISION,
+                        R.string.relaxed_precision,
+                        R.string.relaxed_precision_description,
+                        BooleanSetting.VK_RELAXED_PRECISION.key,
+                        BooleanSetting.VK_RELAXED_PRECISION.defaultValue
+                    )
+                )
+            }
 
             // Disabled until custom texture implementation gets rewrite, current one overloads RAM
             // and crashes Citra.

@@ -308,4 +308,6 @@
     <string name="draw_batching_description">實驗性（Vulkan）。將狀態完全相同的連續繪製呼叫合併為一次，降低 CPU 與驅動程式負擔。若出現幾何缺失或變形，請關閉此選項。</string>
     <string name="web_api_urls">Web API 網址</string>
     <string name="web_api_url_2_hint">Web API 網址 2</string>
+    <string name="relaxed_precision">寬鬆精度著色器</string>
+    <string name="relaxed_precision_description">實驗性（Vulkan）。著色器色彩混合使用 16 位元運算，可在 Mali 與 Adreno GPU 上提升效能。在某些驅動程式上可能造成輕微色差或畫面異常。</string>
 </resources>

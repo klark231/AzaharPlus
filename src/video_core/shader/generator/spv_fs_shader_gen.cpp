@@ -1149,15 +1149,23 @@ Id FragmentModule::ProcTexSampler() {
     return final_color;
 }
 
+Id FragmentModule::Relax(Id id) {
+    if (profile.vk_relaxed_precision) {
+        Decorate(id, spv::Decoration::RelaxedPrecision);
+    }
+    return id;
+}
+
 Id FragmentModule::Byteround(Id variable_id, u32 size) {
     if (size > 1) {
         const Id scaled_vec_id{
-            OpVectorTimesScalar(vec_ids.Get(size), variable_id, ConstF32(255.f))};
-        const Id rounded_id{OpRound(vec_ids.Get(size), scaled_vec_id)};
-        return OpVectorTimesScalar(vec_ids.Get(size), rounded_id, ConstF32(1.f / 255.f));
+            Relax(OpVectorTimesScalar(vec_ids.Get(size), variable_id, ConstF32(255.f)))};
+        const Id rounded_id{Relax(OpRound(vec_ids.Get(size), scaled_vec_id))};
+        return Relax(OpVectorTimesScalar(vec_ids.Get(size), rounded_id, ConstF32(1.f / 255.f)));
     } else {
-        const Id rounded_id{OpRound(f32_id, OpFMul(f32_id, variable_id, ConstF32(255.f)))};
-        return OpFMul(f32_id, rounded_id, ConstF32(1.f / 255.f));
+        const Id scaled_id{Relax(OpFMul(f32_id, variable_id, ConstF32(255.f)))};
+        const Id rounded_id{Relax(OpRound(f32_id, scaled_id))};
+        return Relax(OpFMul(f32_id, rounded_id, ConstF32(1.f / 255.f)));
     }
 }
 
@@ -1341,23 +1349,23 @@ Id FragmentModule::AppendColorModifier(TevStageConfig::ColorModifier modifier,
     case ColorModifier::SourceColor:
         return shuffle(0, 1, 2);
     case ColorModifier::OneMinusSourceColor:
-        return OpFSub(vec_ids.Get(3), one_vec, shuffle(0, 1, 2));
+        return Relax(OpFSub(vec_ids.Get(3), one_vec, shuffle(0, 1, 2)));
     case ColorModifier::SourceRed:
         return shuffle(0, 0, 0);
     case ColorModifier::OneMinusSourceRed:
-        return OpFSub(vec_ids.Get(3), one_vec, shuffle(0, 0, 0));
+        return Relax(OpFSub(vec_ids.Get(3), one_vec, shuffle(0, 0, 0)));
     case ColorModifier::SourceGreen:
         return shuffle(1, 1, 1);
     case ColorModifier::OneMinusSourceGreen:
-        return OpFSub(vec_ids.Get(3), one_vec, shuffle(1, 1, 1));
+        return Relax(OpFSub(vec_ids.Get(3), one_vec, shuffle(1, 1, 1)));
     case ColorModifier::SourceBlue:
         return shuffle(2, 2, 2);
     case ColorModifier::OneMinusSourceBlue:
-        return OpFSub(vec_ids.Get(3), one_vec, shuffle(2, 2, 2));
+        return Relax(OpFSub(vec_ids.Get(3), one_vec, shuffle(2, 2, 2)));
     case ColorModifier::SourceAlpha:
         return shuffle(3, 3, 3);
     case ColorModifier::OneMinusSourceAlpha:
-        return OpFSub(vec_ids.Get(3), one_vec, shuffle(3, 3, 3));
+        return Relax(OpFSub(vec_ids.Get(3), one_vec, shuffle(3, 3, 3)));
     default:
         LOG_CRITICAL(Render, "Unknown color modifier op {}", modifier);
         return one_vec;
@@ -1379,19 +1387,19 @@ Id FragmentModule::AppendAlphaModifier(TevStageConfig::AlphaModifier modifier,
     case AlphaModifier::SourceAlpha:
         return component(3);
     case AlphaModifier::OneMinusSourceAlpha:
-        return OpFSub(f32_id, one_f32, component(3));
+        return Relax(OpFSub(f32_id, one_f32, component(3)));
     case AlphaModifier::SourceRed:
         return component(0);
     case AlphaModifier::OneMinusSourceRed:
-        return OpFSub(f32_id, one_f32, component(0));
+        return Relax(OpFSub(f32_id, one_f32, component(0)));
     case AlphaModifier::SourceGreen:
         return component(1);
     case AlphaModifier::OneMinusSourceGreen:
-        return OpFSub(f32_id, one_f32, component(1));
+        return Relax(OpFSub(f32_id, one_f32, component(1)));
     case AlphaModifier::SourceBlue:
         return component(2);
     case AlphaModifier::OneMinusSourceBlue:
-        return OpFSub(f32_id, one_f32, component(2));
+        return Relax(OpFSub(f32_id, one_f32, component(2)));
     default:
         LOG_CRITICAL(Render, "Unknown alpha modifier op {}", modifier);
         return one_f32;
@@ -1410,31 +1418,34 @@ Id FragmentModule::AppendColorCombiner(Pica::TexturingRegs::TevStageConfig::Oper
         color = color_results_1;
         break;
     case Operation::Modulate:
-        color = OpFMul(vec_ids.Get(3), color_results_1, color_results_2);
+        color = Relax(OpFMul(vec_ids.Get(3), color_results_1, color_results_2));
         break;
     case Operation::Add:
-        color = OpFAdd(vec_ids.Get(3), color_results_1, color_results_2);
+        color = Relax(OpFAdd(vec_ids.Get(3), color_results_1, color_results_2));
         break;
     case Operation::AddSigned:
-        color = OpFSub(vec_ids.Get(3), OpFAdd(vec_ids.Get(3), color_results_1, color_results_2),
-                       half_vec);
+        color = Relax(OpFSub(vec_ids.Get(3),
+                             Relax(OpFAdd(vec_ids.Get(3), color_results_1, color_results_2)),
+                             half_vec));
         break;
     case Operation::Lerp:
-        color = OpFMix(vec_ids.Get(3), color_results_2, color_results_1, color_results_3);
+        color = Relax(OpFMix(vec_ids.Get(3), color_results_2, color_results_1, color_results_3));
         break;
     case Operation::Subtract:
-        color = OpFSub(vec_ids.Get(3), color_results_1, color_results_2);
+        color = Relax(OpFSub(vec_ids.Get(3), color_results_1, color_results_2));
         break;
     case Operation::MultiplyThenAdd:
-        color = OpFma(vec_ids.Get(3), color_results_1, color_results_2, color_results_3);
+        color = Relax(OpFma(vec_ids.Get(3), color_results_1, color_results_2, color_results_3));
         break;
     case Operation::AddThenMultiply:
-        color = OpFMin(vec_ids.Get(3), OpFAdd(vec_ids.Get(3), color_results_1, color_results_2),
-                       one_vec);
-        color = OpFMul(vec_ids.Get(3), color, color_results_3);
+        color = Relax(OpFMin(vec_ids.Get(3),
+                             Relax(OpFAdd(vec_ids.Get(3), color_results_1, color_results_2)),
+                             one_vec));
+        color = Relax(OpFMul(vec_ids.Get(3), color, color_results_3));
         break;
     case Operation::Dot3_RGB:
     case Operation::Dot3_RGBA:
+        // Bump mapping: kept at full precision
         color = OpDot(f32_id, OpFSub(vec_ids.Get(3), color_results_1, half_vec),
                       OpFSub(vec_ids.Get(3), color_results_2, half_vec));
         color = OpFMul(f32_id, color, ConstF32(4.f));
@@ -1447,7 +1458,7 @@ Id FragmentModule::AppendColorCombiner(Pica::TexturingRegs::TevStageConfig::Oper
     }
 
     // Clamp result to 0.0, 1.0
-    return OpFClamp(vec_ids.Get(3), color, zero_vec, one_vec);
+    return Relax(OpFClamp(vec_ids.Get(3), color, zero_vec, one_vec));
 }
 
 Id FragmentModule::AppendAlphaCombiner(TevStageConfig::Operation operation) {
@@ -1459,26 +1470,28 @@ Id FragmentModule::AppendAlphaCombiner(TevStageConfig::Operation operation) {
         color = alpha_results_1;
         break;
     case Operation::Modulate:
-        color = OpFMul(f32_id, alpha_results_1, alpha_results_2);
+        color = Relax(OpFMul(f32_id, alpha_results_1, alpha_results_2));
         break;
     case Operation::Add:
-        color = OpFAdd(f32_id, alpha_results_1, alpha_results_2);
+        color = Relax(OpFAdd(f32_id, alpha_results_1, alpha_results_2));
         break;
     case Operation::AddSigned:
-        color = OpFSub(f32_id, OpFAdd(f32_id, alpha_results_1, alpha_results_2), ConstF32(0.5f));
+        color = Relax(OpFSub(f32_id, Relax(OpFAdd(f32_id, alpha_results_1, alpha_results_2)),
+                             ConstF32(0.5f)));
         break;
     case Operation::Lerp:
-        color = OpFMix(f32_id, alpha_results_2, alpha_results_1, alpha_results_3);
+        color = Relax(OpFMix(f32_id, alpha_results_2, alpha_results_1, alpha_results_3));
         break;
     case Operation::Subtract:
-        color = OpFSub(f32_id, alpha_results_1, alpha_results_2);
+        color = Relax(OpFSub(f32_id, alpha_results_1, alpha_results_2));
         break;
     case Operation::MultiplyThenAdd:
-        color = OpFma(f32_id, alpha_results_1, alpha_results_2, alpha_results_3);
+        color = Relax(OpFma(f32_id, alpha_results_1, alpha_results_2, alpha_results_3));
         break;
     case Operation::AddThenMultiply:
-        color = OpFMin(f32_id, OpFAdd(f32_id, alpha_results_1, alpha_results_2), ConstF32(1.f));
-        color = OpFMul(f32_id, color, alpha_results_3);
+        color = Relax(OpFMin(f32_id, Relax(OpFAdd(f32_id, alpha_results_1, alpha_results_2)),
+                             ConstF32(1.f)));
+        color = Relax(OpFMul(f32_id, color, alpha_results_3));
         break;
     default:
         color = ConstF32(0.f);
@@ -1486,7 +1499,7 @@ Id FragmentModule::AppendAlphaCombiner(TevStageConfig::Operation operation) {
         break;
     }
 
-    return OpFClamp(f32_id, color, ConstF32(0.f), ConstF32(1.f));
+    return Relax(OpFClamp(f32_id, color, ConstF32(0.f), ConstF32(1.f)));
 }
 
 void FragmentModule::DefineArithmeticTypes() {

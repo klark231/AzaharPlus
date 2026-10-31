@@ -1309,4 +1309,6 @@
     <string name="draw_batching_description">Experimental (Vulkan). Merges consecutive draw calls that use identical state into one, reducing CPU and driver overhead. If you see missing or distorted geometry, turn this off.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Relaxed Precision Shaders</string>
+    <string name="relaxed_precision_description">Experimental (Vulkan). Uses 16-bit maths for shader colour blending, which can improve performance on Mali and Adreno GPUs. May cause slight colour differences or graphical glitches with some drivers.</string>
 </resources>

@@ -103,6 +103,17 @@ object GraphicsUtil {
         return rendererString
     }
 
+    /**
+     * True on GPUs that run 16-bit shader math faster: ARM Mali (including Immortalis, which is
+     * what most Exynos and MediaTek phones use) and Qualcomm Adreno.
+     */
+    fun supportsRelaxedPrecision(): Boolean {
+        val renderer = openGLRendererString
+        return renderer.contains("Mali", ignoreCase = true) ||
+            renderer.contains("Immortalis", ignoreCase = true) ||
+            renderer.contains("Adreno", ignoreCase = true)
+    }
+
     fun isUsingAngleForOpenGL(): Boolean {
 		return false
 		openGLRendererString.contains("ANGLE")

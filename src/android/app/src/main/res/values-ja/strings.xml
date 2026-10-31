@@ -617,4 +617,6 @@
     <string name="draw_batching_description">実験的（Vulkan）。状態が同一の連続した描画呼び出しを1つにまとめ、CPUとドライバーの負荷を減らします。ジオメトリが欠けたり歪んだりする場合は、オフにしてください。</string>
     <string name="web_api_urls">Web API URL</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">緩和精度シェーダー</string>
+    <string name="relaxed_precision_description">実験的（Vulkan）。シェーダーの色合成に16ビット演算を使用し、MaliおよびAdreno GPUでパフォーマンスが向上する場合があります。一部のドライバーでは、わずかな色の違いや表示の乱れが発生することがあります。</string>
 </resources>

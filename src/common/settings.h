@@ -542,6 +542,8 @@ struct Values {
     SwitchableSetting<s32, true> vk_lighter_surfaces{0, 0, 2, Keys::vk_lighter_surfaces};
     /// Vulkan: merge consecutive draws with identical state (experimental)
     SwitchableSetting<bool> vk_draw_batching{false, Keys::vk_draw_batching};
+    /// Vulkan: let Mali/Adreno GPUs use 16-bit math for shader color blending
+    SwitchableSetting<bool> vk_relaxed_precision{false, Keys::vk_relaxed_precision};
     SwitchableSetting<bool> async_shader_compilation{false, Keys::async_shader_compilation};
     SwitchableSetting<bool> async_presentation{true, Keys::async_presentation};
     SwitchableSetting<bool> use_hw_shader{true, Keys::use_hw_shader};

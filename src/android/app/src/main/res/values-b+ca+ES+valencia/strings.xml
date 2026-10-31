@@ -1349,4 +1349,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="draw_batching_description">Experimental (Vulkan). Combina en una sola les crides de dibuix consecutives amb un estat idèntic, la qual cosa redueix la càrrega de la CPU i del controlador. Si veus geometria que falta o deformada, desactiva-ho.</string>
     <string name="web_api_urls">URLs d\'API Web</string>
     <string name="web_api_url_2_hint">URL d\'API Web 2</string>
+    <string name="relaxed_precision">Shaders de precisió relaxada</string>
+    <string name="relaxed_precision_description">Experimental (Vulkan). Utilitza càlculs de 16 bits per a la barreja de colors dels shaders, cosa que pot millorar el rendiment en GPUs Mali i Adreno. Pot causar lleugeres diferències de color o errors gràfics amb alguns controladors.</string>
 </resources>

@@ -679,4 +679,6 @@
     <string name="draw_batching_description">Πειραματικό (Vulkan). Συγχωνεύει διαδοχικές κλήσεις σχεδίασης με πανομοιότυπη κατάσταση σε μία, μειώνοντας το φορτίο της CPU και του προγράμματος οδήγησης. Αν δείτε γεωμετρία που λείπει ή παραμορφώνεται, απενεργοποιήστε το.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Shaders χαλαρής ακρίβειας</string>
+    <string name="relaxed_precision_description">Πειραματικό (Vulkan). Χρησιμοποιεί υπολογισμούς 16 bit για την ανάμειξη χρωμάτων στα shaders, κάτι που μπορεί να βελτιώσει την απόδοση σε GPU Mali και Adreno. Μπορεί να προκαλέσει μικρές διαφορές χρώματος ή γραφικά προβλήματα σε ορισμένα προγράμματα οδήγησης.</string>
 </resources>

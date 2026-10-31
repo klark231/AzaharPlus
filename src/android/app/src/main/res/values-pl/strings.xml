@@ -1236,4 +1236,6 @@
     <string name="draw_batching_description">Eksperymentalne (Vulkan). Łączy kolejne wywołania rysowania o identycznym stanie w jedno, zmniejszając obciążenie procesora i sterownika. Jeśli widzisz brakującą lub zniekształconą geometrię, wyłącz tę opcję.</string>
     <string name="web_api_urls">Adresy URL Web API</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Shadery o obniżonej precyzji</string>
+    <string name="relaxed_precision_description">Eksperymentalne (Vulkan). Używa 16-bitowych obliczeń do mieszania kolorów w shaderach, co może poprawić wydajność na GPU Mali i Adreno. Może powodować niewielkie różnice kolorów lub błędy graficzne w przypadku niektórych sterowników.</string>
 </resources>

@@ -283,6 +283,7 @@ void Config::ReadValues() {
     ReadSetting("Renderer", Settings::values.disable_spirv_optimizer);
     ReadSetting("Renderer", Settings::values.vk_lighter_surfaces);
     ReadSetting("Renderer", Settings::values.vk_draw_batching);
+    ReadSetting("Renderer", Settings::values.vk_relaxed_precision);
     ReadSetting("Renderer", Settings::values.use_hw_shader);
     ReadSetting("Renderer", Settings::values.use_shader_jit);
     ReadSetting("Renderer", Settings::values.resolution_factor);

@@ -1348,4 +1348,6 @@
     <string name="draw_batching_description">Experimentell (Vulkan). Slår ihop på varandra följande ritanrop med identiskt tillstånd till ett, vilket minskar belastningen på CPU och drivrutin. Om du ser saknad eller förvrängd geometri, stäng av detta.</string>
     <string name="web_api_urls">Webb-API-URL:er</string>
     <string name="web_api_url_2_hint">Webb-API-URL 2</string>
+    <string name="relaxed_precision">Shaders med avslappnad precision</string>
+    <string name="relaxed_precision_description">Experimentell (Vulkan). Använder 16-bitarsberäkningar för färgblandning i shaders, vilket kan förbättra prestandan på Mali- och Adreno-GPU:er. Kan ge små färgskillnader eller grafikfel med vissa drivrutiner.</string>
 </resources>

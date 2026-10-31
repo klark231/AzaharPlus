@@ -433,4 +433,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="draw_batching_description">Experimenteel (Vulkan). Voegt opeenvolgende tekenaanroepen met identieke status samen tot één, waardoor de belasting van CPU en driver afneemt. Zie je ontbrekende of vervormde geometrie, zet dit dan uit.</string>
     <string name="web_api_urls">Web API-URL\'s</string>
     <string name="web_api_url_2_hint">Web API-URL 2</string>
+    <string name="relaxed_precision">Shaders met verlaagde precisie</string>
+    <string name="relaxed_precision_description">Experimenteel (Vulkan). Gebruikt 16-bits berekeningen voor kleurmenging in shaders, wat de prestaties op Mali- en Adreno-gpu\'s kan verbeteren. Kan bij sommige drivers lichte kleurverschillen of grafische fouten veroorzaken.</string>
 </resources>

@@ -153,6 +153,10 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0 (default): Off, 1: On
 )") DECLARE_KEY(vk_draw_batching) BOOST_HANA_STRING(R"(
 
+# Vulkan only. Experimental. Lets Mali and Adreno GPUs use 16-bit math for shader color blending.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(vk_relaxed_precision) BOOST_HANA_STRING(R"(
+
 # Whether to use hardware shaders to emulate 3DS shaders
 # 0: Software, 1 (default): Hardware
 )") DECLARE_KEY(use_hw_shader) BOOST_HANA_STRING(R"(

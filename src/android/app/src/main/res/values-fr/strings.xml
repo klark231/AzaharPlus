@@ -1347,4 +1347,6 @@
     <string name="draw_batching_description">Expérimental (Vulkan). Fusionne en un seul les appels de rendu consécutifs ayant un état identique, ce qui réduit la charge du CPU et du pilote. Si vous voyez de la géométrie manquante ou déformée, désactivez cette option.</string>
     <string name="web_api_urls">URL de l\'API Web</string>
     <string name="web_api_url_2_hint">URL de l\'API Web 2</string>
+    <string name="relaxed_precision">Shaders à précision relâchée</string>
+    <string name="relaxed_precision_description">Expérimental (Vulkan). Utilise des calculs en 16 bits pour le mélange des couleurs dans les shaders, ce qui peut améliorer les performances sur les GPU Mali et Adreno. Peut provoquer de légères différences de couleur ou des défauts graphiques avec certains pilotes.</string>
 </resources>

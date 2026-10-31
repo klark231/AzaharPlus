@@ -346,4 +346,6 @@
     <string name="draw_batching_description">Eksperimental (Vulkan). Menggabungkan panggilan gambar berurutan dengan status identik menjadi satu, sehingga mengurangi beban CPU dan driver. Jika terlihat geometri hilang atau terdistorsi, matikan opsi ini.</string>
     <string name="web_api_urls">URL Web API</string>
     <string name="web_api_url_2_hint">URL Web API 2</string>
+    <string name="relaxed_precision">Shader Presisi Relaks</string>
+    <string name="relaxed_precision_description">Eksperimental (Vulkan). Menggunakan perhitungan 16-bit untuk pencampuran warna shader, yang dapat meningkatkan performa pada GPU Mali dan Adreno. Dapat menyebabkan sedikit perbedaan warna atau gangguan grafis pada beberapa driver.</string>
 </resources>

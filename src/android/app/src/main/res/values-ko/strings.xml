@@ -308,4 +308,6 @@
     <string name="draw_batching_description">실험적 기능(Vulkan). 상태가 동일한 연속된 드로우 호출을 하나로 합쳐 CPU와 드라이버 부하를 줄입니다. 지오메트리가 누락되거나 왜곡되어 보이면 이 기능을 끄세요.</string>
     <string name="web_api_urls">Web API URL</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">완화된 정밀도 셰이더</string>
+    <string name="relaxed_precision_description">실험적 기능(Vulkan). 셰이더 색상 혼합에 16비트 연산을 사용하여 Mali 및 Adreno GPU에서 성능이 향상될 수 있습니다. 일부 드라이버에서는 미세한 색상 차이나 그래픽 오류가 발생할 수 있습니다.</string>
 </resources>

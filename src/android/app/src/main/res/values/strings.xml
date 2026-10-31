@@ -1458,4 +1458,6 @@
     <string name="romfs_exefs_dump_failed">Could not dump RomFS and ExeFS. Refer to the log for details.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Relaxed Precision Shaders</string>
+    <string name="relaxed_precision_description">Experimental (Vulkan). Uses 16-bit math for shader color blending, which can improve performance on Mali and Adreno GPUs. May cause slight color differences or graphical glitches with some drivers.</string>
 </resources>

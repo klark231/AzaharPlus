@@ -308,4 +308,6 @@
     <string name="draw_batching_description">Thử nghiệm (Vulkan). Gộp các lệnh vẽ liên tiếp có trạng thái giống hệt nhau thành một, giúp giảm tải cho CPU và trình điều khiển. Nếu thấy hình học bị thiếu hoặc méo, hãy tắt tùy chọn này.</string>
     <string name="web_api_urls">URL Web API</string>
     <string name="web_api_url_2_hint">URL Web API 2</string>
+    <string name="relaxed_precision">Shader độ chính xác nới lỏng</string>
+    <string name="relaxed_precision_description">Thử nghiệm (Vulkan). Dùng phép tính 16-bit để trộn màu trong shader, có thể cải thiện hiệu năng trên GPU Mali và Adreno. Có thể gây chênh lệch màu nhẹ hoặc lỗi đồ họa với một số trình điều khiển.</string>
 </resources>

@@ -308,4 +308,6 @@
     <string name="draw_batching_description">Kísérleti (Vulkan). Az azonos állapotú, egymást követő rajzolási hívásokat eggyé vonja össze, csökkentve a CPU és az illesztőprogram terhelését. Ha hiányzó vagy torz geometriát látsz, kapcsold ki.</string>
     <string name="web_api_urls">Web API URL-ek</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="relaxed_precision">Relaxált pontosságú shaderek</string>
+    <string name="relaxed_precision_description">Kísérleti (Vulkan). 16 bites számításokat használ a shaderek színkeveréséhez, ami javíthatja a teljesítményt Mali és Adreno GPU-kon. Egyes illesztőprogramoknál enyhe színeltéréseket vagy grafikai hibákat okozhat.</string>
 </resources>

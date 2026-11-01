@@ -89,6 +89,10 @@ void LogSettings() {
     log_setting("Core_UseCpuJit", values.use_cpu_jit.GetValue());
     log_setting("Core_UseFastInterp", values.use_fastinterp.GetValue());
     log_setting("Core_CPUClockPercentage", values.cpu_clock_percentage.GetValue());
+    log_setting("Core_CustomCPUTicks", values.custom_cpu_ticks.GetValue());
+    if (values.custom_cpu_ticks.GetValue()) {
+        log_setting("Core_CPUTicks", values.cpu_ticks.GetValue());
+    }
     log_setting("Core_ReduceDowncountSlice", values.reduce_downcount_slice.GetValue());
     log_setting("Core_PriorityBoostStarvedThreads",
                 values.priority_boost_starved_threads.GetValue());
@@ -220,6 +224,8 @@ void RestoreGlobalState(bool is_powered_on) {
 
     // Core
     values.cpu_clock_percentage.SetGlobal(true);
+    values.custom_cpu_ticks.SetGlobal(true);
+    values.cpu_ticks.SetGlobal(true);
     values.reduce_downcount_slice.SetGlobal(true);
     values.priority_boost_starved_threads.SetGlobal(true);
     values.use_fastmem.SetGlobal(true);

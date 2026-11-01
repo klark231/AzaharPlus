@@ -98,6 +98,7 @@ enum class BooleanSetting(
         false
     ),
     CPU_JIT(SettingKeys.use_cpu_jit(), Settings.SECTION_CORE, true),
+    CUSTOM_CPU_TICKS(SettingKeys.custom_cpu_ticks(), Settings.SECTION_CORE, false),
     USE_FASTINTERP(SettingKeys.use_fastinterp(), Settings.SECTION_CORE, true),
     HW_SHADER(SettingKeys.use_hw_shader(), Settings.SECTION_RENDERER, true),
     SHADER_JIT(SettingKeys.use_shader_jit(), Settings.SECTION_RENDERER, true),

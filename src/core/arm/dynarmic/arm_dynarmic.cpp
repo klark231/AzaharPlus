@@ -162,6 +162,11 @@ public:
     }
 
     void AddTicks(std::uint64_t ticks) override {
+        // Custom CPU ticks: charge a fixed amount instead of the executed instruction cost.
+        // Only guest instruction accounting is changed; fixed kernel/SVC costs stay untouched.
+        if (Settings::values.custom_cpu_ticks.GetValue()) {
+            ticks = static_cast<std::uint64_t>(Settings::values.cpu_ticks.GetValue());
+        }
         parent.GetTimer().AddTicks(ticks);
     }
     std::uint64_t GetTicksRemaining() override {

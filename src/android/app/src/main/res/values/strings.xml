@@ -445,6 +445,10 @@
     <string name="hw_shaders">Enable Hardware Shader</string>
     <string name="hw_shaders_description">Uses hardware to emulate 3DS shaders. When enabled, game performance will be significantly improved.</string>
     <string name="cpu_clock_speed">CPU Clock Speed</string>
+    <string name="custom_cpu_ticks">Custom CPU Ticks</string>
+    <string name="custom_cpu_ticks_description">Charges a fixed number of ticks each time the CPU JIT reports executed instructions, instead of the real cost. Higher values can increase performance but may cause freezes or timing problems. Does not affect the interpreter.</string>
+    <string name="cpu_ticks">CPU Ticks</string>
+    <string name="cpu_ticks_description">Ticks charged per JIT run. Higher is faster but less accurate; lower gives games more CPU time at a performance cost. Default 16000.</string>
     <string name="vsync">Enable V-Sync</string>
     <string name="vsync_description">Synchronizes the game frame rate to the refresh rate of your device. Can cause additional input latency but may reduce tearing in some cases.</string>
     <string name="renderer_debug">Debug Renderer</string>

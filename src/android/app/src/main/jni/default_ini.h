@@ -109,6 +109,17 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # Range is any positive integer (but we suspect 25 - 400 is a good idea) Default is 100
 )") DECLARE_KEY(cpu_clock_percentage) BOOST_HANA_STRING(R"(
 
+# Charge a fixed number of CPU ticks each time the JIT reports executed instructions,
+# instead of the real instruction cost.
+# 0 (default): Off, 1: On
+)") DECLARE_KEY(custom_cpu_ticks) BOOST_HANA_STRING(R"(
+
+# Number of ticks to charge when custom_cpu_ticks is on.
+# Higher values can increase performance but may cause freezes or timing issues.
+# Lower values give the game more CPU time per emulated second at a performance cost.
+# Range is 77 - 65535. Default is 16000
+)") DECLARE_KEY(cpu_ticks) BOOST_HANA_STRING(R"(
+
 # Limit the CPU time slice to a smaller value. Can improve responsiveness and
 # multi-core timing at some performance cost.
 # 0 (default): Off, 1: On

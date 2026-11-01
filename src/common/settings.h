@@ -486,6 +486,9 @@ struct Values {
     Setting<bool> use_cpu_jit{true, Keys::use_cpu_jit};
     Setting<bool> use_fastinterp{true, Keys::use_fastinterp};
     SwitchableSetting<s32, true> cpu_clock_percentage{100, 5, 400, Keys::cpu_clock_percentage};
+    /// Charge a fixed number of ticks each time the JIT reports executed instructions
+    SwitchableSetting<bool> custom_cpu_ticks{false, Keys::custom_cpu_ticks};
+    SwitchableSetting<s32, true> cpu_ticks{16000, 77, 65535, Keys::cpu_ticks};
     SwitchableSetting<bool> reduce_downcount_slice{false, Keys::reduce_downcount_slice};
     SwitchableSetting<bool> priority_boost_starved_threads{
         true, Keys::priority_boost_starved_threads};

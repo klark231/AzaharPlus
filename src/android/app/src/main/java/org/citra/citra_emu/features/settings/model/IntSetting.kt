@@ -54,6 +54,7 @@ enum class IntSetting(
     AUDIO_INPUT_TYPE(SettingKeys.input_type(), Settings.SECTION_AUDIO, 0),
     CPU_AFFINITY_MODE(SettingKeys.cpu_affinity_mode(), Settings.SECTION_CORE, 0),
     CPU_CLOCK_SPEED(SettingKeys.cpu_clock_percentage(), Settings.SECTION_CORE, 100),
+    CPU_TICKS(SettingKeys.cpu_ticks(), Settings.SECTION_CORE, 16000),
     TEXTURE_FILTER(SettingKeys.texture_filter(), Settings.SECTION_RENDERER, 0),
     TEXTURE_SAMPLING(SettingKeys.texture_sampling(), Settings.SECTION_RENDERER, 0),
     USE_FRAME_LIMIT(SettingKeys.use_frame_limit(), Settings.SECTION_RENDERER, 1),

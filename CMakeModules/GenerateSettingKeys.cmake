@@ -11,6 +11,8 @@ foreach(KEY IN ITEMS
     "use_cpu_jit"
     "use_fastinterp"
     "cpu_clock_percentage"
+    "custom_cpu_ticks"
+    "cpu_ticks"
     "reduce_downcount_slice"
     "priority_boost_starved_threads"
     "use_fastmem"

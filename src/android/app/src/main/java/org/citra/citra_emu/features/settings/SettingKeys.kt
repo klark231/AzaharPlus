@@ -13,6 +13,8 @@ object SettingKeys {
     external fun use_cpu_jit(): String
     external fun use_fastinterp(): String
     external fun cpu_clock_percentage(): String
+    external fun custom_cpu_ticks(): String
+    external fun cpu_ticks(): String
     external fun reduce_downcount_slice(): String
     external fun priority_boost_starved_threads(): String
     external fun use_fastmem(): String

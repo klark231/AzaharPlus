@@ -922,8 +922,8 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
                 Surface& surface = res_cache.GetTextureSurface(texture);
                 Sampler& sampler = res_cache.GetSampler(texture.config);
                 surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
-                update_queue.AddImageSampler(texture_set, texture_index, 0, surface.StorageView(),
-                                             sampler.Handle());
+                update_queue.AddImageSampler(texture_set, texture_index, 0,
+                                             StorageViewOrPlaceholder(surface), sampler.Handle());
                 continue;
             }
             case TextureType::ShadowCube: {
@@ -948,6 +948,14 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
             is_feedback_loop ? surface.CopyImageView() : surface.ImageView();
         update_queue.AddImageSampler(texture_set, texture_index, 0, texture_view, sampler.Handle());
     }
+}
+
+vk::ImageView RasterizerVulkan::StorageViewOrPlaceholder(Surface& surface) {
+    vk::ImageView view = surface.StorageView();
+    if (!view && !instance.IsNullDescriptorSupported()) {
+        view = res_cache.GetSurface(VideoCore::NULL_SURFACE_ID).StorageView();
+    }
+    return view;
 }
 
 void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
@@ -981,7 +989,9 @@ void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
                             "(Lighter surfaces: shadows are off in that mode)");
             }
         }
-        update_queue.AddStorageImage(utility_set, 0, shadow_view);
+        update_queue.AddStorageImage(utility_set, 0,
+                                     shadow_view ? shadow_view
+                                                 : StorageViewOrPlaceholder(shadow_surface));
     } else {
         if (instance.IsNullDescriptorSupported()) {
             update_queue.AddStorageImage(utility_set, 0, vk::ImageView{});
@@ -1010,7 +1020,7 @@ void RasterizerVulkan::BindShadowCube(const Pica::TexturingRegs::FullTextureConf
         const VideoCore::SurfaceId surface_id = res_cache.GetTextureSurface(info);
         Surface& surface = res_cache.GetSurface(surface_id);
         surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
-        update_queue.AddImageSampler(texture_set, 0, binding, surface.StorageView(),
+        update_queue.AddImageSampler(texture_set, 0, binding, StorageViewOrPlaceholder(surface),
                                      sampler.Handle());
     }
 }

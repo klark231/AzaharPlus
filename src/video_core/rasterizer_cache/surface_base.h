@@ -23,6 +23,7 @@ enum class SurfaceFlagBits : u32 {
     RenderTarget = 1 << 5, ///< Surface was a render target.
     NoStorage = 1 << 6,    ///< RGBA8 surface made without storage usage (Vulkan, "with shadows"); it is
                            ///< replaced by one with storage if a shadow needs it.
+    KeepStorage = 1 << 7,  ///< Always keep storage usage (Vulkan placeholder for null views).
 };
 DECLARE_ENUM_FLAG_OPERATORS(SurfaceFlagBits);
 

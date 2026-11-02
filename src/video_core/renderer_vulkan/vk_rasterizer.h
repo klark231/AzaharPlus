@@ -78,6 +78,10 @@ private:
     /// Syncs all utility textures in the fragment shader.
     void SyncUtilityTextures(const Framebuffer* framebuffer);
 
+    /// Storage view of a surface; for one made without storage usage on a driver without
+    /// nullDescriptor this is the null surface's view, as a null view is not allowed there.
+    vk::ImageView StorageViewOrPlaceholder(Surface& surface);
+
     /// Binds the PICA shadow cube required for shadow mapping
     void BindShadowCube(const Pica::TexturingRegs::FullTextureConfig& texture,
                         vk::DescriptorSet texture_set);

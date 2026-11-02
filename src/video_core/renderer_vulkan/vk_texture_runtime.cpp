@@ -774,6 +774,7 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
     // surface's own).
     has_storage = traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support &&
                   (!instance.DropRgba8Storage() ||
+                   True(flags & VideoCore::SurfaceFlagBits::KeepStorage) ||
                    (instance.KeepShadowStorage() &&
                     True(flags & VideoCore::SurfaceFlagBits::ShadowSource)));
     if (instance.KeepShadowStorage() && instance.DropRgba8Storage() && !has_storage &&

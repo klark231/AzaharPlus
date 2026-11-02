@@ -44,14 +44,18 @@ RasterizerCache<T>::RasterizerCache(Memory::MemorySystem& memory_,
     using TextureConfig = Pica::TexturingRegs::TextureConfig;
 
     // Create null handles for all cached resources
-    void(slot_surfaces.insert(runtime, SurfaceParams{
-                                           .width = 1,
-                                           .height = 1,
-                                           .stride = 1,
-                                           .texture_type = VideoCore::TextureType::Texture2D,
-                                           .pixel_format = VideoCore::PixelFormat::RGBA8,
-                                           .type = VideoCore::SurfaceType::Color,
-                                       }));
+    // The 2D null surface keeps storage usage even with "Lighter surfaces": on drivers without
+    // nullDescriptor its storage view stands in for the null view of surfaces made without it.
+    void(slot_surfaces.insert(runtime,
+                              SurfaceParams{
+                                  .width = 1,
+                                  .height = 1,
+                                  .stride = 1,
+                                  .texture_type = VideoCore::TextureType::Texture2D,
+                                  .pixel_format = VideoCore::PixelFormat::RGBA8,
+                                  .type = VideoCore::SurfaceType::Color,
+                              },
+                              SurfaceFlagBits::KeepStorage));
     void(slot_surfaces.insert(runtime, SurfaceParams{
                                            .width = 1,
                                            .height = 1,

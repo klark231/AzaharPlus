@@ -162,15 +162,15 @@ Instance::Instance(Frontend::EmuWindow& window, u32 physical_device_index)
 
     CreateDevice();
     {
-        // "Lighter surfaces": needs null descriptors, else it is ignored
+        // "Lighter surfaces": uses null descriptors where the driver has them, else a
+        // placeholder storage image bound in their place
         const int requested = std::clamp(
             static_cast<int>(Settings::values.vk_lighter_surfaces.GetValue()), 0, 2);
-        rgba_storage_mode = null_descriptor ? requested : 0;
+        rgba_storage_mode = requested;
         if (requested != 0) {
-            LOG_INFO(Render_Vulkan, "Lighter surfaces: {}",
-                     !null_descriptor ? "requested but ignored (driver lacks nullDescriptor)"
-                     : requested == 1 ? "active, shadows off"
-                                      : "active, shadows kept");
+            LOG_INFO(Render_Vulkan, "Lighter surfaces: {}{}",
+                     requested == 1 ? "active, shadows off" : "active, shadows kept",
+                     null_descriptor ? "" : " (no nullDescriptor: using a placeholder image)");
         }
     }
     CreateFormatTable();

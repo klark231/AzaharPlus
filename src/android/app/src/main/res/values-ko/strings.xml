@@ -5,7 +5,6 @@
     <string name="touch_input_bindings">터치 입력 바인딩</string>
     <string name="touch_input_bindings_description">컨트롤러 버튼과 스틱을 3DS 하단 화면의 위치에 매핑합니다.</string>
     <string name="bind_touch_input">터치 입력 바인딩</string>
-    <string name="bind_touch_input_message">버튼을 누르거나 스틱을 움직여 바인딩하세요.</string>
     <string name="bind_touch_input_cancel">취소</string>
     <string name="touch_input_empty_title">아직 바인딩이 없습니다</string>
     <string name="touch_input_empty_message">미리보기를 탭하여 위치를 선택한 다음 컨트롤러의 버튼을 누르거나 스틱을 움직이세요.</string>
@@ -19,14 +18,12 @@
     <string name="touch_input_nudge_right">오른쪽으로 이동</string>
     <string name="touch_input_nudge_up">위로 이동</string>
     <string name="touch_input_nudge_down">아래로 이동</string>
-    <string name="touch_input_binding_options">바인딩 옵션</string>
     <string name="delete_all">모두 삭제</string>
     <string name="delete_all_touch_input_confirm">이 프로필의 모든 터치 입력 바인딩을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</string>
     <string name="delete_touch_input_confirm">이 터치 입력 바인딩을 삭제하시겠습니까?</string>
     <string name="create_profile">프로필 생성</string>
     <string name="create_new_profile">새 프로필</string>
     <string name="profile_action_rename_format">\"%1$s\" 이름 변경</string>
-    <string name="profile_manage_format">\"%1$s\" 관리</string>
     <string name="profile_action_delete_format">\"%1$s\" 삭제</string>
     <string name="delete_profile">프로필 삭제</string>
     <string name="profile_name">프로필 이름</string>
@@ -49,11 +46,6 @@
     <string name="button_combo_3">콤보 버튼 3</string>
     <string name="button_combo_4">콤보 버튼 4</string>
     <string name="button_combo_5">콤보 버튼 5</string>
-    <string name="combo_button_n_1">콤보 버튼 1</string>
-    <string name="combo_button_n_2">콤보 버튼 2</string>
-    <string name="combo_button_n_3">콤보 버튼 3</string>
-    <string name="combo_button_n_4">콤보 버튼 4</string>
-    <string name="combo_button_n_5">콤보 버튼 5</string>
     <string name="combo_none">없음</string>
     <string name="combo_button_n">콤보 버튼 %1$d</string>
     <string name="combo_circle_left">서클 패드 왼쪽</string>
@@ -64,10 +56,6 @@
     <string name="combo_c_up">C스틱 위</string>
     <string name="combo_c_right">C스틱 오른쪽</string>
     <string name="combo_c_down">C스틱 아래</string>
-    <string name="combo_button_settings_2">콤보 버튼 2 설정</string>
-    <string name="combo_button_settings_3">콤보 버튼 3 설정</string>
-    <string name="combo_button_settings_4">콤보 버튼 4 설정</string>
-    <string name="combo_button_settings_5">콤보 버튼 5 설정</string>
     <string name="per_game_settings">게임별 설정</string>
     <string name="per_game_settings_title">게임별 설정: %1$s</string>
     <string name="per_game_use_global_confirmation">이 설정에 전역 값을 다시 사용하시겠습니까?</string>
@@ -78,9 +66,7 @@
     <string name="emulation_control_adjust">오버레이 조정</string>
     <string name="overlay_control_scale">크기</string>
     <string name="overlay_control_opacity">불투명도</string>
-    <string name="overlay_control_hold">탭하여 유지</string>
     <string name="overlay_control_hold_description">한 번 탭하면 누르고, 다시 탭하면 뗍니다</string>
-    <string name="overlay_control_rapid">연타</string>
     <string name="overlay_control_rapid_description">한 번 탭하면 자동 연타를 시작하고, 다시 탭하면 멈춥니다</string>
     <string name="overlay_control_change_image">버튼 이미지 변경</string>
     <string name="overlay_control_reset">초기화</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">파일 편집</string>
     <string name="cheats_text_hint">[치트 이름]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">저장</string>
-    <string name="cheats_text_cancel">취소</string>
     <string name="overlay_control_image">이미지</string>
     <string name="overlay_control_mode_normal">일반</string>
     <string name="overlay_control_mode_hold">유지</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">기본값으로 재설정</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">새로 만들기</string>
     <string name="touch_input_rebind">다시 지정</string>
     <string name="touch_input_all_bindings">모든 바인딩 (%1$d)</string>
     <string name="touch_input_touches_format">화면의 %1$s 지점을 터치</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">실험적 기능(Vulkan). 상태가 동일한 연속된 드로우 호출을 하나로 합쳐 CPU와 드라이버 부하를 줄입니다. 지오메트리가 누락되거나 왜곡되어 보이면 이 기능을 끄세요.</string>
     <string name="web_api_urls">Web API URL</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">CPU 틱 직접 지정</string>
+    <string name="custom_cpu_ticks_description">CPU JIT가 실행하는 각 블록을 실제 비용 대신 고정된 틱 수로 계산합니다. 값을 높이면 게임이 빨라질 수 있지만 멈춤이나 타이밍 문제가 생길 수 있습니다. 인터프리터에는 영향이 없습니다.</string>
+    <string name="cpu_ticks">CPU 틱</string>
+    <string name="cpu_ticks_description">JIT 블록마다 계산하는 틱 수입니다. 높을수록 빠르지만 덜 정확하고, 낮을수록 성능을 대가로 게임에 CPU 시간을 더 줍니다. 기본값: 16000</string>
+    <string name="preferences_multiplayer">멀티플레이</string>
+    <string name="preferences_multiplayer_description">랙 처리, 방 재접속, MHGU 크로스플레이.</string>
+    <string name="netsync_header">지연된 플레이어</string>
+    <string name="netsync_enabled">지연된 플레이어 기다리기</string>
+    <string name="netsync_enabled_description">다른 플레이어가 뒤처지면 내 게임을 잠시 멈춰, 게임이 그 플레이어의 연결이 끊겼다고 판단하지 않게 합니다.</string>
+    <string name="netsync_timeout">최대 대기 시간</string>
+    <string name="netsync_timeout_description">지연된 플레이어를 기다리는 최대 시간입니다. 길수록 너그럽지만 게임이 더 오래 멈출 수 있습니다.</string>
+    <string name="auto_rejoin_header">방 재접속</string>
+    <string name="auto_rejoin">방에 자동으로 재접속</string>
+    <string name="auto_rejoin_description">방 서버에서 연결이 끊기면 오류 창 없이 같은 이름과 MAC 주소로 다시 들어갑니다.</string>
+    <string name="auto_rejoin_window">재접속 제한 시간</string>
+    <string name="auto_rejoin_window_description">포기하기 전까지 방에 다시 들어가려고 시도하는 시간입니다.</string>
+    <string name="auto_rejoin_pause">재접속 중 게임 멈추기</string>
+    <string name="auto_rejoin_pause_description">돌아올 때까지 게임 시계를 멈춰, 그동안 게임이 연결을 시간 초과로 끊지 않게 합니다.</string>
+    <string name="overlay_control_badge">번호 배지 표시</string>
+    <string name="mhgu_hub_header">MHGU 크로스플레이</string>
+    <string name="mhgu_hub_enabled">MHGU 플레이어와 함께하기</string>
+    <string name="mhgu_hub_enabled_description">몬스터 헌터 더블 크로스 전용입니다. 방에 들어가 있지 않은 동안 로컬 통신이 MHGU(네이티브 포트)의 허브 서버를 거칩니다. 만든 방은 MHGU 플레이어에게 표시되고, 그들의 방은 검색에 나타납니다.</string>
+    <string name="mhgu_hub_servers">허브 서버</string>
+    <string name="mhgu_hub_servers_description">서버 주소 최대 4개, 공백으로 구분합니다.</string>
+    <string name="mhgu_hub_key">매칭 키</string>
+    <string name="mhgu_hub_key_description">같은 키를 쓰는 플레이어끼리만 서로의 방을 볼 수 있습니다. 공개 방은 비워 두세요.</string>
+    <string name="mhgu_hub_convert">네트워크 메시지 변환</string>
+    <string name="mhgu_hub_convert_description">3DS와 MHGU 사이에서 형식이 다른 일부 네트워크 메시지를 다시 씁니다. 켜 두세요.</string>
+    <string name="mhgu_hub_log">네트워크 패킷 기록</string>
+    <string name="mhgu_hub_log_description">연결 문제를 조사할 수 있도록 게임의 네트워크 패킷을 로그에 씁니다.</string>
 </resources>

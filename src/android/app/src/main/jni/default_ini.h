@@ -681,22 +681,22 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # 0: Off, 1 (default): On
 )") DECLARE_KEY(auto_rejoin_pause) BOOST_HANA_STRING(R"(
 
-# MHGU hub crossplay: Monster Hunter XX local play with MHGU Recomp players, through its hub servers.
-# Used while no room is joined: rooms hosted in MHXX are listed for MHGU players, and MHGU rooms show up in MHXX.
+# MHGU crossplay: Monster Hunter XX local play with MHGU Recomp players, through the MHGU hub servers.
+# Only while no room is joined. Rooms you host in MHXX are listed for MHGU players, and their rooms show up in MHXX.
 # 0 (default): Off, 1: On
 )") DECLARE_KEY(mhgu_hub_enabled) BOOST_HANA_STRING(R"(
 
-# MHGU hub servers, separated by spaces (up to 4)
+# MHGU crossplay: hub servers, separated by spaces (up to 4)
 )") DECLARE_KEY(mhgu_hub_servers) BOOST_HANA_STRING(R"(
 
-# MHGU hub matchmaking key: only players with the same key see each other's rooms (empty: public)
+# MHGU crossplay: matchmaking key. Only players with the same key see each other's rooms (empty: public)
 )") DECLARE_KEY(mhgu_hub_key) BOOST_HANA_STRING(R"(
 
-# MHGU hub: convert the network messages whose layout differs between the 3DS and MHGU
+# MHGU crossplay: convert the network messages whose layout differs between the 3DS and MHGU
 # 0: Off (only the addresses are swapped), 1 (default): On
 )") DECLARE_KEY(mhgu_hub_convert) BOOST_HANA_STRING(R"(
 
-# MHGU hub: write the game's packets to the log (for troubleshooting)
+# MHGU crossplay: log the game's network packets (for troubleshooting)
 # 0 (default): Off, 1: On
 )") DECLARE_KEY(mhgu_hub_log) BOOST_HANA_STRING(R"(
 

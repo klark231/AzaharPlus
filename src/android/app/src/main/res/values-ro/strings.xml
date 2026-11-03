@@ -5,7 +5,6 @@
     <string name="touch_input_bindings">Asocieri de intrare tactilă</string>
     <string name="touch_input_bindings_description">Mapează butoanele și manetele controlerului la poziții pe ecranul inferior al 3DS.</string>
     <string name="bind_touch_input">Asociază intrare tactilă</string>
-    <string name="bind_touch_input_message">Apasă un buton sau mișcă o manetă pentru a o asocia.</string>
     <string name="bind_touch_input_cancel">Anulează</string>
     <string name="touch_input_empty_title">Nicio asociere încă</string>
     <string name="touch_input_empty_message">Atinge previzualizarea pentru a alege o poziție, apoi apasă un buton sau mișcă o manetă pe controler.</string>
@@ -19,14 +18,12 @@
     <string name="touch_input_nudge_right">Mută la dreapta</string>
     <string name="touch_input_nudge_up">Mută în sus</string>
     <string name="touch_input_nudge_down">Mută în jos</string>
-    <string name="touch_input_binding_options">Opțiuni asociere</string>
     <string name="delete_all">Șterge tot</string>
     <string name="delete_all_touch_input_confirm">Ștergi toate asocierile de intrare tactilă pentru acest profil? Această acțiune nu poate fi anulată.</string>
     <string name="delete_touch_input_confirm">Ștergi această asociere de intrare tactilă?</string>
     <string name="create_profile">Creează profil</string>
     <string name="create_new_profile">Profil nou</string>
     <string name="profile_action_rename_format">Redenumește „%1$s”</string>
-    <string name="profile_manage_format">Gestionează „%1$s”</string>
     <string name="profile_action_delete_format">Șterge „%1$s”</string>
     <string name="delete_profile">Șterge profilul</string>
     <string name="profile_name">Nume profil</string>
@@ -49,11 +46,6 @@
     <string name="button_combo_3">Buton combo 3</string>
     <string name="button_combo_4">Buton combo 4</string>
     <string name="button_combo_5">Buton combo 5</string>
-    <string name="combo_button_n_1">Buton combo 1</string>
-    <string name="combo_button_n_2">Buton combo 2</string>
-    <string name="combo_button_n_3">Buton combo 3</string>
-    <string name="combo_button_n_4">Buton combo 4</string>
-    <string name="combo_button_n_5">Buton combo 5</string>
     <string name="combo_none">Niciunul</string>
     <string name="combo_button_n">Buton combo %1$d</string>
     <string name="combo_circle_left">Circle Pad stânga</string>
@@ -64,10 +56,6 @@
     <string name="combo_c_up">C-Stick sus</string>
     <string name="combo_c_right">C-Stick dreapta</string>
     <string name="combo_c_down">C-Stick jos</string>
-    <string name="combo_button_settings_2">Configurează butonul combo 2</string>
-    <string name="combo_button_settings_3">Configurează butonul combo 3</string>
-    <string name="combo_button_settings_4">Configurează butonul combo 4</string>
-    <string name="combo_button_settings_5">Configurează butonul combo 5</string>
     <string name="per_game_settings">Setări per joc</string>
     <string name="per_game_settings_title">Setări per joc: %1$s</string>
     <string name="per_game_use_global_confirmation">Folosești din nou valoarea globală pentru această setare?</string>
@@ -78,9 +66,7 @@
     <string name="emulation_control_adjust">Ajustează overlay-ul</string>
     <string name="overlay_control_scale">Dimensiune</string>
     <string name="overlay_control_opacity">Opacitate</string>
-    <string name="overlay_control_hold">Atinge pentru a ține apăsat</string>
     <string name="overlay_control_hold_description">Atinge o dată pentru a apăsa, atinge din nou pentru a elibera</string>
-    <string name="overlay_control_rapid">Foc rapid</string>
     <string name="overlay_control_rapid_description">Atinge o dată pentru a începe apăsarea automată, atinge din nou pentru a opri</string>
     <string name="overlay_control_change_image">Schimbă imaginea butonului</string>
     <string name="overlay_control_reset">Resetează</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">Editează fișierul</string>
     <string name="cheats_text_hint">[Nume cod]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Salvează</string>
-    <string name="cheats_text_cancel">Anulează</string>
     <string name="overlay_control_image">Imagine</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Menținere</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">Resetează la valorile implicite</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Nou</string>
     <string name="touch_input_rebind">Realocă</string>
     <string name="touch_input_all_bindings">Toate asocierile (%1$d)</string>
     <string name="touch_input_touches_format">Atinge ecranul la %1$s</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">Experimental (Vulkan). Combină apelurile de desenare consecutive cu stare identică într-unul singur, reducând încărcarea CPU-ului și a driverului. Dacă observi geometrie lipsă sau deformată, dezactivează opțiunea.</string>
     <string name="web_api_urls">URL-uri Web API</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Tick-uri CPU personalizate</string>
+    <string name="custom_cpu_ticks_description">Socotește fiecare bloc rulat de JIT-ul CPU ca un număr fix de tick-uri în loc de costul real. Valorile mai mari pot face jocurile mai rapide, dar pot cauza blocări sau probleme de sincronizare. Nu afectează interpretorul.</string>
+    <string name="cpu_ticks">Tick-uri CPU</string>
+    <string name="cpu_ticks_description">Tick-uri socotite pentru fiecare bloc JIT. Mai mare înseamnă mai rapid, dar mai puțin precis; mai mic dă jocurilor mai mult timp CPU cu costul performanței. Implicit: 16000.</string>
+    <string name="preferences_multiplayer">Multiplayer</string>
+    <string name="preferences_multiplayer_description">Gestionarea lag-ului, reconectarea la cameră și crossplay cu MHGU.</string>
+    <string name="netsync_header">Jucători rămași în urmă</string>
+    <string name="netsync_enabled">Așteaptă jucătorii rămași în urmă</string>
+    <string name="netsync_enabled_description">Oprește scurt jocul tău când alt jucător rămâne în urmă, ca jocul să nu creadă că s-a deconectat.</string>
+    <string name="netsync_timeout">Așteptare maximă</string>
+    <string name="netsync_timeout_description">Cât să aștepte un jucător rămas în urmă înainte de a continua fără el. Mai mult e mai tolerant, dar jocul tău poate îngheța mai mult.</string>
+    <string name="auto_rejoin_header">Reconectare la cameră</string>
+    <string name="auto_rejoin">Reconectare automată la cameră</string>
+    <string name="auto_rejoin_description">Dacă serverul camerei te deconectează, revii cu același nume și aceeași adresă MAC, fără mesaje de eroare.</string>
+    <string name="auto_rejoin_window">Limită de timp pentru reconectare</string>
+    <string name="auto_rejoin_window_description">Cât timp să încerce să revină în cameră înainte de a renunța.</string>
+    <string name="auto_rejoin_pause">Îngheață jocul în timpul reconectării</string>
+    <string name="auto_rejoin_pause_description">Oprește ceasul jocului până revii, ca jocul să nu închidă conexiunea între timp.</string>
+    <string name="overlay_control_badge">Afișează insigna cu număr</string>
+    <string name="mhgu_hub_header">Crossplay cu MHGU</string>
+    <string name="mhgu_hub_enabled">Joacă cu jucători MHGU</string>
+    <string name="mhgu_hub_enabled_description">Doar Monster Hunter XX. Cât timp nu ești într-o cameră, jocul local trece prin serverele hub ale MHGU (port nativ): camerele pe care le creezi apar pentru jucătorii MHGU, iar ale lor apar când cauți.</string>
+    <string name="mhgu_hub_servers">Servere hub</string>
+    <string name="mhgu_hub_servers_description">Până la 4 adrese de server, separate prin spații.</string>
+    <string name="mhgu_hub_key">Cheie de potrivire</string>
+    <string name="mhgu_hub_key_description">Doar jucătorii cu aceeași cheie își văd camerele unii altora. Las-o goală pentru camere publice.</string>
+    <string name="mhgu_hub_convert">Convertește mesajele de rețea</string>
+    <string name="mhgu_hub_convert_description">Rescrie cele câteva mesaje de rețea care diferă între 3DS și MHGU. Las-o activată.</string>
+    <string name="mhgu_hub_log">Înregistrează pachetele de rețea</string>
+    <string name="mhgu_hub_log_description">Scrie pachetele de rețea ale jocului în jurnal, pentru depanarea problemelor de conexiune.</string>
 </resources>

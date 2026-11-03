@@ -114,7 +114,6 @@
     <string name="touch_input_bindings">Berøringsinngangsbindinger</string>
     <string name="touch_input_bindings_description">Knytter kontrollerknapper og spaker til posisjoner på 3DS\' nedre skjerm.</string>
     <string name="bind_touch_input">Bind berøringsinngang</string>
-    <string name="bind_touch_input_message">Trykk en knapp eller beveg en spak for å binde den.</string>
     <string name="bind_touch_input_cancel">Avbryt</string>
     <string name="touch_input_empty_title">Ingen bindinger ennå</string>
     <string name="touch_input_empty_message">Trykk på forhåndsvisningen for å velge et sted, trykk deretter en knapp eller beveg en spak på kontrolleren.</string>
@@ -128,14 +127,12 @@
     <string name="touch_input_nudge_right">Flytt høyre</string>
     <string name="touch_input_nudge_up">Flytt opp</string>
     <string name="touch_input_nudge_down">Flytt ned</string>
-    <string name="touch_input_binding_options">Bindingsvalg</string>
     <string name="delete_all">Slett alle</string>
     <string name="delete_all_touch_input_confirm">Slette alle berøringsinngangsbindinger for denne profilen? Dette kan ikke angres.</string>
     <string name="delete_touch_input_confirm">Slette denne berøringsinngangsbindingen?</string>
     <string name="create_profile">Opprett profil</string>
     <string name="create_new_profile">Ny profil</string>
     <string name="profile_action_rename_format">Endre navn på «%1$s»</string>
-    <string name="profile_manage_format">Administrer «%1$s»</string>
     <string name="profile_action_delete_format">Slett «%1$s»</string>
     <string name="delete_profile">Slett profil</string>
     <string name="profile_name">Profilnavn</string>
@@ -158,11 +155,6 @@
     <string name="button_combo_3">Kombinasjonsknapp 3</string>
     <string name="button_combo_4">Kombinasjonsknapp 4</string>
     <string name="button_combo_5">Kombinasjonsknapp 5</string>
-    <string name="combo_button_n_1">Kombinasjonsknapp 1</string>
-    <string name="combo_button_n_2">Kombinasjonsknapp 2</string>
-    <string name="combo_button_n_3">Kombinasjonsknapp 3</string>
-    <string name="combo_button_n_4">Kombinasjonsknapp 4</string>
-    <string name="combo_button_n_5">Kombinasjonsknapp 5</string>
     <string name="combo_none">Ingen</string>
     <string name="combo_button_n">Kombinasjonsknapp %1$d</string>
     <string name="combo_circle_left">Gliplate venstre</string>
@@ -173,10 +165,6 @@
     <string name="combo_c_up">C-spak opp</string>
     <string name="combo_c_right">C-spak høyre</string>
     <string name="combo_c_down">C-spak ned</string>
-    <string name="combo_button_settings_2">Konfigurer kombinasjonsknapp 2</string>
-    <string name="combo_button_settings_3">Konfigurer kombinasjonsknapp 3</string>
-    <string name="combo_button_settings_4">Konfigurer kombinasjonsknapp 4</string>
-    <string name="combo_button_settings_5">Konfigurer kombinasjonsknapp 5</string>
     <string name="per_game_settings">Innstillinger per spill</string>
     <string name="per_game_settings_title">Innstillinger per spill: %1$s</string>
     <string name="per_game_use_global_confirmation">Bruke den globale verdien for denne innstillingen igjen?</string>
@@ -186,9 +174,7 @@
     <string name="emulation_control_adjust">Juster overlegg</string>
     <string name="overlay_control_scale">Størrelse</string>
     <string name="overlay_control_opacity">Ugjennomsiktighet</string>
-    <string name="overlay_control_hold">Trykk for å holde</string>
     <string name="overlay_control_hold_description">Trykk én gang for å trykke, trykk igjen for å slippe</string>
-    <string name="overlay_control_rapid">Hurtigskudd</string>
     <string name="overlay_control_rapid_description">Trykk én gang for å starte automatisk trykking, trykk igjen for å stoppe</string>
     <string name="overlay_control_change_image">Endre knappebilde</string>
     <string name="overlay_control_reset">Tilbakestill</string>
@@ -310,7 +296,6 @@
     <string name="cheats_edit_text">Rediger fil</string>
     <string name="cheats_text_hint">[Juksekodenavn]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Lagre</string>
-    <string name="cheats_text_cancel">Avbryt</string>
     <string name="overlay_control_image">Bilde</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Hold</string>
@@ -370,7 +355,6 @@
     <string name="reset_to_default">Tilbakestill til standard</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Ny</string>
     <string name="touch_input_rebind">Tilordne på nytt</string>
     <string name="touch_input_all_bindings">Alle tilordninger (%1$d)</string>
     <string name="touch_input_touches_format">Berører skjermen ved %1$s</string>
@@ -416,4 +400,34 @@
     <string name="draw_batching_description">Eksperimentell (Vulkan). Slår sammen påfølgende tegnekall med identisk tilstand til ett, noe som reduserer belastningen på CPU og driver. Hvis du ser manglende eller forvrengt geometri, slå dette av.</string>
     <string name="web_api_urls">Web API-URL-er</string>
     <string name="web_api_url_2_hint">Web API-URL 2</string>
+    <string name="custom_cpu_ticks">Egendefinerte CPU-tikk</string>
+    <string name="custom_cpu_ticks_description">Teller hver blokk CPU-JIT-en kjører som et fast antall tikk i stedet for den reelle kostnaden. Høyere verdier kan gjøre spill raskere, men kan gi frys eller tidsproblemer. Har ingen effekt med tolkeren.</string>
+    <string name="cpu_ticks">CPU-tikk</string>
+    <string name="cpu_ticks_description">Tikk som telles for hver JIT-blokk. Høyere er raskere, men mindre nøyaktig; lavere gir spill mer CPU-tid på bekostning av ytelsen. Standard: 16000.</string>
+    <string name="preferences_multiplayer">Flerspiller</string>
+    <string name="preferences_multiplayer_description">Håndtering av etterslep, ny tilkobling til rom og MHGU-crossplay.</string>
+    <string name="netsync_header">Spillere som henger etter</string>
+    <string name="netsync_enabled">Vent på spillere som henger etter</string>
+    <string name="netsync_enabled_description">Holder spillet ditt kort tilbake når en annen spiller henger etter, så spillet ikke tror de har koblet fra.</string>
+    <string name="netsync_timeout">Maksimal ventetid</string>
+    <string name="netsync_timeout_description">Hvor lenge det ventes på en spiller som henger etter før spillet fortsetter uten dem. Lengre er mer tilgivende, men spillet ditt kan fryse lenger.</string>
+    <string name="auto_rejoin_header">Ny tilkobling til rom</string>
+    <string name="auto_rejoin">Koble til rommet igjen automatisk</string>
+    <string name="auto_rejoin_description">Hvis romserveren kaster deg ut, blir du med igjen med samme navn og MAC-adresse, uten feilmeldinger.</string>
+    <string name="auto_rejoin_window">Tidsgrense for ny tilkobling</string>
+    <string name="auto_rejoin_window_description">Hvor lenge det prøves å komme tilbake inn i rommet før det gis opp.</string>
+    <string name="auto_rejoin_pause">Frys spillet under ny tilkobling</string>
+    <string name="auto_rejoin_pause_description">Stopper spillets klokke til du er tilbake, så spillet ikke bryter tilkoblingen i mellomtiden.</string>
+    <string name="overlay_control_badge">Vis nummermerke</string>
+    <string name="mhgu_hub_header">MHGU-crossplay</string>
+    <string name="mhgu_hub_enabled">Spill med MHGU-spillere</string>
+    <string name="mhgu_hub_enabled_description">Kun Monster Hunter XX. Når du ikke er i et rom, går lokalt spill via hubserverne til MHGU (native port): rom du oppretter vises for MHGU-spillere, og deres rom dukker opp når du søker.</string>
+    <string name="mhgu_hub_servers">Hubservere</string>
+    <string name="mhgu_hub_servers_description">Opptil 4 serveradresser, adskilt med mellomrom.</string>
+    <string name="mhgu_hub_key">Matchmaking-nøkkel</string>
+    <string name="mhgu_hub_key_description">Bare spillere med samme nøkkel ser hverandres rom. La stå tom for offentlige rom.</string>
+    <string name="mhgu_hub_convert">Konverter nettverksmeldinger</string>
+    <string name="mhgu_hub_convert_description">Skriver om de få nettverksmeldingene som er forskjellige mellom 3DS og MHGU. La den stå på.</string>
+    <string name="mhgu_hub_log">Logg nettverkspakker</string>
+    <string name="mhgu_hub_log_description">Skriver spillets nettverkspakker til loggen, for feilsøking av tilkoblingsproblemer.</string>
 </resources>

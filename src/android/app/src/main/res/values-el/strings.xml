@@ -379,7 +379,6 @@
     <string name="touch_input_bindings">Αντιστοιχίσεις εισόδου αφής</string>
     <string name="touch_input_bindings_description">Αντιστοιχίζει πλήκτρα και μοχλούς του χειριστηρίου σε θέσεις στην κάτω οθόνη του 3DS.</string>
     <string name="bind_touch_input">Αντιστοίχιση εισόδου αφής</string>
-    <string name="bind_touch_input_message">Πατήστε ένα πλήκτρο ή μετακινήστε έναν μοχλό για αντιστοίχιση.</string>
     <string name="bind_touch_input_cancel">Ακύρωση</string>
     <string name="touch_input_empty_title">Δεν υπάρχουν ακόμη αντιστοιχίσεις</string>
     <string name="touch_input_empty_message">Πατήστε στην προεπισκόπηση για να επιλέξετε σημείο, έπειτα πατήστε ένα πλήκτρο ή μετακινήστε έναν μοχλό στο χειριστήριό σας.</string>
@@ -393,14 +392,12 @@
     <string name="touch_input_nudge_right">Μετακίνηση δεξιά</string>
     <string name="touch_input_nudge_up">Μετακίνηση πάνω</string>
     <string name="touch_input_nudge_down">Μετακίνηση κάτω</string>
-    <string name="touch_input_binding_options">Επιλογές αντιστοίχισης</string>
     <string name="delete_all">Διαγραφή όλων</string>
     <string name="delete_all_touch_input_confirm">Διαγραφή όλων των αντιστοιχίσεων εισόδου αφής για αυτό το προφίλ; Η ενέργεια δεν αναιρείται.</string>
     <string name="delete_touch_input_confirm">Διαγραφή αυτής της αντιστοίχισης εισόδου αφής;</string>
     <string name="create_profile">Δημιουργία προφίλ</string>
     <string name="create_new_profile">Νέο προφίλ</string>
     <string name="profile_action_rename_format">Μετονομασία «%1$s»</string>
-    <string name="profile_manage_format">Διαχείριση «%1$s»</string>
     <string name="profile_action_delete_format">Διαγραφή «%1$s»</string>
     <string name="delete_profile">Διαγραφή προφίλ</string>
     <string name="profile_name">Όνομα προφίλ</string>
@@ -423,11 +420,6 @@
     <string name="button_combo_3">Κουμπί Combo 3</string>
     <string name="button_combo_4">Κουμπί Combo 4</string>
     <string name="button_combo_5">Κουμπί Combo 5</string>
-    <string name="combo_button_n_1">Κουμπί Combo 1</string>
-    <string name="combo_button_n_2">Κουμπί Combo 2</string>
-    <string name="combo_button_n_3">Κουμπί Combo 3</string>
-    <string name="combo_button_n_4">Κουμπί Combo 4</string>
-    <string name="combo_button_n_5">Κουμπί Combo 5</string>
     <string name="combo_none">Κανένα</string>
     <string name="combo_button_n">Κουμπί Combo %1$d</string>
     <string name="combo_circle_left">Circle Pad αριστερά</string>
@@ -438,10 +430,6 @@
     <string name="combo_c_up">C-Stick πάνω</string>
     <string name="combo_c_right">C-Stick δεξιά</string>
     <string name="combo_c_down">C-Stick κάτω</string>
-    <string name="combo_button_settings_2">Ρύθμιση κουμπιού Combo 2</string>
-    <string name="combo_button_settings_3">Ρύθμιση κουμπιού Combo 3</string>
-    <string name="combo_button_settings_4">Ρύθμιση κουμπιού Combo 4</string>
-    <string name="combo_button_settings_5">Ρύθμιση κουμπιού Combo 5</string>
     <string name="per_game_settings">Ρυθμίσεις ανά παιχνίδι</string>
     <string name="per_game_settings_title">Ρυθμίσεις ανά παιχνίδι: %1$s</string>
     <string name="per_game_use_global_confirmation">Να χρησιμοποιηθεί ξανά η καθολική τιμή για αυτή τη ρύθμιση;</string>
@@ -451,9 +439,7 @@
     <string name="emulation_control_adjust">Προσαρμογή επικάλυψης</string>
     <string name="overlay_control_scale">Μέγεθος</string>
     <string name="overlay_control_opacity">Αδιαφάνεια</string>
-    <string name="overlay_control_hold">Πάτημα για κράτημα</string>
     <string name="overlay_control_hold_description">Πατήστε μία φορά για πάτημα, και ξανά για αποδέσμευση</string>
-    <string name="overlay_control_rapid">Γρήγορη βολή</string>
     <string name="overlay_control_rapid_description">Πατήστε μία φορά για αυτόματο πάτημα, και ξανά για διακοπή</string>
     <string name="overlay_control_change_image">Αλλαγή εικόνας κουμπιού</string>
     <string name="overlay_control_reset">Επαναφορά</string>
@@ -575,7 +561,6 @@
     <string name="cheats_edit_text">Επεξεργασία αρχείου</string>
     <string name="cheats_text_hint">[Όνομα cheat]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Αποθήκευση</string>
-    <string name="cheats_text_cancel">Ακύρωση</string>
     <string name="overlay_control_image">Εικόνα</string>
     <string name="overlay_control_mode_normal">Κανονικό</string>
     <string name="overlay_control_mode_hold">Κράτημα</string>
@@ -635,7 +620,6 @@
     <string name="reset_to_default">Επαναφορά στις προεπιλογές</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Νέο</string>
     <string name="touch_input_rebind">Επανασύνδεση</string>
     <string name="touch_input_all_bindings">Όλες οι αντιστοιχίσεις (%1$d)</string>
     <string name="touch_input_touches_format">Αγγίζει την οθόνη στο %1$s</string>
@@ -679,4 +663,34 @@
     <string name="draw_batching_description">Πειραματικό (Vulkan). Συγχωνεύει διαδοχικές κλήσεις σχεδίασης με πανομοιότυπη κατάσταση σε μία, μειώνοντας το φορτίο της CPU και του προγράμματος οδήγησης. Αν δείτε γεωμετρία που λείπει ή παραμορφώνεται, απενεργοποιήστε το.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Προσαρμοσμένα tick CPU</string>
+    <string name="custom_cpu_ticks_description">Μετρά κάθε μπλοκ που εκτελεί το JIT της CPU ως σταθερό αριθμό tick αντί για το πραγματικό του κόστος. Υψηλότερες τιμές μπορεί να κάνουν τα παιχνίδια ταχύτερα, αλλά μπορεί να προκαλέσουν παγώματα ή προβλήματα χρονισμού. Δεν επηρεάζει τον διερμηνέα.</string>
+    <string name="cpu_ticks">Tick CPU</string>
+    <string name="cpu_ticks_description">Tick που μετρώνται για κάθε μπλοκ JIT. Υψηλότερο είναι ταχύτερο αλλά λιγότερο ακριβές· χαμηλότερο δίνει στα παιχνίδια περισσότερο χρόνο CPU με κόστος στην απόδοση. Προεπιλογή: 16000.</string>
+    <string name="preferences_multiplayer">Πολλοί παίκτες</string>
+    <string name="preferences_multiplayer_description">Διαχείριση καθυστέρησης, επανασύνδεση σε δωμάτιο και crossplay με το MHGU.</string>
+    <string name="netsync_header">Παίκτες που καθυστερούν</string>
+    <string name="netsync_enabled">Αναμονή για παίκτες που καθυστερούν</string>
+    <string name="netsync_enabled_description">Κρατά για λίγο το παιχνίδι σου όταν ένας άλλος παίκτης μένει πίσω, ώστε το παιχνίδι να μη νομίσει ότι αποσυνδέθηκε.</string>
+    <string name="netsync_timeout">Μέγιστη αναμονή</string>
+    <string name="netsync_timeout_description">Πόσο να περιμένει έναν παίκτη που καθυστερεί πριν συνεχίσει χωρίς αυτόν. Περισσότερος χρόνος είναι πιο ανεκτικός, αλλά το παιχνίδι σου μπορεί να παγώσει περισσότερο.</string>
+    <string name="auto_rejoin_header">Επανασύνδεση σε δωμάτιο</string>
+    <string name="auto_rejoin">Αυτόματη επανασύνδεση στο δωμάτιο</string>
+    <string name="auto_rejoin_description">Αν ο διακομιστής του δωματίου σε αποσυνδέσει, επιστρέφεις με το ίδιο όνομα και την ίδια διεύθυνση MAC, χωρίς μηνύματα σφάλματος.</string>
+    <string name="auto_rejoin_window">Χρονικό όριο επανασύνδεσης</string>
+    <string name="auto_rejoin_window_description">Πόσο να συνεχίσει να προσπαθεί να μπει ξανά στο δωμάτιο πριν τα παρατήσει.</string>
+    <string name="auto_rejoin_pause">Πάγωμα παιχνιδιού κατά την επανασύνδεση</string>
+    <string name="auto_rejoin_pause_description">Σταματά το ρολόι του παιχνιδιού μέχρι να επιστρέψεις, ώστε το παιχνίδι να μη διακόψει τη σύνδεση στο μεταξύ.</string>
+    <string name="overlay_control_badge">Εμφάνιση σήματος αριθμού</string>
+    <string name="mhgu_hub_header">Crossplay με το MHGU</string>
+    <string name="mhgu_hub_enabled">Παιχνίδι με παίκτες του MHGU</string>
+    <string name="mhgu_hub_enabled_description">Μόνο Monster Hunter XX. Όσο δεν είσαι σε δωμάτιο, το τοπικό παιχνίδι περνά από τους διακομιστές hub του MHGU (εγγενής μεταφορά): τα δωμάτια που δημιουργείς εμφανίζονται στους παίκτες του MHGU, και τα δικά τους εμφανίζονται όταν κάνεις αναζήτηση.</string>
+    <string name="mhgu_hub_servers">Διακομιστές hub</string>
+    <string name="mhgu_hub_servers_description">Έως 4 διευθύνσεις διακομιστών, χωρισμένες με κενά.</string>
+    <string name="mhgu_hub_key">Κλειδί αντιστοίχισης</string>
+    <string name="mhgu_hub_key_description">Μόνο παίκτες με το ίδιο κλειδί βλέπουν ο ένας τα δωμάτια του άλλου. Άφησέ το κενό για δημόσια δωμάτια.</string>
+    <string name="mhgu_hub_convert">Μετατροπή μηνυμάτων δικτύου</string>
+    <string name="mhgu_hub_convert_description">Ξαναγράφει τα λίγα μηνύματα δικτύου που διαφέρουν μεταξύ 3DS και MHGU. Άφησέ το ενεργό.</string>
+    <string name="mhgu_hub_log">Καταγραφή πακέτων δικτύου</string>
+    <string name="mhgu_hub_log_description">Γράφει τα πακέτα δικτύου του παιχνιδιού στο αρχείο καταγραφής, για τη διερεύνηση προβλημάτων σύνδεσης.</string>
 </resources>

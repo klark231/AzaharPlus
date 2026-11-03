@@ -536,7 +536,6 @@
     <string name="touch_input_bindings">Привязки сенсорного ввода</string>
     <string name="touch_input_bindings_description">Сопоставляет кнопки и стики контроллера с позициями на нижнем экране 3DS.</string>
     <string name="bind_touch_input">Привязать сенсорный ввод</string>
-    <string name="bind_touch_input_message">Нажмите кнопку или сдвиньте стик, чтобы привязать её.</string>
     <string name="bind_touch_input_cancel">Отмена</string>
     <string name="touch_input_empty_title">Пока нет привязок</string>
     <string name="touch_input_empty_message">Коснитесь предпросмотра, чтобы выбрать место, затем нажмите кнопку или сдвиньте стик на контроллере.</string>
@@ -550,14 +549,12 @@
     <string name="touch_input_nudge_right">Сдвинуть вправо</string>
     <string name="touch_input_nudge_up">Сдвинуть вверх</string>
     <string name="touch_input_nudge_down">Сдвинуть вниз</string>
-    <string name="touch_input_binding_options">Параметры привязки</string>
     <string name="delete_all">Удалить все</string>
     <string name="delete_all_touch_input_confirm">Удалить все привязки сенсорного ввода для этого профиля? Это действие необратимо.</string>
     <string name="delete_touch_input_confirm">Удалить эту привязку сенсорного ввода?</string>
     <string name="create_profile">Создать профиль</string>
     <string name="create_new_profile">Новый профиль</string>
     <string name="profile_action_rename_format">Переименовать «%1$s»</string>
-    <string name="profile_manage_format">Управление «%1$s»</string>
     <string name="profile_action_delete_format">Удалить «%1$s»</string>
     <string name="delete_profile">Удалить профиль</string>
     <string name="profile_name">Имя профиля</string>
@@ -580,11 +577,6 @@
     <string name="button_combo_3">Комбо-кнопка 3</string>
     <string name="button_combo_4">Комбо-кнопка 4</string>
     <string name="button_combo_5">Комбо-кнопка 5</string>
-    <string name="combo_button_n_1">Комбо-кнопка 1</string>
-    <string name="combo_button_n_2">Комбо-кнопка 2</string>
-    <string name="combo_button_n_3">Комбо-кнопка 3</string>
-    <string name="combo_button_n_4">Комбо-кнопка 4</string>
-    <string name="combo_button_n_5">Комбо-кнопка 5</string>
     <string name="combo_none">Нет</string>
     <string name="combo_button_n">Комбо-кнопка %1$d</string>
     <string name="combo_circle_left">Джойстик влево</string>
@@ -595,10 +587,6 @@
     <string name="combo_c_up">C-стик вверх</string>
     <string name="combo_c_right">C-стик вправо</string>
     <string name="combo_c_down">C-стик вниз</string>
-    <string name="combo_button_settings_2">Настройка комбо-кнопки 2</string>
-    <string name="combo_button_settings_3">Настройка комбо-кнопки 3</string>
-    <string name="combo_button_settings_4">Настройка комбо-кнопки 4</string>
-    <string name="combo_button_settings_5">Настройка комбо-кнопки 5</string>
     <string name="per_game_settings">Настройки для игры</string>
     <string name="per_game_settings_title">Настройки для игры: %1$s</string>
     <string name="per_game_use_global_confirmation">Снова использовать глобальное значение для этой настройки?</string>
@@ -608,9 +596,7 @@
     <string name="emulation_control_adjust">Настроить оверлей</string>
     <string name="overlay_control_scale">Размер</string>
     <string name="overlay_control_opacity">Непрозрачность</string>
-    <string name="overlay_control_hold">Нажатие для удержания</string>
     <string name="overlay_control_hold_description">Нажмите один раз, чтобы зажать, и ещё раз, чтобы отпустить</string>
-    <string name="overlay_control_rapid">Автонажатие</string>
     <string name="overlay_control_rapid_description">Нажмите один раз, чтобы начать автонажатие, и ещё раз, чтобы остановить</string>
     <string name="overlay_control_change_image">Сменить изображение кнопки</string>
     <string name="overlay_control_reset">Сброс</string>
@@ -732,7 +718,6 @@
     <string name="cheats_edit_text">Изменить файл</string>
     <string name="cheats_text_hint">[Название чита]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Сохранить</string>
-    <string name="cheats_text_cancel">Отмена</string>
     <string name="overlay_control_image">Изображение</string>
     <string name="overlay_control_mode_normal">Обычный</string>
     <string name="overlay_control_mode_hold">Удержание</string>
@@ -791,7 +776,6 @@
     <string name="original_button_text">Присоединиться</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Новый</string>
     <string name="touch_input_rebind">Назначить заново</string>
     <string name="touch_input_all_bindings">Все привязки (%1$d)</string>
     <string name="touch_input_touches_format">Касается экрана в точке %1$s</string>
@@ -834,4 +818,34 @@
     <string name="draw_batching_description">Экспериментально (Vulkan). Объединяет последовательные вызовы отрисовки с одинаковым состоянием в один, снижая нагрузку на CPU и драйвер. Если пропадает или искажается геометрия, отключите эту функцию.</string>
     <string name="web_api_urls">URL Web API</string>
     <string name="web_api_url_2_hint">URL Web API 2</string>
+    <string name="custom_cpu_ticks">Свои такты ЦП</string>
+    <string name="custom_cpu_ticks_description">Считает каждый блок, выполненный JIT процессора, фиксированным числом тактов вместо реальной стоимости. Большие значения могут ускорить игры, но вызвать зависания или проблемы с таймингами. Не влияет на интерпретатор.</string>
+    <string name="cpu_ticks">Такты ЦП</string>
+    <string name="cpu_ticks_description">Такты на каждый блок JIT. Больше — быстрее, но менее точно; меньше — играм больше времени ЦП ценой производительности. По умолчанию: 16000.</string>
+    <string name="preferences_multiplayer">Сетевая игра</string>
+    <string name="preferences_multiplayer_description">Обработка лагов, переподключение к комнате и кроссплей с MHGU.</string>
+    <string name="netsync_header">Отстающие игроки</string>
+    <string name="netsync_enabled">Ждать отстающих игроков</string>
+    <string name="netsync_enabled_description">Ненадолго придерживает вашу игру, когда другой игрок отстаёт, чтобы игра не сочла его отключившимся.</string>
+    <string name="netsync_timeout">Максимальное ожидание</string>
+    <string name="netsync_timeout_description">Сколько ждать отстающего игрока, прежде чем продолжить без него. Дольше — терпимее, но ваша игра может дольше стоять.</string>
+    <string name="auto_rejoin_header">Переподключение к комнате</string>
+    <string name="auto_rejoin">Автоматически переподключаться к комнате</string>
+    <string name="auto_rejoin_description">Если сервер комнаты вас отключит, вы вернётесь с тем же именем и MAC-адресом, без сообщений об ошибках.</string>
+    <string name="auto_rejoin_window">Время на переподключение</string>
+    <string name="auto_rejoin_window_description">Сколько пытаться вернуться в комнату, прежде чем сдаться.</string>
+    <string name="auto_rejoin_pause">Замораживать игру при переподключении</string>
+    <string name="auto_rejoin_pause_description">Останавливает часы игры до вашего возвращения, чтобы игра не разорвала соединение за это время.</string>
+    <string name="overlay_control_badge">Показывать значок с номером</string>
+    <string name="mhgu_hub_header">Кроссплей с MHGU</string>
+    <string name="mhgu_hub_enabled">Играть с игроками MHGU</string>
+    <string name="mhgu_hub_enabled_description">Только Monster Hunter XX. Пока вы не в комнате, локальная игра идёт через хаб-серверы MHGU (нативный порт): созданные вами комнаты видят игроки MHGU, а их комнаты появляются при поиске.</string>
+    <string name="mhgu_hub_servers">Хаб-серверы</string>
+    <string name="mhgu_hub_servers_description">До 4 адресов серверов через пробел.</string>
+    <string name="mhgu_hub_key">Ключ подбора игроков</string>
+    <string name="mhgu_hub_key_description">Только игроки с одинаковым ключом видят комнаты друг друга. Оставьте пустым для открытых комнат.</string>
+    <string name="mhgu_hub_convert">Преобразовывать сетевые сообщения</string>
+    <string name="mhgu_hub_convert_description">Переписывает те немногие сетевые сообщения, которые различаются у 3DS и MHGU. Оставьте включённым.</string>
+    <string name="mhgu_hub_log">Записывать сетевые пакеты</string>
+    <string name="mhgu_hub_log_description">Записывает сетевые пакеты игры в журнал, чтобы разобраться с проблемами подключения.</string>
 </resources>

@@ -44,7 +44,6 @@
     <string name="touch_input_bindings">Pengikatan Input Sentuh</string>
     <string name="touch_input_bindings_description">Memetakan tombol dan analog kontroler ke posisi pada layar bawah 3DS.</string>
     <string name="bind_touch_input">Ikat Input Sentuh</string>
-    <string name="bind_touch_input_message">Tekan tombol atau gerakkan analog untuk mengikatnya.</string>
     <string name="bind_touch_input_cancel">Batal</string>
     <string name="touch_input_empty_title">Belum ada pengikatan</string>
     <string name="touch_input_empty_message">Ketuk pratinjau untuk memilih posisi, lalu tekan tombol atau gerakkan analog pada kontroler Anda.</string>
@@ -58,14 +57,12 @@
     <string name="touch_input_nudge_right">Geser kanan</string>
     <string name="touch_input_nudge_up">Geser atas</string>
     <string name="touch_input_nudge_down">Geser bawah</string>
-    <string name="touch_input_binding_options">Opsi pengikatan</string>
     <string name="delete_all">Hapus semua</string>
     <string name="delete_all_touch_input_confirm">Hapus semua pengikatan input sentuh untuk profil ini? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="delete_touch_input_confirm">Hapus pengikatan input sentuh ini?</string>
     <string name="create_profile">Buat Profil</string>
     <string name="create_new_profile">Profil Baru</string>
     <string name="profile_action_rename_format">Ganti nama “%1$s”</string>
-    <string name="profile_manage_format">Kelola “%1$s”</string>
     <string name="profile_action_delete_format">Hapus “%1$s”</string>
     <string name="delete_profile">Hapus Profil</string>
     <string name="profile_name">Nama Profil</string>
@@ -88,11 +85,6 @@
     <string name="button_combo_3">Tombol Kombo 3</string>
     <string name="button_combo_4">Tombol Kombo 4</string>
     <string name="button_combo_5">Tombol Kombo 5</string>
-    <string name="combo_button_n_1">Tombol Kombo 1</string>
-    <string name="combo_button_n_2">Tombol Kombo 2</string>
-    <string name="combo_button_n_3">Tombol Kombo 3</string>
-    <string name="combo_button_n_4">Tombol Kombo 4</string>
-    <string name="combo_button_n_5">Tombol Kombo 5</string>
     <string name="combo_none">Tidak ada</string>
     <string name="combo_button_n">Tombol Kombo %1$d</string>
     <string name="combo_circle_left">Circle Pad Kiri</string>
@@ -103,10 +95,6 @@
     <string name="combo_c_up">C-Stick Atas</string>
     <string name="combo_c_right">C-Stick Kanan</string>
     <string name="combo_c_down">C-Stick Bawah</string>
-    <string name="combo_button_settings_2">Atur Tombol Kombo 2</string>
-    <string name="combo_button_settings_3">Atur Tombol Kombo 3</string>
-    <string name="combo_button_settings_4">Atur Tombol Kombo 4</string>
-    <string name="combo_button_settings_5">Atur Tombol Kombo 5</string>
     <string name="per_game_settings">Pengaturan per game</string>
     <string name="per_game_settings_title">Pengaturan per game: %1$s</string>
     <string name="per_game_use_global_confirmation">Gunakan lagi nilai global untuk pengaturan ini?</string>
@@ -117,9 +105,7 @@
     <string name="emulation_control_adjust">Sesuaikan Overlay</string>
     <string name="overlay_control_scale">Ukuran</string>
     <string name="overlay_control_opacity">Opasitas</string>
-    <string name="overlay_control_hold">Ketuk untuk menahan</string>
     <string name="overlay_control_hold_description">Ketuk sekali untuk menekan, ketuk lagi untuk melepas</string>
-    <string name="overlay_control_rapid">Tembak cepat</string>
     <string name="overlay_control_rapid_description">Ketuk sekali untuk mulai menekan otomatis, ketuk lagi untuk berhenti</string>
     <string name="overlay_control_change_image">Ubah gambar tombol</string>
     <string name="overlay_control_reset">Atur ulang</string>
@@ -241,7 +227,6 @@
     <string name="cheats_edit_text">Edit file</string>
     <string name="cheats_text_hint">[Nama cheat]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Simpan</string>
-    <string name="cheats_text_cancel">Batal</string>
     <string name="overlay_control_image">Gambar</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Tahan</string>
@@ -301,7 +286,6 @@
     <string name="reset_to_default">Setel ulang ke default</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Baru</string>
     <string name="touch_input_rebind">Petakan ulang</string>
     <string name="touch_input_all_bindings">Semua pemetaan (%1$d)</string>
     <string name="touch_input_touches_format">Menyentuh layar di %1$s</string>
@@ -346,4 +330,34 @@
     <string name="draw_batching_description">Eksperimental (Vulkan). Menggabungkan panggilan gambar berurutan dengan status identik menjadi satu, sehingga mengurangi beban CPU dan driver. Jika terlihat geometri hilang atau terdistorsi, matikan opsi ini.</string>
     <string name="web_api_urls">URL Web API</string>
     <string name="web_api_url_2_hint">URL Web API 2</string>
+    <string name="custom_cpu_ticks">Tick CPU kustom</string>
+    <string name="custom_cpu_ticks_description">Menghitung setiap blok yang dijalankan JIT CPU sebagai jumlah tick tetap, bukan biaya sebenarnya. Nilai lebih tinggi bisa membuat game lebih cepat, tetapi bisa menyebabkan macet atau masalah timing. Tidak berpengaruh pada interpreter.</string>
+    <string name="cpu_ticks">Tick CPU</string>
+    <string name="cpu_ticks_description">Tick yang dihitung untuk setiap blok JIT. Lebih tinggi lebih cepat tetapi kurang akurat; lebih rendah memberi game lebih banyak waktu CPU dengan mengorbankan performa. Bawaan: 16000.</string>
+    <string name="preferences_multiplayer">Multipemain</string>
+    <string name="preferences_multiplayer_description">Penanganan lag, sambung ulang ke room, dan crossplay MHGU.</string>
+    <string name="netsync_header">Pemain yang tertinggal</string>
+    <string name="netsync_enabled">Tunggu pemain yang tertinggal</string>
+    <string name="netsync_enabled_description">Menahan game kamu sebentar saat pemain lain tertinggal, agar game tidak mengira dia terputus.</string>
+    <string name="netsync_timeout">Waktu tunggu maksimum</string>
+    <string name="netsync_timeout_description">Berapa lama menunggu pemain yang tertinggal sebelum lanjut tanpa dia. Lebih lama lebih toleran, tetapi game kamu bisa membeku lebih lama.</string>
+    <string name="auto_rejoin_header">Sambung ulang ke room</string>
+    <string name="auto_rejoin">Sambung ulang ke room secara otomatis</string>
+    <string name="auto_rejoin_description">Jika server room memutus kamu, masuk lagi dengan nama dan alamat MAC yang sama, tanpa pesan galat.</string>
+    <string name="auto_rejoin_window">Batas waktu sambung ulang</string>
+    <string name="auto_rejoin_window_description">Berapa lama terus mencoba masuk lagi ke room sebelum menyerah.</string>
+    <string name="auto_rejoin_pause">Bekukan game saat menyambung ulang</string>
+    <string name="auto_rejoin_pause_description">Menghentikan jam game sampai kamu kembali, agar game tidak memutus koneksi di sela waktu itu.</string>
+    <string name="overlay_control_badge">Tampilkan lencana nomor</string>
+    <string name="mhgu_hub_header">Crossplay MHGU</string>
+    <string name="mhgu_hub_enabled">Main dengan pemain MHGU</string>
+    <string name="mhgu_hub_enabled_description">Hanya Monster Hunter XX. Selama kamu tidak di dalam room, main lokal lewat server hub MHGU (port native): room yang kamu buat muncul bagi pemain MHGU, dan room mereka muncul saat kamu mencari.</string>
+    <string name="mhgu_hub_servers">Server hub</string>
+    <string name="mhgu_hub_servers_description">Hingga 4 alamat server, dipisahkan spasi.</string>
+    <string name="mhgu_hub_key">Kunci matchmaking</string>
+    <string name="mhgu_hub_key_description">Hanya pemain dengan kunci yang sama yang bisa saling melihat room. Kosongkan untuk room publik.</string>
+    <string name="mhgu_hub_convert">Konversi pesan jaringan</string>
+    <string name="mhgu_hub_convert_description">Menulis ulang beberapa pesan jaringan yang berbeda antara 3DS dan MHGU. Biarkan aktif.</string>
+    <string name="mhgu_hub_log">Catat paket jaringan</string>
+    <string name="mhgu_hub_log_description">Menulis paket jaringan game ke log, untuk menelusuri masalah koneksi.</string>
 </resources>

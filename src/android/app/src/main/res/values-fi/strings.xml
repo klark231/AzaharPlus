@@ -67,7 +67,6 @@
     <string name="touch_input_bindings">Kosketussyötteen sidonnat</string>
     <string name="touch_input_bindings_description">Yhdistää ohjaimen painikkeet ja sauvat sijainteihin 3DS:n alaruudulla.</string>
     <string name="bind_touch_input">Sido kosketussyöte</string>
-    <string name="bind_touch_input_message">Paina painiketta tai liikuta sauvaa sitoaksesi sen.</string>
     <string name="bind_touch_input_cancel">Peruuta</string>
     <string name="touch_input_empty_title">Ei vielä sidontoja</string>
     <string name="touch_input_empty_message">Napauta esikatselua valitaksesi kohdan ja paina sitten painiketta tai liikuta sauvaa ohjaimellasi.</string>
@@ -81,14 +80,12 @@
     <string name="touch_input_nudge_right">Siirrä oikealle</string>
     <string name="touch_input_nudge_up">Siirrä ylös</string>
     <string name="touch_input_nudge_down">Siirrä alas</string>
-    <string name="touch_input_binding_options">Sidonnan asetukset</string>
     <string name="delete_all">Poista kaikki</string>
     <string name="delete_all_touch_input_confirm">Poistetaanko kaikki tämän profiilin kosketussyötesidonnat? Tätä ei voi kumota.</string>
     <string name="delete_touch_input_confirm">Poistetaanko tämä kosketussyötesidonta?</string>
     <string name="create_profile">Luo profiili</string>
     <string name="create_new_profile">Uusi profiili</string>
     <string name="profile_action_rename_format">Nimeä ”%1$s” uudelleen</string>
-    <string name="profile_manage_format">Hallitse ”%1$s”</string>
     <string name="profile_action_delete_format">Poista ”%1$s”</string>
     <string name="delete_profile">Poista profiili</string>
     <string name="profile_name">Profiilin nimi</string>
@@ -111,11 +108,6 @@
     <string name="button_combo_3">Yhdistelmäpainike 3</string>
     <string name="button_combo_4">Yhdistelmäpainike 4</string>
     <string name="button_combo_5">Yhdistelmäpainike 5</string>
-    <string name="combo_button_n_1">Yhdistelmäpainike 1</string>
-    <string name="combo_button_n_2">Yhdistelmäpainike 2</string>
-    <string name="combo_button_n_3">Yhdistelmäpainike 3</string>
-    <string name="combo_button_n_4">Yhdistelmäpainike 4</string>
-    <string name="combo_button_n_5">Yhdistelmäpainike 5</string>
     <string name="combo_none">Ei mitään</string>
     <string name="combo_button_n">Yhdistelmäpainike %1$d</string>
     <string name="combo_circle_left">Circle Pad vasemmalle</string>
@@ -126,10 +118,6 @@
     <string name="combo_c_up">C-Tikku ylös</string>
     <string name="combo_c_right">C-Tikku oikealle</string>
     <string name="combo_c_down">C-Tikku alas</string>
-    <string name="combo_button_settings_2">Määritä yhdistelmäpainike 2</string>
-    <string name="combo_button_settings_3">Määritä yhdistelmäpainike 3</string>
-    <string name="combo_button_settings_4">Määritä yhdistelmäpainike 4</string>
-    <string name="combo_button_settings_5">Määritä yhdistelmäpainike 5</string>
     <string name="per_game_settings">Pelikohtaiset asetukset</string>
     <string name="per_game_settings_title">Pelikohtaiset asetukset: %1$s</string>
     <string name="per_game_use_global_confirmation">Käytetäänkö tämän asetuksen kohdalla taas yleistä arvoa?</string>
@@ -140,9 +128,7 @@
     <string name="emulation_control_adjust">Säädä peittoa</string>
     <string name="overlay_control_scale">Koko</string>
     <string name="overlay_control_opacity">Peittävyys</string>
-    <string name="overlay_control_hold">Napauta pitääksesi</string>
     <string name="overlay_control_hold_description">Napauta kerran painaaksesi, napauta uudelleen vapauttaaksesi</string>
-    <string name="overlay_control_rapid">Pikatuli</string>
     <string name="overlay_control_rapid_description">Napauta kerran aloittaaksesi automaattisen painamisen, napauta uudelleen lopettaaksesi</string>
     <string name="overlay_control_change_image">Vaihda painikkeen kuva</string>
     <string name="overlay_control_reset">Palauta</string>
@@ -264,7 +250,6 @@
     <string name="cheats_edit_text">Muokkaa tiedostoa</string>
     <string name="cheats_text_hint">[Huijauksen nimi]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Tallenna</string>
-    <string name="cheats_text_cancel">Peruuta</string>
     <string name="overlay_control_image">Kuva</string>
     <string name="overlay_control_mode_normal">Normaali</string>
     <string name="overlay_control_mode_hold">Pito</string>
@@ -324,7 +309,6 @@
     <string name="reset_to_default">Palauta oletukset</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Uusi</string>
     <string name="touch_input_rebind">Sido uudelleen</string>
     <string name="touch_input_all_bindings">Kaikki sidonnat (%1$d)</string>
     <string name="touch_input_touches_format">Koskettaa näyttöä kohdassa %1$s</string>
@@ -370,4 +354,34 @@
     <string name="draw_batching_description">Kokeellinen (Vulkan). Yhdistää peräkkäiset piirtokutsut, joilla on identtinen tila, yhdeksi, mikä vähentää suorittimen ja ajurin kuormitusta. Jos näet puuttuvaa tai vääristynyttä geometriaa, poista tämä käytöstä.</string>
     <string name="web_api_urls">Web API -URL-osoitteet</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Mukautetut CPU-tikit</string>
+    <string name="custom_cpu_ticks_description">Laskee jokaisen CPU:n JIT-lohkon kiinteäksi määräksi tikkejä todellisen kustannuksen sijaan. Suuremmat arvot voivat nopeuttaa pelejä, mutta voivat aiheuttaa jumiutumisia tai ajoitusongelmia. Ei vaikuta tulkkiin.</string>
+    <string name="cpu_ticks">CPU-tikit</string>
+    <string name="cpu_ticks_description">Jokaisesta JIT-lohkosta laskettavat tikit. Suurempi on nopeampi mutta epätarkempi; pienempi antaa peleille enemmän CPU-aikaa suorituskyvyn kustannuksella. Oletus: 16000.</string>
+    <string name="preferences_multiplayer">Moninpeli</string>
+    <string name="preferences_multiplayer_description">Viiveen käsittely, uudelleenyhdistäminen huoneeseen ja MHGU-ristipeli.</string>
+    <string name="netsync_header">Jälkeen jäävät pelaajat</string>
+    <string name="netsync_enabled">Odota jälkeen jääviä pelaajia</string>
+    <string name="netsync_enabled_description">Pysäyttää pelisi hetkeksi, kun toinen pelaaja jää jälkeen, jotta peli ei luule yhteyden katkenneen.</string>
+    <string name="netsync_timeout">Enimmäisodotus</string>
+    <string name="netsync_timeout_description">Kuinka kauan jälkeen jäävää pelaajaa odotetaan ennen kuin jatketaan ilman häntä. Pidempi antaa enemmän anteeksi, mutta pelisi voi jäätyä pidempään.</string>
+    <string name="auto_rejoin_header">Uudelleenyhdistäminen huoneeseen</string>
+    <string name="auto_rejoin">Yhdistä huoneeseen automaattisesti uudelleen</string>
+    <string name="auto_rejoin_description">Jos huonepalvelin pudottaa sinut, palaat samalla nimellä ja MAC-osoitteella ilman virheilmoituksia.</string>
+    <string name="auto_rejoin_window">Uudelleenyhdistämisen aikaraja</string>
+    <string name="auto_rejoin_window_description">Kuinka kauan huoneeseen yritetään palata ennen luovuttamista.</string>
+    <string name="auto_rejoin_pause">Jäädytä peli uudelleenyhdistämisen ajaksi</string>
+    <string name="auto_rejoin_pause_description">Pysäyttää pelin kellon, kunnes palaat, jotta peli ei katkaise yhteyttä sillä välin.</string>
+    <string name="overlay_control_badge">Näytä numeromerkki</string>
+    <string name="mhgu_hub_header">MHGU-ristipeli</string>
+    <string name="mhgu_hub_enabled">Pelaa MHGU-pelaajien kanssa</string>
+    <string name="mhgu_hub_enabled_description">Vain Monster Hunter XX. Kun et ole huoneessa, paikallinen peli kulkee MHGU:n (natiivi portti) hub-palvelimien kautta: luomasi huoneet näkyvät MHGU-pelaajille, ja heidän huoneensa näkyvät hakiessasi.</string>
+    <string name="mhgu_hub_servers">Hub-palvelimet</string>
+    <string name="mhgu_hub_servers_description">Enintään 4 palvelinosoitetta välilyönneillä erotettuina.</string>
+    <string name="mhgu_hub_key">Matchmaking-avain</string>
+    <string name="mhgu_hub_key_description">Vain samalla avaimella olevat pelaajat näkevät toistensa huoneet. Jätä tyhjäksi julkisia huoneita varten.</string>
+    <string name="mhgu_hub_convert">Muunna verkkoviestit</string>
+    <string name="mhgu_hub_convert_description">Kirjoittaa uudelleen ne harvat verkkoviestit, jotka eroavat 3DS:n ja MHGU:n välillä. Pidä päällä.</string>
+    <string name="mhgu_hub_log">Kirjaa verkkopaketit</string>
+    <string name="mhgu_hub_log_description">Kirjoittaa pelin verkkopaketit lokiin yhteysongelmien selvittämistä varten.</string>
 </resources>

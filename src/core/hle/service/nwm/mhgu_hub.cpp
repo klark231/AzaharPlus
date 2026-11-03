@@ -597,6 +597,20 @@ private:
         });
     }
 
+    static const char* RefuseReason(u32 r) {
+        switch (r) {
+        case H::R_TOO_MANY_PLAYERS:
+            return "the room is full";
+        case H::R_CONNECT_REJECTED:
+            return "the room is closed to new players";
+        case H::R_VERSION_TOO_LOW:
+        case H::R_VERSION_TOO_HIGH:
+            return "different game version";
+        default:
+            return "unknown reason";
+        }
+    }
+
     void StationJoinFailed(u64 gen, const char* why) {
         if (gen != station_gen) {
             return;
@@ -612,8 +626,12 @@ private:
         }
         if (type == H::F_REFUSE) {
             H::CloseSock(sp.sock);
-            LOG_WARNING(Service_NWM, "[hub] the host refused (result {:#x})", H::Rd32(buf.data()));
+            const u32 r = buf.size() >= 4 ? H::Rd32(buf.data()) : 0;
+            LOG_WARNING(Service_NWM, "[hub] the host refused: {} ({:#x})", RefuseReason(r), r);
             sta = Sta::Idle;
+            if (!list_pending) {
+                RequestList(); // the listing was out of date: get a fresh one for the next search
+            }
             return;
         }
         H::NetInfo info{};
@@ -625,7 +643,7 @@ private:
         }
         if (!ok) {
             H::CloseSock(sp.sock);
-            LOG_WARNING(Service_NWM, "[hub] the host's answer made no sense");
+            LOG_WARNING(Service_NWM, "[hub] unexpected answer from the host (frame {}, {} bytes)", type, buf.size());
             sta = Sta::Idle;
             return;
         }

@@ -211,7 +211,6 @@
     <string name="touch_input_bindings">Lietimo įvesties susiejimai</string>
     <string name="touch_input_bindings_description">Susieja valdiklio mygtukus ir svirteles su pozicijomis 3DS apatiniame ekrane.</string>
     <string name="bind_touch_input">Susieti lietimo įvestį</string>
-    <string name="bind_touch_input_message">Paspauskite mygtuką arba pajudinkite svirtelę, kad ją susietumėte.</string>
     <string name="bind_touch_input_cancel">Atšaukti</string>
     <string name="touch_input_empty_title">Kol kas nėra susiejimų</string>
     <string name="touch_input_empty_message">Bakstelėkite peržiūrą, kad pasirinktumėte vietą, tada paspauskite mygtuką arba pajudinkite svirtelę valdiklyje.</string>
@@ -225,14 +224,12 @@
     <string name="touch_input_nudge_right">Perkelti dešinėn</string>
     <string name="touch_input_nudge_up">Perkelti aukštyn</string>
     <string name="touch_input_nudge_down">Perkelti žemyn</string>
-    <string name="touch_input_binding_options">Susiejimo parinktys</string>
     <string name="delete_all">Ištrinti viską</string>
     <string name="delete_all_touch_input_confirm">Ištrinti visus šio profilio lietimo įvesties susiejimus? Šio veiksmo anuliuoti negalima.</string>
     <string name="delete_touch_input_confirm">Ištrinti šį lietimo įvesties susiejimą?</string>
     <string name="create_profile">Sukurti profilį</string>
     <string name="create_new_profile">Naujas profilis</string>
     <string name="profile_action_rename_format">Pervadinti „%1$s“</string>
-    <string name="profile_manage_format">Tvarkyti „%1$s“</string>
     <string name="profile_action_delete_format">Ištrinti „%1$s“</string>
     <string name="delete_profile">Ištrinti profilį</string>
     <string name="profile_name">Profilio pavadinimas</string>
@@ -255,11 +252,6 @@
     <string name="button_combo_3">Kombinuotas mygtukas 3</string>
     <string name="button_combo_4">Kombinuotas mygtukas 4</string>
     <string name="button_combo_5">Kombinuotas mygtukas 5</string>
-    <string name="combo_button_n_1">Kombinuotas mygtukas 1</string>
-    <string name="combo_button_n_2">Kombinuotas mygtukas 2</string>
-    <string name="combo_button_n_3">Kombinuotas mygtukas 3</string>
-    <string name="combo_button_n_4">Kombinuotas mygtukas 4</string>
-    <string name="combo_button_n_5">Kombinuotas mygtukas 5</string>
     <string name="combo_none">Nieko</string>
     <string name="combo_button_n">Kombinuotas mygtukas %1$d</string>
     <string name="combo_circle_left">Circle Pad kairėn</string>
@@ -270,10 +262,6 @@
     <string name="combo_c_up">C-Stick aukštyn</string>
     <string name="combo_c_right">C-Stick dešinėn</string>
     <string name="combo_c_down">C-Stick žemyn</string>
-    <string name="combo_button_settings_2">Konfigūruoti kombinuotą mygtuką 2</string>
-    <string name="combo_button_settings_3">Konfigūruoti kombinuotą mygtuką 3</string>
-    <string name="combo_button_settings_4">Konfigūruoti kombinuotą mygtuką 4</string>
-    <string name="combo_button_settings_5">Konfigūruoti kombinuotą mygtuką 5</string>
     <string name="per_game_settings">Nustatymai kiekvienam žaidimui</string>
     <string name="per_game_settings_title">Žaidimo nustatymai: %1$s</string>
     <string name="per_game_use_global_confirmation">Vėl naudoti bendrą šio nustatymo reikšmę?</string>
@@ -283,9 +271,7 @@
     <string name="emulation_control_adjust">Derinti ekrano valdymą</string>
     <string name="overlay_control_scale">Dydis</string>
     <string name="overlay_control_opacity">Nepermatomumas</string>
-    <string name="overlay_control_hold">Bakstelėti ir laikyti</string>
     <string name="overlay_control_hold_description">Bakstelėkite vieną kartą, kad paspaustumėte, dar kartą, kad atleistumėte</string>
-    <string name="overlay_control_rapid">Greitas šaudymas</string>
     <string name="overlay_control_rapid_description">Bakstelėkite vieną kartą, kad pradėtumėte automatinį spaudimą, dar kartą, kad sustabdytumėte</string>
     <string name="overlay_control_change_image">Keisti mygtuko vaizdą</string>
     <string name="overlay_control_reset">Atstatyti</string>
@@ -407,7 +393,6 @@
     <string name="cheats_edit_text">Redaguoti failą</string>
     <string name="cheats_text_hint">[Kodo pavadinimas]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Išsaugoti</string>
-    <string name="cheats_text_cancel">Atšaukti</string>
     <string name="overlay_control_image">Vaizdas</string>
     <string name="overlay_control_mode_normal">Įprastas</string>
     <string name="overlay_control_mode_hold">Laikymas</string>
@@ -467,7 +452,6 @@
     <string name="reset_to_default">Atkurti numatytuosius</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Naujas</string>
     <string name="touch_input_rebind">Priskirti iš naujo</string>
     <string name="touch_input_all_bindings">Visi susiejimai (%1$d)</string>
     <string name="touch_input_touches_format">Paliečia ekraną ties %1$s</string>
@@ -512,4 +496,34 @@
     <string name="draw_batching_description">Eksperimentinis (Vulkan). Sujungia iš eilės einančius piešimo iškvietimus su identiška būsena į vieną, taip sumažindamas procesoriaus ir tvarkyklės apkrovą. Jei matote trūkstamą ar iškraipytą geometriją, išjunkite.</string>
     <string name="web_api_urls">Web API URL adresai</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Pasirinktiniai CPU taktai</string>
+    <string name="custom_cpu_ticks_description">Kiekvieną CPU JIT vykdomą bloką skaičiuoja kaip fiksuotą taktų skaičių vietoj tikrosios kainos. Didesnės reikšmės gali pagreitinti žaidimus, bet gali sukelti strigimus ar laiko problemas. Interpretatoriui įtakos neturi.</string>
+    <string name="cpu_ticks">CPU taktai</string>
+    <string name="cpu_ticks_description">Kiekvienam JIT blokui skaičiuojami taktai. Didesnė reikšmė greitesnė, bet mažiau tiksli; mažesnė suteikia žaidimams daugiau CPU laiko našumo sąskaita. Numatytoji: 16000.</string>
+    <string name="preferences_multiplayer">Žaidimas keliese</string>
+    <string name="preferences_multiplayer_description">Vėlavimo valdymas, prisijungimas prie kambario iš naujo ir MHGU kryžminis žaidimas.</string>
+    <string name="netsync_header">Atsiliekantys žaidėjai</string>
+    <string name="netsync_enabled">Laukti atsiliekančių žaidėjų</string>
+    <string name="netsync_enabled_description">Trumpam sulaiko jūsų žaidimą, kai kitas žaidėjas atsilieka, kad žaidimas nemanytų, jog jis atsijungė.</string>
+    <string name="netsync_timeout">Didžiausias laukimas</string>
+    <string name="netsync_timeout_description">Kiek laukti atsiliekančio žaidėjo prieš tęsiant be jo. Ilgesnis laikas atlaidesnis, bet jūsų žaidimas gali ilgiau stovėti.</string>
+    <string name="auto_rejoin_header">Prisijungimas prie kambario iš naujo</string>
+    <string name="auto_rejoin">Automatiškai prisijungti prie kambario iš naujo</string>
+    <string name="auto_rejoin_description">Jei kambario serveris jus atjungia, grįžtate su tuo pačiu vardu ir MAC adresu, be klaidų pranešimų.</string>
+    <string name="auto_rejoin_window">Prisijungimo iš naujo laiko riba</string>
+    <string name="auto_rejoin_window_description">Kiek laiko bandyti grįžti į kambarį prieš pasiduodant.</string>
+    <string name="auto_rejoin_pause">Užšaldyti žaidimą jungiantis iš naujo</string>
+    <string name="auto_rejoin_pause_description">Sustabdo žaidimo laikrodį, kol grįšite, kad žaidimas tuo metu nenutrauktų ryšio.</string>
+    <string name="overlay_control_badge">Rodyti numerio ženklelį</string>
+    <string name="mhgu_hub_header">MHGU kryžminis žaidimas</string>
+    <string name="mhgu_hub_enabled">Žaisti su MHGU žaidėjais</string>
+    <string name="mhgu_hub_enabled_description">Tik Monster Hunter XX. Kol nesate kambaryje, vietinis žaidimas eina per MHGU (gimtojo prievado) centrinius serverius: jūsų sukurti kambariai rodomi MHGU žaidėjams, o jų kambariai atsiranda jums ieškant.</string>
+    <string name="mhgu_hub_servers">Centriniai serveriai</string>
+    <string name="mhgu_hub_servers_description">Iki 4 serverių adresų, atskirtų tarpais.</string>
+    <string name="mhgu_hub_key">Žaidėjų parinkimo raktas</string>
+    <string name="mhgu_hub_key_description">Tik žaidėjai su tuo pačiu raktu mato vieni kitų kambarius. Palikite tuščią viešiems kambariams.</string>
+    <string name="mhgu_hub_convert">Konvertuoti tinklo pranešimus</string>
+    <string name="mhgu_hub_convert_description">Perrašo tuos kelis tinklo pranešimus, kurie skiriasi tarp 3DS ir MHGU. Palikite įjungtą.</string>
+    <string name="mhgu_hub_log">Registruoti tinklo paketus</string>
+    <string name="mhgu_hub_log_description">Įrašo žaidimo tinklo paketus į žurnalą, kad būtų galima ištirti ryšio problemas.</string>
 </resources>

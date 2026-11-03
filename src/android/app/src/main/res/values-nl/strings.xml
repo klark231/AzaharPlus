@@ -132,7 +132,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="touch_input_bindings">Aanraakinvoerbindingen</string>
     <string name="touch_input_bindings_description">Koppelt controllerknoppen en sticks aan posities op het onderste 3DS-scherm.</string>
     <string name="bind_touch_input">Aanraakinvoer koppelen</string>
-    <string name="bind_touch_input_message">Druk op een knop of beweeg een stick om deze te koppelen.</string>
     <string name="bind_touch_input_cancel">Annuleren</string>
     <string name="touch_input_empty_title">Nog geen bindingen</string>
     <string name="touch_input_empty_message">Tik op de voorbeeldweergave om een plek te kiezen en druk dan op een knop of beweeg een stick op je controller.</string>
@@ -146,14 +145,12 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="touch_input_nudge_right">Naar rechts</string>
     <string name="touch_input_nudge_up">Omhoog</string>
     <string name="touch_input_nudge_down">Omlaag</string>
-    <string name="touch_input_binding_options">Bindingsopties</string>
     <string name="delete_all">Alles verwijderen</string>
     <string name="delete_all_touch_input_confirm">Alle aanraakinvoerbindingen voor dit profiel verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
     <string name="delete_touch_input_confirm">Deze aanraakinvoerbinding verwijderen?</string>
     <string name="create_profile">Profiel aanmaken</string>
     <string name="create_new_profile">Nieuw profiel</string>
     <string name="profile_action_rename_format">„%1$s” hernoemen</string>
-    <string name="profile_manage_format">„%1$s” beheren</string>
     <string name="profile_action_delete_format">„%1$s” verwijderen</string>
     <string name="delete_profile">Profiel verwijderen</string>
     <string name="profile_name">Profielnaam</string>
@@ -176,11 +173,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="button_combo_3">Combo-knop 3</string>
     <string name="button_combo_4">Combo-knop 4</string>
     <string name="button_combo_5">Combo-knop 5</string>
-    <string name="combo_button_n_1">Combo-knop 1</string>
-    <string name="combo_button_n_2">Combo-knop 2</string>
-    <string name="combo_button_n_3">Combo-knop 3</string>
-    <string name="combo_button_n_4">Combo-knop 4</string>
-    <string name="combo_button_n_5">Combo-knop 5</string>
     <string name="combo_none">Geen</string>
     <string name="combo_button_n">Combo-knop %1$d</string>
     <string name="combo_circle_left">Circle Pad links</string>
@@ -191,10 +183,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="combo_c_up">C-Stick omhoog</string>
     <string name="combo_c_right">C-Stick rechts</string>
     <string name="combo_c_down">C-Stick omlaag</string>
-    <string name="combo_button_settings_2">Combo-knop 2 instellen</string>
-    <string name="combo_button_settings_3">Combo-knop 3 instellen</string>
-    <string name="combo_button_settings_4">Combo-knop 4 instellen</string>
-    <string name="combo_button_settings_5">Combo-knop 5 instellen</string>
     <string name="per_game_settings">Instellingen per spel</string>
     <string name="per_game_settings_title">Instellingen per spel: %1$s</string>
     <string name="per_game_use_global_confirmation">Weer de globale waarde voor deze instelling gebruiken?</string>
@@ -205,9 +193,7 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="emulation_control_adjust">Overlay aanpassen</string>
     <string name="overlay_control_scale">Grootte</string>
     <string name="overlay_control_opacity">Dekking</string>
-    <string name="overlay_control_hold">Tikken om vast te houden</string>
     <string name="overlay_control_hold_description">Tik één keer om in te drukken, tik opnieuw om los te laten</string>
-    <string name="overlay_control_rapid">Autofire</string>
     <string name="overlay_control_rapid_description">Tik één keer om automatisch indrukken te starten, tik opnieuw om te stoppen</string>
     <string name="overlay_control_change_image">Knopafbeelding wijzigen</string>
     <string name="overlay_control_reset">Resetten</string>
@@ -329,7 +315,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="cheats_edit_text">Bestand bewerken</string>
     <string name="cheats_text_hint">[Cheatnaam]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Opslaan</string>
-    <string name="cheats_text_cancel">Annuleren</string>
     <string name="overlay_control_image">Afbeelding</string>
     <string name="overlay_control_mode_normal">Normaal</string>
     <string name="overlay_control_mode_hold">Vasthouden</string>
@@ -389,7 +374,6 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="reset_to_default">Standaardwaarden herstellen</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Nieuw</string>
     <string name="touch_input_rebind">Opnieuw toewijzen</string>
     <string name="touch_input_all_bindings">Alle toewijzingen (%1$d)</string>
     <string name="touch_input_touches_format">Raakt het scherm aan op %1$s</string>
@@ -433,4 +417,34 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="draw_batching_description">Experimenteel (Vulkan). Voegt opeenvolgende tekenaanroepen met identieke status samen tot één, waardoor de belasting van CPU en driver afneemt. Zie je ontbrekende of vervormde geometrie, zet dit dan uit.</string>
     <string name="web_api_urls">Web API-URL\'s</string>
     <string name="web_api_url_2_hint">Web API-URL 2</string>
+    <string name="custom_cpu_ticks">Aangepaste CPU-ticks</string>
+    <string name="custom_cpu_ticks_description">Telt elk blok dat de CPU-JIT uitvoert als een vast aantal ticks in plaats van de echte kosten. Hogere waarden kunnen games sneller maken, maar kunnen vastlopers of timingproblemen veroorzaken. Geen effect met de interpreter.</string>
+    <string name="cpu_ticks">CPU-ticks</string>
+    <string name="cpu_ticks_description">Ticks per JIT-blok. Hoger is sneller maar minder nauwkeurig; lager geeft games meer CPU-tijd ten koste van prestaties. Standaard: 16000.</string>
+    <string name="preferences_multiplayer">Multiplayer</string>
+    <string name="preferences_multiplayer_description">Omgaan met lag, opnieuw verbinden met de kamer en MHGU-crossplay.</string>
+    <string name="netsync_header">Achterblijvende spelers</string>
+    <string name="netsync_enabled">Wachten op achterblijvende spelers</string>
+    <string name="netsync_enabled_description">Houdt je game even vast als een andere speler achterloopt, zodat de game niet denkt dat die de verbinding verbrak.</string>
+    <string name="netsync_timeout">Maximale wachttijd</string>
+    <string name="netsync_timeout_description">Hoe lang er op een achterblijvende speler wordt gewacht voordat er zonder die speler verder wordt gegaan. Langer is toleranter, maar je game kan langer bevriezen.</string>
+    <string name="auto_rejoin_header">Opnieuw verbinden met kamer</string>
+    <string name="auto_rejoin">Automatisch opnieuw verbinden met de kamer</string>
+    <string name="auto_rejoin_description">Als de kamerserver je verbinding verbreekt, kom je terug met dezelfde naam en hetzelfde MAC-adres, zonder foutmeldingen.</string>
+    <string name="auto_rejoin_window">Tijdslimiet voor opnieuw verbinden</string>
+    <string name="auto_rejoin_window_description">Hoe lang het blijft proberen terug in de kamer te komen voordat het opgeeft.</string>
+    <string name="auto_rejoin_pause">Game bevriezen tijdens opnieuw verbinden</string>
+    <string name="auto_rejoin_pause_description">Stopt de klok van de game tot je terug bent, zodat de game de verbinding intussen niet verbreekt.</string>
+    <string name="overlay_control_badge">Nummerbadge tonen</string>
+    <string name="mhgu_hub_header">MHGU-crossplay</string>
+    <string name="mhgu_hub_enabled">Spelen met MHGU-spelers</string>
+    <string name="mhgu_hub_enabled_description">Alleen Monster Hunter XX. Zolang je niet in een kamer zit, gaat lokaal spelen via de hubservers van MHGU (native port): kamers die je maakt zijn zichtbaar voor MHGU-spelers, en hun kamers verschijnen als je zoekt.</string>
+    <string name="mhgu_hub_servers">Hubservers</string>
+    <string name="mhgu_hub_servers_description">Tot 4 serveradressen, gescheiden door spaties.</string>
+    <string name="mhgu_hub_key">Matchmakingsleutel</string>
+    <string name="mhgu_hub_key_description">Alleen spelers met dezelfde sleutel zien elkaars kamers. Laat leeg voor openbare kamers.</string>
+    <string name="mhgu_hub_convert">Netwerkberichten omzetten</string>
+    <string name="mhgu_hub_convert_description">Herschrijft de paar netwerkberichten die verschillen tussen de 3DS en MHGU. Laat dit aan.</string>
+    <string name="mhgu_hub_log">Netwerkpakketten loggen</string>
+    <string name="mhgu_hub_log_description">Schrijft de netwerkpakketten van de game naar het logboek, om verbindingsproblemen te onderzoeken.</string>
 </resources>

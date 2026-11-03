@@ -49,8 +49,6 @@
     <string name="preferences_network">Network</string>
     <string name="web_api_url">Web API URL</string>
     <string name="web_api_url_description">Web API URL for public room functionality</string>
-    <string name="web_api_url_2">Second Web API URL</string>
-    <string name="web_api_url_2_description">Rooms from this server are added to the public room browser. Leave empty to disable.</string>
     <string name="network_token">Network Token</string>
     <string name="network_token_description">Token for public room functionality</string>
     <string name="username_uses_system">This property is linked to the 3DS system username.</string>
@@ -193,11 +191,6 @@
     <string name="button_combo_3">Combo Button 3</string>
     <string name="button_combo_4">Combo Button 4</string>
     <string name="button_combo_5">Combo Button 5</string>
-    <string name="combo_button_n_1">Combo Button 1</string>
-    <string name="combo_button_n_2">Combo Button 2</string>
-    <string name="combo_button_n_3">Combo Button 3</string>
-    <string name="combo_button_n_4">Combo Button 4</string>
-    <string name="combo_button_n_5">Combo Button 5</string>
     <string name="combo_none">None</string>
     <string name="combo_button_n">Combo Button %1$d</string>
     <string name="combo_circle_left">Circle Pad Left</string>
@@ -208,10 +201,6 @@
     <string name="combo_c_up">C-Stick Up</string>
     <string name="combo_c_right">C-Stick Right</string>
     <string name="combo_c_down">C-Stick Down</string>
-    <string name="combo_button_settings_2">Configure Combo Button 2</string>
-    <string name="combo_button_settings_3">Configure Combo Button 3</string>
-    <string name="combo_button_settings_4">Configure Combo Button 4</string>
-    <string name="combo_button_settings_5">Configure Combo Button 5</string>
 
     <!-- System files strings -->
     <string name="setup_system_files">System Files</string>
@@ -446,9 +435,9 @@
     <string name="hw_shaders_description">Uses hardware to emulate 3DS shaders. When enabled, game performance will be significantly improved.</string>
     <string name="cpu_clock_speed">CPU Clock Speed</string>
     <string name="custom_cpu_ticks">Custom CPU Ticks</string>
-    <string name="custom_cpu_ticks_description">Charges a fixed number of ticks each time the CPU JIT reports executed instructions, instead of the real cost. Higher values can increase performance but may cause freezes or timing problems. Does not affect the interpreter.</string>
+    <string name="custom_cpu_ticks_description">Counts every block the CPU JIT runs as a fixed number of ticks instead of its real cost. Higher values can make games faster but may cause freezes or timing problems. Has no effect with the interpreter.</string>
     <string name="cpu_ticks">CPU Ticks</string>
-    <string name="cpu_ticks_description">Ticks charged per JIT run. Higher is faster but less accurate; lower gives games more CPU time at a performance cost. Default 16000.</string>
+    <string name="cpu_ticks_description">Ticks counted for each JIT block. Higher is faster but less accurate; lower gives games more CPU time at a performance cost. Default: 16000.</string>
     <string name="vsync">Enable V-Sync</string>
     <string name="vsync_description">Synchronizes the game frame rate to the refresh rate of your device. Can cause additional input latency but may reduce tearing in some cases.</string>
     <string name="renderer_debug">Debug Renderer</string>
@@ -529,7 +518,7 @@
     <string name="per_game_settings_title">Per-game settings: %1$s</string>
     <string name="per_game_use_global_confirmation">Use the global value for this setting again?</string>
     <string name="per_game_reset_all">Use global settings</string>
-    <string name="per_game_reset_all_description">Remove every game specific setting of this game</string>
+    <string name="per_game_reset_all_description">Removes this game\'s own settings, so it uses the global ones again.</string>
     <string name="per_game_reset_done">Per-game settings reset to global</string>
 
     <!-- Preferences Screen -->
@@ -540,20 +529,20 @@
     <string name="preferences_controls">Gamepad</string>
     <string name="preferences_graphics">Graphics</string>
     <string name="preferences_audio">Audio</string>
-    <string name="preferences_multiplayer">Online Stability</string>
-    <string name="preferences_multiplayer_description">Keep online sessions together when a player lags or the connection drops.</string>
+    <string name="preferences_multiplayer">Multiplayer</string>
+    <string name="preferences_multiplayer_description">Lag handling, room reconnect and MHGU crossplay.</string>
     <string name="netsync_header">Lagging players</string>
     <string name="netsync_enabled">Wait for lagging players</string>
-    <string name="netsync_enabled_description">Briefly holds your game when another player falls behind, so the game does not mistake them for disconnected.</string>
+    <string name="netsync_enabled_description">Briefly holds your game when another player falls behind, so the game doesn\'t think they disconnected.</string>
     <string name="netsync_timeout">Maximum wait</string>
-    <string name="netsync_timeout_description">Longest your game will wait for a lagging player before carrying on without them. Longer is more forgiving but can freeze you for longer.</string>
+    <string name="netsync_timeout_description">How long to wait for a lagging player before carrying on without them. Longer is more forgiving, but your game can freeze for longer.</string>
     <string name="auto_rejoin_header">Room reconnect</string>
     <string name="auto_rejoin">Reconnect to room automatically</string>
-    <string name="auto_rejoin_description">If the room server drops you, get back in with the same name and MAC address, without error popups.</string>
+    <string name="auto_rejoin_description">If the room server drops you, rejoin with the same name and MAC address, without error popups.</string>
     <string name="auto_rejoin_window">Reconnect time limit</string>
     <string name="auto_rejoin_window_description">How long to keep trying to get back into the room before giving up.</string>
     <string name="auto_rejoin_pause">Freeze game while reconnecting</string>
-    <string name="auto_rejoin_pause_description">Stops the game clock until you are back, so the game cannot time out the connection while you are away.</string>
+    <string name="auto_rejoin_pause_description">Stops the game clock until you\'re back, so the game can\'t time out the connection meanwhile.</string>
     <string name="preferences_debug">Debug</string>
     <string name="preferences_theme">Theme and Color</string>
     <string name="preferences_layout">Layout</string>
@@ -616,9 +605,7 @@
     <string name="emulation_control_adjust">Adjust Overlay</string>
     <string name="overlay_control_scale">Size</string>
     <string name="overlay_control_opacity">Opacity</string>
-    <string name="overlay_control_hold">Tap to hold</string>
     <string name="overlay_control_hold_description">Tap once to press, tap again to release</string>
-    <string name="overlay_control_rapid">Rapid fire</string>
     <string name="overlay_control_rapid_description">Tap once to start auto-pressing, tap again to stop</string>
     <string name="overlay_control_change_image">Change button image</string>
     <string name="overlay_control_image">Image</string>
@@ -888,7 +875,7 @@
 
     <!-- Black backgrounds theme -->
     <string name="overlay_theme">Button theme</string>
-    <string name="overlay_theme_description">Change the look of the on-screen buttons. Long-press a theme to export, rename or delete it</string>
+    <string name="overlay_theme_description">Changes the look of the on-screen buttons. Long-press a theme to export, rename or delete it.</string>
     <string name="overlay_theme_default">Default</string>
     <string name="overlay_theme_default_name">Theme</string>
     <string name="overlay_theme_new">New Theme</string>
@@ -1301,7 +1288,6 @@
     <string name="touch_input_bindings">Touch Input Bindings</string>
     <string name="touch_input_bindings_description">Bind a button, key or stick to a spot on the bottom screen.</string>
     <string name="bind_touch_input">Bind Touch Input</string>
-    <string name="bind_touch_input_message">Press or move an input.</string>
     <string name="bind_touch_input_cancel">Cancel</string>
     <string name="touch_input_empty_title">No bindings yet</string>
     <string name="touch_input_empty_message">Tap the preview to place a touch point.</string>
@@ -1315,14 +1301,12 @@
     <string name="touch_input_nudge_right">Nudge right</string>
     <string name="touch_input_nudge_up">Nudge up</string>
     <string name="touch_input_nudge_down">Nudge down</string>
-    <string name="touch_input_binding_options">Binding options</string>
     <string name="delete_all">Delete All</string>
     <string name="delete_all_touch_input_confirm">Are you sure you want to delete all touch input bindings?</string>
     <string name="delete_touch_input_confirm">Delete this touch input binding?</string>
     <string name="create_profile">Create Profile</string>
     <string name="create_new_profile">Create New Profile</string>
     <string name="profile_action_rename_format">Rename \"%1$s\"</string>
-    <string name="profile_manage_format">Manage \"%1$s\"</string>
     <string name="profile_action_delete_format">Delete \"%1$s\"</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="profile_name">Profile Name</string>
@@ -1358,13 +1342,13 @@
 
     <!-- Experimental Settings -->
     <string name="keep_emulation_running">Keep Emulation Running</string>
-    <string name="keep_emulation_running_description">Do not pause the game when when emulation is in background. Useful for multiplayer so you do not time out.</string>
+    <string name="keep_emulation_running_description">Keeps the game running while the app is in the background. Useful in multiplayer, so you don\'t get disconnected.</string>
     <string name="adreno_gpu_boost">Adreno GPU Boost (Experimental)</string>
     <string name="adreno_gpu_boost_description">Increases graphics throughput on supported devices, improving performance. Use of this setting can increase power usage and temperature. May cause stability issues on certain devices.</string>
     <string name="reduce_downcount_slice">Reduce Downcount Slice</string>
     <string name="reduce_downcount_slice_description">Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
     <string name="priority_boost_starved_threads">Priority Boost Starved Threads</string>
-    <string name="priority_boost_starved_threads_description">Boost low priority starved threads during kernel rescheduling. This may improve the performance.</string>
+    <string name="priority_boost_starved_threads_description">Raises the priority of threads that have waited too long to run. May improve performance in some games.</string>
     <string name="lighter_surfaces">Lighter Surfaces</string>
     <string name="lighter_surfaces_description">Experimental (Vulkan). Skips storage usage most games don\'t need, so Adreno and Mali GPUs can compress surfaces and use less memory bandwidth. \"No shadows\" turns shadow effects off. \"With shadows\" keeps them, with a brief hitch the first time one appears.</string>
     <string name="lighter_surfaces_off">Off (default)</string>
@@ -1373,13 +1357,13 @@
     <string name="draw_batching">Draw Batching</string>
     <string name="draw_batching_description">Experimental (Vulkan). Merges consecutive draw calls that use identical state into one, reducing CPU and driver overhead. If you see missing or distorted geometry, turn this off.</string>
     <string name="cpu_affinity_mode">CPU Core Affinity</string>
-    <string name="cpu_affinity_mode_description">Pin the emulation and GPU threads to specific CPU cores, similar to Winlator/GameHub. Results vary by device; leave on Default if performance gets worse.</string>
+    <string name="cpu_affinity_mode_description">Pins the emulation and GPU threads to chosen CPU cores. Results vary by device; leave it on Default if performance gets worse.</string>
     <string name="cpu_affinity_default">Default (OS decides)</string>
     <string name="cpu_affinity_big">Big + prime cores</string>
     <string name="cpu_affinity_prime">Prime core only</string>
     <string name="cpu_affinity_little">Little cores only</string>
     <string name="use_fastmem">Use Fastmem</string>
-    <string name="use_fastmem_description">Enable direct memory access for the JIT (faster, disable if crashing).</string>
+    <string name="use_fastmem_description">Lets the JIT access emulated memory directly. Faster; turn it off if games crash.</string>
     <string name="tweaks">Tweaks</string>
     <string name="force_hw_vertex_shaders">Force Hardware Vertex Shaders</string>
     <string name="force_hw_vertex_shaders_description">Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
@@ -1424,7 +1408,6 @@
     <string name="cheats_edit_text">Edit file</string>
     <string name="cheats_text_hint">[Cheat name]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Save</string>
-    <string name="cheats_text_cancel">Cancel</string>
 
     <!-- Chat overlay preview -->
     <string name="chat_preview_title">Preview</string>
@@ -1448,7 +1431,6 @@
     <string name="button_touch_format">Touch Button %1$d</string>
     <string name="touch_input_overlay_button_format">Touch button %1$s</string>
 
-    <string name="touch_input_new_profile">New</string>
     <string name="touch_input_rebind">Rebind</string>
     <string name="touch_input_add_binding">Add binding</string>
     <string name="touch_input_source_overlay_short">On-screen button</string>
@@ -1462,15 +1444,15 @@
     <string name="romfs_exefs_dump_failed">Could not dump RomFS and ExeFS. Refer to the log for details.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
-    <string name="mhgu_hub_header">MHGU hub crossplay</string>
+    <string name="mhgu_hub_header">MHGU crossplay</string>
     <string name="mhgu_hub_enabled">Play with MHGU players</string>
-    <string name="mhgu_hub_enabled_description">Monster Hunter XX local play reaches MHGU (native port) players through its hub servers, while you are not in a room. Rooms you host are listed for them, and their rooms show up in the game\'s search.</string>
+    <string name="mhgu_hub_enabled_description">Monster Hunter XX only. While you\'re not in a room, local play goes through the MHGU (native port) hub servers: rooms you create are listed for MHGU players, and their rooms show up when you search.</string>
     <string name="mhgu_hub_servers">Hub servers</string>
-    <string name="mhgu_hub_servers_description">The MHGU hub servers to use, separated by spaces (up to 4).</string>
+    <string name="mhgu_hub_servers_description">Up to 4 server addresses, separated by spaces.</string>
     <string name="mhgu_hub_key">Matchmaking key</string>
     <string name="mhgu_hub_key_description">Only players with the same key see each other\'s rooms. Leave empty for public rooms.</string>
     <string name="mhgu_hub_convert">Convert network messages</string>
-    <string name="mhgu_hub_convert_description">Converts the few network messages whose layout differs between the 3DS and MHGU. Turn off only to test whether the games understand each other as they are.</string>
-    <string name="mhgu_hub_log">Log game packets</string>
-    <string name="mhgu_hub_log_description">Writes the game\'s packets to the log file, to find out why a connection fails.</string>
+    <string name="mhgu_hub_convert_description">Rewrites the few network messages that differ between the 3DS and MHGU. Leave this on.</string>
+    <string name="mhgu_hub_log">Log network packets</string>
+    <string name="mhgu_hub_log_description">Writes the game\'s network packets to the log, for troubleshooting connection problems.</string>
 </resources>

@@ -5,7 +5,6 @@
     <string name="touch_input_bindings">Érintésbeviteli hozzárendelések</string>
     <string name="touch_input_bindings_description">A kontroller gombjait és karjait a 3DS alsó képernyőjének pozícióihoz rendeli.</string>
     <string name="bind_touch_input">Érintésbevitel hozzárendelése</string>
-    <string name="bind_touch_input_message">Nyomj meg egy gombot vagy mozgass egy kart a hozzárendeléshez.</string>
     <string name="bind_touch_input_cancel">Mégse</string>
     <string name="touch_input_empty_title">Még nincs hozzárendelés</string>
     <string name="touch_input_empty_message">Koppints az előnézetre a hely kiválasztásához, majd nyomj meg egy gombot, vagy mozgass egy kart a kontrolleren.</string>
@@ -19,14 +18,12 @@
     <string name="touch_input_nudge_right">Jobbra mozgatás</string>
     <string name="touch_input_nudge_up">Felfelé mozgatás</string>
     <string name="touch_input_nudge_down">Lefelé mozgatás</string>
-    <string name="touch_input_binding_options">Hozzárendelés beállításai</string>
     <string name="delete_all">Összes törlése</string>
     <string name="delete_all_touch_input_confirm">Törlöd ennek a profilnak az összes érintésbeviteli hozzárendelését? Ez nem vonható vissza.</string>
     <string name="delete_touch_input_confirm">Törlöd ezt az érintésbeviteli hozzárendelést?</string>
     <string name="create_profile">Profil létrehozása</string>
     <string name="create_new_profile">Új profil</string>
     <string name="profile_action_rename_format">„%1$s” átnevezése</string>
-    <string name="profile_manage_format">„%1$s” kezelése</string>
     <string name="profile_action_delete_format">„%1$s” törlése</string>
     <string name="delete_profile">Profil törlése</string>
     <string name="profile_name">Profil neve</string>
@@ -49,11 +46,6 @@
     <string name="button_combo_3">Kombó gomb 3</string>
     <string name="button_combo_4">Kombó gomb 4</string>
     <string name="button_combo_5">Kombó gomb 5</string>
-    <string name="combo_button_n_1">Kombó gomb 1</string>
-    <string name="combo_button_n_2">Kombó gomb 2</string>
-    <string name="combo_button_n_3">Kombó gomb 3</string>
-    <string name="combo_button_n_4">Kombó gomb 4</string>
-    <string name="combo_button_n_5">Kombó gomb 5</string>
     <string name="combo_none">Nincs</string>
     <string name="combo_button_n">Kombó gomb %1$d</string>
     <string name="combo_circle_left">Circle Pad balra</string>
@@ -64,10 +56,6 @@
     <string name="combo_c_up">C-Stick felfelé</string>
     <string name="combo_c_right">C-Stick jobbra</string>
     <string name="combo_c_down">C-Stick lefelé</string>
-    <string name="combo_button_settings_2">2. kombó gomb beállítása</string>
-    <string name="combo_button_settings_3">3. kombó gomb beállítása</string>
-    <string name="combo_button_settings_4">4. kombó gomb beállítása</string>
-    <string name="combo_button_settings_5">5. kombó gomb beállítása</string>
     <string name="per_game_settings">Játékonkénti beállítások</string>
     <string name="per_game_settings_title">Játékonkénti beállítások: %1$s</string>
     <string name="per_game_use_global_confirmation">Újra a globális értéket használod ennél a beállításnál?</string>
@@ -78,9 +66,7 @@
     <string name="emulation_control_adjust">Overlay beállítása</string>
     <string name="overlay_control_scale">Méret</string>
     <string name="overlay_control_opacity">Átlátszatlanság</string>
-    <string name="overlay_control_hold">Koppintás a nyomvatartáshoz</string>
     <string name="overlay_control_hold_description">Koppints egyszer a lenyomáshoz, még egyszer a felengedéshez</string>
-    <string name="overlay_control_rapid">Gyorstűz</string>
     <string name="overlay_control_rapid_description">Koppints egyszer az automatikus nyomogatás indításához, még egyszer a leállításhoz</string>
     <string name="overlay_control_change_image">Gombkép módosítása</string>
     <string name="overlay_control_reset">Visszaállítás</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">Fájl szerkesztése</string>
     <string name="cheats_text_hint">[Csalás neve]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Mentés</string>
-    <string name="cheats_text_cancel">Mégse</string>
     <string name="overlay_control_image">Kép</string>
     <string name="overlay_control_mode_normal">Normál</string>
     <string name="overlay_control_mode_hold">Tartás</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">Visszaállítás alapértelmezettre</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Új</string>
     <string name="touch_input_rebind">Újrakötés</string>
     <string name="touch_input_all_bindings">Összes kötés (%1$d)</string>
     <string name="touch_input_touches_format">Megérinti a képernyőt itt: %1$s</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">Kísérleti (Vulkan). Az azonos állapotú, egymást követő rajzolási hívásokat eggyé vonja össze, csökkentve a CPU és az illesztőprogram terhelését. Ha hiányzó vagy torz geometriát látsz, kapcsold ki.</string>
     <string name="web_api_urls">Web API URL-ek</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Egyéni CPU-tickek</string>
+    <string name="custom_cpu_ticks_description">A CPU JIT által futtatott minden blokkot a valós költsége helyett fix számú ticknek számol. A magasabb értékek gyorsíthatják a játékokat, de fagyásokat vagy időzítési hibákat okozhatnak. Az értelmezőre nincs hatással.</string>
+    <string name="cpu_ticks">CPU-tickek</string>
+    <string name="cpu_ticks_description">Minden JIT-blokkra számolt tickek. A magasabb gyorsabb, de pontatlanabb; az alacsonyabb több CPU-időt ad a játékoknak a teljesítmény rovására. Alapértelmezett: 16000.</string>
+    <string name="preferences_multiplayer">Többjátékos</string>
+    <string name="preferences_multiplayer_description">Késés kezelése, szobához való újracsatlakozás és MHGU crossplay.</string>
+    <string name="netsync_header">Lemaradó játékosok</string>
+    <string name="netsync_enabled">Várakozás a lemaradó játékosokra</string>
+    <string name="netsync_enabled_description">Rövid időre visszatartja a játékodat, ha egy másik játékos lemarad, hogy a játék ne higgye őt lecsatlakozottnak.</string>
+    <string name="netsync_timeout">Maximális várakozás</string>
+    <string name="netsync_timeout_description">Mennyi ideig várjon egy lemaradó játékosra, mielőtt nélküle folytatja. A hosszabb elnézőbb, de a játékod tovább fagyhat.</string>
+    <string name="auto_rejoin_header">Újracsatlakozás a szobához</string>
+    <string name="auto_rejoin">Automatikus újracsatlakozás a szobához</string>
+    <string name="auto_rejoin_description">Ha a szoba szervere lecsatlakoztat, ugyanazzal a névvel és MAC-címmel lépsz vissza, hibaüzenetek nélkül.</string>
+    <string name="auto_rejoin_window">Újracsatlakozási időkorlát</string>
+    <string name="auto_rejoin_window_description">Mennyi ideig próbáljon visszajutni a szobába, mielőtt feladja.</string>
+    <string name="auto_rejoin_pause">Játék megfagyasztása újracsatlakozás közben</string>
+    <string name="auto_rejoin_pause_description">Megállítja a játék óráját, amíg vissza nem érsz, hogy a játék közben ne szakítsa meg a kapcsolatot.</string>
+    <string name="overlay_control_badge">Számjelvény megjelenítése</string>
+    <string name="mhgu_hub_header">MHGU crossplay</string>
+    <string name="mhgu_hub_enabled">Játék MHGU-játékosokkal</string>
+    <string name="mhgu_hub_enabled_description">Csak Monster Hunter XX. Amíg nem vagy szobában, a helyi játék az MHGU (natív port) hub szerverein keresztül megy: az általad létrehozott szobák megjelennek az MHGU-játékosoknak, az övéik pedig a keresésedben.</string>
+    <string name="mhgu_hub_servers">Hub szerverek</string>
+    <string name="mhgu_hub_servers_description">Legfeljebb 4 szervercím szóközzel elválasztva.</string>
+    <string name="mhgu_hub_key">Párosítási kulcs</string>
+    <string name="mhgu_hub_key_description">Csak az azonos kulccsal rendelkező játékosok látják egymás szobáit. Nyilvános szobákhoz hagyd üresen.</string>
+    <string name="mhgu_hub_convert">Hálózati üzenetek átalakítása</string>
+    <string name="mhgu_hub_convert_description">Átírja azt a néhány hálózati üzenetet, amely eltér a 3DS és az MHGU között. Hagyd bekapcsolva.</string>
+    <string name="mhgu_hub_log">Hálózati csomagok naplózása</string>
+    <string name="mhgu_hub_log_description">A játék hálózati csomagjait a naplóba írja a kapcsolati hibák kivizsgálásához.</string>
 </resources>

@@ -150,7 +150,7 @@
     <string name="button_home">HOME</string>
     <string name="button_swap">Intercanviar Pantalles</string>
     <string name="button_turbo">Turbo</string>
-    <string name="button_combo">Botó Combo</string>
+    <string name="button_combo">Botó Combo 1</string>
     <string name="input_message_analog_only">Aquest control s\'ha d\'assignar a un estic analògic del comandament o a un eix del Pad de Control!</string>
     <string name="input_message_button_only">Aquest control s\'ha d\'assignar a un botó del comandament!</string>
     <string name="turbo_limit_hotkey">Velocitat Turbo</string>
@@ -1076,7 +1076,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="touch_input_bindings">Vinculacions d\'entrada tàctil</string>
     <string name="touch_input_bindings_description">Assigna botons i palanques del controlador a posicions de la pantalla inferior de la 3DS.</string>
     <string name="bind_touch_input">Vincular entrada tàctil</string>
-    <string name="bind_touch_input_message">Prem un botó o mou una palanca per vincular-lo.</string>
     <string name="bind_touch_input_cancel">Cancel·lar</string>
     <string name="touch_input_empty_title">Encara no hi ha vinculacions</string>
     <string name="touch_input_empty_message">Toca la previsualització per triar un punt i després prem un botó o mou una palanca al controlador.</string>
@@ -1090,14 +1089,12 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="touch_input_nudge_right">Desplaça a la dreta</string>
     <string name="touch_input_nudge_up">Desplaça amunt</string>
     <string name="touch_input_nudge_down">Desplaça avall</string>
-    <string name="touch_input_binding_options">Opcions de la vinculació</string>
     <string name="delete_all">Elimina-ho tot</string>
     <string name="delete_all_touch_input_confirm">Vols eliminar totes les vinculacions d\'entrada tàctil d\'este perfil? Esta acció no es pot desfer.</string>
     <string name="delete_touch_input_confirm">Vols eliminar esta vinculació d\'entrada tàctil?</string>
     <string name="create_profile">Crea un perfil</string>
     <string name="create_new_profile">Perfil nou</string>
     <string name="profile_action_rename_format">Canvia el nom de «%1$s»</string>
-    <string name="profile_manage_format">Gestiona «%1$s»</string>
     <string name="profile_action_delete_format">Elimina «%1$s»</string>
     <string name="delete_profile">Elimina el perfil</string>
     <string name="profile_name">Nom del perfil</string>
@@ -1117,11 +1114,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="button_combo_3">Botó Combo 3</string>
     <string name="button_combo_4">Botó Combo 4</string>
     <string name="button_combo_5">Botó Combo 5</string>
-    <string name="combo_button_n_1">Botó Combo 1</string>
-    <string name="combo_button_n_2">Botó Combo 2</string>
-    <string name="combo_button_n_3">Botó Combo 3</string>
-    <string name="combo_button_n_4">Botó Combo 4</string>
-    <string name="combo_button_n_5">Botó Combo 5</string>
     <string name="combo_none">Cap</string>
     <string name="combo_button_n">Botó Combo %1$d</string>
     <string name="combo_circle_left">Circle Pad a l\'esquerra</string>
@@ -1132,10 +1124,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="combo_c_up">C-Stick amunt</string>
     <string name="combo_c_right">C-Stick a la dreta</string>
     <string name="combo_c_down">C-Stick avall</string>
-    <string name="combo_button_settings_2">Configurar Botó Combo 2</string>
-    <string name="combo_button_settings_3">Configurar Botó Combo 3</string>
-    <string name="combo_button_settings_4">Configurar Botó Combo 4</string>
-    <string name="combo_button_settings_5">Configurar Botó Combo 5</string>
     <string name="per_game_settings">Configuració per joc</string>
     <string name="per_game_settings_title">Configuració per joc: %1$s</string>
     <string name="per_game_use_global_confirmation">Vols tornar a usar el valor global d\'esta opció?</string>
@@ -1145,9 +1133,7 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="emulation_control_adjust">Ajustar superposició</string>
     <string name="overlay_control_scale">Grandària</string>
     <string name="overlay_control_opacity">Opacitat</string>
-    <string name="overlay_control_hold">Toca per mantindre</string>
     <string name="overlay_control_hold_description">Toca una vegada per prémer i una altra per soltar</string>
-    <string name="overlay_control_rapid">Ràfega ràpida</string>
     <string name="overlay_control_rapid_description">Toca una vegada per començar a prémer automàticament i una altra per parar</string>
     <string name="overlay_control_change_image">Canviar la imatge del botó</string>
     <string name="overlay_control_reset">Restablir</string>
@@ -1267,7 +1253,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="cheats_edit_text">Editar fitxer</string>
     <string name="cheats_text_hint">[Nom del truc]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Guardar</string>
-    <string name="cheats_text_cancel">Cancel·lar</string>
     <string name="overlay_control_image">Imatge</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Mantindre</string>
@@ -1306,7 +1291,6 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="download">Descarregar</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Nou</string>
     <string name="touch_input_rebind">Reassigna</string>
     <string name="touch_input_all_bindings">Totes les assignacions (%1$d)</string>
     <string name="touch_input_touches_format">Toca la pantalla a %1$s</string>
@@ -1349,4 +1333,34 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="draw_batching_description">Experimental (Vulkan). Combina en una sola les crides de dibuix consecutives amb un estat idèntic, la qual cosa redueix la càrrega de la CPU i del controlador. Si veus geometria que falta o deformada, desactiva-ho.</string>
     <string name="web_api_urls">URLs d\'API Web</string>
     <string name="web_api_url_2_hint">URL d\'API Web 2</string>
+    <string name="custom_cpu_ticks">Ticks de CPU personalitzats</string>
+    <string name="custom_cpu_ticks_description">Compta cada bloc que executa el JIT de la CPU com un nombre fix de ticks en lloc del seu cost real. Valors més alts poden fer els jocs més ràpids, però poden causar bloquejos o problemes de sincronització. No afecta l\'intèrpret.</string>
+    <string name="cpu_ticks">Ticks de CPU</string>
+    <string name="cpu_ticks_description">Ticks comptats per cada bloc JIT. Més alt és més ràpid però menys precís; més baix dona als jocs més temps de CPU a costa del rendiment. Per defecte: 16000.</string>
+    <string name="preferences_multiplayer">Multijugador</string>
+    <string name="preferences_multiplayer_description">Gestió del retard, reconnexió a la sala i joc creuat amb MHGU.</string>
+    <string name="netsync_header">Jugadors amb retard</string>
+    <string name="netsync_enabled">Esperar els jugadors amb retard</string>
+    <string name="netsync_enabled_description">Para breument el teu joc quan un altre jugador es queda arrere, perquè el joc no crega que s\'ha desconnectat.</string>
+    <string name="netsync_timeout">Espera màxima</string>
+    <string name="netsync_timeout_description">Quant de temps esperar un jugador amb retard abans de continuar sense ell. Més temps és més tolerant, però el teu joc pot quedar congelat més temps.</string>
+    <string name="auto_rejoin_header">Reconnexió a la sala</string>
+    <string name="auto_rejoin">Reconnectar a la sala automàticament</string>
+    <string name="auto_rejoin_description">Si el servidor de la sala et desconnecta, torna a entrar amb el mateix nom i la mateixa adreça MAC, sense avisos d\'error.</string>
+    <string name="auto_rejoin_window">Límit de temps de reconnexió</string>
+    <string name="auto_rejoin_window_description">Quant de temps continuar intentant tornar a la sala abans de rendir-se.</string>
+    <string name="auto_rejoin_pause">Congelar el joc mentre es reconnecta</string>
+    <string name="auto_rejoin_pause_description">Para el rellotge del joc fins que tornes, perquè el joc no talle la connexió mentrestant.</string>
+    <string name="overlay_control_badge">Mostrar la insígnia de número</string>
+    <string name="mhgu_hub_header">Joc creuat amb MHGU</string>
+    <string name="mhgu_hub_enabled">Jugar amb jugadors de MHGU</string>
+    <string name="mhgu_hub_enabled_description">Només Monster Hunter XX. Mentre no estigues en cap sala, el joc local passa pels servidors hub de MHGU (port natiu): les sales que crees apareixen als jugadors de MHGU, i les seues apareixen quan busques.</string>
+    <string name="mhgu_hub_servers">Servidors hub</string>
+    <string name="mhgu_hub_servers_description">Fins a 4 adreces de servidor, separades per espais.</string>
+    <string name="mhgu_hub_key">Clau d\'emparellament</string>
+    <string name="mhgu_hub_key_description">Només els jugadors amb la mateixa clau veuen les sales dels altres. Deixa-la buida per a sales públiques.</string>
+    <string name="mhgu_hub_convert">Convertir missatges de xarxa</string>
+    <string name="mhgu_hub_convert_description">Reescriu els pocs missatges de xarxa que difereixen entre la 3DS i MHGU. Deixa-ho activat.</string>
+    <string name="mhgu_hub_log">Registrar paquets de xarxa</string>
+    <string name="mhgu_hub_log_description">Escriu els paquets de xarxa del joc al registre, per a diagnosticar problemes de connexió.</string>
 </resources>

@@ -5,7 +5,6 @@
     <string name="touch_input_bindings">Ràng buộc đầu vào cảm ứng</string>
     <string name="touch_input_bindings_description">Ánh xạ các nút và cần analog của tay cầm đến các vị trí trên màn hình dưới của 3DS.</string>
     <string name="bind_touch_input">Ràng buộc đầu vào cảm ứng</string>
-    <string name="bind_touch_input_message">Nhấn một nút hoặc di chuyển cần analog để ràng buộc.</string>
     <string name="bind_touch_input_cancel">Hủy</string>
     <string name="touch_input_empty_title">Chưa có ràng buộc nào</string>
     <string name="touch_input_empty_message">Chạm vào bản xem trước để chọn vị trí, sau đó nhấn một nút hoặc di chuyển cần analog trên tay cầm của bạn.</string>
@@ -19,14 +18,12 @@
     <string name="touch_input_nudge_right">Dịch phải</string>
     <string name="touch_input_nudge_up">Dịch lên</string>
     <string name="touch_input_nudge_down">Dịch xuống</string>
-    <string name="touch_input_binding_options">Tùy chọn ràng buộc</string>
     <string name="delete_all">Xóa tất cả</string>
     <string name="delete_all_touch_input_confirm">Xóa tất cả ràng buộc đầu vào cảm ứng cho hồ sơ này? Hành động này không thể hoàn tác.</string>
     <string name="delete_touch_input_confirm">Xóa ràng buộc đầu vào cảm ứng này?</string>
     <string name="create_profile">Tạo hồ sơ</string>
     <string name="create_new_profile">Hồ sơ mới</string>
     <string name="profile_action_rename_format">Đổi tên “%1$s”</string>
-    <string name="profile_manage_format">Quản lý “%1$s”</string>
     <string name="profile_action_delete_format">Xóa “%1$s”</string>
     <string name="delete_profile">Xóa hồ sơ</string>
     <string name="profile_name">Tên hồ sơ</string>
@@ -49,11 +46,6 @@
     <string name="button_combo_3">Nút combo 3</string>
     <string name="button_combo_4">Nút combo 4</string>
     <string name="button_combo_5">Nút combo 5</string>
-    <string name="combo_button_n_1">Nút combo 1</string>
-    <string name="combo_button_n_2">Nút combo 2</string>
-    <string name="combo_button_n_3">Nút combo 3</string>
-    <string name="combo_button_n_4">Nút combo 4</string>
-    <string name="combo_button_n_5">Nút combo 5</string>
     <string name="combo_none">Không có</string>
     <string name="combo_button_n">Nút combo %1$d</string>
     <string name="combo_circle_left">Circle Pad trái</string>
@@ -64,10 +56,6 @@
     <string name="combo_c_up">C-Stick lên</string>
     <string name="combo_c_right">C-Stick phải</string>
     <string name="combo_c_down">C-Stick xuống</string>
-    <string name="combo_button_settings_2">Cấu hình nút combo 2</string>
-    <string name="combo_button_settings_3">Cấu hình nút combo 3</string>
-    <string name="combo_button_settings_4">Cấu hình nút combo 4</string>
-    <string name="combo_button_settings_5">Cấu hình nút combo 5</string>
     <string name="per_game_settings">Cài đặt riêng cho từng game</string>
     <string name="per_game_settings_title">Cài đặt riêng cho game: %1$s</string>
     <string name="per_game_use_global_confirmation">Dùng lại giá trị chung cho cài đặt này?</string>
@@ -78,9 +66,7 @@
     <string name="emulation_control_adjust">Điều chỉnh lớp phủ</string>
     <string name="overlay_control_scale">Kích thước</string>
     <string name="overlay_control_opacity">Độ mờ đục</string>
-    <string name="overlay_control_hold">Chạm để giữ</string>
     <string name="overlay_control_hold_description">Chạm một lần để nhấn, chạm lại để nhả</string>
-    <string name="overlay_control_rapid">Bấm liên tục</string>
     <string name="overlay_control_rapid_description">Chạm một lần để bắt đầu tự động bấm, chạm lại để dừng</string>
     <string name="overlay_control_change_image">Đổi ảnh nút</string>
     <string name="overlay_control_reset">Đặt lại</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">Chỉnh sửa tệp</string>
     <string name="cheats_text_hint">[Tên cheat]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Lưu</string>
-    <string name="cheats_text_cancel">Hủy</string>
     <string name="overlay_control_image">Hình ảnh</string>
     <string name="overlay_control_mode_normal">Thường</string>
     <string name="overlay_control_mode_hold">Giữ</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">Đặt lại về mặc định</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Mới</string>
     <string name="touch_input_rebind">Gán lại</string>
     <string name="touch_input_all_bindings">Tất cả liên kết (%1$d)</string>
     <string name="touch_input_touches_format">Chạm vào màn hình tại %1$s</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">Thử nghiệm (Vulkan). Gộp các lệnh vẽ liên tiếp có trạng thái giống hệt nhau thành một, giúp giảm tải cho CPU và trình điều khiển. Nếu thấy hình học bị thiếu hoặc méo, hãy tắt tùy chọn này.</string>
     <string name="web_api_urls">URL Web API</string>
     <string name="web_api_url_2_hint">URL Web API 2</string>
+    <string name="custom_cpu_ticks">Tick CPU tùy chỉnh</string>
+    <string name="custom_cpu_ticks_description">Tính mỗi khối mà JIT của CPU chạy là một số tick cố định thay vì chi phí thật. Giá trị cao hơn có thể làm game nhanh hơn nhưng có thể gây treo hoặc lỗi định thời. Không ảnh hưởng đến trình thông dịch.</string>
+    <string name="cpu_ticks">Tick CPU</string>
+    <string name="cpu_ticks_description">Số tick tính cho mỗi khối JIT. Cao hơn thì nhanh hơn nhưng kém chính xác; thấp hơn cho game nhiều thời gian CPU hơn nhưng giảm hiệu năng. Mặc định: 16000.</string>
+    <string name="preferences_multiplayer">Chơi nhiều người</string>
+    <string name="preferences_multiplayer_description">Xử lý lag, kết nối lại phòng và chơi chéo với MHGU.</string>
+    <string name="netsync_header">Người chơi bị lag</string>
+    <string name="netsync_enabled">Chờ người chơi bị lag</string>
+    <string name="netsync_enabled_description">Tạm giữ game của bạn khi người chơi khác bị tụt lại, để game không tưởng họ đã ngắt kết nối.</string>
+    <string name="netsync_timeout">Thời gian chờ tối đa</string>
+    <string name="netsync_timeout_description">Chờ người chơi bị lag bao lâu trước khi tiếp tục mà không có họ. Lâu hơn thì dễ chịu hơn, nhưng game của bạn có thể bị đứng lâu hơn.</string>
+    <string name="auto_rejoin_header">Kết nối lại phòng</string>
+    <string name="auto_rejoin">Tự động kết nối lại phòng</string>
+    <string name="auto_rejoin_description">Nếu máy chủ phòng ngắt kết nối bạn, bạn vào lại với cùng tên và địa chỉ MAC, không có thông báo lỗi.</string>
+    <string name="auto_rejoin_window">Giới hạn thời gian kết nối lại</string>
+    <string name="auto_rejoin_window_description">Thử vào lại phòng trong bao lâu trước khi bỏ cuộc.</string>
+    <string name="auto_rejoin_pause">Đóng băng game khi kết nối lại</string>
+    <string name="auto_rejoin_pause_description">Dừng đồng hồ game cho đến khi bạn quay lại, để game không cắt kết nối trong lúc đó.</string>
+    <string name="overlay_control_badge">Hiện huy hiệu số</string>
+    <string name="mhgu_hub_header">Chơi chéo với MHGU</string>
+    <string name="mhgu_hub_enabled">Chơi với người chơi MHGU</string>
+    <string name="mhgu_hub_enabled_description">Chỉ dành cho Monster Hunter XX. Khi bạn không ở trong phòng nào, chơi cục bộ đi qua máy chủ hub của MHGU (bản port gốc): phòng bạn tạo được hiện cho người chơi MHGU, và phòng của họ hiện khi bạn tìm.</string>
+    <string name="mhgu_hub_servers">Máy chủ hub</string>
+    <string name="mhgu_hub_servers_description">Tối đa 4 địa chỉ máy chủ, cách nhau bằng dấu cách.</string>
+    <string name="mhgu_hub_key">Khóa ghép trận</string>
+    <string name="mhgu_hub_key_description">Chỉ người chơi có cùng khóa mới thấy phòng của nhau. Để trống cho phòng công khai.</string>
+    <string name="mhgu_hub_convert">Chuyển đổi tin nhắn mạng</string>
+    <string name="mhgu_hub_convert_description">Viết lại số ít tin nhắn mạng khác nhau giữa 3DS và MHGU. Hãy để bật.</string>
+    <string name="mhgu_hub_log">Ghi gói tin mạng</string>
+    <string name="mhgu_hub_log_description">Ghi các gói tin mạng của game vào nhật ký, để tìm nguyên nhân lỗi kết nối.</string>
 </resources>

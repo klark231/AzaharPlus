@@ -1057,7 +1057,7 @@ void PiaTranslator::SwapAddr(PiaMessage& m, const std::array<u8, 4>& from, const
     if (m.cid == from) {
         m.cid = to;
     }
-    if (m.proto_type != ProtoGame && !m.payload.empty()) { // (the game's own data is its business)
+    if (m.proto_type != ProtoGame && !m.payload.empty()) { // game data (0x2000) is passed on untouched
         ReplaceAll(m.payload.data(), m.payload.size(), from, to);
     }
 }

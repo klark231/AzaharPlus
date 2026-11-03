@@ -5,7 +5,6 @@
     <string name="touch_input_bindings">觸控輸入綁定</string>
     <string name="touch_input_bindings_description">將控制器按鍵與搖桿對應到3DS下螢幕上的位置。</string>
     <string name="bind_touch_input">綁定觸控輸入</string>
-    <string name="bind_touch_input_message">按下按鍵或移動搖桿以進行綁定。</string>
     <string name="bind_touch_input_cancel">取消</string>
     <string name="touch_input_empty_title">尚無綁定</string>
     <string name="touch_input_empty_message">點按預覽以選擇位置,然後在控制器上按下按鍵或移動搖桿。</string>
@@ -19,14 +18,12 @@
     <string name="touch_input_nudge_right">向右移動</string>
     <string name="touch_input_nudge_up">向上移動</string>
     <string name="touch_input_nudge_down">向下移動</string>
-    <string name="touch_input_binding_options">綁定選項</string>
     <string name="delete_all">全部刪除</string>
     <string name="delete_all_touch_input_confirm">刪除此設定檔的所有觸控輸入綁定?此動作無法復原。</string>
     <string name="delete_touch_input_confirm">刪除此觸控輸入綁定?</string>
     <string name="create_profile">建立設定檔</string>
     <string name="create_new_profile">新增設定檔</string>
     <string name="profile_action_rename_format">重新命名「%1$s」</string>
-    <string name="profile_manage_format">管理「%1$s」</string>
     <string name="profile_action_delete_format">刪除「%1$s」</string>
     <string name="delete_profile">刪除設定檔</string>
     <string name="profile_name">設定檔名稱</string>
@@ -49,11 +46,6 @@
     <string name="button_combo_3">組合鍵 3</string>
     <string name="button_combo_4">組合鍵 4</string>
     <string name="button_combo_5">組合鍵 5</string>
-    <string name="combo_button_n_1">組合鍵 1</string>
-    <string name="combo_button_n_2">組合鍵 2</string>
-    <string name="combo_button_n_3">組合鍵 3</string>
-    <string name="combo_button_n_4">組合鍵 4</string>
-    <string name="combo_button_n_5">組合鍵 5</string>
     <string name="combo_none">無</string>
     <string name="combo_button_n">組合鍵 %1$d</string>
     <string name="combo_circle_left">滑動板 左</string>
@@ -64,10 +56,6 @@
     <string name="combo_c_up">C 搖桿 上</string>
     <string name="combo_c_right">C 搖桿 右</string>
     <string name="combo_c_down">C 搖桿 下</string>
-    <string name="combo_button_settings_2">設定組合鍵 2</string>
-    <string name="combo_button_settings_3">設定組合鍵 3</string>
-    <string name="combo_button_settings_4">設定組合鍵 4</string>
-    <string name="combo_button_settings_5">設定組合鍵 5</string>
     <string name="per_game_settings">個別遊戲設定</string>
     <string name="per_game_settings_title">個別遊戲設定：%1$s</string>
     <string name="per_game_use_global_confirmation">要重新使用此設定的全域值嗎？</string>
@@ -78,9 +66,7 @@
     <string name="emulation_control_adjust">調整虛擬按鍵</string>
     <string name="overlay_control_scale">大小</string>
     <string name="overlay_control_opacity">不透明度</string>
-    <string name="overlay_control_hold">點按鎖定</string>
     <string name="overlay_control_hold_description">點按一次為按下，再點按一次為放開</string>
-    <string name="overlay_control_rapid">連發</string>
     <string name="overlay_control_rapid_description">點按一次開始自動連按，再點按一次停止</string>
     <string name="overlay_control_change_image">更換按鍵圖片</string>
     <string name="overlay_control_reset">重設</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">編輯檔案</string>
     <string name="cheats_text_hint">[金手指名稱]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">儲存</string>
-    <string name="cheats_text_cancel">取消</string>
     <string name="overlay_control_image">圖片</string>
     <string name="overlay_control_mode_normal">一般</string>
     <string name="overlay_control_mode_hold">保持</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">重設為預設值</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">新增</string>
     <string name="touch_input_rebind">重新綁定</string>
     <string name="touch_input_all_bindings">所有綁定（%1$d）</string>
     <string name="touch_input_touches_format">觸碰螢幕位置 %1$s</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">實驗性（Vulkan）。將狀態完全相同的連續繪製呼叫合併為一次，降低 CPU 與驅動程式負擔。若出現幾何缺失或變形，請關閉此選項。</string>
     <string name="web_api_urls">Web API 網址</string>
     <string name="web_api_url_2_hint">Web API 網址 2</string>
+    <string name="custom_cpu_ticks">自訂 CPU 時脈週期</string>
+    <string name="custom_cpu_ticks_description">將 CPU JIT 執行的每個區塊按固定的時脈週期數計算，而非實際成本。數值越高遊戲可能越快，但可能造成當機或時序問題。對直譯器無效。</string>
+    <string name="cpu_ticks">CPU 時脈週期</string>
+    <string name="cpu_ticks_description">每個 JIT 區塊計入的時脈週期數。越高越快但越不精確；越低則以效能為代價給遊戲更多 CPU 時間。預設：16000。</string>
+    <string name="preferences_multiplayer">多人遊戲</string>
+    <string name="preferences_multiplayer_description">延遲處理、房間重新連線與 MHGU 跨平台連線。</string>
+    <string name="netsync_header">落後的玩家</string>
+    <string name="netsync_enabled">等待落後的玩家</string>
+    <string name="netsync_enabled_description">其他玩家落後時短暫暫停你的遊戲，避免遊戲誤以為對方已斷線。</string>
+    <string name="netsync_timeout">最長等待</string>
+    <string name="netsync_timeout_description">等待落後玩家的最長時間，超過後就不再等待。越長越寬容，但你的遊戲可能卡住更久。</string>
+    <string name="auto_rejoin_header">房間重新連線</string>
+    <string name="auto_rejoin">自動重新連線至房間</string>
+    <string name="auto_rejoin_description">被房間伺服器中斷連線時，以相同的名稱和 MAC 位址重新加入，不會跳出錯誤訊息。</string>
+    <string name="auto_rejoin_window">重新連線時限</string>
+    <string name="auto_rejoin_window_description">放棄前持續嘗試重新進入房間的時間。</string>
+    <string name="auto_rejoin_pause">重新連線時凍結遊戲</string>
+    <string name="auto_rejoin_pause_description">在你回來之前停止遊戲時鐘，避免遊戲在這段期間讓連線逾時。</string>
+    <string name="overlay_control_badge">顯示編號標記</string>
+    <string name="mhgu_hub_header">MHGU 跨平台連線</string>
+    <string name="mhgu_hub_enabled">與 MHGU 玩家連線</string>
+    <string name="mhgu_hub_enabled_description">僅限魔物獵人XX。不在房間中時，本機通訊會經過 MHGU（原生移植版）的中繼伺服器：你建立的房間會顯示給 MHGU 玩家，他們的房間也會出現在你的搜尋結果中。</string>
+    <string name="mhgu_hub_servers">中繼伺服器</string>
+    <string name="mhgu_hub_servers_description">最多 4 個伺服器位址，以空格分隔。</string>
+    <string name="mhgu_hub_key">配對金鑰</string>
+    <string name="mhgu_hub_key_description">只有金鑰相同的玩家才能看到彼此的房間。留空則為公開房間。</string>
+    <string name="mhgu_hub_convert">轉換網路訊息</string>
+    <string name="mhgu_hub_convert_description">改寫 3DS 與 MHGU 之間格式不同的少數網路訊息。請保持開啟。</string>
+    <string name="mhgu_hub_log">記錄網路封包</string>
+    <string name="mhgu_hub_log_description">將遊戲的網路封包寫入記錄檔，用來排查連線問題。</string>
 </resources>

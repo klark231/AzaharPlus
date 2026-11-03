@@ -893,7 +893,6 @@
     <string name="touch_input_bindings">Dokunmatik Girdi Bağlamaları</string>
     <string name="touch_input_bindings_description">Denetleyici düğmelerini ve analog kollarını 3DS alt ekranındaki konumlarla eşleştirir.</string>
     <string name="bind_touch_input">Dokunmatik Girdi Bağla</string>
-    <string name="bind_touch_input_message">Bağlamak için bir düğmeye basın veya bir analog kolu hareket ettirin.</string>
     <string name="bind_touch_input_cancel">İptal</string>
     <string name="touch_input_empty_title">Henüz bağlama yok</string>
     <string name="touch_input_empty_message">Bir konum seçmek için önizlemeye dokunun, ardından denetleyicinizde bir düğmeye basın veya kolu hareket ettirin.</string>
@@ -907,14 +906,12 @@
     <string name="touch_input_nudge_right">Sağa kaydır</string>
     <string name="touch_input_nudge_up">Yukarı kaydır</string>
     <string name="touch_input_nudge_down">Aşağı kaydır</string>
-    <string name="touch_input_binding_options">Bağlama seçenekleri</string>
     <string name="delete_all">Tümünü sil</string>
     <string name="delete_all_touch_input_confirm">Bu profildeki tüm dokunmatik girdi bağlamaları silinsin mi? Bu işlem geri alınamaz.</string>
     <string name="delete_touch_input_confirm">Bu dokunmatik girdi bağlaması silinsin mi?</string>
     <string name="create_profile">Profil Oluştur</string>
     <string name="create_new_profile">Yeni Profil</string>
     <string name="profile_action_rename_format">“%1$s” yeniden adlandır</string>
-    <string name="profile_manage_format">“%1$s” yönet</string>
     <string name="profile_action_delete_format">“%1$s” sil</string>
     <string name="delete_profile">Profili Sil</string>
     <string name="profile_name">Profil Adı</string>
@@ -937,11 +934,6 @@
     <string name="button_combo_3">Kombo Düğmesi 3</string>
     <string name="button_combo_4">Kombo Düğmesi 4</string>
     <string name="button_combo_5">Kombo Düğmesi 5</string>
-    <string name="combo_button_n_1">Kombo Düğmesi 1</string>
-    <string name="combo_button_n_2">Kombo Düğmesi 2</string>
-    <string name="combo_button_n_3">Kombo Düğmesi 3</string>
-    <string name="combo_button_n_4">Kombo Düğmesi 4</string>
-    <string name="combo_button_n_5">Kombo Düğmesi 5</string>
     <string name="combo_none">Yok</string>
     <string name="combo_button_n">Kombo Düğmesi %1$d</string>
     <string name="combo_circle_left">Circle Pad Sol</string>
@@ -952,10 +944,6 @@
     <string name="combo_c_up">C-Stick Yukarı</string>
     <string name="combo_c_right">C-Stick Sağ</string>
     <string name="combo_c_down">C-Stick Aşağı</string>
-    <string name="combo_button_settings_2">Kombo Düğmesi 2\'yi Yapılandır</string>
-    <string name="combo_button_settings_3">Kombo Düğmesi 3\'ü Yapılandır</string>
-    <string name="combo_button_settings_4">Kombo Düğmesi 4\'ü Yapılandır</string>
-    <string name="combo_button_settings_5">Kombo Düğmesi 5\'i Yapılandır</string>
     <string name="per_game_settings">Oyuna özel ayarlar</string>
     <string name="per_game_settings_title">Oyuna özel ayarlar: %1$s</string>
     <string name="per_game_use_global_confirmation">Bu ayar için yeniden genel değer kullanılsın mı?</string>
@@ -965,9 +953,7 @@
     <string name="emulation_control_adjust">Yerleşimi Ayarla</string>
     <string name="overlay_control_scale">Boyut</string>
     <string name="overlay_control_opacity">Opaklık</string>
-    <string name="overlay_control_hold">Dokunarak basılı tut</string>
     <string name="overlay_control_hold_description">Basmak için bir kez dokunun, bırakmak için tekrar dokunun</string>
-    <string name="overlay_control_rapid">Hızlı ateş</string>
     <string name="overlay_control_rapid_description">Otomatik basmayı başlatmak için bir kez dokunun, durdurmak için tekrar dokunun</string>
     <string name="overlay_control_change_image">Düğme görselini değiştir</string>
     <string name="overlay_control_reset">Sıfırla</string>
@@ -1087,7 +1073,6 @@
     <string name="cheats_edit_text">Dosyayı düzenle</string>
     <string name="cheats_text_hint">[Hile adı]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Kaydet</string>
-    <string name="cheats_text_cancel">İptal</string>
     <string name="overlay_control_image">Görsel</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Basılı tut</string>
@@ -1150,7 +1135,6 @@
     <string name="multiplayer">Çok oyunculu</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Yeni</string>
     <string name="touch_input_rebind">Yeniden ata</string>
     <string name="touch_input_all_bindings">Tüm atamalar (%1$d)</string>
     <string name="touch_input_touches_format">Ekrana %1$s konumunda dokunur</string>
@@ -1193,4 +1177,34 @@
     <string name="draw_batching_description">Deneysel (Vulkan). Aynı duruma sahip ardışık çizim çağrılarını tek bir çağrıda birleştirerek CPU ve sürücü yükünü azaltır. Eksik veya bozuk geometri görürseniz bunu kapatın.</string>
     <string name="web_api_urls">Web API URL\'leri</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="custom_cpu_ticks">Özel CPU tıkları</string>
+    <string name="custom_cpu_ticks_description">CPU JIT\'in çalıştırdığı her bloğu gerçek maliyeti yerine sabit sayıda tık olarak sayar. Yüksek değerler oyunları hızlandırabilir ama donmalara veya zamanlama sorunlarına yol açabilir. Yorumlayıcıda etkisi yoktur.</string>
+    <string name="cpu_ticks">CPU tıkları</string>
+    <string name="cpu_ticks_description">Her JIT bloğu için sayılan tık. Yüksek değer daha hızlı ama daha az doğru; düşük değer performans pahasına oyunlara daha fazla CPU zamanı verir. Varsayılan: 16000.</string>
+    <string name="preferences_multiplayer">Çok oyunculu</string>
+    <string name="preferences_multiplayer_description">Gecikme yönetimi, odaya yeniden bağlanma ve MHGU çapraz oyun.</string>
+    <string name="netsync_header">Geride kalan oyuncular</string>
+    <string name="netsync_enabled">Geride kalan oyuncuları bekle</string>
+    <string name="netsync_enabled_description">Başka bir oyuncu geride kaldığında oyununu kısa süre bekletir, böylece oyun onun bağlantısının koptuğunu sanmaz.</string>
+    <string name="netsync_timeout">Azami bekleme</string>
+    <string name="netsync_timeout_description">Geride kalan bir oyuncu olmadan devam etmeden önce ne kadar bekleneceği. Daha uzun daha hoşgörülüdür, ama oyunun daha uzun donabilir.</string>
+    <string name="auto_rejoin_header">Odaya yeniden bağlanma</string>
+    <string name="auto_rejoin">Odaya otomatik olarak yeniden bağlan</string>
+    <string name="auto_rejoin_description">Oda sunucusu bağlantını keserse, aynı ad ve MAC adresiyle hata mesajları olmadan geri katılırsın.</string>
+    <string name="auto_rejoin_window">Yeniden bağlanma süre sınırı</string>
+    <string name="auto_rejoin_window_description">Vazgeçmeden önce odaya geri girmenin ne kadar süre deneneceği.</string>
+    <string name="auto_rejoin_pause">Yeniden bağlanırken oyunu dondur</string>
+    <string name="auto_rejoin_pause_description">Sen dönene kadar oyun saatini durdurur, böylece oyun bu arada bağlantıyı zaman aşımına uğratmaz.</string>
+    <string name="overlay_control_badge">Numara rozetini göster</string>
+    <string name="mhgu_hub_header">MHGU çapraz oyun</string>
+    <string name="mhgu_hub_enabled">MHGU oyuncularıyla oyna</string>
+    <string name="mhgu_hub_enabled_description">Yalnızca Monster Hunter XX. Bir odada değilken yerel oyun MHGU\'nun (yerel port) hub sunucuları üzerinden geçer: oluşturduğun odalar MHGU oyuncularına listelenir, onların odaları da aramanda görünür.</string>
+    <string name="mhgu_hub_servers">Hub sunucuları</string>
+    <string name="mhgu_hub_servers_description">Boşlukla ayrılmış en fazla 4 sunucu adresi.</string>
+    <string name="mhgu_hub_key">Eşleştirme anahtarı</string>
+    <string name="mhgu_hub_key_description">Yalnızca aynı anahtara sahip oyuncular birbirinin odalarını görür. Herkese açık odalar için boş bırak.</string>
+    <string name="mhgu_hub_convert">Ağ mesajlarını dönüştür</string>
+    <string name="mhgu_hub_convert_description">3DS ile MHGU arasında farklı olan birkaç ağ mesajını yeniden yazar. Açık bırak.</string>
+    <string name="mhgu_hub_log">Ağ paketlerini kaydet</string>
+    <string name="mhgu_hub_log_description">Bağlantı sorunlarını incelemek için oyunun ağ paketlerini günlüğe yazar.</string>
 </resources>

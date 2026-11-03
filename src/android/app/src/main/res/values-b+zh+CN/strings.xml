@@ -837,7 +837,6 @@
     <string name="touch_input_bindings">触摸输入绑定</string>
     <string name="touch_input_bindings_description">将控制器按键和摇杆映射到3DS下屏幕上的位置。</string>
     <string name="bind_touch_input">绑定触摸输入</string>
-    <string name="bind_touch_input_message">按下一个按键或移动摇杆以绑定。</string>
     <string name="bind_touch_input_cancel">取消</string>
     <string name="touch_input_empty_title">尚无绑定</string>
     <string name="touch_input_empty_message">点击预览选择位置,然后在控制器上按下按键或移动摇杆。</string>
@@ -851,14 +850,12 @@
     <string name="touch_input_nudge_right">右移</string>
     <string name="touch_input_nudge_up">上移</string>
     <string name="touch_input_nudge_down">下移</string>
-    <string name="touch_input_binding_options">绑定选项</string>
     <string name="delete_all">全部删除</string>
     <string name="delete_all_touch_input_confirm">删除此配置文件的所有触摸输入绑定?此操作无法撤销。</string>
     <string name="delete_touch_input_confirm">删除此触摸输入绑定?</string>
     <string name="create_profile">创建配置文件</string>
     <string name="create_new_profile">新建配置文件</string>
     <string name="profile_action_rename_format">重命名“%1$s”</string>
-    <string name="profile_manage_format">管理“%1$s”</string>
     <string name="profile_action_delete_format">删除“%1$s”</string>
     <string name="delete_profile">删除配置文件</string>
     <string name="profile_name">配置文件名称</string>
@@ -881,11 +878,6 @@
     <string name="button_combo_3">组合键 3</string>
     <string name="button_combo_4">组合键 4</string>
     <string name="button_combo_5">组合键 5</string>
-    <string name="combo_button_n_1">组合键 1</string>
-    <string name="combo_button_n_2">组合键 2</string>
-    <string name="combo_button_n_3">组合键 3</string>
-    <string name="combo_button_n_4">组合键 4</string>
-    <string name="combo_button_n_5">组合键 5</string>
     <string name="combo_none">无</string>
     <string name="combo_button_n">组合键 %1$d</string>
     <string name="combo_circle_left">方向摇杆 左</string>
@@ -896,10 +888,6 @@
     <string name="combo_c_up">C 摇杆 上</string>
     <string name="combo_c_right">C 摇杆 右</string>
     <string name="combo_c_down">C 摇杆 下</string>
-    <string name="combo_button_settings_2">配置组合键 2</string>
-    <string name="combo_button_settings_3">配置组合键 3</string>
-    <string name="combo_button_settings_4">配置组合键 4</string>
-    <string name="combo_button_settings_5">配置组合键 5</string>
     <string name="per_game_settings">单游戏设置</string>
     <string name="per_game_settings_title">单游戏设置：%1$s</string>
     <string name="per_game_use_global_confirmation">是否重新使用此设置项的全局值？</string>
@@ -909,9 +897,7 @@
     <string name="emulation_control_adjust">调整虚拟按键</string>
     <string name="overlay_control_scale">大小</string>
     <string name="overlay_control_opacity">不透明度</string>
-    <string name="overlay_control_hold">点按锁定</string>
     <string name="overlay_control_hold_description">点按一次为按下，再点按一次为松开</string>
-    <string name="overlay_control_rapid">连发</string>
     <string name="overlay_control_rapid_description">点按一次开始自动连按，再点按一次停止</string>
     <string name="overlay_control_change_image">更换按键图像</string>
     <string name="overlay_control_reset">重置</string>
@@ -1033,7 +1019,6 @@
     <string name="cheats_edit_text">编辑文件</string>
     <string name="cheats_text_hint">[金手指名称]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">保存</string>
-    <string name="cheats_text_cancel">取消</string>
     <string name="overlay_control_image">图片</string>
     <string name="overlay_control_mode_normal">普通</string>
     <string name="overlay_control_mode_hold">保持</string>
@@ -1110,7 +1095,6 @@
     <string name="original_button_text">加入</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">新建</string>
     <string name="touch_input_rebind">重新绑定</string>
     <string name="touch_input_all_bindings">所有绑定（%1$d）</string>
     <string name="touch_input_touches_format">触摸屏幕位置 %1$s</string>
@@ -1153,4 +1137,34 @@
     <string name="draw_batching_description">实验性（Vulkan）。将状态完全相同的连续绘制调用合并为一次，降低 CPU 和驱动开销。如果出现几何体缺失或变形，请关闭此选项。</string>
     <string name="web_api_urls">Web API 地址</string>
     <string name="web_api_url_2_hint">Web API 地址 2</string>
+    <string name="custom_cpu_ticks">自定义 CPU 时钟周期</string>
+    <string name="custom_cpu_ticks_description">将 CPU JIT 执行的每个块按固定的时钟周期数计算，而不是按实际开销。数值越高游戏可能越快，但可能导致卡死或时序问题。对解释器无效。</string>
+    <string name="cpu_ticks">CPU 时钟周期</string>
+    <string name="cpu_ticks_description">每个 JIT 块计入的时钟周期数。越高越快但越不准确；越低则以性能为代价给游戏更多 CPU 时间。默认：16000。</string>
+    <string name="preferences_multiplayer">多人游戏</string>
+    <string name="preferences_multiplayer_description">延迟处理、房间重连和 MHGU 联机互通。</string>
+    <string name="netsync_header">落后的玩家</string>
+    <string name="netsync_enabled">等待落后的玩家</string>
+    <string name="netsync_enabled_description">其他玩家落后时短暂暂停你的游戏，以免游戏误判对方已断开连接。</string>
+    <string name="netsync_timeout">最长等待</string>
+    <string name="netsync_timeout_description">等待落后玩家的最长时间，超时后不再等待。越长越宽容，但你的游戏可能卡住更久。</string>
+    <string name="auto_rejoin_header">房间重连</string>
+    <string name="auto_rejoin">自动重连房间</string>
+    <string name="auto_rejoin_description">被房间服务器断开时，以相同的名称和 MAC 地址重新加入，不弹出错误提示。</string>
+    <string name="auto_rejoin_window">重连时限</string>
+    <string name="auto_rejoin_window_description">放弃之前持续尝试重新进入房间的时间。</string>
+    <string name="auto_rejoin_pause">重连时冻结游戏</string>
+    <string name="auto_rejoin_pause_description">在你回来之前停止游戏时钟，以免游戏在此期间连接超时。</string>
+    <string name="overlay_control_badge">显示编号角标</string>
+    <string name="mhgu_hub_header">MHGU 联机互通</string>
+    <string name="mhgu_hub_enabled">与 MHGU 玩家联机</string>
+    <string name="mhgu_hub_enabled_description">仅限怪物猎人XX。不在房间中时，本地通信会经过 MHGU（原生移植版）的中心服务器：你创建的房间会显示给 MHGU 玩家，他们的房间也会出现在你的搜索结果中。</string>
+    <string name="mhgu_hub_servers">中心服务器</string>
+    <string name="mhgu_hub_servers_description">最多 4 个服务器地址，用空格分隔。</string>
+    <string name="mhgu_hub_key">匹配密钥</string>
+    <string name="mhgu_hub_key_description">只有密钥相同的玩家才能看到彼此的房间。留空则为公开房间。</string>
+    <string name="mhgu_hub_convert">转换网络消息</string>
+    <string name="mhgu_hub_convert_description">改写 3DS 与 MHGU 之间格式不同的少数网络消息。请保持开启。</string>
+    <string name="mhgu_hub_log">记录网络数据包</string>
+    <string name="mhgu_hub_log_description">将游戏的网络数据包写入日志，用于排查连接问题。</string>
 </resources>

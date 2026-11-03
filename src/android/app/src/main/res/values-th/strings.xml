@@ -12,11 +12,6 @@
     <string name="button_combo_3">ปุ่มคอมโบ 3</string>
     <string name="button_combo_4">ปุ่มคอมโบ 4</string>
     <string name="button_combo_5">ปุ่มคอมโบ 5</string>
-    <string name="combo_button_n_1">ปุ่มคอมโบ 1</string>
-    <string name="combo_button_n_2">ปุ่มคอมโบ 2</string>
-    <string name="combo_button_n_3">ปุ่มคอมโบ 3</string>
-    <string name="combo_button_n_4">ปุ่มคอมโบ 4</string>
-    <string name="combo_button_n_5">ปุ่มคอมโบ 5</string>
     <string name="combo_none">ไม่มี</string>
     <string name="combo_button_n">ปุ่มคอมโบ %1$d</string>
     <string name="combo_circle_left">Circle Pad ซ้าย</string>
@@ -27,10 +22,6 @@
     <string name="combo_c_up">C-Stick ขึ้น</string>
     <string name="combo_c_right">C-Stick ขวา</string>
     <string name="combo_c_down">C-Stick ลง</string>
-    <string name="combo_button_settings_2">ตั้งค่าปุ่มคอมโบ 2</string>
-    <string name="combo_button_settings_3">ตั้งค่าปุ่มคอมโบ 3</string>
-    <string name="combo_button_settings_4">ตั้งค่าปุ่มคอมโบ 4</string>
-    <string name="combo_button_settings_5">ตั้งค่าปุ่มคอมโบ 5</string>
     <string name="per_game_settings">การตั้งค่าเฉพาะเกม</string>
     <string name="per_game_settings_title">การตั้งค่าเฉพาะเกม: %1$s</string>
     <string name="per_game_use_global_confirmation">ใช้ค่าส่วนกลางสำหรับการตั้งค่านี้อีกครั้งหรือไม่</string>
@@ -41,9 +32,7 @@
     <string name="emulation_control_adjust">ปรับโอเวอร์เลย์</string>
     <string name="overlay_control_scale">ขนาด</string>
     <string name="overlay_control_opacity">ความทึบ</string>
-    <string name="overlay_control_hold">แตะเพื่อกดค้าง</string>
     <string name="overlay_control_hold_description">แตะครั้งเดียวเพื่อกด แตะอีกครั้งเพื่อปล่อย</string>
-    <string name="overlay_control_rapid">กดรัว</string>
     <string name="overlay_control_rapid_description">แตะครั้งเดียวเพื่อเริ่มกดอัตโนมัติ แตะอีกครั้งเพื่อหยุด</string>
     <string name="overlay_control_change_image">เปลี่ยนรูปปุ่ม</string>
     <string name="overlay_control_reset">รีเซ็ต</string>
@@ -96,7 +85,6 @@
     <string name="touch_input_bindings">การผูกอินพุตสัมผัส</string>
     <string name="touch_input_bindings_description">แมปปุ่มและแกนของคอนโทรลเลอร์กับตำแหน่งบนหน้าจอสัมผัสด้านล่างของ 3DS</string>
     <string name="bind_touch_input">ผูกอินพุตสัมผัส</string>
-    <string name="bind_touch_input_message">กดปุ่มหรือขยับสติ๊กเพื่อผูกอินพุต</string>
     <string name="bind_touch_input_cancel">ยกเลิก</string>
     <string name="touch_input_empty_title">ยังไม่มีการผูกอินพุต</string>
     <string name="touch_input_empty_message">แตะที่ตัวอย่างเพื่อเลือกตำแหน่ง จากนั้นกดปุ่มหรือขยับสติ๊กบนคอนโทรลเลอร์ของคุณ</string>
@@ -110,14 +98,12 @@
     <string name="touch_input_nudge_right">เลื่อนไปทางขวา</string>
     <string name="touch_input_nudge_up">เลื่อนขึ้น</string>
     <string name="touch_input_nudge_down">เลื่อนลง</string>
-    <string name="touch_input_binding_options">ตัวเลือกการผูกอินพุต</string>
     <string name="delete_all">ลบทั้งหมด</string>
     <string name="delete_all_touch_input_confirm">คุณแน่ใจหรือไม่ว่าต้องการลบการผูกอินพุตสัมผัสทั้งหมด</string>
     <string name="delete_touch_input_confirm">ลบการผูกอินพุตสัมผัสนี้หรือไม่</string>
     <string name="create_profile">สร้างโปรไฟล์</string>
     <string name="create_new_profile">โปรไฟล์ใหม่</string>
     <string name="profile_action_rename_format">เปลี่ยนชื่อ \"%1$s\"</string>
-    <string name="profile_manage_format">จัดการ \"%1$s\"</string>
     <string name="profile_action_delete_format">ลบ \"%1$s\"</string>
     <string name="delete_profile">ลบโปรไฟล์</string>
     <string name="profile_name">ชื่อโปรไฟล์</string>
@@ -202,7 +188,6 @@
     <string name="cheats_edit_text">แก้ไขไฟล์</string>
     <string name="cheats_text_hint">[ชื่อสูตรโกง]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">บันทึก</string>
-    <string name="cheats_text_cancel">ยกเลิก</string>
     <string name="overlay_control_image">รูปภาพ</string>
     <string name="overlay_control_mode_normal">ปกติ</string>
     <string name="overlay_control_mode_hold">กดค้าง</string>
@@ -262,7 +247,6 @@
     <string name="reset_to_default">รีเซ็ตเป็นค่าเริ่มต้น</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">ใหม่</string>
     <string name="touch_input_rebind">ผูกใหม่</string>
     <string name="touch_input_all_bindings">การผูกทั้งหมด (%1$d)</string>
     <string name="touch_input_touches_format">แตะหน้าจอที่ %1$s</string>
@@ -308,4 +292,34 @@
     <string name="draw_batching_description">ทดลอง (Vulkan) รวมคำสั่งวาดที่ต่อเนื่องกันและมีสถานะเหมือนกันให้เป็นหนึ่งเดียว ช่วยลดภาระของ CPU และไดรเวอร์ หากพบรูปทรงหายไปหรือบิดเบี้ยว ให้ปิดตัวเลือกนี้</string>
     <string name="web_api_urls">URL ของ Web API</string>
     <string name="web_api_url_2_hint">URL ของ Web API 2</string>
+    <string name="custom_cpu_ticks">ติ๊ก CPU กำหนดเอง</string>
+    <string name="custom_cpu_ticks_description">นับทุกบล็อกที่ JIT ของ CPU รันเป็นจำนวนติ๊กคงที่แทนต้นทุนจริง ค่าที่สูงขึ้นอาจทำให้เกมเร็วขึ้น แต่อาจทำให้ค้างหรือมีปัญหาเรื่องจังหวะเวลา ไม่มีผลกับตัวแปลภาษา</string>
+    <string name="cpu_ticks">ติ๊ก CPU</string>
+    <string name="cpu_ticks_description">จำนวนติ๊กที่นับต่อหนึ่งบล็อก JIT ค่าสูงเร็วกว่าแต่แม่นยำน้อยกว่า ค่าต่ำให้เวลา CPU กับเกมมากขึ้นแลกกับประสิทธิภาพ ค่าเริ่มต้น: 16000</string>
+    <string name="preferences_multiplayer">ผู้เล่นหลายคน</string>
+    <string name="preferences_multiplayer_description">การจัดการแล็ก การเชื่อมต่อห้องใหม่ และการเล่นข้ามกับ MHGU</string>
+    <string name="netsync_header">ผู้เล่นที่ล้าหลัง</string>
+    <string name="netsync_enabled">รอผู้เล่นที่ล้าหลัง</string>
+    <string name="netsync_enabled_description">หยุดเกมของคุณชั่วครู่เมื่อผู้เล่นคนอื่นล้าหลัง เพื่อไม่ให้เกมคิดว่าเขาหลุดการเชื่อมต่อ</string>
+    <string name="netsync_timeout">เวลารอสูงสุด</string>
+    <string name="netsync_timeout_description">รอผู้เล่นที่ล้าหลังนานเท่าไรก่อนเล่นต่อโดยไม่มีเขา ยิ่งนานยิ่งยืดหยุ่น แต่เกมของคุณอาจค้างนานขึ้น</string>
+    <string name="auto_rejoin_header">เชื่อมต่อห้องใหม่</string>
+    <string name="auto_rejoin">เชื่อมต่อห้องใหม่อัตโนมัติ</string>
+    <string name="auto_rejoin_description">หากเซิร์ฟเวอร์ห้องตัดการเชื่อมต่อคุณ จะกลับเข้าด้วยชื่อและที่อยู่ MAC เดิม โดยไม่มีข้อความแจ้งข้อผิดพลาด</string>
+    <string name="auto_rejoin_window">เวลาจำกัดในการเชื่อมต่อใหม่</string>
+    <string name="auto_rejoin_window_description">พยายามกลับเข้าห้องนานเท่าไรก่อนยอมแพ้</string>
+    <string name="auto_rejoin_pause">หยุดเกมขณะเชื่อมต่อใหม่</string>
+    <string name="auto_rejoin_pause_description">หยุดนาฬิกาของเกมจนกว่าคุณจะกลับมา เพื่อไม่ให้เกมตัดการเชื่อมต่อระหว่างนั้น</string>
+    <string name="overlay_control_badge">แสดงป้ายหมายเลข</string>
+    <string name="mhgu_hub_header">เล่นข้ามกับ MHGU</string>
+    <string name="mhgu_hub_enabled">เล่นกับผู้เล่น MHGU</string>
+    <string name="mhgu_hub_enabled_description">เฉพาะ Monster Hunter XX ขณะที่คุณไม่ได้อยู่ในห้อง การเล่นแบบโลคัลจะผ่านเซิร์ฟเวอร์ฮับของ MHGU (พอร์ตเนทีฟ): ห้องที่คุณสร้างจะแสดงให้ผู้เล่น MHGU เห็น และห้องของพวกเขาจะปรากฏเมื่อคุณค้นหา</string>
+    <string name="mhgu_hub_servers">เซิร์ฟเวอร์ฮับ</string>
+    <string name="mhgu_hub_servers_description">ที่อยู่เซิร์ฟเวอร์ได้สูงสุด 4 รายการ คั่นด้วยเว้นวรรค</string>
+    <string name="mhgu_hub_key">คีย์จับคู่</string>
+    <string name="mhgu_hub_key_description">เฉพาะผู้เล่นที่ใช้คีย์เดียวกันจะเห็นห้องของกันและกัน เว้นว่างไว้สำหรับห้องสาธารณะ</string>
+    <string name="mhgu_hub_convert">แปลงข้อความเครือข่าย</string>
+    <string name="mhgu_hub_convert_description">เขียนข้อความเครือข่ายส่วนน้อยที่ต่างกันระหว่าง 3DS กับ MHGU ใหม่ ควรเปิดไว้</string>
+    <string name="mhgu_hub_log">บันทึกแพ็กเก็ตเครือข่าย</string>
+    <string name="mhgu_hub_log_description">เขียนแพ็กเก็ตเครือข่ายของเกมลงในบันทึก เพื่อตรวจหาสาเหตุปัญหาการเชื่อมต่อ</string>
 </resources>

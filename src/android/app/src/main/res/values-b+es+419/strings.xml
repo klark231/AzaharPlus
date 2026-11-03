@@ -329,7 +329,6 @@
     <string name="touch_input_bindings">Asignaciones de entrada táctil</string>
     <string name="touch_input_bindings_description">Asigna botones y sticks del mando a posiciones en la pantalla táctil inferior de la 3DS.</string>
     <string name="bind_touch_input">Asignar entrada táctil</string>
-    <string name="bind_touch_input_message">Presiona un botón o mueve un stick para asignarlo.</string>
     <string name="bind_touch_input_cancel">Cancelar</string>
     <string name="touch_input_empty_title">Aún no hay asignaciones</string>
     <string name="touch_input_empty_message">Toca la vista previa para elegir un punto y luego presiona un botón o mueve un stick en tu mando.</string>
@@ -343,14 +342,12 @@
     <string name="touch_input_nudge_right">Desplazar a la derecha</string>
     <string name="touch_input_nudge_up">Desplazar hacia arriba</string>
     <string name="touch_input_nudge_down">Desplazar hacia abajo</string>
-    <string name="touch_input_binding_options">Opciones de la asignación</string>
     <string name="delete_all">Eliminar todo</string>
     <string name="delete_all_touch_input_confirm">¿Eliminar todas las asignaciones táctiles de este perfil? Esta acción no se puede deshacer.</string>
     <string name="delete_touch_input_confirm">¿Eliminar esta asignación táctil?</string>
     <string name="create_profile">Crear perfil</string>
     <string name="create_new_profile">Nuevo perfil</string>
     <string name="profile_action_rename_format">Renombrar «%1$s»</string>
-    <string name="profile_manage_format">Administrar «%1$s»</string>
     <string name="profile_action_delete_format">Eliminar «%1$s»</string>
     <string name="delete_profile">Eliminar perfil</string>
     <string name="profile_name">Nombre del perfil</string>
@@ -373,11 +370,6 @@
     <string name="button_combo_3">Botón combo 3</string>
     <string name="button_combo_4">Botón combo 4</string>
     <string name="button_combo_5">Botón combo 5</string>
-    <string name="combo_button_n_1">Botón combo 1</string>
-    <string name="combo_button_n_2">Botón combo 2</string>
-    <string name="combo_button_n_3">Botón combo 3</string>
-    <string name="combo_button_n_4">Botón combo 4</string>
-    <string name="combo_button_n_5">Botón combo 5</string>
     <string name="combo_none">Ninguno</string>
     <string name="combo_button_n">Botón combo %1$d</string>
     <string name="combo_circle_left">Circle Pad a la izquierda</string>
@@ -388,10 +380,6 @@
     <string name="combo_c_up">C-Stick hacia arriba</string>
     <string name="combo_c_right">C-Stick a la derecha</string>
     <string name="combo_c_down">C-Stick hacia abajo</string>
-    <string name="combo_button_settings_2">Configurar botón combo 2</string>
-    <string name="combo_button_settings_3">Configurar botón combo 3</string>
-    <string name="combo_button_settings_4">Configurar botón combo 4</string>
-    <string name="combo_button_settings_5">Configurar botón combo 5</string>
     <string name="per_game_settings">Ajustes por juego</string>
     <string name="per_game_settings_title">Ajustes por juego: %1$s</string>
     <string name="per_game_use_global_confirmation">¿Volver a usar el valor global para este ajuste?</string>
@@ -402,9 +390,7 @@
     <string name="emulation_control_adjust">Ajustar overlay</string>
     <string name="overlay_control_scale">Tamaño</string>
     <string name="overlay_control_opacity">Opacidad</string>
-    <string name="overlay_control_hold">Toca para mantener</string>
     <string name="overlay_control_hold_description">Toca una vez para presionar, toca de nuevo para soltar</string>
-    <string name="overlay_control_rapid">Disparo rápido</string>
     <string name="overlay_control_rapid_description">Toca una vez para empezar a presionar automáticamente, toca de nuevo para detener</string>
     <string name="overlay_control_change_image">Cambiar imagen del botón</string>
     <string name="overlay_control_reset">Restablecer</string>
@@ -526,7 +512,6 @@
     <string name="cheats_edit_text">Editar archivo</string>
     <string name="cheats_text_hint">[Nombre del truco]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Guardar</string>
-    <string name="cheats_text_cancel">Cancelar</string>
     <string name="overlay_control_image">Imagen</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Mantener</string>
@@ -596,7 +581,6 @@
     <string name="reset_to_default">Restablecer valores predeterminados</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Nuevo</string>
     <string name="touch_input_rebind">Reasignar</string>
     <string name="touch_input_all_bindings">Todas las asignaciones (%1$d)</string>
     <string name="touch_input_touches_format">Toca la pantalla en %1$s</string>
@@ -640,4 +624,34 @@
     <string name="draw_batching_description">Experimental (Vulkan). Combina en una sola las llamadas de dibujo consecutivas con un estado idéntico, lo que reduce la carga de la CPU y del controlador. Si ves geometría faltante o deformada, desactívalo.</string>
     <string name="web_api_urls">URLs de la Web API</string>
     <string name="web_api_url_2_hint">URL de la Web API 2</string>
+    <string name="custom_cpu_ticks">Ticks de CPU personalizados</string>
+    <string name="custom_cpu_ticks_description">Cuenta cada bloque que ejecuta el JIT de la CPU como una cantidad fija de ticks en lugar de su costo real. Valores más altos pueden acelerar los juegos, pero causar congelamientos o problemas de sincronización. No afecta al intérprete.</string>
+    <string name="cpu_ticks">Ticks de CPU</string>
+    <string name="cpu_ticks_description">Ticks contados por cada bloque JIT. Más alto es más rápido pero menos preciso; más bajo da a los juegos más tiempo de CPU a costa del rendimiento. Predeterminado: 16000.</string>
+    <string name="preferences_multiplayer">Multijugador</string>
+    <string name="preferences_multiplayer_description">Manejo del lag, reconexión a la sala y juego cruzado con MHGU.</string>
+    <string name="netsync_header">Jugadores con lag</string>
+    <string name="netsync_enabled">Esperar a los jugadores con lag</string>
+    <string name="netsync_enabled_description">Detiene brevemente tu juego cuando otro jugador se atrasa, para que el juego no crea que se desconectó.</string>
+    <string name="netsync_timeout">Espera máxima</string>
+    <string name="netsync_timeout_description">Cuánto esperar a un jugador con lag antes de seguir sin él. Más tiempo es más tolerante, pero tu juego puede quedarse congelado por más tiempo.</string>
+    <string name="auto_rejoin_header">Reconexión a la sala</string>
+    <string name="auto_rejoin">Reconectar a la sala automáticamente</string>
+    <string name="auto_rejoin_description">Si el servidor de la sala te desconecta, vuelve a entrar con el mismo nombre y la misma dirección MAC, sin avisos de error.</string>
+    <string name="auto_rejoin_window">Límite de tiempo de reconexión</string>
+    <string name="auto_rejoin_window_description">Cuánto tiempo seguir intentando volver a la sala antes de rendirse.</string>
+    <string name="auto_rejoin_pause">Congelar el juego al reconectar</string>
+    <string name="auto_rejoin_pause_description">Detiene el reloj del juego hasta que vuelvas, para que el juego no corte la conexión mientras tanto.</string>
+    <string name="overlay_control_badge">Mostrar insignia de número</string>
+    <string name="mhgu_hub_header">Juego cruzado con MHGU</string>
+    <string name="mhgu_hub_enabled">Jugar con jugadores de MHGU</string>
+    <string name="mhgu_hub_enabled_description">Solo Monster Hunter XX. Mientras no estés en una sala, el juego local pasa por los servidores hub de MHGU (port nativo): las salas que crees aparecen para los jugadores de MHGU, y las de ellos aparecen al buscar.</string>
+    <string name="mhgu_hub_servers">Servidores hub</string>
+    <string name="mhgu_hub_servers_description">Hasta 4 direcciones de servidor, separadas por espacios.</string>
+    <string name="mhgu_hub_key">Clave de emparejamiento</string>
+    <string name="mhgu_hub_key_description">Solo los jugadores con la misma clave ven las salas de los demás. Déjala vacía para salas públicas.</string>
+    <string name="mhgu_hub_convert">Convertir mensajes de red</string>
+    <string name="mhgu_hub_convert_description">Reescribe los pocos mensajes de red que difieren entre la 3DS y MHGU. Déjalo activado.</string>
+    <string name="mhgu_hub_log">Registrar paquetes de red</string>
+    <string name="mhgu_hub_log_description">Escribe los paquetes de red del juego en el registro, para diagnosticar problemas de conexión.</string>
 </resources>

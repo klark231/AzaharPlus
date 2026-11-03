@@ -150,7 +150,7 @@
     <string name="button_home">HOME</string>
     <string name="button_swap">Byt skärm</string>
     <string name="button_turbo">Turbo</string>
-    <string name="button_combo">Kombinationsknapp</string>
+    <string name="button_combo">Kombinationsknapp 1</string>
     <string name="input_message_analog_only">Den här kontrollen måste vara bunden till en gamepad-analog spak eller D-pad-axel! </string>
     <string name="input_message_button_only">Den här kontrollen måste vara bunden till en gamepad-knapp! </string>
     <string name="turbo_limit_hotkey">Turbohastighet</string>
@@ -1075,7 +1075,6 @@
     <string name="touch_input_bindings">Bindningar för pekinmatning</string>
     <string name="touch_input_bindings_description">Kopplar kontrollerns knappar och spakar till positioner på 3DS undre skärm.</string>
     <string name="bind_touch_input">Bind pekinmatning</string>
-    <string name="bind_touch_input_message">Tryck på en knapp eller flytta en spak för att binda den.</string>
     <string name="bind_touch_input_cancel">Avbryt</string>
     <string name="touch_input_empty_title">Inga bindningar ännu</string>
     <string name="touch_input_empty_message">Tryck på förhandsgranskningen för att välja en plats, tryck sedan på en knapp eller flytta en spak på din kontroller.</string>
@@ -1089,14 +1088,12 @@
     <string name="touch_input_nudge_right">Flytta höger</string>
     <string name="touch_input_nudge_up">Flytta upp</string>
     <string name="touch_input_nudge_down">Flytta ner</string>
-    <string name="touch_input_binding_options">Bindningsalternativ</string>
     <string name="delete_all">Ta bort alla</string>
     <string name="delete_all_touch_input_confirm">Ta bort alla bindningar för pekinmatning i den här profilen? Detta kan inte ångras.</string>
     <string name="delete_touch_input_confirm">Ta bort den här bindningen för pekinmatning?</string>
     <string name="create_profile">Skapa profil</string>
     <string name="create_new_profile">Ny profil</string>
     <string name="profile_action_rename_format">Byt namn på ”%1$s”</string>
-    <string name="profile_manage_format">Hantera ”%1$s”</string>
     <string name="profile_action_delete_format">Ta bort ”%1$s”</string>
     <string name="delete_profile">Ta bort profil</string>
     <string name="profile_name">Profilnamn</string>
@@ -1116,11 +1113,6 @@
     <string name="button_combo_3">Kombinationsknapp 3</string>
     <string name="button_combo_4">Kombinationsknapp 4</string>
     <string name="button_combo_5">Kombinationsknapp 5</string>
-    <string name="combo_button_n_1">Kombinationsknapp 1</string>
-    <string name="combo_button_n_2">Kombinationsknapp 2</string>
-    <string name="combo_button_n_3">Kombinationsknapp 3</string>
-    <string name="combo_button_n_4">Kombinationsknapp 4</string>
-    <string name="combo_button_n_5">Kombinationsknapp 5</string>
     <string name="combo_none">Ingen</string>
     <string name="combo_button_n">Kombinationsknapp %1$d</string>
     <string name="combo_circle_left">Circle Pad vänster</string>
@@ -1131,10 +1123,6 @@
     <string name="combo_c_up">C-spak upp</string>
     <string name="combo_c_right">C-spak höger</string>
     <string name="combo_c_down">C-spak ned</string>
-    <string name="combo_button_settings_2">Konfigurera kombinationsknapp 2</string>
-    <string name="combo_button_settings_3">Konfigurera kombinationsknapp 3</string>
-    <string name="combo_button_settings_4">Konfigurera kombinationsknapp 4</string>
-    <string name="combo_button_settings_5">Konfigurera kombinationsknapp 5</string>
     <string name="per_game_settings">Spelspecifika inställningar</string>
     <string name="per_game_settings_title">Spelspecifika inställningar: %1$s</string>
     <string name="per_game_use_global_confirmation">Använda det globala värdet för den här inställningen igen?</string>
@@ -1144,9 +1132,7 @@
     <string name="emulation_control_adjust">Justera överlägg</string>
     <string name="overlay_control_scale">Storlek</string>
     <string name="overlay_control_opacity">Opacitet</string>
-    <string name="overlay_control_hold">Tryck för att hålla</string>
     <string name="overlay_control_hold_description">Tryck en släpp med ett tryck, tryck igen för att släppa</string>
-    <string name="overlay_control_rapid">Autofire</string>
     <string name="overlay_control_rapid_description">Tryck en gång för att börja trycka automatiskt, tryck igen för att sluta</string>
     <string name="overlay_control_change_image">Ändra knappbild</string>
     <string name="overlay_control_reset">Återställ</string>
@@ -1266,7 +1252,6 @@
     <string name="cheats_edit_text">Redigera fil</string>
     <string name="cheats_text_hint">[Fuskets namn]\n01234567 89ABCDEF</string>
     <string name="cheats_text_save">Spara</string>
-    <string name="cheats_text_cancel">Avbryt</string>
     <string name="overlay_control_image">Bild</string>
     <string name="overlay_control_mode_normal">Normal</string>
     <string name="overlay_control_mode_hold">Håll</string>
@@ -1305,7 +1290,6 @@
     <string name="download">Ladda ner</string>
 
     <!-- Chat overlay and touch input additions -->
-    <string name="touch_input_new_profile">Ny</string>
     <string name="touch_input_rebind">Bind om</string>
     <string name="touch_input_all_bindings">Alla bindningar (%1$d)</string>
     <string name="touch_input_touches_format">Trycker på skärmen vid %1$s</string>
@@ -1348,4 +1332,34 @@
     <string name="draw_batching_description">Experimentell (Vulkan). Slår ihop på varandra följande ritanrop med identiskt tillstånd till ett, vilket minskar belastningen på CPU och drivrutin. Om du ser saknad eller förvrängd geometri, stäng av detta.</string>
     <string name="web_api_urls">Webb-API-URL:er</string>
     <string name="web_api_url_2_hint">Webb-API-URL 2</string>
+    <string name="custom_cpu_ticks">Anpassade CPU-tick</string>
+    <string name="custom_cpu_ticks_description">Räknar varje block som CPU-JIT:en kör som ett fast antal tick i stället för den verkliga kostnaden. Högre värden kan göra spel snabbare men kan orsaka frysningar eller tidsproblem. Påverkar inte tolken.</string>
+    <string name="cpu_ticks">CPU-tick</string>
+    <string name="cpu_ticks_description">Tick som räknas för varje JIT-block. Högre är snabbare men mindre exakt; lägre ger spel mer CPU-tid på bekostnad av prestandan. Standard: 16000.</string>
+    <string name="preferences_multiplayer">Flerspelare</string>
+    <string name="preferences_multiplayer_description">Hantering av lagg, återanslutning till rum och MHGU-crossplay.</string>
+    <string name="netsync_header">Laggande spelare</string>
+    <string name="netsync_enabled">Vänta på laggande spelare</string>
+    <string name="netsync_enabled_description">Håller kort tillbaka ditt spel när en annan spelare halkar efter, så att spelet inte tror att de har kopplats bort.</string>
+    <string name="netsync_timeout">Maximal väntetid</string>
+    <string name="netsync_timeout_description">Hur länge det väntas på en laggande spelare innan spelet fortsätter utan dem. Längre är mer förlåtande, men ditt spel kan frysa längre.</string>
+    <string name="auto_rejoin_header">Återanslutning till rum</string>
+    <string name="auto_rejoin">Återanslut automatiskt till rummet</string>
+    <string name="auto_rejoin_description">Om rumsservern kastar ut dig ansluter du igen med samma namn och MAC-adress, utan felmeddelanden.</string>
+    <string name="auto_rejoin_window">Tidsgräns för återanslutning</string>
+    <string name="auto_rejoin_window_description">Hur länge det försöker ta sig tillbaka in i rummet innan det ger upp.</string>
+    <string name="auto_rejoin_pause">Frys spelet vid återanslutning</string>
+    <string name="auto_rejoin_pause_description">Stoppar spelets klocka tills du är tillbaka, så att spelet inte bryter anslutningen under tiden.</string>
+    <string name="overlay_control_badge">Visa nummermärke</string>
+    <string name="mhgu_hub_header">MHGU-crossplay</string>
+    <string name="mhgu_hub_enabled">Spela med MHGU-spelare</string>
+    <string name="mhgu_hub_enabled_description">Endast Monster Hunter XX. När du inte är i ett rum går lokalt spel via hubservrarna för MHGU (native port): rum du skapar visas för MHGU-spelare, och deras rum visas när du söker.</string>
+    <string name="mhgu_hub_servers">Hubservrar</string>
+    <string name="mhgu_hub_servers_description">Upp till 4 serveradresser, åtskilda med mellanslag.</string>
+    <string name="mhgu_hub_key">Matchmaking-nyckel</string>
+    <string name="mhgu_hub_key_description">Bara spelare med samma nyckel ser varandras rum. Lämna tomt för offentliga rum.</string>
+    <string name="mhgu_hub_convert">Konvertera nätverksmeddelanden</string>
+    <string name="mhgu_hub_convert_description">Skriver om de få nätverksmeddelanden som skiljer sig mellan 3DS och MHGU. Låt den vara på.</string>
+    <string name="mhgu_hub_log">Logga nätverkspaket</string>
+    <string name="mhgu_hub_log_description">Skriver spelets nätverkspaket till loggen, för felsökning av anslutningsproblem.</string>
 </resources>

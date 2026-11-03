@@ -10,9 +10,10 @@ fi
 
 COMPAT_LIST='dist/compatibility_list/compatibility_list.json'
 
-mkdir artifacts
+mkdir -p artifacts
 
-#pip3 install git-archive-all
+command -v git-archive-all >/dev/null || pipx install git-archive-all || pip3 install --user --break-system-packages git-archive-all
+export PATH="$HOME/.local/bin:$PATH"
 touch "${COMPAT_LIST}"
 git describe --abbrev=0 --always HEAD > GIT-COMMIT
 git describe --tags HEAD > GIT-TAG || echo 'unknown' > GIT-TAG

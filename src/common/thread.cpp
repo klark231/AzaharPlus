@@ -88,8 +88,19 @@ void SetCurrentThreadPriority(ThreadPriority new_priority) {
 #ifdef _MSC_VER
 
 // Sets the debugger-visible name of the current thread.
+// SetThreadDescription only exists on Windows 10 1607 and later. Imported directly, it stops the
+// program from starting at all on older Windows, so it is looked up at run time instead.
 void SetCurrentThreadName(const char* name) {
-    SetThreadDescription(GetCurrentThread(), UTF8ToUTF16W(name).data());
+    using SetThreadDescriptionFn = HRESULT(WINAPI*)(HANDLE, PCWSTR);
+    static const auto set_thread_description = [] {
+        const HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+        return kernel32 ? reinterpret_cast<SetThreadDescriptionFn>(
+                              GetProcAddress(kernel32, "SetThreadDescription"))
+                        : nullptr;
+    }();
+    if (set_thread_description) {
+        set_thread_description(GetCurrentThread(), UTF8ToUTF16W(name).data());
+    }
 }
 
 #else // !MSVC_VER, so must be POSIX threads

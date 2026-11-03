@@ -121,6 +121,10 @@ void ConfigureGraphics::SetConfiguration() {
                                                &Settings::values.texture_sampling);
         ConfigurationShared::SetHighlight(ui->widget_texture_sampling,
                                           !Settings::values.texture_sampling.UsingGlobal());
+        ConfigurationShared::SetPerGameSetting(ui->lighter_surfaces_combobox,
+                                               &Settings::values.vk_lighter_surfaces);
+        ConfigurationShared::SetHighlight(ui->widget_lighter_surfaces,
+                                          !Settings::values.vk_lighter_surfaces.UsingGlobal());
         ConfigurationShared::SetHighlight(
             ui->delay_render_layout, !Settings::values.delay_game_render_thread_us.UsingGlobal());
 
@@ -138,6 +142,8 @@ void ConfigureGraphics::SetConfiguration() {
             static_cast<int>(Settings::values.physical_device.GetValue()));
         ui->texture_sampling_combobox->setCurrentIndex(
             static_cast<int>(Settings::values.texture_sampling.GetValue()));
+        ui->lighter_surfaces_combobox->setCurrentIndex(
+            Settings::values.vk_lighter_surfaces.GetValue());
     }
 
     ui->toggle_hw_shader->setChecked(Settings::values.use_hw_shader.GetValue());
@@ -157,6 +163,11 @@ void ConfigureGraphics::SetConfiguration() {
             Settings::values.use_display_refresh_rate_detection.GetValue());
     }
     ui->simulate_3ds_gpu_timings->setChecked(Settings::values.simulate_3ds_gpu_timings.GetValue());
+    ui->force_hw_vertex_shaders->setChecked(Settings::values.force_hw_vertex_shaders.GetValue());
+    ui->disable_surface_texture_copy->setChecked(
+        Settings::values.disable_surface_texture_copy.GetValue());
+    ui->disable_flush_cpu_write->setChecked(Settings::values.disable_flush_cpu_write.GetValue());
+    ui->vk_draw_batching->setChecked(Settings::values.vk_draw_batching.GetValue());
 }
 
 void ConfigureGraphics::ApplyConfiguration() {
@@ -191,6 +202,17 @@ void ConfigureGraphics::ApplyConfiguration() {
     ConfigurationShared::ApplyPerGameSetting(&Settings::values.simulate_3ds_gpu_timings,
                                              ui->simulate_3ds_gpu_timings,
                                              simulate_3ds_gpu_timings);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.force_hw_vertex_shaders,
+                                             ui->force_hw_vertex_shaders, force_hw_vertex_shaders);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.disable_surface_texture_copy,
+                                             ui->disable_surface_texture_copy,
+                                             disable_surface_texture_copy);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.disable_flush_cpu_write,
+                                             ui->disable_flush_cpu_write, disable_flush_cpu_write);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.vk_draw_batching,
+                                             ui->vk_draw_batching, vk_draw_batching);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.vk_lighter_surfaces,
+                                             ui->lighter_surfaces_combobox);
 
     if (Settings::IsConfiguringGlobal()) {
         Settings::values.use_shader_jit = ui->toggle_shader_jit->isChecked();
@@ -226,6 +248,14 @@ void ConfigureGraphics::SetupPerGameUI() {
             Settings::values.delay_game_render_thread_us.UsingGlobal());
         ui->simulate_3ds_gpu_timings->setEnabled(
             Settings::values.simulate_3ds_gpu_timings.UsingGlobal());
+        ui->force_hw_vertex_shaders->setEnabled(
+            Settings::values.force_hw_vertex_shaders.UsingGlobal());
+        ui->disable_surface_texture_copy->setEnabled(
+            Settings::values.disable_surface_texture_copy.UsingGlobal());
+        ui->disable_flush_cpu_write->setEnabled(
+            Settings::values.disable_flush_cpu_write.UsingGlobal());
+        ui->vk_draw_batching->setEnabled(Settings::values.vk_draw_batching.UsingGlobal());
+        ui->widget_lighter_surfaces->setEnabled(Settings::values.vk_lighter_surfaces.UsingGlobal());
         return;
     }
 
@@ -274,6 +304,20 @@ void ConfigureGraphics::SetupPerGameUI() {
     ConfigurationShared::SetColoredTristate(ui->simulate_3ds_gpu_timings,
                                             Settings::values.simulate_3ds_gpu_timings,
                                             simulate_3ds_gpu_timings);
+    ConfigurationShared::SetColoredTristate(ui->force_hw_vertex_shaders,
+                                            Settings::values.force_hw_vertex_shaders,
+                                            force_hw_vertex_shaders);
+    ConfigurationShared::SetColoredTristate(ui->disable_surface_texture_copy,
+                                            Settings::values.disable_surface_texture_copy,
+                                            disable_surface_texture_copy);
+    ConfigurationShared::SetColoredTristate(ui->disable_flush_cpu_write,
+                                            Settings::values.disable_flush_cpu_write,
+                                            disable_flush_cpu_write);
+    ConfigurationShared::SetColoredTristate(ui->vk_draw_batching, Settings::values.vk_draw_batching,
+                                            vk_draw_batching);
+    ConfigurationShared::SetColoredComboBox(
+        ui->lighter_surfaces_combobox, ui->widget_lighter_surfaces,
+        static_cast<int>(Settings::values.vk_lighter_surfaces.GetValue(true)));
 }
 
 void ConfigureGraphics::SetPhysicalDeviceComboVisibility(int index) {
@@ -297,5 +341,7 @@ void ConfigureGraphics::SetPhysicalDeviceComboVisibility(int index) {
     ui->physical_device_group->setVisible(effective_api == Settings::GraphicsAPI::Vulkan);
     ui->spirv_shader_gen->setVisible(effective_api == Settings::GraphicsAPI::Vulkan);
     ui->disable_spirv_optimizer->setVisible(effective_api == Settings::GraphicsAPI::Vulkan);
+    ui->vk_draw_batching->setVisible(effective_api == Settings::GraphicsAPI::Vulkan);
+    ui->widget_lighter_surfaces->setVisible(effective_api == Settings::GraphicsAPI::Vulkan);
     ui->opengl_renderer_group->setVisible(effective_api == Settings::GraphicsAPI::OpenGL);
 }

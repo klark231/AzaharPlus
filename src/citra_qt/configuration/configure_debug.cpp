@@ -110,6 +110,16 @@ ConfigureDebug::ConfigureDebug(bool is_powered_on_, QWidget* parent)
     ui->gdb_groupbox->setVisible(false);
 #endif
 
+#if !defined(__linux__)
+    // fastmem and core pinning are only implemented on Linux
+    ui->use_fastmem->setVisible(false);
+    ui->widget_cpu_affinity->setVisible(false);
+#endif
+
+    connect(ui->custom_cpu_ticks, &QCheckBox::stateChanged, this,
+            [this](int state) { ui->cpu_ticks_spinbox->setEnabled(state == Qt::Checked); });
+    ui->cpu_ticks_spinbox->setEnabled(ui->custom_cpu_ticks->checkState() == Qt::Checked);
+
     SetupPerGameUI();
 }
 
@@ -163,6 +173,21 @@ void ConfigureDebug::SetConfiguration() {
         QStringLiteral("%1%").arg(Settings::values.cpu_clock_percentage.GetValue()));
     ui->instant_debug_log->setChecked(Settings::values.instant_debug_log.GetValue());
 
+    ui->custom_cpu_ticks->setChecked(Settings::values.custom_cpu_ticks.GetValue());
+    ui->cpu_ticks_spinbox->setValue(Settings::values.cpu_ticks.GetValue());
+    ui->reduce_downcount_slice->setChecked(Settings::values.reduce_downcount_slice.GetValue());
+    ui->priority_boost_starved_threads->setChecked(
+        Settings::values.priority_boost_starved_threads.GetValue());
+    ui->use_fastmem->setChecked(Settings::values.use_fastmem.GetValue());
+    if (Settings::IsConfiguringGlobal()) {
+        ui->cpu_affinity_combobox->setCurrentIndex(Settings::values.cpu_affinity_mode.GetValue());
+    } else {
+        ConfigurationShared::SetPerGameSetting(ui->cpu_affinity_combobox,
+                                               &Settings::values.cpu_affinity_mode);
+        ConfigurationShared::SetHighlight(ui->widget_cpu_affinity,
+                                          !Settings::values.cpu_affinity_mode.UsingGlobal());
+    }
+
     if (Core::System::GetInstance().GetDebugNextProcessFlag()) {
         ui->debug_next_process->setChecked(true);
     }
@@ -196,12 +221,42 @@ void ConfigureDebug::ApplyConfiguration() {
     ConfigurationShared::ApplyPerGameSetting(
         &Settings::values.cpu_clock_percentage, ui->clock_speed_combo,
         [this](s32) { return SliderToSettings(ui->slider_clock_speed->value()); });
+
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.custom_cpu_ticks,
+                                             ui->custom_cpu_ticks, custom_cpu_ticks);
+    // the tick count goes with the checkbox: per game, it is only set when the checkbox is
+    if (Settings::IsConfiguringGlobal()) {
+        Settings::values.cpu_ticks = ui->cpu_ticks_spinbox->value();
+    } else if (Settings::values.custom_cpu_ticks.UsingGlobal()) {
+        Settings::values.cpu_ticks.SetGlobal(true);
+    } else {
+        Settings::values.cpu_ticks.SetGlobal(false);
+        Settings::values.cpu_ticks.SetValue(ui->cpu_ticks_spinbox->value());
+    }
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.reduce_downcount_slice,
+                                             ui->reduce_downcount_slice, reduce_downcount_slice);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.priority_boost_starved_threads,
+                                             ui->priority_boost_starved_threads,
+                                             priority_boost_starved_threads);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.use_fastmem, ui->use_fastmem,
+                                             use_fastmem);
+    ConfigurationShared::ApplyPerGameSetting(&Settings::values.cpu_affinity_mode,
+                                             ui->cpu_affinity_combobox);
 }
 
 void ConfigureDebug::SetupPerGameUI() {
     // Block the global settings if a game is currently running that overrides them
     if (Settings::IsConfiguringGlobal()) {
         ui->slider_clock_speed->setEnabled(Settings::values.cpu_clock_percentage.UsingGlobal());
+        ui->custom_cpu_ticks->setEnabled(Settings::values.custom_cpu_ticks.UsingGlobal());
+        ui->cpu_ticks_spinbox->setEnabled(Settings::values.cpu_ticks.UsingGlobal() &&
+                                          ui->custom_cpu_ticks->isChecked());
+        ui->reduce_downcount_slice->setEnabled(
+            Settings::values.reduce_downcount_slice.UsingGlobal());
+        ui->priority_boost_starved_threads->setEnabled(
+            Settings::values.priority_boost_starved_threads.UsingGlobal());
+        ui->use_fastmem->setEnabled(Settings::values.use_fastmem.UsingGlobal());
+        ui->widget_cpu_affinity->setEnabled(Settings::values.cpu_affinity_mode.UsingGlobal());
         return;
     }
 
@@ -216,6 +271,20 @@ void ConfigureDebug::SetupPerGameUI() {
     ui->toggle_unique_data_console_type->setVisible(false);
     ui->toggle_cpu_jit->setVisible(false);
     ui->toggle_fastinterp->setVisible(false);
+
+    ConfigurationShared::SetColoredTristate(ui->custom_cpu_ticks, Settings::values.custom_cpu_ticks,
+                                            custom_cpu_ticks);
+    ConfigurationShared::SetColoredTristate(ui->reduce_downcount_slice,
+                                            Settings::values.reduce_downcount_slice,
+                                            reduce_downcount_slice);
+    ConfigurationShared::SetColoredTristate(ui->priority_boost_starved_threads,
+                                            Settings::values.priority_boost_starved_threads,
+                                            priority_boost_starved_threads);
+    ConfigurationShared::SetColoredTristate(ui->use_fastmem, Settings::values.use_fastmem,
+                                            use_fastmem);
+    ConfigurationShared::SetColoredComboBox(
+        ui->cpu_affinity_combobox, ui->widget_cpu_affinity,
+        static_cast<int>(Settings::values.cpu_affinity_mode.GetValue(true)));
 }
 
 void ConfigureDebug::RetranslateUI() {

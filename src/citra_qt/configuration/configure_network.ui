@@ -67,6 +67,192 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="multiplayer_group">
+     <property name="title">
+      <string>Multiplayer</string>
+     </property>
+     <layout class="QVBoxLayout" name="multiplayer_layout">
+      <item>
+       <widget class="QCheckBox" name="netsync_enabled">
+        <property name="toolTip">
+         <string>Briefly holds your game when another player falls behind, so the game doesn't think they disconnected.</string>
+        </property>
+        <property name="text">
+         <string>Wait for lagging players</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="netsync_timeout_layout">
+        <item>
+         <widget class="QLabel" name="netsync_timeout_spinbox_label">
+          <property name="toolTip">
+           <string>How long to wait for a lagging player before carrying on without them. Longer is more forgiving, but your game can freeze for longer.</string>
+          </property>
+          <property name="text">
+           <string>Maximum wait:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="netsync_timeout_spinbox">
+          <property name="toolTip">
+           <string>How long to wait for a lagging player before carrying on without them. Longer is more forgiving, but your game can freeze for longer.</string>
+          </property>
+          <property name="suffix">
+           <string> s</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>60</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="netsync_timeout_layout_spacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="auto_rejoin">
+        <property name="toolTip">
+         <string>If the room server drops you, rejoin with the same name and MAC address, without error popups.</string>
+        </property>
+        <property name="text">
+         <string>Reconnect to room automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="auto_rejoin_window_layout">
+        <item>
+         <widget class="QLabel" name="auto_rejoin_window_spinbox_label">
+          <property name="toolTip">
+           <string>How long to keep trying to get back into the room before giving up.</string>
+          </property>
+          <property name="text">
+           <string>Reconnect time limit:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="auto_rejoin_window_spinbox">
+          <property name="toolTip">
+           <string>How long to keep trying to get back into the room before giving up.</string>
+          </property>
+          <property name="suffix">
+           <string> s</string>
+          </property>
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>600</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="auto_rejoin_window_layout_spacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="auto_rejoin_pause">
+        <property name="toolTip">
+         <string>Stops the game clock until you're back, so the game can't time out the connection meanwhile.</string>
+        </property>
+        <property name="text">
+         <string>Freeze game while reconnecting</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="mhgu_hub_group">
+     <property name="title">
+      <string>MHGU Crossplay</string>
+     </property>
+     <layout class="QVBoxLayout" name="mhgu_hub_layout">
+      <item>
+       <widget class="QCheckBox" name="mhgu_hub_enabled">
+        <property name="toolTip">
+         <string>Monster Hunter XX only. While you're not in a room, local play goes through the MHGU (native port) hub servers: rooms you create are listed for MHGU players, and their rooms show up when you search.</string>
+        </property>
+        <property name="text">
+         <string>Play with MHGU players</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="mhgu_hub_servers_label">
+        <property name="toolTip">
+         <string>Up to 4 server addresses, separated by spaces.</string>
+        </property>
+        <property name="text">
+         <string>Hub servers:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="mhgu_hub_servers">
+        <property name="toolTip">
+         <string>Up to 4 server addresses, separated by spaces.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="mhgu_hub_key_label">
+        <property name="toolTip">
+         <string>Only players with the same key see each other's rooms. Leave empty for public rooms.</string>
+        </property>
+        <property name="text">
+         <string>Matchmaking key:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="mhgu_hub_key">
+        <property name="toolTip">
+         <string>Only players with the same key see each other's rooms. Leave empty for public rooms.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="mhgu_hub_convert">
+        <property name="toolTip">
+         <string>Rewrites the few network messages that differ between the 3DS and MHGU. Leave this on.</string>
+        </property>
+        <property name="text">
+         <string>Convert network messages</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="mhgu_hub_log">
+        <property name="toolTip">
+         <string>Writes the game's network packets to the log, for troubleshooting connection problems.</string>
+        </property>
+        <property name="text">
+         <string>Log network packets</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

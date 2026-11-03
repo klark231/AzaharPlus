@@ -62,6 +62,12 @@ private:
 
     std::array<Common::ParamPackage, Settings::NativeButton::NumButtons> buttons_param;
     std::array<Common::ParamPackage, Settings::NativeAnalog::NumAnalogs> analogs_param;
+    std::array<Common::ParamPackage, Settings::NumComboButtons> combo_params;
+    std::array<std::string, Settings::NumComboButtons> combo_targets;
+
+    /// Each combo has a button for its binding and one for the buttons it presses.
+    std::array<QPushButton*, Settings::NumComboButtons> combo_map;
+    std::array<QPushButton*, Settings::NumComboButtons> combo_targets_map;
 
     static constexpr int ANALOG_SUB_BUTTONS_NUM = 9;
 

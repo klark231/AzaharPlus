@@ -7,6 +7,10 @@
 #include <memory>
 #include <QWidget>
 
+namespace ConfigurationShared {
+enum class CheckState;
+}
+
 namespace Ui {
 class ConfigureDebug;
 }
@@ -26,4 +30,9 @@ public:
 private:
     std::unique_ptr<Ui::ConfigureDebug> ui;
     bool is_powered_on;
+
+    ConfigurationShared::CheckState custom_cpu_ticks;
+    ConfigurationShared::CheckState reduce_downcount_slice;
+    ConfigurationShared::CheckState priority_boost_starved_threads;
+    ConfigurationShared::CheckState use_fastmem;
 };

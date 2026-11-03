@@ -2,11 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the misc/licenses/gplv2.txt file included.
 
+#include <array>
 #include <QColorDialog>
+#include <QSpinBox>
 #include <QtGlobal>
 #include "citra_qt/configuration/configuration_shared.h"
 #include "citra_qt/configuration/configure_layout.h"
 #include "citra_qt/configuration/configure_layout_cycle.h"
+#include "citra_qt/configuration/custom_layout_preview.h"
 #include "common/settings.h"
 #include "ui_configure_layout.h"
 #ifdef ENABLE_OPENGL
@@ -18,6 +21,7 @@ ConfigureLayout::ConfigureLayout(QWidget* parent)
     ui->setupUi(this);
 
     SetupPerGameUI();
+    SetupCustomLayoutPreview();
     SetConfiguration();
 
     ui->large_screen_proportion->setEnabled(
@@ -122,6 +126,43 @@ ConfigureLayout::ConfigureLayout(QWidget* parent)
 }
 
 ConfigureLayout::~ConfigureLayout() = default;
+
+void ConfigureLayout::SetupCustomLayoutPreview() {
+    custom_layout_preview = new CustomLayoutPreview(this);
+    ui->verticalLayout_5->insertWidget(0, custom_layout_preview);
+
+    struct Boxes {
+        QSpinBox* x;
+        QSpinBox* y;
+        QSpinBox* w;
+        QSpinBox* h;
+    };
+    const std::array<Boxes, 2> boxes{{
+        {ui->custom_top_x, ui->custom_top_y, ui->custom_top_width, ui->custom_top_height},
+        {ui->custom_bottom_x, ui->custom_bottom_y, ui->custom_bottom_width,
+         ui->custom_bottom_height},
+    }};
+    for (std::size_t i = 0; i < boxes.size(); i++) {
+        const auto screen = static_cast<CustomLayoutPreview::Screen>(i);
+        const Boxes b = boxes[i];
+        const auto from_boxes = [this, screen, b] {
+            custom_layout_preview->SetRect(
+                screen, QRect(b.x->value(), b.y->value(), b.w->value(), b.h->value()));
+        };
+        for (QSpinBox* box : {b.x, b.y, b.w, b.h}) {
+            connect(box, qOverload<int>(&QSpinBox::valueChanged), this, from_boxes);
+        }
+        from_boxes();
+    }
+    connect(custom_layout_preview, &CustomLayoutPreview::RectChanged, this,
+            [boxes](CustomLayoutPreview::Screen screen, const QRect& r) {
+                const Boxes& b = boxes[screen];
+                b.x->setValue(r.x());
+                b.y->setValue(r.y());
+                b.w->setValue(r.width());
+                b.h->setValue(r.height());
+            });
+}
 
 void ConfigureLayout::SetConfiguration() {
 

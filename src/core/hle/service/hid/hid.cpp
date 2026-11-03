@@ -12,6 +12,7 @@
 #include "common/logging/log.h"
 #include "core/3ds.h"
 #include "core/core.h"
+#include "core/frontend/input_combo.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/handle_table.h"
@@ -116,13 +117,11 @@ DirectionState GetStickDirectionState(s16 circle_pad_x, s16 circle_pad_y) {
 
 void Module::LoadInputDevices() {
     LOG_DEBUG(Frontend, "Loading input devices");
-    std::transform(Settings::values.current_input_profile.buttons.begin() +
-                       Settings::NativeButton::BUTTON_HID_BEGIN,
-                   Settings::values.current_input_profile.buttons.begin() +
-                       Settings::NativeButton::BUTTON_HID_END,
-                   buttons.begin(), Input::CreateDevice<Input::ButtonDevice>);
-    circle_pad = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CirclePad]);
+    for (int i = Settings::NativeButton::BUTTON_HID_BEGIN;
+         i < Settings::NativeButton::BUTTON_HID_END; i++) {
+        buttons[i - Settings::NativeButton::BUTTON_HID_BEGIN] = Input::Combo::CreateButton(i);
+    }
+    circle_pad = Input::Combo::CreateAnalog(Settings::NativeAnalog::CirclePad);
     motion_device = Input::CreateDevice<Input::MotionDevice>(
         Settings::values.current_input_profile.motion_device);
     touch_device = Input::CreateDevice<Input::TouchDevice>(

@@ -275,6 +275,126 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="cpu_tweaks_box">
+     <property name="title">
+      <string>CPU Tweaks</string>
+     </property>
+     <layout class="QGridLayout" name="cpu_tweaks_layout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="custom_cpu_ticks">
+        <property name="toolTip">
+         <string>Counts every block the CPU JIT runs as a fixed number of ticks instead of its real cost. Higher values can make games faster but may cause freezes or timing problems. Has no effect with the interpreter.</string>
+        </property>
+        <property name="text">
+         <string>Custom CPU ticks</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="cpu_ticks_spinbox">
+        <property name="toolTip">
+         <string>Ticks counted for each JIT block. Higher is faster but less accurate; lower gives games more CPU time at a performance cost. Default: 16000.</string>
+        </property>
+        <property name="minimum">
+         <number>77</number>
+        </property>
+        <property name="maximum">
+         <number>65535</number>
+        </property>
+        <property name="singleStep">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>16000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="reduce_downcount_slice">
+        <property name="toolTip">
+         <string>Reduces the CPU time slice, which can improve responsiveness and multi-core timing in some games at some performance cost.</string>
+        </property>
+        <property name="text">
+         <string>Reduce downcount slice</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="priority_boost_starved_threads">
+        <property name="toolTip">
+         <string>Raises the priority of threads that have waited too long to run. May improve performance in some games.</string>
+        </property>
+        <property name="text">
+         <string>Priority boost starved threads</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="use_fastmem">
+        <property name="toolTip">
+         <string>Lets the JIT access emulated memory directly. Faster; turn it off if games crash.</string>
+        </property>
+        <property name="text">
+         <string>Use fastmem</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QWidget" name="widget_cpu_affinity" native="true">
+        <layout class="QHBoxLayout" name="cpu_affinity_layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="cpu_affinity_label">
+           <property name="toolTip">
+            <string>Pins the emulation and GPU threads to chosen CPU cores. Only matters on CPUs with fast and slow cores. Leave it on Default if performance gets worse.</string>
+           </property>
+           <property name="text">
+            <string>CPU core affinity</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cpu_affinity_combobox">
+           <item>
+            <property name="text">
+             <string>Default (OS decides)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Big + prime cores</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Prime core only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Little cores only</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
       <string>Miscellaneous</string>

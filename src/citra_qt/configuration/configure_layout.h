@@ -20,6 +20,8 @@ namespace Ui {
 class ConfigureLayout;
 }
 
+class CustomLayoutPreview;
+
 class ConfigureLayout : public QWidget {
     Q_OBJECT
 
@@ -34,10 +36,14 @@ public:
     void SetupPerGameUI();
 
 private:
+    /// Keeps the drag-and-drop picture and the number boxes of the custom layout in step
+    void SetupCustomLayoutPreview();
+
     void updateShaders(Settings::StereoRenderOption stereo_option);
     void updateTextureFilter(int index);
 
     std::unique_ptr<Ui::ConfigureLayout> ui;
+    CustomLayoutPreview* custom_layout_preview = nullptr;
     ConfigurationShared::CheckState swap_screen;
     ConfigurationShared::CheckState upright_screen;
     QColor bg_color;

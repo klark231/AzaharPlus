@@ -46,6 +46,10 @@ private:
     ConfigurationShared::CheckState spirv_shader_gen;
     ConfigurationShared::CheckState disable_spirv_optimizer;
     ConfigurationShared::CheckState simulate_3ds_gpu_timings;
+    ConfigurationShared::CheckState force_hw_vertex_shaders;
+    ConfigurationShared::CheckState disable_surface_texture_copy;
+    ConfigurationShared::CheckState disable_flush_cpu_write;
+    ConfigurationShared::CheckState vk_draw_batching;
     std::unique_ptr<Ui::ConfigureGraphics> ui;
     QColor bg_color;
 };

@@ -88,12 +88,16 @@ add_library(citra_qt STATIC EXCLUDE_FROM_ALL
     configuration/configure_ui.cpp
     configuration/configure_ui.h
     configuration/configure_ui.ui
+    configuration/custom_layout_preview.cpp
+    configuration/custom_layout_preview.h
     configuration/configure_network.cpp
     configuration/configure_network.h
     configuration/configure_network.ui
     configuration/configure_cheats.cpp
     configuration/configure_cheats.h
     configuration/configure_cheats.ui
+    configuration/configure_combo_targets.cpp
+    configuration/configure_combo_targets.h
     debugger/console.h
     debugger/console.cpp
     debugger/graphics/graphics.cpp

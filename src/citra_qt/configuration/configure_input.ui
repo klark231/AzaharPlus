@@ -1033,6 +1033,158 @@
            </layout>
           </widget>
          </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QGroupBox" name="comboButtons">
+           <property name="title">
+            <string>Combo Buttons</string>
+           </property>
+           <property name="toolTip">
+            <string>Each combo presses several buttons at once with a single input, for example L + R.</string>
+           </property>
+           <layout class="QGridLayout" name="comboGridLayout">
+            <item row="0" column="0">
+             <layout class="QVBoxLayout" name="comboLayout1">
+              <item>
+               <widget class="QLabel" name="labelCombo1">
+                <property name="text">
+                 <string>Combo 1:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCombo1">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonComboTargets1">
+                <property name="toolTip">
+                 <string>Choose the buttons this combo presses</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="comboLayout2">
+              <item>
+               <widget class="QLabel" name="labelCombo2">
+                <property name="text">
+                 <string>Combo 2:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCombo2">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonComboTargets2">
+                <property name="toolTip">
+                 <string>Choose the buttons this combo presses</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="2">
+             <layout class="QVBoxLayout" name="comboLayout3">
+              <item>
+               <widget class="QLabel" name="labelCombo3">
+                <property name="text">
+                 <string>Combo 3:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCombo3">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonComboTargets3">
+                <property name="toolTip">
+                 <string>Choose the buttons this combo presses</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="3">
+             <layout class="QVBoxLayout" name="comboLayout4">
+              <item>
+               <widget class="QLabel" name="labelCombo4">
+                <property name="text">
+                 <string>Combo 4:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCombo4">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonComboTargets4">
+                <property name="toolTip">
+                 <string>Choose the buttons this combo presses</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="4">
+             <layout class="QVBoxLayout" name="comboLayout5">
+              <item>
+               <widget class="QLabel" name="labelCombo5">
+                <property name="text">
+                 <string>Combo 5:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCombo5">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonComboTargets5">
+                <property name="toolTip">
+                 <string>Choose the buttons this combo presses</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -1201,6 +1353,16 @@
   <tabstop>buttonCircleMod</tabstop>
   <tabstop>buttonDebug</tabstop>
   <tabstop>buttonGpio14</tabstop>
+  <tabstop>buttonCombo1</tabstop>
+  <tabstop>buttonComboTargets1</tabstop>
+  <tabstop>buttonCombo2</tabstop>
+  <tabstop>buttonComboTargets2</tabstop>
+  <tabstop>buttonCombo3</tabstop>
+  <tabstop>buttonComboTargets3</tabstop>
+  <tabstop>buttonCombo4</tabstop>
+  <tabstop>buttonComboTargets4</tabstop>
+  <tabstop>buttonCombo5</tabstop>
+  <tabstop>buttonComboTargets5</tabstop>
   <tabstop>buttonMotionTouch</tabstop>
   <tabstop>buttonAutoMap</tabstop>
   <tabstop>buttonClearAll</tabstop>

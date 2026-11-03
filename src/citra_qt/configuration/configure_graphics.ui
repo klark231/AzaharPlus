@@ -425,6 +425,102 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="tweaksBox">
+     <property name="title">
+      <string>Tweaks</string>
+     </property>
+     <layout class="QVBoxLayout" name="tweaksLayout">
+     <item>
+      <widget class="QCheckBox" name="force_hw_vertex_shaders">
+       <property name="toolTip">
+        <string>Never uses the slow software vertex shader path. Draws that cannot run on the GPU are skipped. May give a performance boost, but can cause missing graphics.</string>
+       </property>
+       <property name="text">
+        <string>Force hardware vertex shaders</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="disable_surface_texture_copy">
+       <property name="toolTip">
+        <string>Skips texture copies when no cached source exists. May give a small performance boost, but can cause graphical bugs.</string>
+       </property>
+       <property name="text">
+        <string>Disable surface texture copy</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="disable_flush_cpu_write">
+       <property name="toolTip">
+        <string>Skips flushing cached surfaces on tiny CPU writes. May reduce stutter, but can cause graphical bugs.</string>
+       </property>
+       <property name="text">
+        <string>Disable flush on CPU write</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="vk_draw_batching">
+       <property name="toolTip">
+        <string>Vulkan only. Merges consecutive draw calls that use identical state into one, reducing CPU and driver overhead. If you see missing or distorted geometry, turn this off.</string>
+       </property>
+       <property name="text">
+        <string>Draw batching (experimental)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget_lighter_surfaces" native="true">
+       <layout class="QHBoxLayout" name="lighter_surfaces_layout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lighter_surfaces_label">
+          <property name="toolTip">
+           <string>Vulkan only, experimental. Skips storage usage most games don't need, so the GPU can compress surfaces and use less memory bandwidth. "No shadows" turns shadow effects off. "With shadows" keeps them, with a brief hitch the first time one appears.</string>
+          </property>
+          <property name="text">
+           <string>Lighter surfaces</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="lighter_surfaces_combobox">
+          <item>
+           <property name="text">
+            <string>Off</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Lighter, no shadows</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Lighter, with shadows</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

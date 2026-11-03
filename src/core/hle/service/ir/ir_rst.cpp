@@ -8,6 +8,7 @@
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/core_timing.h"
+#include "core/frontend/input_combo.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/shared_memory.h"
@@ -53,12 +54,9 @@ struct SharedMem {
 static_assert(sizeof(SharedMem) == 0x98, "SharedMem has wrong size!");
 
 void IR_RST::LoadInputDevices() {
-    zl_button = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
-    zr_button = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
-    c_stick = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    zl_button = Input::Combo::CreateButton(Settings::NativeButton::ZL);
+    zr_button = Input::Combo::CreateButton(Settings::NativeButton::ZR);
+    c_stick = Input::Combo::CreateAnalog(Settings::NativeAnalog::CStick);
 }
 
 void IR_RST::UnloadInputDevices() {

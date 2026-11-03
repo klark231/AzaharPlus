@@ -12,6 +12,7 @@
 #include "citra_qt/setting_qkeys.h"
 #include "common/file_util.h"
 #include "common/settings.h"
+#include "core/frontend/input_combo.h"
 #include "core/hle/service/service.h"
 #include "input_common/main.h"
 #include "input_common/udp/client.h"
@@ -155,7 +156,6 @@ void QtConfig::ReadBasicSetting(Settings::Setting<std::vector<Type>, ranged>& se
             std::vector<Type> newValue;
             for (const QString& str : stringList) {
                 if constexpr (std::is_enum_v<Type>) {
-                    using TypeU = std::underlying_type_t<Type>;
                     newValue.push_back(static_cast<Type>(str.toInt()));
                 } else if constexpr (std::is_integral_v<Type>) {
                     newValue.push_back(str.toInt());
@@ -340,6 +340,15 @@ void QtConfig::ReadCameraValues() {
     qt_config->endGroup();
 }
 
+// combo_button_1 = its binding, combo_button_1_targets = what it presses ("l,r")
+static QString ComboKey(std::size_t i) {
+    return QStringLiteral("combo_button_%1").arg(i + 1);
+}
+
+static QString ComboTargetsKey(std::size_t i) {
+    return QStringLiteral("combo_button_%1_targets").arg(i + 1);
+}
+
 void QtConfig::ReadControlValues() {
     qt_config->beginGroup(QStringLiteral("Controls"));
 
@@ -410,6 +419,14 @@ void QtConfig::ReadControlValues() {
                     .toStdString();
             if (profile.analogs[i].empty())
                 profile.analogs[i] = default_param;
+        }
+        for (std::size_t i = 0; i < Settings::NumComboButtons; ++i) {
+            profile.combo_buttons[i] = ReadSetting(ComboKey(i), QString{}).toString().toStdString();
+            profile.combo_targets[i] =
+                ReadSetting(ComboTargetsKey(i), QString::fromStdString(Input::Combo::DefaultTargets(
+                                                    static_cast<int>(i))))
+                    .toString()
+                    .toStdString();
         }
         profile.motion_device =
             ReadSetting(Settings::QKeys::motion_device,
@@ -484,6 +501,12 @@ void QtConfig::ReadCoreValues() {
     qt_config->beginGroup(QStringLiteral("Core"));
 
     ReadGlobalSetting(Settings::values.cpu_clock_percentage);
+    ReadGlobalSetting(Settings::values.custom_cpu_ticks);
+    ReadGlobalSetting(Settings::values.cpu_ticks);
+    ReadGlobalSetting(Settings::values.reduce_downcount_slice);
+    ReadGlobalSetting(Settings::values.priority_boost_starved_threads);
+    ReadGlobalSetting(Settings::values.use_fastmem);
+    ReadGlobalSetting(Settings::values.cpu_affinity_mode);
 
     if (global) {
         ReadBasicSetting(Settings::values.use_cpu_jit);
@@ -729,9 +752,8 @@ void QtConfig::ReadRendererValues() {
     {
         const u32 rf = Settings::values.resolution_factor.GetValue();
         if (rf >= 1 && rf <= 18) {
-            LOG_WARNING(Frontend,
-                        "Migrating old resolution factor value of {} to new value of {}", rf,
-                        rf * 100);
+            LOG_WARNING(Frontend, "Migrating old resolution factor value of {} to new value of {}",
+                        rf, rf * 100);
             Settings::values.resolution_factor.SetValue(rf * 100);
         }
     }
@@ -750,6 +772,11 @@ void QtConfig::ReadRendererValues() {
     ReadGlobalSetting(Settings::values.disable_right_eye_render);
 
     ReadGlobalSetting(Settings::values.simulate_3ds_gpu_timings);
+    ReadGlobalSetting(Settings::values.force_hw_vertex_shaders);
+    ReadGlobalSetting(Settings::values.disable_surface_texture_copy);
+    ReadGlobalSetting(Settings::values.disable_flush_cpu_write);
+    ReadGlobalSetting(Settings::values.vk_draw_batching);
+    ReadGlobalSetting(Settings::values.vk_lighter_surfaces);
 
     if (global) {
         ReadBasicSetting(Settings::values.use_shader_jit);
@@ -946,6 +973,11 @@ void QtConfig::ReadWebServiceValues() {
     ReadBasicSetting(Settings::values.mhgu_hub_key);
     ReadBasicSetting(Settings::values.mhgu_hub_convert);
     ReadBasicSetting(Settings::values.mhgu_hub_log);
+    ReadBasicSetting(Settings::values.netsync_enabled);
+    ReadBasicSetting(Settings::values.netsync_timeout);
+    ReadBasicSetting(Settings::values.auto_rejoin);
+    ReadBasicSetting(Settings::values.auto_rejoin_window);
+    ReadBasicSetting(Settings::values.auto_rejoin_pause);
 
     qt_config->endGroup();
 }
@@ -1050,6 +1082,11 @@ void QtConfig::SaveControlValues() {
                          QString::fromStdString(profile.analogs[i]),
                          QString::fromStdString(default_param));
         }
+        for (std::size_t i = 0; i < Settings::NumComboButtons; ++i) {
+            WriteSetting(ComboKey(i), QString::fromStdString(profile.combo_buttons[i]), QString{});
+            WriteSetting(ComboTargetsKey(i), QString::fromStdString(profile.combo_targets[i]),
+                         QString::fromStdString(Input::Combo::DefaultTargets(static_cast<int>(i))));
+        }
         WriteSetting(
             Settings::QKeys::motion_device, QString::fromStdString(profile.motion_device),
             QStringLiteral("engine:motion_emu,update_period:100,sensitivity:0.01,tilt_clamp:90.0"));
@@ -1103,6 +1140,12 @@ void QtConfig::SaveCoreValues() {
     qt_config->beginGroup(QStringLiteral("Core"));
 
     WriteGlobalSetting(Settings::values.cpu_clock_percentage);
+    WriteGlobalSetting(Settings::values.custom_cpu_ticks);
+    WriteGlobalSetting(Settings::values.cpu_ticks);
+    WriteGlobalSetting(Settings::values.reduce_downcount_slice);
+    WriteGlobalSetting(Settings::values.priority_boost_starved_threads);
+    WriteGlobalSetting(Settings::values.use_fastmem);
+    WriteGlobalSetting(Settings::values.cpu_affinity_mode);
 
     if (global) {
         WriteBasicSetting(Settings::values.use_cpu_jit);
@@ -1315,6 +1358,11 @@ void QtConfig::SaveRendererValues() {
     WriteGlobalSetting(Settings::values.disable_right_eye_render);
 
     WriteGlobalSetting(Settings::values.simulate_3ds_gpu_timings);
+    WriteGlobalSetting(Settings::values.force_hw_vertex_shaders);
+    WriteGlobalSetting(Settings::values.disable_surface_texture_copy);
+    WriteGlobalSetting(Settings::values.disable_flush_cpu_write);
+    WriteGlobalSetting(Settings::values.vk_draw_batching);
+    WriteGlobalSetting(Settings::values.vk_lighter_surfaces);
 
     if (global) {
         WriteSetting(Settings::QKeys::use_shader_jit, Settings::values.use_shader_jit.GetValue(),
@@ -1486,6 +1534,11 @@ void QtConfig::SaveWebServiceValues() {
     WriteBasicSetting(Settings::values.mhgu_hub_key);
     WriteBasicSetting(Settings::values.mhgu_hub_convert);
     WriteBasicSetting(Settings::values.mhgu_hub_log);
+    WriteBasicSetting(Settings::values.netsync_enabled);
+    WriteBasicSetting(Settings::values.netsync_timeout);
+    WriteBasicSetting(Settings::values.auto_rejoin);
+    WriteBasicSetting(Settings::values.auto_rejoin_window);
+    WriteBasicSetting(Settings::values.auto_rejoin_pause);
 
     qt_config->endGroup();
 }

@@ -41,6 +41,12 @@ namespace cpu {
 static constexpr const char* use_cpu_jit = citra_setting(BaseKeys::use_cpu_jit);
 static constexpr const char* use_fastinterp = citra_setting(BaseKeys::use_fastinterp);
 static constexpr const char* cpu_clock_percentage = citra_setting(BaseKeys::cpu_clock_percentage);
+static constexpr const char* custom_cpu_ticks = citra_setting(BaseKeys::custom_cpu_ticks);
+static constexpr const char* cpu_ticks = citra_setting(BaseKeys::cpu_ticks);
+static constexpr const char* reduce_downcount_slice =
+    citra_setting(BaseKeys::reduce_downcount_slice);
+static constexpr const char* priority_boost_starved_threads =
+    citra_setting(BaseKeys::priority_boost_starved_threads);
 } // namespace cpu
 
 namespace system {
@@ -65,6 +71,14 @@ static constexpr const char* texture_filter = citra_setting(BaseKeys::texture_fi
 static constexpr const char* texture_sampling = citra_setting(BaseKeys::texture_sampling);
 static constexpr const char* custom_textures = citra_setting(BaseKeys::custom_textures);
 static constexpr const char* dump_textures = citra_setting(BaseKeys::dump_textures);
+static constexpr const char* force_hw_vertex_shaders =
+    citra_setting(BaseKeys::force_hw_vertex_shaders);
+static constexpr const char* disable_surface_texture_copy =
+    citra_setting(BaseKeys::disable_surface_texture_copy);
+static constexpr const char* disable_flush_cpu_write =
+    citra_setting(BaseKeys::disable_flush_cpu_write);
+static constexpr const char* vk_draw_batching = citra_setting(BaseKeys::vk_draw_batching);
+static constexpr const char* vk_lighter_surfaces = citra_setting(BaseKeys::vk_lighter_surfaces);
 } // namespace graphics
 
 namespace layout {
@@ -194,6 +208,63 @@ static constexpr retro_core_option_v2_definition option_definitions[] = {
             { nullptr, nullptr }
         },
         "100"
+    },
+    {
+        config::cpu::custom_cpu_ticks,
+        "Custom CPU Ticks",
+        "Custom CPU Ticks",
+        "Count every block the CPU JIT runs as a fixed number of ticks (set below) instead of its real cost. Higher values can make games faster but may cause freezes.",
+        nullptr,
+        config::category::cpu,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::cpu::cpu_ticks,
+        "CPU Ticks",
+        "CPU Ticks",
+        "Ticks counted for each JIT block when Custom CPU Ticks is on. Higher is faster but less accurate.",
+        nullptr,
+        config::category::cpu,
+        {
+            { "1000", "1000" }, { "2000", "2000" }, { "4000", "4000" }, { "8000", "8000" },
+            { "12000", "12000" }, { "16000", "16000 (Default)" }, { "20000", "20000" },
+            { "24000", "24000" }, { "32000", "32000" }, { "48000", "48000" }, { "65535", "65535" },
+            { nullptr, nullptr }
+        },
+        "16000"
+    },
+    {
+        config::cpu::reduce_downcount_slice,
+        "Reduce Downcount Slice",
+        "Reduce Downcount Slice",
+        "Shorter CPU time slices. Can improve responsiveness and multi-core timing in some games at some performance cost.",
+        nullptr,
+        config::category::cpu,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::cpu::priority_boost_starved_threads,
+        "Priority Boost Starved Threads",
+        "Priority Boost",
+        "Raise the priority of threads that have waited too long to run. May improve performance in some games.",
+        nullptr,
+        config::category::cpu,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::enabled
     },
 
     // System Category
@@ -487,6 +558,78 @@ static constexpr retro_core_option_v2_definition option_definitions[] = {
             { nullptr, nullptr }
         },
         config::disabled
+    },
+    {
+        config::graphics::force_hw_vertex_shaders,
+        "Force Hardware Vertex Shaders",
+        "Force HW Vertex Shaders",
+        "Never use the slow software vertex shader path. Draws that cannot run on the GPU are skipped. Faster, but can cause missing graphics.",
+        nullptr,
+        config::category::graphics,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::graphics::disable_surface_texture_copy,
+        "Disable Surface Texture Copy",
+        "Disable Texture Copy",
+        "Skip texture copies when no cached source exists. May give a small performance boost, but can cause graphical bugs.",
+        nullptr,
+        config::category::graphics,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::graphics::disable_flush_cpu_write,
+        "Disable Flush on CPU Write",
+        "Disable CPU Write Flush",
+        "Skip flushing cached surfaces on tiny CPU writes. May reduce stutter, but can cause graphical bugs.",
+        nullptr,
+        config::category::graphics,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::graphics::vk_draw_batching,
+        "Draw Batching (Vulkan)",
+        "Draw Batching",
+        "Experimental. Merge consecutive draw calls with identical state into one, reducing CPU and driver overhead. Turn off if geometry goes missing.",
+        nullptr,
+        config::category::graphics,
+        {
+            { config::enabled, "Enabled" },
+            { config::disabled, "Disabled" },
+            { nullptr, nullptr }
+        },
+        config::disabled
+    },
+    {
+        config::graphics::vk_lighter_surfaces,
+        "Lighter Surfaces (Vulkan)",
+        "Lighter Surfaces",
+        "Experimental. Skip storage usage most games don't need, so the GPU can compress surfaces. "
+        "'No shadows' turns shadow effects off; 'With shadows' keeps them.",
+        nullptr,
+        config::category::graphics,
+        {
+            { "0", "Off" },
+            { "1", "Lighter, no shadows" },
+            { "2", "Lighter, with shadows" },
+            { nullptr, nullptr }
+        },
+        "0"
     },
 
     // Layout Category
@@ -873,6 +1016,17 @@ static void ParseCpuOptions(void) {
 
     auto cpu_clock = LibRetro::FetchVariable(config::cpu::cpu_clock_percentage, "100");
     Settings::values.cpu_clock_percentage = std::stoi(cpu_clock);
+
+    Settings::values.custom_cpu_ticks =
+        LibRetro::FetchVariable(config::cpu::custom_cpu_ticks, config::disabled) == config::enabled;
+    Settings::values.cpu_ticks =
+        std::stoi(LibRetro::FetchVariable(config::cpu::cpu_ticks, "16000"));
+    Settings::values.reduce_downcount_slice =
+        LibRetro::FetchVariable(config::cpu::reduce_downcount_slice, config::disabled) ==
+        config::enabled;
+    Settings::values.priority_boost_starved_threads =
+        LibRetro::FetchVariable(config::cpu::priority_boost_starved_threads, config::enabled) ==
+        config::enabled;
 }
 
 static int GetRegionValue(const std::string& name) {
@@ -1030,6 +1184,21 @@ static void ParseGraphicsOptions(void) {
 
     Settings::values.dump_textures = LibRetro::FetchVariable(config::graphics::dump_textures,
                                                              config::disabled) == config::enabled;
+
+    Settings::values.force_hw_vertex_shaders =
+        LibRetro::FetchVariable(config::graphics::force_hw_vertex_shaders, config::disabled) ==
+        config::enabled;
+    Settings::values.disable_surface_texture_copy =
+        LibRetro::FetchVariable(config::graphics::disable_surface_texture_copy, config::disabled) ==
+        config::enabled;
+    Settings::values.disable_flush_cpu_write =
+        LibRetro::FetchVariable(config::graphics::disable_flush_cpu_write, config::disabled) ==
+        config::enabled;
+    Settings::values.vk_draw_batching =
+        LibRetro::FetchVariable(config::graphics::vk_draw_batching, config::disabled) ==
+        config::enabled;
+    Settings::values.vk_lighter_surfaces =
+        std::stoi(LibRetro::FetchVariable(config::graphics::vk_lighter_surfaces, "0"));
 }
 
 static Settings::LayoutOption GetLayoutOption(const std::string& name) {

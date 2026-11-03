@@ -447,10 +447,15 @@ protected:
     Type custom{};         ///< The custom value of the setting
 };
 
+/// Combo buttons: an input that presses several 3DS buttons at once
+constexpr std::size_t NumComboButtons = 5;
+
 struct InputProfile {
     std::string name;
     std::array<std::string, NativeButton::NumButtons> buttons;
     std::array<std::string, NativeAnalog::NumAnalogs> analogs;
+    std::array<std::string, NumComboButtons> combo_buttons; ///< binding of each combo
+    std::array<std::string, NumComboButtons> combo_targets; ///< what it presses: "l,r", "a,b", ...
     std::string motion_device;
     std::string touch_device;
     std::string controller_touch_device;
@@ -490,8 +495,8 @@ struct Values {
     SwitchableSetting<bool> custom_cpu_ticks{false, Keys::custom_cpu_ticks};
     SwitchableSetting<s32, true> cpu_ticks{16000, 77, 65535, Keys::cpu_ticks};
     SwitchableSetting<bool> reduce_downcount_slice{false, Keys::reduce_downcount_slice};
-    SwitchableSetting<bool> priority_boost_starved_threads{
-        true, Keys::priority_boost_starved_threads};
+    SwitchableSetting<bool> priority_boost_starved_threads{true,
+                                                           Keys::priority_boost_starved_threads};
     SwitchableSetting<bool> use_fastmem{true, Keys::use_fastmem};
     /// Host CPU affinity for the emulation/GPU worker threads.
     /// 0: Default (OS decides), 1: Big + prime cores, 2: Prime core only, 3: Little cores only
@@ -644,8 +649,7 @@ struct Values {
     SwitchableSetting<bool> async_custom_loading{true, Keys::async_custom_loading};
     SwitchableSetting<bool> disable_right_eye_render{false, Keys::disable_right_eye_render};
     SwitchableSetting<bool> force_hw_vertex_shaders{false, Keys::force_hw_vertex_shaders};
-    SwitchableSetting<bool> disable_surface_texture_copy{false,
-                                                         Keys::disable_surface_texture_copy};
+    SwitchableSetting<bool> disable_surface_texture_copy{false, Keys::disable_surface_texture_copy};
     SwitchableSetting<bool> disable_flush_cpu_write{false, Keys::disable_flush_cpu_write};
 
     // Audio
@@ -672,18 +676,21 @@ struct Values {
 
     // Multiplayer helpers
     Setting<bool> netsync_enabled{true, Keys::netsync_enabled};
-    Setting<u16> netsync_timeout{6, Keys::netsync_timeout};          ///< seconds (1-60)
+    Setting<u16> netsync_timeout{6, Keys::netsync_timeout}; ///< seconds (1-60)
     Setting<bool> auto_rejoin{true, Keys::auto_rejoin};
-    Setting<u16> auto_rejoin_window{60, Keys::auto_rejoin_window};   ///< seconds (5-600)
-    Setting<bool> auto_rejoin_pause{true, Keys::auto_rejoin_pause};  ///< hold the game while rejoining
-    // MHGU crossplay: MHXX local play through the MHGU Recomp hub servers (only when no room is joined)
+    Setting<u16> auto_rejoin_window{60, Keys::auto_rejoin_window}; ///< seconds (5-600)
+    Setting<bool> auto_rejoin_pause{true,
+                                    Keys::auto_rejoin_pause}; ///< hold the game while rejoining
+    // MHGU crossplay: MHXX local play through the MHGU Recomp hub servers (only when no room is
+    // joined)
     Setting<bool> mhgu_hub_enabled{false, Keys::mhgu_hub_enabled};
     Setting<std::string> mhgu_hub_servers{
         "hunterhubid-gu-hub.duckdns.org morerokk-mhgurecomp-ldnserver.duckdns.org",
         Keys::mhgu_hub_servers};
     Setting<std::string> mhgu_hub_key{"", Keys::mhgu_hub_key}; ///< matchmaking key (empty: public)
-    Setting<bool> mhgu_hub_convert{true, Keys::mhgu_hub_convert}; ///< convert differing Pia messages
-    Setting<bool> mhgu_hub_log{false, Keys::mhgu_hub_log};        ///< log the game's packets
+    Setting<bool> mhgu_hub_convert{true,
+                                   Keys::mhgu_hub_convert}; ///< convert differing Pia messages
+    Setting<bool> mhgu_hub_log{false, Keys::mhgu_hub_log};  ///< log the game's packets
     Setting<bool> use_gdbstub{false, Keys::use_gdbstub};
     Setting<u16> gdbstub_port{24689, Keys::gdbstub_port};
     Setting<bool> instant_debug_log{false, Keys::instant_debug_log};

@@ -6,6 +6,7 @@
 #include "common/alignment.h"
 #include "common/settings.h"
 #include "core/core_timing.h"
+#include "core/frontend/input_combo.h"
 #include "core/hle/service/hid/hid.h"
 #include "core/hle/service/ir/extra_hid.h"
 #include "core/movie.h"
@@ -285,12 +286,9 @@ void ExtraHID::RequestInputDevicesReload() {
 }
 
 void ExtraHID::LoadInputDevices() {
-    zl = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
-    zr = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
-    c_stick = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    zl = Input::Combo::CreateButton(Settings::NativeButton::ZL);
+    zr = Input::Combo::CreateButton(Settings::NativeButton::ZR);
+    c_stick = Input::Combo::CreateAnalog(Settings::NativeAnalog::CStick);
 }
 
 } // namespace Service::IR

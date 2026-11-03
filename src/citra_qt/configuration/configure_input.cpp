@@ -13,6 +13,7 @@
 #include <QSlider>
 #include <QTimer>
 #include "citra_qt/configuration/config.h"
+#include "citra_qt/configuration/configure_combo_targets.h"
 #include "citra_qt/configuration/configure_input.h"
 #include "citra_qt/configuration/configure_motion_touch.h"
 #include "common/param_package.h"
@@ -141,6 +142,41 @@ ConfigureInput::ConfigureInput(Core::System& _system, QWidget* parent)
                                                ui->sliderCStickDeadzoneAndModifier};
     analog_map_deadzone_and_modifier_slider_label = {ui->labelCirclePadDeadzoneAndModifier,
                                                      ui->labelCStickDeadzoneAndModifier};
+
+    combo_map = {ui->buttonCombo1, ui->buttonCombo2, ui->buttonCombo3, ui->buttonCombo4,
+                 ui->buttonCombo5};
+    combo_targets_map = {ui->buttonComboTargets1, ui->buttonComboTargets2, ui->buttonComboTargets3,
+                         ui->buttonComboTargets4, ui->buttonComboTargets5};
+    for (std::size_t i = 0; i < Settings::NumComboButtons; i++) {
+        combo_map[i]->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(combo_map[i], &QPushButton::clicked, this, [this, i] {
+            HandleClick(
+                combo_map[i],
+                [this, i](const Common::ParamPackage& params) {
+                    combo_params[i] = params;
+                    ApplyConfiguration();
+                },
+                InputCommon::Polling::DeviceType::Button);
+        });
+        connect(combo_map[i], &QPushButton::customContextMenuRequested, this,
+                [this, i](const QPoint& menu_location) {
+                    QMenu context_menu;
+                    context_menu.addAction(tr("Clear"), this, [this, i] {
+                        combo_params[i].Clear();
+                        UpdateButtonLabels();
+                        ApplyConfiguration();
+                    });
+                    context_menu.exec(combo_map[i]->mapToGlobal(menu_location));
+                });
+        connect(combo_targets_map[i], &QPushButton::clicked, this, [this, i] {
+            ConfigureComboTargets dialog(static_cast<int>(i), combo_targets[i], this);
+            if (dialog.exec() == QDialog::Accepted) {
+                combo_targets[i] = dialog.Targets();
+                UpdateButtonLabels();
+                ApplyConfiguration();
+            }
+        });
+    }
 
     for (int button_id = 0; button_id < Settings::NativeButton::NumButtons; button_id++) {
         if (!button_map[button_id])
@@ -405,6 +441,26 @@ void ConfigureInput::ApplyConfiguration() {
                        }
                        return param.Serialize();
                    });
+    for (std::size_t i = 0; i < Settings::NumComboButtons; i++) {
+        Common::ParamPackage param = combo_params[i];
+        if (param.Get("engine", "keyboard") == "sdl") {
+            switch (Settings::values.current_input_profile.maptype) {
+            case Settings::InputMappingType::AllControllers:
+                param.Set("maptype", "all");
+                break;
+            case Settings::InputMappingType::Guid:
+                param.Set("maptype", "guid");
+                break;
+            default:
+                param.Set("maptype", "guid+port");
+                break;
+            }
+        } else {
+            param.Erase("maptype");
+        }
+        Settings::values.current_input_profile.combo_buttons[i] = param.Serialize();
+        Settings::values.current_input_profile.combo_targets[i] = combo_targets[i];
+    }
     Settings::SaveProfile(Settings::values.current_input_profile_index);
 }
 
@@ -440,6 +496,12 @@ QList<QKeySequence> ConfigureInput::GetUsedKeyboardKeys() {
         }
     }
 
+    for (const auto& combo_param : combo_params) {
+        if (combo_param.Get("engine", "") == "keyboard") {
+            list << QKeySequence(combo_param.Get("code", 0));
+        }
+    }
+
     return list;
 }
 
@@ -455,6 +517,11 @@ void ConfigureInput::LoadConfiguration() {
     std::transform(Settings::values.current_input_profile.analogs.begin(),
                    Settings::values.current_input_profile.analogs.end(), analogs_param.begin(),
                    [](const std::string& str) { return Common::ParamPackage(str); });
+    for (std::size_t i = 0; i < Settings::NumComboButtons; i++) {
+        combo_params[i] =
+            Common::ParamPackage(Settings::values.current_input_profile.combo_buttons[i]);
+        combo_targets[i] = Settings::values.current_input_profile.combo_targets[i];
+    }
     UpdateButtonLabels();
 }
 
@@ -470,6 +537,10 @@ void ConfigureInput::RestoreDefaults() {
             QtConfig::default_analogs[analog_id][2], QtConfig::default_analogs[analog_id][3],
             QtConfig::default_analogs[analog_id][4], 0.5f)};
     }
+    for (std::size_t i = 0; i < Settings::NumComboButtons; i++) {
+        combo_params[i].Clear();
+        combo_targets[i] = Input::Combo::DefaultTargets(static_cast<int>(i));
+    }
     UpdateButtonLabels();
 
     ApplyConfiguration();
@@ -482,6 +553,9 @@ void ConfigureInput::ClearAll() {
     }
     for (int analog_id = 0; analog_id < Settings::NativeAnalog::NumAnalogs; analog_id++) {
         analogs_param[analog_id].Clear();
+    }
+    for (auto& combo_param : combo_params) {
+        combo_param.Clear();
     }
     UpdateButtonLabels();
 
@@ -529,6 +603,11 @@ void ConfigureInput::UpdateButtonLabels() {
     }
 
     ui->buttonCircleMod->setText(AnalogToText(analogs_param[0], "modifier"));
+
+    for (std::size_t i = 0; i < Settings::NumComboButtons; i++) {
+        combo_map[i]->setText(ButtonToText(combo_params[i]));
+        combo_targets_map[i]->setText(ConfigureComboTargets::TargetsToText(combo_targets[i]));
+    }
 
     EmitInputKeysChanged();
 }

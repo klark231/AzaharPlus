@@ -23,5 +23,8 @@ public:
     void SetConfiguration();
 
 private:
+    /// Greys out the options of a feature that is switched off
+    void UpdateMultiplayerEnabled();
+
     std::unique_ptr<Ui::ConfigureWeb> ui;
 };

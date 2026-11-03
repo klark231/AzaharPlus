@@ -124,6 +124,8 @@ add_library(citra_core STATIC EXCLUDE_FROM_ALL
     frontend/image_interface.cpp
     frontend/image_interface.h
     frontend/input.h
+    frontend/input_combo.cpp
+    frontend/input_combo.h
     hle/applets/applet.cpp
     hle/applets/applet.h
     hle/applets/erreula.cpp

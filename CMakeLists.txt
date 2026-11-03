@@ -401,7 +401,9 @@ endif()
 
 if (ENABLE_QT)
     if (NOT USE_SYSTEM_QT)
-        download_qt(6.9.3)
+        # The Windows 7 build uses 6.8.3: the last version the Windows 7 backport of Qt covers
+        set(CITRA_QT_VERSION "6.9.3" CACHE STRING "Qt version to download when not using the system Qt")
+        download_qt(${CITRA_QT_VERSION})
     endif()
 
     find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia Concurrent)

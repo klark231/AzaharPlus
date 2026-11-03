@@ -4,12 +4,15 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
+#include <cstdio>
 #include <cstring>
+#include <string>
 #include <cryptopp/aes.h>
 #include <cryptopp/md5.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/sha.h>
 #include "common/assert.h"
+#include "common/logging/log.h"
 #include "core/hle/service/nwm/nwm_uds.h"
 #include "core/hle/service/nwm/uds_beacon.h"
 
@@ -321,6 +324,18 @@ std::vector<u8> GenerateBeaconFrame(const NetworkInfo& network_info, const NodeL
 
     buffer.insert(buffer.end(), basic_tags.begin(), basic_tags.end());
     buffer.insert(buffer.end(), nintendo_tags.begin(), nintendo_tags.end());
+
+    // Debug: the hosted network's beacon, to compare with the other platform's hub description.
+    static int beacon_dumps = 0;
+    if (beacon_dumps++ < 5) {
+        std::string hex;
+        char tmp[3];
+        for (u8 byte : buffer) {
+            snprintf(tmp, sizeof(tmp), "%02x", byte);
+            hex += tmp;
+        }
+        LOG_INFO(Service_NWM, "[UDSBEACON] len={} data={}", buffer.size(), hex);
+    }
 
     return buffer;
 }

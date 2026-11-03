@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstring>
 #include <queue>
+#include <string>
 #include <thread>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
@@ -31,6 +32,26 @@
 #include "core/hle/service/nwm/uds_connection.h"
 #include "core/hle/service/nwm/uds_data.h"
 #include "core/memory.h"
+
+// ---- UDS capture (diagnostic only, changes no behaviour) ---------------------------------------
+// Logs the game's UDS payloads (what the game gives SendTo, what PullPacket will return, and the
+// application data the host advertises) as hex, so they can be compared with what MHGU sends
+// (MHGU_LOG_NET=2 in gu-native). Look for "[UDSCAP]" in the Azahar log. Capped so it cannot flood.
+static std::string UdsCapHex(const u8* d, std::size_t n) {
+    static constexpr char H[] = "0123456789abcdef";
+    std::string out;
+    out.reserve(n * 2);
+    for (std::size_t i = 0; i < n; i++) {
+        out.push_back(H[d[i] >> 4]);
+        out.push_back(H[d[i] & 15]);
+    }
+    return out;
+}
+static bool UdsCapAllow(std::atomic<u32>& counter, u32 limit) {
+    return counter.fetch_add(1, std::memory_order_relaxed) < limit;
+}
+static std::atomic<u32> uds_cap_tx{0}, uds_cap_rx{0}, uds_cap_adv{0};
+static std::atomic<u32> uds_cap_beacon_tx{0}, uds_cap_beacon_rx{0};
 
 SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_UDS)
 SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_UDS)
@@ -174,6 +195,10 @@ void NWM_UDS::HandleNodeMapPacket(const Network::WifiPacket& packet) {
 }
 
 void NWM_UDS::HandleBeaconFrame(const Network::WifiPacket& packet) {
+    if (UdsCapAllow(uds_cap_beacon_rx, 5)) {
+        LOG_INFO(Service_NWM, "[UDSBEACON] RX len={} frame={}", packet.data.size(),
+                 UdsCapHex(packet.data.data(), packet.data.size()));
+    }
     std::scoped_lock lock(beacon_mutex);
     const auto unique_beacon =
         std::find_if(received_beacons.begin(), received_beacons.end(),
@@ -461,6 +486,13 @@ void NWM_UDS::HandleSecureDataPacket(const Network::WifiPacket& packet) {
         return;
     }
 
+    if (UdsCapAllow(uds_cap_rx, 600)) {
+        LOG_INFO(Service_NWM, "[UDSCAP] RX ch={} src_node={} dst_node={} len={} frame={}",
+                 static_cast<u32>(secure_data.data_channel),
+                 static_cast<u32>(secure_data.src_node_id),
+                 static_cast<u32>(secure_data.dest_node_id), packet.data.size(),
+                 UdsCapHex(packet.data.data(), packet.data.size()));
+    }
     // Add the received packet to the data queue.
     channel_info->second.received_packets.emplace_back(packet.data);
 
@@ -1316,6 +1348,10 @@ ResultStatus NWM_UDS::SendToHLE(u32 dest_node_id, u8 data_channel, u32 data_size
                   MaxSize);
         return ResultStatus::SendError_PacketSizeTooLarge;
     }
+    if (data_channel != HEARTBEAT_CHANNEL && UdsCapAllow(uds_cap_tx, 600)) {
+        LOG_INFO(Service_NWM, "[UDSCAP] TX ch={} dst_node={} flags={} len={} data={}", data_channel,
+                 dest_node_id, flags, data_size, UdsCapHex(input_buffer.data(), input_buffer.size()));
+    }
     // TODO(B3N30): Increment the sequence number after each sent packet.
     u16 sequence_number = 0;
     std::vector<u8> data_payload =
@@ -1618,6 +1654,10 @@ void NWM_UDS::SetApplicationData(Kernel::HLERequestContext& ctx) {
 
     network_info.application_data_size = static_cast<u8>(size);
     std::memcpy(network_info.application_data.data(), application_data.data(), size);
+    if (UdsCapAllow(uds_cap_adv, 40)) {
+        LOG_INFO(Service_NWM, "[UDSCAP] SetApplicationData len={} data={}", size,
+                 UdsCapHex(application_data.data(), application_data.size()));
+    }
 
     rb.Push(ResultSuccess);
 }
@@ -1724,6 +1764,15 @@ void NWM_UDS::BeaconBroadcastCallback(std::uintptr_t user_data, s64 cycles_late)
         return;
 
     std::vector<u8> frame = GenerateBeaconFrame(network_info, node_info);
+    if (UdsCapAllow(uds_cap_beacon_tx, 5)) {
+        LOG_INFO(Service_NWM, "[UDSBEACON] TX network_info={} nodes={} frame={}",
+                 UdsCapHex(reinterpret_cast<const u8*>(&network_info), sizeof(network_info)),
+                 node_info.size(), UdsCapHex(frame.data(), frame.size()));
+        for (std::size_t i = 0; i < node_info.size(); i++) {
+            LOG_INFO(Service_NWM, "[UDSBEACON] TX node[{}]={}", i,
+                     UdsCapHex(reinterpret_cast<const u8*>(&node_info[i]), sizeof(NodeInfo)));
+        }
+    }
 
     using Network::WifiPacket;
     WifiPacket packet;

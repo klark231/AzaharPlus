@@ -676,6 +676,14 @@ struct Values {
     Setting<bool> auto_rejoin{true, Keys::auto_rejoin};
     Setting<u16> auto_rejoin_window{60, Keys::auto_rejoin_window};   ///< seconds (5-600)
     Setting<bool> auto_rejoin_pause{true, Keys::auto_rejoin_pause};  ///< hold the game while rejoining
+    // MHGU hub crossplay: MHXX local play through MHGU Recomp's hub servers (when no room is joined)
+    Setting<bool> mhgu_hub_enabled{false, Keys::mhgu_hub_enabled};
+    Setting<std::string> mhgu_hub_servers{
+        "hunterhubid-gu-hub.duckdns.org morerokk-mhgurecomp-ldnserver.duckdns.org",
+        Keys::mhgu_hub_servers};
+    Setting<std::string> mhgu_hub_key{"", Keys::mhgu_hub_key}; ///< matchmaking key (empty: public)
+    Setting<bool> mhgu_hub_convert{true, Keys::mhgu_hub_convert}; ///< convert differing Pia messages
+    Setting<bool> mhgu_hub_log{false, Keys::mhgu_hub_log};        ///< log the game's packets
     Setting<bool> use_gdbstub{false, Keys::use_gdbstub};
     Setting<u16> gdbstub_port{24689, Keys::gdbstub_port};
     Setting<bool> instant_debug_log{false, Keys::instant_debug_log};

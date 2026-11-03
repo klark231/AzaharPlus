@@ -400,6 +400,10 @@ add_library(citra_core STATIC EXCLUDE_FROM_ALL
     hle/service/nwm/netsync.h
     hle/service/nwm/nwm_uds.cpp
     hle/service/nwm/nwm_uds.h
+    hle/service/nwm/mhgu_hub.cpp
+    hle/service/nwm/mhgu_hub.h
+    hle/service/nwm/mhgu_hub_proto.cpp
+    hle/service/nwm/mhgu_hub_proto.h
     hle/service/nwm/uds_beacon.cpp
     hle/service/nwm/uds_beacon.h
     hle/service/nwm/uds_connection.cpp

@@ -941,6 +941,11 @@ void QtConfig::ReadWebServiceValues() {
     ReadBasicSetting(Settings::values.web_api_url);
     ReadBasicSetting(Settings::values.web_api_url_2);
     ReadBasicSetting(Settings::values.network_token);
+    ReadBasicSetting(Settings::values.mhgu_hub_enabled);
+    ReadBasicSetting(Settings::values.mhgu_hub_servers);
+    ReadBasicSetting(Settings::values.mhgu_hub_key);
+    ReadBasicSetting(Settings::values.mhgu_hub_convert);
+    ReadBasicSetting(Settings::values.mhgu_hub_log);
 
     qt_config->endGroup();
 }
@@ -1476,6 +1481,11 @@ void QtConfig::SaveWebServiceValues() {
     WriteBasicSetting(Settings::values.web_api_url);
     WriteBasicSetting(Settings::values.web_api_url_2);
     WriteBasicSetting(Settings::values.network_token);
+    WriteBasicSetting(Settings::values.mhgu_hub_enabled);
+    WriteBasicSetting(Settings::values.mhgu_hub_servers);
+    WriteBasicSetting(Settings::values.mhgu_hub_key);
+    WriteBasicSetting(Settings::values.mhgu_hub_convert);
+    WriteBasicSetting(Settings::values.mhgu_hub_log);
 
     qt_config->endGroup();
 }

@@ -472,6 +472,11 @@ void Config::ReadValues() {
     ReadSetting("Multiplayer", Settings::values.auto_rejoin);
     ReadSetting("Multiplayer", Settings::values.auto_rejoin_window);
     ReadSetting("Multiplayer", Settings::values.auto_rejoin_pause);
+    ReadSetting("Multiplayer", Settings::values.mhgu_hub_enabled);
+    ReadSetting("Multiplayer", Settings::values.mhgu_hub_servers);
+    ReadSetting("Multiplayer", Settings::values.mhgu_hub_key);
+    ReadSetting("Multiplayer", Settings::values.mhgu_hub_convert);
+    ReadSetting("Multiplayer", Settings::values.mhgu_hub_log);
     ReadSetting("Debugging", Settings::values.toggle_unique_data_console_type);
     ReadSetting("Debugging", Settings::values.enable_exception_handler);
 

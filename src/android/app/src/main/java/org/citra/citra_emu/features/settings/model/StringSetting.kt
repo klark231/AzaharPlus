@@ -28,7 +28,13 @@ enum class StringSetting(
     ),
     WEB_API_URL(SettingKeys.web_api_url(), Settings.SECTION_NETWORK, "http://88.198.47.46:5000"),
     WEB_API_URL_2(SettingKeys.web_api_url_2(), Settings.SECTION_NETWORK, "http://3ds.mgn.pub:3000"),
-    NETWORK_TOKEN(SettingKeys.network_token(), Settings.SECTION_NETWORK, "");
+    NETWORK_TOKEN(SettingKeys.network_token(), Settings.SECTION_NETWORK, ""),
+    MHGU_HUB_SERVERS(
+        SettingKeys.mhgu_hub_servers(),
+        Settings.SECTION_MULTIPLAYER,
+        "hunterhubid-gu-hub.duckdns.org morerokk-mhgurecomp-ldnserver.duckdns.org"
+    ),
+    MHGU_HUB_KEY(SettingKeys.mhgu_hub_key(), Settings.SECTION_MULTIPLAYER, "");
 
     override var string: String = defaultValue
 

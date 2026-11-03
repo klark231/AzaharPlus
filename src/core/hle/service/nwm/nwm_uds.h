@@ -585,6 +585,9 @@ private:
     
     // Health monitoring - detects connection loss
     void CheckConnectionHealth();
+
+    /// MHGU hub crossplay: the hub this console joined is gone.
+    void HubConnectionLost();
     void ScheduleHealthCheck();
     void HealthCheckCallback(std::uintptr_t user_data, s64 cycles_late);
     

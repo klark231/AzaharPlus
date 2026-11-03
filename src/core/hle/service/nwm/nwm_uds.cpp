@@ -28,6 +28,7 @@
 #include "core/hle/service/cfg/cfg_u.h"
 #include "core/hle/service/nwm/netsync.h"
 #include "core/hle/service/nwm/nwm_uds.h"
+#include "core/hle/service/nwm/mhgu_hub.h"
 #include "core/hle/service/nwm/uds_beacon.h"
 #include "core/hle/service/nwm/uds_connection.h"
 #include "core/hle/service/nwm/uds_data.h"
@@ -121,6 +122,11 @@ std::list<Network::WifiPacket> NWM_UDS::GetReceivedBeacons(const MacAddress& sen
 
 /// Sends a WifiPacket to the room we're currently connected to.
 void SendPacket(Network::WifiPacket& packet) {
+    // MHGU hub crossplay: without a room, the hub bridge plays the other consoles
+    if (MhguBridge::Enabled()) {
+        MhguBridge::Send(packet);
+        return;
+    }
     if (auto room_member = Network::GetRoomMember().lock()) {
         if (room_member->GetState() == Network::RoomMember::State::Joined ||
             room_member->GetState() == Network::RoomMember::State::Moderator) {
@@ -690,6 +696,9 @@ boost::optional<Network::MacAddress> NWM_UDS::GetNodeMacAddress(u16 dest_node_id
 }
 
 void NWM_UDS::ShutdownHLE() {
+    // MHGU hub: local play stops
+    MhguBridge::HostStop();
+    MhguBridge::ClientLeave();
     initialized = false;
 
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
@@ -745,6 +754,11 @@ void NWM_UDS::RecvBeaconBroadcastData(Kernel::HLERequestContext& ctx) {
     ASSERT(out_buffer.GetSize() == out_buffer_size);
 
     std::size_t cur_buffer_size = sizeof(BeaconDataReplyHeader);
+
+    // MHGU hub crossplay: the hubs on the hub servers arrive as beacons
+    if (MhguBridge::Enabled()) {
+        MhguBridge::Scan(wlan_comm_id, static_cast<u8>(id));
+    }
 
     auto beacons = GetReceivedBeacons(mac_address);
 
@@ -1215,6 +1229,8 @@ void NWM_UDS::UpdateNetworkAttribute(Kernel::HLERequestContext& ctx) {
 }
 
 Result NWM_UDS::DestroyNetworkHLE() {
+    // MHGU hub: the hosted room closes
+    MhguBridge::HostStop();
     // Unschedule the beacon broadcast event.
     system.CoreTiming().UnscheduleEvent(beacon_broadcast_event, 0);
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
@@ -1577,6 +1593,8 @@ void NWM_UDS::ConnectToNetworkDeprecated(Kernel::HLERequestContext& ctx) {
 }
 
 ResultStatus NWM_UDS::DisconnectNetworkHLE() {
+    // MHGU hub: leave the joined room
+    MhguBridge::ClientLeave();
     system.CoreTiming().UnscheduleEvent(heartbeat_event, 0);
     system.CoreTiming().UnscheduleEvent(netsync_event, 0);
     NetSync::Reset();
@@ -1783,6 +1801,11 @@ void NWM_UDS::BeaconBroadcastCallback(std::uintptr_t user_data, s64 cycles_late)
 
     SendPacket(packet);
 
+    // MHGU hub crossplay: the hosted network's state, for its listing on the hub servers
+    if (MhguBridge::Enabled()) {
+        MhguBridge::HostUpdate(network_info, node_info);
+    }
+
     // Start broadcasting the network, send a beacon frame every 102.4ms.
     system.CoreTiming().ScheduleEvent(msToCycles(DefaultBeaconInterval * MillisecondsPerTU) -
                                           cycles_late,
@@ -1896,6 +1919,25 @@ void NWM_UDS::HealthCheckCallback(std::uintptr_t, s64 cl) {
     CheckConnectionHealth();
     if (connection_status.status != NetworkStatus::NotConnected)
         system.CoreTiming().ScheduleEvent(msToCycles(5000) - cl, health_check_event, 0);
+}
+
+void NWM_UDS::HubConnectionLost() {
+    std::scoped_lock lock(connection_status_mutex);
+    if (connection_status.status != NetworkStatus::ConnectedAsClient &&
+        connection_status.status != NetworkStatus::ConnectedAsSpectator) {
+        return;
+    }
+    // (the heartbeat and health check stop by themselves once the status is no longer connected)
+    const u16_le tmp_node_id = connection_status.network_node_id;
+    connection_status = {};
+    connection_status.status = NetworkStatus::NotConnected;
+    connection_status.status_change_reason = NetworkStatusChangeReason::ConnectionLost;
+    connection_status.network_node_id = tmp_node_id;
+    node_map.clear();
+    SignalEventAsync(connection_status_event);
+    for (auto& bind_node : channel_data) {
+        SignalEventAsync(bind_node.second.event);
+    }
 }
 
 Network::MacAddress NWM_UDS::GetMacAddress() {
@@ -2021,9 +2063,14 @@ NWM_UDS::NWM_UDS(Core::System& system) : ServiceFramework("nwm::UDS"), system(sy
     } else {
         LOG_ERROR(Service_NWM, "Network isn't initalized");
     }
+
+    // MHGU hub crossplay (used while no room is joined)
+    MhguBridge::Attach([this](const Network::WifiPacket& packet) { OnWifiPacketReceived(packet); },
+                       [this] { HubConnectionLost(); }, [this] { return GetMacAddress(); });
 }
 
 NWM_UDS::~NWM_UDS() {
+    MhguBridge::Detach();
     NetSync::ClearSender();
     NetSync::Reset();
     if (auto room_member = Network::GetRoomMember().lock())

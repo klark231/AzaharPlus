@@ -1462,4 +1462,15 @@
     <string name="romfs_exefs_dump_failed">Could not dump RomFS and ExeFS. Refer to the log for details.</string>
     <string name="web_api_urls">Web API URLs</string>
     <string name="web_api_url_2_hint">Web API URL 2</string>
+    <string name="mhgu_hub_header">MHGU hub crossplay</string>
+    <string name="mhgu_hub_enabled">Play with MHGU players</string>
+    <string name="mhgu_hub_enabled_description">Monster Hunter XX local play reaches MHGU (native port) players through its hub servers, while you are not in a room. Rooms you host are listed for them, and their rooms show up in the game\'s search.</string>
+    <string name="mhgu_hub_servers">Hub servers</string>
+    <string name="mhgu_hub_servers_description">The MHGU hub servers to use, separated by spaces (up to 4).</string>
+    <string name="mhgu_hub_key">Matchmaking key</string>
+    <string name="mhgu_hub_key_description">Only players with the same key see each other\'s rooms. Leave empty for public rooms.</string>
+    <string name="mhgu_hub_convert">Convert network messages</string>
+    <string name="mhgu_hub_convert_description">Converts the few network messages whose layout differs between the 3DS and MHGU. Turn off only to test whether the games understand each other as they are.</string>
+    <string name="mhgu_hub_log">Log game packets</string>
+    <string name="mhgu_hub_log_description">Writes the game\'s packets to the log file, to find out why a connection fails.</string>
 </resources>

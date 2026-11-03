@@ -187,6 +187,9 @@ void LogSettings() {
     log_setting("Multiplayer_AutoRejoin", values.auto_rejoin.GetValue());
     log_setting("Multiplayer_AutoRejoinWindow", values.auto_rejoin_window.GetValue());
     log_setting("Multiplayer_AutoRejoinPause", values.auto_rejoin_pause.GetValue());
+    log_setting("Multiplayer_MhguHubEnabled", values.mhgu_hub_enabled.GetValue());
+    log_setting("Multiplayer_MhguHubServers", values.mhgu_hub_servers.GetValue());
+    log_setting("Multiplayer_MhguHubConvert", values.mhgu_hub_convert.GetValue());
     log_setting("Debugging_UseGdbstub", values.use_gdbstub.GetValue());
     log_setting("Debugging_GdbstubPort", values.gdbstub_port.GetValue());
     log_setting("Debugging_InstantDebugLog", values.instant_debug_log.GetValue());

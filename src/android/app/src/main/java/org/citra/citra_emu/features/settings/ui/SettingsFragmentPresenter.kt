@@ -2088,6 +2088,52 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     isEnabled = BooleanSetting.AUTO_REJOIN.boolean
                 )
             )
+            add(HeaderSetting(R.string.mhgu_hub_header))
+            add(
+                SwitchSetting(
+                    BooleanSetting.MHGU_HUB_ENABLED,
+                    R.string.mhgu_hub_enabled,
+                    R.string.mhgu_hub_enabled_description,
+                    BooleanSetting.MHGU_HUB_ENABLED.key,
+                    BooleanSetting.MHGU_HUB_ENABLED.defaultValue
+                )
+            )
+            add(
+                StringInputSetting(
+                    StringSetting.MHGU_HUB_SERVERS,
+                    R.string.mhgu_hub_servers,
+                    R.string.mhgu_hub_servers_description,
+                    StringSetting.MHGU_HUB_SERVERS.key,
+                    StringSetting.MHGU_HUB_SERVERS.defaultValue
+                )
+            )
+            add(
+                StringInputSetting(
+                    StringSetting.MHGU_HUB_KEY,
+                    R.string.mhgu_hub_key,
+                    R.string.mhgu_hub_key_description,
+                    StringSetting.MHGU_HUB_KEY.key,
+                    StringSetting.MHGU_HUB_KEY.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.MHGU_HUB_CONVERT,
+                    R.string.mhgu_hub_convert,
+                    R.string.mhgu_hub_convert_description,
+                    BooleanSetting.MHGU_HUB_CONVERT.key,
+                    BooleanSetting.MHGU_HUB_CONVERT.defaultValue
+                )
+            )
+            add(
+                SwitchSetting(
+                    BooleanSetting.MHGU_HUB_LOG,
+                    R.string.mhgu_hub_log,
+                    R.string.mhgu_hub_log_description,
+                    BooleanSetting.MHGU_HUB_LOG.key,
+                    BooleanSetting.MHGU_HUB_LOG.defaultValue
+                )
+            )
         }
     }
 

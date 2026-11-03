@@ -120,6 +120,11 @@ object SettingKeys {
     external fun auto_rejoin(): String
     external fun auto_rejoin_window(): String
     external fun auto_rejoin_pause(): String
+    external fun mhgu_hub_enabled(): String
+    external fun mhgu_hub_servers(): String
+    external fun mhgu_hub_key(): String
+    external fun mhgu_hub_convert(): String
+    external fun mhgu_hub_log(): String
     external fun use_gdbstub(): String
     external fun gdbstub_port(): String
     external fun instant_debug_log(): String

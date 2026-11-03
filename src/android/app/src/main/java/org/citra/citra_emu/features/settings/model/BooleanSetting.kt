@@ -66,6 +66,9 @@ enum class BooleanSetting(
     NETSYNC_ENABLED(SettingKeys.netsync_enabled(), Settings.SECTION_MULTIPLAYER, true),
     AUTO_REJOIN(SettingKeys.auto_rejoin(), Settings.SECTION_MULTIPLAYER, true),
     AUTO_REJOIN_PAUSE(SettingKeys.auto_rejoin_pause(), Settings.SECTION_MULTIPLAYER, true),
+    MHGU_HUB_ENABLED(SettingKeys.mhgu_hub_enabled(), Settings.SECTION_MULTIPLAYER, false),
+    MHGU_HUB_CONVERT(SettingKeys.mhgu_hub_convert(), Settings.SECTION_MULTIPLAYER, true),
+    MHGU_HUB_LOG(SettingKeys.mhgu_hub_log(), Settings.SECTION_MULTIPLAYER, false),
     DELAY_START_LLE_MODULES(
         SettingKeys.delay_start_for_lle_modules(),
         Settings.SECTION_DEBUG,

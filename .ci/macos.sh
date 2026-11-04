@@ -4,6 +4,9 @@ if [ "$GITHUB_REF_TYPE" == "tag" ]; then
 	export EXTRA_CMAKE_FLAGS=(-DENABLE_QT_UPDATE_CHECKER=ON)
 fi
 
+# Project requires FFmpeg 7.x exactly; ffmpeg@7 is keg-only so expose it to pkg-config.
+export PKG_CONFIG_PATH="$(brew --prefix ffmpeg@7)/lib/pkgconfig:$PKG_CONFIG_PATH"
+
 mkdir -p build
 cd build
 cmake .. -GNinja \

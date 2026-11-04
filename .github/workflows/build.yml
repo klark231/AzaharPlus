@@ -91,7 +91,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.target }}-
       - name: Install tools
-        run: brew install ccache ninja spirv-tools ffmpeg
+        run: brew install ccache ninja spirv-tools ffmpeg@7
       - name: Build
         run: ./.ci/macos.sh
       - name: Prepare outputs for caching

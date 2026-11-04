@@ -182,10 +182,6 @@ jobs:
         if: ${{ startsWith(matrix.target, 'msvc') }}
         run: vcpkg install zlib:x64-windows-static-md
         shell: bash
-      - name: Install zlib (MSVC)
-        if: ${{ startsWith(matrix.target, 'msvc') }}
-        shell: bash
-        run: vcpkg install zlib:x64-windows
       - name: Set up MSYS2
         if: ${{ matrix.target == 'msys2' }}
         uses: msys2/setup-msys2@v2

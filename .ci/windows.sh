@@ -21,8 +21,6 @@ if [ "$TARGET" != "msys2" ]; then
 	                    -DZLIB_ROOT="$VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md")
 fi
 
-if [ "${TARGET#msvc}" != "$TARGET" ]; then EXTRA_CMAKE_FLAGS+=(-DZLIB_ROOT=C:/vcpkg/installed/x64-windows); fi
-
 cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \

@@ -21,6 +21,11 @@ if [ "$TARGET" != "msys2" ]; then
 	                    -DZLIB_ROOT="$VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md")
 fi
 
+# dynarmic's ir_emitter.h uses std::vector without including <vector>; newer libc++ no longer provides it transitively.
+if ! grep -q '#include <vector>' ../externals/dynarmic/src/dynarmic/ir/ir_emitter.h; then
+	sed -i '0,/^#include/s//#include <vector>\n#include/' ../externals/dynarmic/src/dynarmic/ir/ir_emitter.h
+fi
+
 cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \

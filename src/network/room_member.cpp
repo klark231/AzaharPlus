@@ -689,13 +689,13 @@ void RoomMember::RoomMemberImpl::HandleAzaharPlusPecificPacket(const ENetEvent* 
 				efile.Close();
 				
 				if(tocopy > 0 && tocopy < 1000000) {
-					Packet packet;
-					packet << static_cast<u8>(idAzaharPlusSpecific);
-					packet << static_cast<u8>(IdZipPassUpload);
-					packet << static_cast<u32>(azaharplus_network_version);
-					packet << static_cast<u32>(tocopy);
-					packet.Append(buffer, tocopy);
-					Send(std::move(packet));
+					Packet upload_packet;
+					upload_packet << static_cast<u8>(idAzaharPlusSpecific);
+					upload_packet << static_cast<u8>(IdZipPassUpload);
+					upload_packet << static_cast<u32>(azaharplus_network_version);
+					upload_packet << static_cast<u32>(tocopy);
+					upload_packet.Append(buffer, tocopy);
+					Send(std::move(upload_packet));
 				}
 				
 				delete[] buffer;
@@ -753,10 +753,15 @@ void RoomMember::RoomMemberImpl::HandleAzaharPlusPecificPacket(const ENetEvent* 
 					}
 
 					FileUtil::IOFile dfile(path, "wb");
-					int written = (int)dfile.WriteBytes(
+					const auto written = dfile.WriteBytes(
 						event->packet->data + 2*sizeof(u8) + 2*sizeof(u32) + nicknameLength, 
 						dataSize);
 					dfile.Close();
+
+					if (written != dataSize) {
+						LOG_ERROR(Service_FS, "Short write to {}", path);
+						break;
+					}
 					
 					if(dir == "history") {
 						std::string zip_path = path;

@@ -14,6 +14,15 @@ if [ "$TARGET" = "msvc-win7" ]; then
 	EXTRA_CMAKE_FLAGS+=(-DCITRA_QT_VERSION=$WIN7_QT -DENABLE_FFMPEG=OFF)
 fi
 
+# libzip (ZipPass dependency) needs zlib. MSVC runners have none, so point CMake at the
+# vcpkg one; MSYS2 gets zlib from pacboy instead.
+if [ "$TARGET" != "msys2" ]; then
+	EXTRA_CMAKE_FLAGS+=(-DZLIB_USE_STATIC_LIBS=ON \
+	                    -DZLIB_ROOT="$VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md")
+fi
+
+if [ "${TARGET#msvc}" != "$TARGET" ]; then EXTRA_CMAKE_FLAGS+=(-DZLIB_ROOT=C:/vcpkg/installed/x64-windows); fi
+
 cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \

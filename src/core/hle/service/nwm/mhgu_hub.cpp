@@ -314,6 +314,10 @@ private:
                 }
             }
         }
+        if (!MhguBridge::Enabled()) {
+            listed.clear(); // toggle off or in a room: no hub rooms
+            return;
+        }
         // Keep the hub list warm while idle so the first in-game search already has results.
         if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {
             RequestList();

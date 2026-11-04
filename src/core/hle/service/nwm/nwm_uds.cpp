@@ -492,7 +492,7 @@ void NWM_UDS::HandleSecureDataPacket(const Network::WifiPacket& packet) {
         return;
     }
 
-    if (UdsCapAllow(uds_cap_rx, 600)) {
+    if (Settings::values.mhgu_hub_log.GetValue() && UdsCapAllow(uds_cap_rx, 600)) {
         LOG_INFO(Service_NWM, "[UDSCAP] RX ch={} src_node={} dst_node={} len={} frame={}",
                  static_cast<u32>(secure_data.data_channel),
                  static_cast<u32>(secure_data.src_node_id),
@@ -1364,7 +1364,8 @@ ResultStatus NWM_UDS::SendToHLE(u32 dest_node_id, u8 data_channel, u32 data_size
                   MaxSize);
         return ResultStatus::SendError_PacketSizeTooLarge;
     }
-    if (data_channel != HEARTBEAT_CHANNEL && UdsCapAllow(uds_cap_tx, 600)) {
+    if (data_channel != HEARTBEAT_CHANNEL && Settings::values.mhgu_hub_log.GetValue() &&
+        UdsCapAllow(uds_cap_tx, 600)) {
         LOG_INFO(Service_NWM, "[UDSCAP] TX ch={} dst_node={} flags={} len={} data={}", data_channel,
                  dest_node_id, flags, data_size, UdsCapHex(input_buffer.data(), input_buffer.size()));
     }
@@ -1672,7 +1673,7 @@ void NWM_UDS::SetApplicationData(Kernel::HLERequestContext& ctx) {
 
     network_info.application_data_size = static_cast<u8>(size);
     std::memcpy(network_info.application_data.data(), application_data.data(), size);
-    if (UdsCapAllow(uds_cap_adv, 40)) {
+    if (Settings::values.mhgu_hub_log.GetValue() && UdsCapAllow(uds_cap_adv, 40)) {
         LOG_INFO(Service_NWM, "[UDSCAP] SetApplicationData len={} data={}", size,
                  UdsCapHex(application_data.data(), application_data.size()));
     }

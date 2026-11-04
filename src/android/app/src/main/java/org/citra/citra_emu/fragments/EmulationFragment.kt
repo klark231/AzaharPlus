@@ -1749,7 +1749,7 @@ class EmulationFragment :
                 val sb = StringBuilder()
                 val perfStats = NativeLibrary.getPerfStats()
                 val dividerString = "\u00A0\u2502 "
-                if (perfStats[fps] > 0) {
+                if (perfStats.isNotEmpty()) {
                     if (BooleanSetting.PERF_OVERLAY_SHOW_FPS.boolean) {
                         sb.append(String.format("FPS:\u00A0%d", (perfStats[fps] + 0.5).toInt()))
                     }
@@ -1817,7 +1817,7 @@ class EmulationFragment :
 
                     binding.performanceOverlayShowText.text = sb.toString()
                 }
-                perfStatsUpdateHandler.postDelayed(perfStatsUpdater!!, 1000)
+                perfStatsUpdateHandler.postDelayed(perfStatsUpdater!!, 500)
             }
             perfStatsUpdateHandler.post(perfStatsUpdater!!)
             binding.performanceOverlayShowText.visibility = View.VISIBLE

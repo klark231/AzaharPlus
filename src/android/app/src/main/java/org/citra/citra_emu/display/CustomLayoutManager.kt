@@ -96,7 +96,12 @@ class CustomLayoutManager(
         layoutBefore = layoutSettings(editedPortrait).map { it.int }
         editorView.visibility = View.VISIBLE
         toolbar.visibility = View.VISIBLE
-        editorView.post { editorView.loadLayoutSettings() }
+        editorView.post {
+            editorView.loadLayoutSettings()
+            // Push the custom layout to the emulator now so the live screens match the
+            // drag handles immediately, instead of only after the first drag.
+            editorView.applyLayoutChanges()
+        }
     }
 
     /**

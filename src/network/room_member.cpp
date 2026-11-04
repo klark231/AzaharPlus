@@ -473,6 +473,9 @@ void RoomMember::RoomMemberImpl::DoJoin(const JoinParams& p) {
         return;
     }
 
+    // More tolerant timeouts so a brief mobile packet-loss blip doesn't drop the room.
+    enet_peer_timeout(server, 32, 10000, 30000);
+
     ENetEvent event{};
     int net = enet_host_service(client, &event, ConnectionTimeoutMs);
     if (net > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {

@@ -218,15 +218,16 @@ void Swapchain::SetPresentMode() {
 
     const auto frame_limit = Settings::GetFrameLimit();
 
-    // If vsync is enabled attempt to use mailbox mode in case the user wants to speedup/slowdown
-    // the game. If mailbox is not available use immediate and warn about it.
-    if (use_vsync &&
-        (frame_limit > 100 || frame_limit == 0 || low_refresh_rate)) { // 0 = unthrottled
-        present_mode = has_mailbox ? vk::PresentModeKHR::eMailbox : vk::PresentModeKHR::eImmediate;
-        if (!has_mailbox) {
-            LOG_WARNING(
-                Render_Vulkan,
-                "Vsync enabled while frame limiting and no mailbox support, expect tearing");
+    // Vsync on: prefer mailbox (triple-buffered) whenever the device offers it. With Fifo a
+    // frame that slightly overruns a display refresh is snapped to the NEXT vsync, which at
+    // 60 FPS (~16ms budget) shows up as periodic judder; mailbox lets a late frame replace the
+    // queued one without blocking a whole refresh. Fall back to immediate when speeding up or
+    // unthrottled, and only to Fifo when the device offers neither mailbox nor immediate.
+    if (use_vsync) {
+        if (has_mailbox) {
+            present_mode = vk::PresentModeKHR::eMailbox;
+        } else if (frame_limit > 100 || frame_limit == 0 || low_refresh_rate) { // 0 = unthrottled
+            present_mode = vk::PresentModeKHR::eImmediate;
         }
         return;
     }

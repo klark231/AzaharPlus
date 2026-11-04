@@ -314,6 +314,16 @@ private:
                 }
             }
         }
+        // Keep the hub list warm while idle so the first in-game search already has results.
+        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {
+            RequestList();
+        }
+        // Pre-fill the game's beacon buffer every tick while it can scan, so the FIRST search
+        // already shows hubs (RecvBeaconBroadcastData reads the buffer right after triggering
+        // Scan(), before the per-scan delivery Scan() posts to this worker would run).
+        if (!hosting && sta == Sta::Idle && !listed.empty()) {
+            DeliverBeacons();
+        }
     }
 
     static bool UdpUsable(bool ok, Clock::time_point rx) {
@@ -425,7 +435,7 @@ private:
             std::vector<H::ServerState> states(servers.size(), H::ServerState::NoAnswer);
             std::vector<std::thread> ts;
             for (std::size_t i = 0; i < servers.size(); i++) {
-                ts.emplace_back([&, i] { states[i] = H::ListHubs(servers[i], key, 1500, found[i]); });
+                ts.emplace_back([&, i] { states[i] = H::ListHubs(servers[i], key, 800, found[i]); });
             }
             for (auto& t : ts) {
                 t.join();

@@ -297,8 +297,11 @@ void Room::RoomImpl::ServerLoop() {
             case ENET_EVENT_TYPE_DISCONNECT:
                 HandleClientDisconnection(event.peer);
                 break;
-            case ENET_EVENT_TYPE_NONE:
             case ENET_EVENT_TYPE_CONNECT:
+                // More tolerant timeouts so a brief mobile packet-loss blip doesn't drop a member.
+                enet_peer_timeout(event.peer, 32, 10000, 30000);
+                break;
+            case ENET_EVENT_TYPE_NONE:
                 break;
             }
         }

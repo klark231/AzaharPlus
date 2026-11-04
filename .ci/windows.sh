@@ -26,6 +26,17 @@ if ! grep -q '#include <vector>' ../externals/dynarmic/src/dynarmic/ir/ir_emitte
 	sed -i '0,/^#include/s//#include <vector>\n#include/' ../externals/dynarmic/src/dynarmic/ir/ir_emitter.h
 fi
 
+# libzip (ZipPass dependency) needs zlib. MSVC runners have none, so point CMake at the
+# vcpkg one; MSYS2 gets zlib from pacboy instead.
+if [ "$TARGET" != "msys2" ]; then
+	EXTRA_CMAKE_FLAGS+=(-DZLIB_USE_STATIC_LIBS=ON \
+	                    -DZLIB_ROOT="$VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md")
+fi
+
+if [ "$TARGET" != "msys2" ]; then
+	EXTRA_CMAKE_FLAGS+=(-DENABLE_FFMPEG=OFF)
+fi
+
 cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \

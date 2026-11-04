@@ -69,8 +69,7 @@ patch(HUB,
       "                    H::UdpSendTo(host_udp, s.uaddr, H::EncodeRelayRegister(s.pair, s.secret));\n"
       "                }\n"
       "            }\n"
-      "        }\n"
-      "    }",
+      "        }",
       "        if (hosting && host_udp != H::BadSock && now >= next_register) {\n"
       "            next_register = now + 1s;\n"
       "            for (auto& s : st) {\n"
@@ -82,8 +81,7 @@ patch(HUB,
       "        // Keep the hub list warm while idle so the first in-game search already has results.\n"
       "        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {\n"
       "            RequestList();\n"
-      "        }\n"
-      "    }")
+      "        }")
 patch(HUB,
       "            ts.emplace_back([&, i] { states[i] = H::ListHubs(servers[i], key, 1500, found[i]); });",
       "            ts.emplace_back([&, i] { states[i] = H::ListHubs(servers[i], key, 800, found[i]); });")
@@ -230,8 +228,7 @@ patch(HUB,
       "        // Keep the hub list warm while idle so the first in-game search already has results.\n"
       "        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {\n"
       "            RequestList();\n"
-      "        }\n"
-      "    }",
+      "        }",
       "        // Keep the hub list warm while idle so the first in-game search already has results.\n"
       "        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {\n"
       "            RequestList();\n"
@@ -241,8 +238,7 @@ patch(HUB,
       "        // Scan(), before the per-scan delivery Scan() posts to this worker would run).\n"
       "        if (!hosting && sta == Sta::Idle && !listed.empty()) {\n"
       "            DeliverBeacons();\n"
-      "        }\n"
-      "    }")
+      "        }")
 
 # ---- 8. CI: give the Windows runners zlib so libzip (ZipPass dep) configures --------------
 # libzip is REQUIRED by ZipPass (used on desktop via citra_qt + networking), and it needs zlib.
@@ -272,6 +268,13 @@ patch(WSH,
       "\t                    -DZLIB_ROOT=\"$VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md\")\n"
       "fi\n\n"
       "cmake .. -G Ninja \\\n    -DCMAKE_BUILD_TYPE=Release \\")
+
+# ---- 10. MSVC build: fix signed/unsigned comparison (C4388 -> error under /we4388 /WX) -------
+# AzaharPlus' amiibo generator loops `int i < amiibo_name.length()` (size_t). clang/gcc tolerate
+# it; MSVC with /we4388 /WX makes it a hard error. Use size_t for the index.
+patch("src/core/hle/service/nfc/nfc_device.cpp",
+      "\tfor (int i = 0; i < amiibo_name.length(); i++) {",
+      "\tfor (std::size_t i = 0; i < amiibo_name.length(); i++) {")
 
 # ---- write ----------------------------------------------------------------------------------
 changed = 0

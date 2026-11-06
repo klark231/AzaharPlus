@@ -241,6 +241,12 @@ object NativeLibrary {
      */
     external fun getRunningTitleId(): Long
 
+    /** MHXX's built-in keyboard is on screen and waiting for text. */
+    external fun mhxxKeyboardOpen(): Boolean
+
+    /** Queues text to be typed into MHXX's open keyboard and confirmed. False if it can't be. */
+    external fun mhxxInjectText(text: String): Boolean
+
     /**
      * Returns the performance stats for the current game
      */

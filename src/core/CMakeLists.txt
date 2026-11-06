@@ -486,6 +486,8 @@ add_library(citra_core STATIC EXCLUDE_FROM_ALL
     loader/smdh.h
     memory.cpp
     memory.h
+    mhxx_chat.cpp
+    mhxx_chat.h
     movie.cpp
     movie.h
     nus_download.cpp

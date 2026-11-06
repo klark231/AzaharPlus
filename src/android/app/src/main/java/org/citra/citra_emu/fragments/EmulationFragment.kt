@@ -91,6 +91,7 @@ import org.citra.citra_emu.features.settings.utils.SettingsFile
 import org.citra.citra_emu.model.Game
 import org.citra.citra_emu.services.EmulationKeepAliveService
 import org.citra.citra_emu.overlay.ChatOverlayManager
+import org.citra.citra_emu.overlay.MhxxKeyboardWatcher
 import org.citra.citra_emu.overlay.EmulationBackground
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos
 import org.citra.citra_emu.utils.AmiiboDatabase.Companion.amiibos_series
@@ -137,6 +138,7 @@ class EmulationFragment :
 
     private lateinit var customLayoutManager: CustomLayoutManager
     private lateinit var chatOverlayManager: ChatOverlayManager
+    private var mhxxKeyboardWatcher: MhxxKeyboardWatcher? = null
 
     // Only used if a game is passed through intent on google play variant
     private var gameFd: Int? = null
@@ -272,6 +274,9 @@ class EmulationFragment :
             view.findViewById<FloatingActionButton>(R.id.chatButton),
             requireContext()
         )
+
+        // Android keyboard for Monster Hunter XX's built-in keyboard
+        mhxxKeyboardWatcher = MhxxKeyboardWatcher(requireContext()).also { it.start() }
 
         customLayoutManager = CustomLayoutManager(
             binding.customLayoutEditor,
@@ -673,6 +678,9 @@ class EmulationFragment :
             ParcelFileDescriptor.adoptFd(gameFd!!).close()
             gameFd = null
         }
+
+        mhxxKeyboardWatcher?.stop()
+        mhxxKeyboardWatcher = null
 
         // Cleanup chat overlay
         if (::chatOverlayManager.isInitialized) {

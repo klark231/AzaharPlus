@@ -45,6 +45,7 @@
 #include "core/hle/service/nfc/nfc.h"
 #include "core/hw/unique_data.h"
 #include "core/loader/loader.h"
+#include "core/mhxx_chat.h"
 #include "core/savestate.h"
 #include "core/zip_pass.h"
 #include "core/system_titles.h"
@@ -980,6 +981,21 @@ void Java_org_citra_citra_1emu_NativeLibrary_stopEmulation([[maybe_unused]] JNIE
 jboolean Java_org_citra_citra_1emu_NativeLibrary_isRunning([[maybe_unused]] JNIEnv* env,
                                                            [[maybe_unused]] jobject obj) {
     return static_cast<jboolean>(!stop_run);
+}
+
+jboolean Java_org_citra_citra_1emu_NativeLibrary_mhxxKeyboardOpen([[maybe_unused]] JNIEnv* env,
+                                                                  [[maybe_unused]] jobject obj) {
+    return static_cast<jboolean>(MhxxChat::KeyboardOpen());
+}
+
+jboolean Java_org_citra_citra_1emu_NativeLibrary_mhxxInjectText([[maybe_unused]] JNIEnv* env,
+                                                                [[maybe_unused]] jobject obj,
+                                                                jstring j_text) {
+    const jsize length = env->GetStringLength(j_text);
+    const jchar* chars = env->GetStringChars(j_text, nullptr);
+    const std::u16string text(reinterpret_cast<const char16_t*>(chars), length);
+    env->ReleaseStringChars(j_text, chars);
+    return static_cast<jboolean>(MhxxChat::InjectText(text));
 }
 
 jlong Java_org_citra_citra_1emu_NativeLibrary_getRunningTitleId([[maybe_unused]] JNIEnv* env,

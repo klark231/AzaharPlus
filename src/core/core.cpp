@@ -52,6 +52,7 @@
 #include "core/hle/service/sm/sm.h"
 #include "core/hw/aes/key.h"
 #include "core/loader/loader.h"
+#include "core/mhxx_chat.h"
 #include "core/movie.h"
 #include "core/savestate.h"
 #ifdef ENABLE_SCRIPTING
@@ -130,6 +131,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
 #endif
 
     ProcessPendingWork();
+    MhxxChat::RunOnEmulationThread(*this);
 
     Signal signal{Signal::None};
     u32 param{};
@@ -791,6 +793,7 @@ void System::RegisterImageInterface(std::shared_ptr<Frontend::ImageInterface> im
 }
 
 void System::Shutdown(bool is_deserializing) {
+    MhxxChat::Reset();
 
 #ifdef ENABLE_SCRIPTING
     // Stop the RPC server before anything its requests may touch is torn down

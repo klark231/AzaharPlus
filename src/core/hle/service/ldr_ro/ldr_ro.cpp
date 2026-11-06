@@ -12,6 +12,7 @@
 #include "core/hle/kernel/process.h"
 #include "core/hle/service/ldr_ro/cro_helper.h"
 #include "core/hle/service/ldr_ro/ldr_ro.h"
+#include "core/mhxx_chat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::LDR::RO)
 SERIALIZE_EXPORT_IMPL(Service::LDR::RO)
@@ -329,6 +330,7 @@ void RO::LoadCRO(Kernel::HLERequestContext& ctx, bool link_on_load_bug_fix) {
 
     LOG_INFO(Service_LDR, "CRO \"{}\" loaded at 0x{:08X}, fixed_end=0x{:08X}", cro.ModuleName(),
              cro_address, cro_address + fix_size);
+    MhxxChat::OnModuleLoaded(cro.ModuleName());
 
     rb.Push(ResultSuccess, fix_size);
 }
@@ -367,6 +369,7 @@ void RO::UnloadCRO(Kernel::HLERequestContext& ctx) {
     }
 
     LOG_INFO(Service_LDR, "Unloading CRO \"{}\"", cro.ModuleName());
+    MhxxChat::OnModuleUnloaded(cro.ModuleName());
 
     u32 fixed_size = cro.GetFixedSize();
 

@@ -1455,4 +1455,6 @@
     <string name="mhgu_hub_convert_description">Rewrites the few network messages that differ between the 3DS and MHGU. Leave this on.</string>
     <string name="mhgu_hub_log">Log network packets</string>
     <string name="mhgu_hub_log_description">Writes the game\'s network packets to the log, for troubleshooting connection problems.</string>
+    <string name="mhxx_keyboard_title">Type a message</string>
+    <string name="mhxx_keyboard_hint">Message</string>
 </resources>

@@ -841,7 +841,9 @@
     <string name="mhgu_hub_enabled">Играть с игроками MHGU</string>
     <string name="mhgu_hub_enabled_description">Только Monster Hunter XX. Пока вы не в комнате, локальная игра идёт через хаб-серверы MHGU (нативный порт): созданные вами комнаты видят игроки MHGU, а их комнаты появляются при поиске.</string>
     <string name="mhgu_hub_servers">Хаб-серверы</string>
-    <string name="mhgu_hub_servers_description">До 4 адресов серверов через пробел.</string>
+    <string name="mhgu_hub_servers_description">До 8 адресов серверов через пробел.</string>
+    <string name="mhgu_hub_server_hint">Сервер</string>
+    <string name="mhgu_hub_add_server">Добавить сервер (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Ключ подбора игроков</string>
     <string name="mhgu_hub_key_description">Только игроки с одинаковым ключом видят комнаты друг друга. Оставьте пустым для открытых комнат.</string>
     <string name="mhgu_hub_convert">Преобразовывать сетевые сообщения</string>

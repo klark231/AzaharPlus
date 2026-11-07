@@ -377,7 +377,9 @@
     <string name="mhgu_hub_enabled">Pelaa MHGU-pelaajien kanssa</string>
     <string name="mhgu_hub_enabled_description">Vain Monster Hunter XX. Kun et ole huoneessa, paikallinen peli kulkee MHGU:n (natiivi portti) hub-palvelimien kautta: luomasi huoneet näkyvät MHGU-pelaajille, ja heidän huoneensa näkyvät hakiessasi.</string>
     <string name="mhgu_hub_servers">Hub-palvelimet</string>
-    <string name="mhgu_hub_servers_description">Enintään 4 palvelinosoitetta välilyönneillä erotettuina.</string>
+    <string name="mhgu_hub_servers_description">Enintään 8 palvelinosoitetta välilyönneillä erotettuina.</string>
+    <string name="mhgu_hub_server_hint">Palvelin</string>
+    <string name="mhgu_hub_add_server">Lisää palvelin (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Matchmaking-avain</string>
     <string name="mhgu_hub_key_description">Vain samalla avaimella olevat pelaajat näkevät toistensa huoneet. Jätä tyhjäksi julkisia huoneita varten.</string>
     <string name="mhgu_hub_convert">Muunna verkkoviestit</string>

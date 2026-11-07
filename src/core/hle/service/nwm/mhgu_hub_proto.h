@@ -76,7 +76,23 @@ inline const u8* NodeAt(const NetInfo& info, int i) {
 }
 
 // ---- link protocol (TCP between a station and the host, possibly spliced through a hub server)
-inline constexpr u16 LinkVersion = 2;
+// gu-native (Android) speaks link version 2, the MHGURecomp PC build version 3. The frames are laid out the same in
+// both, but a hub only accepts a hello of its own version and a hub server only lists hubs of the asker's version.
+// So we speak both: every server is asked once per version, a listed hub remembers its version, and joining it
+// (and hosting, which is listed under both) uses that version.
+inline constexpr u16 LinkVersion = 2; // the one used when nothing says otherwise
+inline constexpr std::array<u16, 2> LinkVersions = {2, 3};
+inline constexpr bool LinkVersionSupported(u16 v) {
+    for (const u16 k : LinkVersions) {
+        if (k == v) {
+            return true;
+        }
+    }
+    return false;
+}
+// The room the MHGURecomp server keeps for Android players without a matchmaking key (its -separate-phones, on by
+// default). Without a key of our own we list that room too, so those phones' public hubs show up.
+inline constexpr const char* PhonePublicKey = "public-phone";
 enum : u8 { F_HELLO = 1, F_INFO, F_WELCOME, F_REFUSE, F_PACKET, F_DESTROY, F_AUX };
 inline constexpr std::size_t MaxFrame = 0x10000 + 64;
 
@@ -92,6 +108,7 @@ inline constexpr u32 R_TOO_MANY_PLAYERS = LdnResult(144);
 inline constexpr u32 DR_DESTROYED_BY_USER = 3, DR_REJECTED = 5, DR_SIGNAL_LOST = 6;
 
 struct Hello {
+    u16 version = LinkVersion; // out: the version to speak; in: the version the other side spoke
     bool scan_only = false;
     u16 lcv = MhguLcv;
     std::array<u8, 6> mac{};
@@ -99,7 +116,7 @@ struct Hello {
 };
 inline constexpr std::size_t HelloSize = 52;
 std::vector<u8> EncodeHello(const Hello& h);
-bool DecodeHello(std::span<const u8> in, Hello& h); // false: not a hello of our link version
+bool DecodeHello(std::span<const u8> in, Hello& h); // false: not a hello of a link version we speak
 
 // A packet of the hub's virtual network (host byte order, little endian on every platform we run on).
 enum : u8 { VPROTO_UDP = 0, VPROTO_TCP = 1 };
@@ -159,21 +176,27 @@ enum : u32 { SE_NOT_FOUND = 1, SE_NO_ANSWER, SE_BUSY, SE_VERSION, SE_NONE = 0xFF
 inline constexpr const char* DefaultServers =
     "hunterhubid-gu-hub.duckdns.org morerokk-mhgurecomp-ldnserver.duckdns.org";
 
-// "a b,c": up to 4 names; "http://name/" is "name"; a name starting with '-' is switched off; "Off" = none.
+inline constexpr std::size_t MaxServers = 8;
+// "a b,c": up to MaxServers names; "http://name/" is "name"; a name starting with '-' is switched off; "Off" = none.
 std::vector<std::string> ParseServerList(const std::string& text);
 // MHGS, proto, link version, room = first 16 bytes of SHA-256("MHGURecomp matchmaking key:" + key) (0: public)
-std::array<u8, LobbyHeaderSize> LobbyHeader(const std::string& key);
+std::array<u8, LobbyHeaderSize> LobbyHeader(const std::string& key, u16 link_version = LinkVersion);
 const char* LobbyErrorText(u32 code);
 
 struct ListedHub {
     u64 id = 0;
+    u16 link_version = LinkVersion; // the version the hub (and the room it was listed in) speaks
+    std::string key;                // the matchmaking key of the room it was listed in ("" = public)
     NetInfo info{};
     Endpoint server;
     std::string server_name;
 };
 enum class ServerState { Online, NotFound, Unreachable, NoAnswer, Refused };
-ServerState ListHubs(const std::string& server, const std::string& key, int connect_ms,
+ServerState ListHubs(const std::string& server, const std::string& key, u16 link_version, int connect_ms,
                      std::vector<ListedHub>& out);
+// Every link version we speak, and (key empty) the phones' public room too; the best state of them all.
+ServerState ListHubsAll(const std::string& server, const std::string& key, int connect_ms,
+                        std::vector<ListedHub>& out);
 
 struct Spliced {
     Sock sock = BadSock;
@@ -181,9 +204,9 @@ struct Spliced {
     u64 secret = 0;
 };
 // S_JOIN through the server: 0 and out filled, else an SE_* code (SE_NONE: no answer / unreachable)
-u32 JoinHub(const Endpoint& server, const std::string& key, u64 hub, Spliced& out);
+u32 JoinHub(const Endpoint& server, const std::string& key, u16 link_version, u64 hub, Spliced& out);
 // S_ATTACH: the host's end of a player's connection the server announced with S_INCOMING
-bool AttachTicket(const Endpoint& server, const std::string& key, u64 ticket, Spliced& out);
+bool AttachTicket(const Endpoint& server, const std::string& key, u16 link_version, u64 ticket, Spliced& out);
 
 // A hosted hub's listing on every server of a list: S_HOST, then S_UPDATE when the info changes and S_PING; a
 // player the server announces (S_INCOMING) is attached and handed to on_player (in a thread of its own).
@@ -201,7 +224,7 @@ public:
     }
 
 private:
-    void Run(std::string server);
+    void Run(std::string server, u16 link_version);
     std::atomic<bool> running{false};
     std::atomic<u32> changes{0};
     std::string key;

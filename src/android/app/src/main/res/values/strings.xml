@@ -1448,7 +1448,9 @@
     <string name="mhgu_hub_enabled">Play with MHGU players</string>
     <string name="mhgu_hub_enabled_description">Monster Hunter XX only. While you\'re not in a room, local play goes through the MHGU (native port) hub servers: rooms you create are listed for MHGU players, and their rooms show up when you search.</string>
     <string name="mhgu_hub_servers">Hub servers</string>
-    <string name="mhgu_hub_servers_description">Up to 4 server addresses, separated by spaces.</string>
+    <string name="mhgu_hub_servers_description">Up to 8 server addresses.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Add server (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Matchmaking key</string>
     <string name="mhgu_hub_key_description">Only players with the same key see each other\'s rooms. Leave empty for public rooms.</string>
     <string name="mhgu_hub_convert">Convert network messages</string>

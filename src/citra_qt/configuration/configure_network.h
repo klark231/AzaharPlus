@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <QString>
 #include <QWidget>
 
 namespace Ui {
@@ -25,6 +26,11 @@ public:
 private:
     /// Greys out the options of a feature that is switched off
     void UpdateMultiplayerEnabled();
+
+    /// The hub servers: one row each (the setting is the names separated by spaces)
+    void AddHubServerRow(const QString& name);
+    void UpdateHubServerButton();
+    QString HubServers() const;
 
     std::unique_ptr<Ui::ConfigureWeb> ui;
 };

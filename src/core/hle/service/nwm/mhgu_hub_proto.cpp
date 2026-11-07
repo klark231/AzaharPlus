@@ -112,7 +112,7 @@ bool InfoSane(NetInfo& info) {
 std::vector<u8> EncodeHello(const Hello& h) {
     std::vector<u8> b(HelloSize, 0);
     std::memcpy(b.data(), "MHGL", 4);
-    Wr16(&b[4], LinkVersion);
+    Wr16(&b[4], h.version);
     b[6] = h.scan_only ? 1 : 0;
     Wr16(&b[8], h.lcv);
     std::memcpy(&b[10], h.mac.data(), 6);
@@ -121,9 +121,10 @@ std::vector<u8> EncodeHello(const Hello& h) {
 }
 
 bool DecodeHello(std::span<const u8> in, Hello& h) {
-    if (in.size() < HelloSize || std::memcmp(in.data(), "MHGL", 4) || Rd16(&in[4]) != LinkVersion) {
+    if (in.size() < HelloSize || std::memcmp(in.data(), "MHGL", 4) || !LinkVersionSupported(Rd16(&in[4]))) {
         return false;
     }
+    h.version = Rd16(&in[4]);
     h.scan_only = in[6] != 0;
     h.lcv = Rd16(&in[8]);
     std::memcpy(h.mac.data(), &in[10], 6);
@@ -497,7 +498,7 @@ std::vector<std::string> ParseServerList(const std::string& text) {
         if (s.empty() || s[0] == '-' || lower == "off") {
             return;
         }
-        if (out.size() < 4 && std::find(out.begin(), out.end(), s) == out.end()) {
+        if (out.size() < MaxServers && std::find(out.begin(), out.end(), s) == out.end()) {
             out.push_back(s);
         }
     };
@@ -512,11 +513,11 @@ std::vector<std::string> ParseServerList(const std::string& text) {
     return out;
 }
 
-std::array<u8, LobbyHeaderSize> LobbyHeader(const std::string& key) {
+std::array<u8, LobbyHeaderSize> LobbyHeader(const std::string& key, u16 link_version) {
     std::array<u8, LobbyHeaderSize> h{};
     std::memcpy(h.data(), "MHGS", 4);
     Wr16(&h[4], LobbyProto);
-    Wr16(&h[6], LinkVersion);
+    Wr16(&h[6], link_version);
     std::size_t b = 0, e = key.size();
     while (b < e && key[b] == ' ') {
         b++;
@@ -552,7 +553,7 @@ const char* LobbyErrorText(u32 code) {
     }
 }
 
-ServerState ListHubs(const std::string& server, const std::string& key, int connect_ms,
+ServerState ListHubs(const std::string& server, const std::string& key, u16 link_version, int connect_ms,
                      std::vector<ListedHub>& out) {
     const auto ep = Resolve(server, LobbyPort);
     if (!ep) {
@@ -562,7 +563,7 @@ ServerState ListHubs(const std::string& server, const std::string& key, int conn
     if (s == BadSock) {
         return ServerState::Unreachable;
     }
-    const auto header = LobbyHeader(key);
+    const auto header = LobbyHeader(key, link_version);
     SetRecvTimeout(s, 2500);
     u8 type = 0;
     std::vector<u8> buf;
@@ -580,6 +581,8 @@ ServerState ListHubs(const std::string& server, const std::string& key, int conn
         const u8* e = buf.data() + 4 + static_cast<std::size_t>(i) * (8 + NetInfoSize);
         ListedHub h;
         h.id = Rd64(e);
+        h.link_version = link_version;
+        h.key = key;
         std::memcpy(h.info.data(), e + 8, NetInfoSize);
         h.server = *ep;
         h.server_name = server;
@@ -588,13 +591,37 @@ ServerState ListHubs(const std::string& server, const std::string& key, int conn
     return ServerState::Online;
 }
 
-u32 JoinHub(const Endpoint& server, const std::string& key, u64 hub, Spliced& out) {
+ServerState ListHubsAll(const std::string& server, const std::string& key, int connect_ms,
+                        std::vector<ListedHub>& out) {
+    std::vector<std::string> keys{key};
+    if (key.find_first_not_of(' ') == std::string::npos) {
+        keys.push_back(PhonePublicKey);
+    }
+    ServerState best = ServerState::NoAnswer;
+    bool any = false;
+    for (const auto& k : keys) {
+        for (const u16 v : LinkVersions) {
+            const ServerState st = ListHubs(server, k, v, connect_ms, out);
+            if (st == ServerState::NotFound || st == ServerState::Unreachable) {
+                return any ? best : st; // no point asking again
+            }
+            if (st == ServerState::Online) {
+                best = st, any = true;
+            } else if (!any && best == ServerState::NoAnswer) {
+                best = st; // Refused (a server that does not serve this version) beats no answer
+            }
+        }
+    }
+    return best;
+}
+
+u32 JoinHub(const Endpoint& server, const std::string& key, u16 link_version, u64 hub, Spliced& out) {
     const Sock s = TcpConnect(server, 3000);
     if (s == BadSock) {
         return SE_NONE;
     }
     std::vector<u8> req(LobbyHeaderSize + 8);
-    const auto header = LobbyHeader(key);
+    const auto header = LobbyHeader(key, link_version);
     std::memcpy(req.data(), header.data(), header.size());
     Wr64(&req[LobbyHeaderSize], hub);
     SetRecvTimeout(s, 12000); // (the server waits up to 10 s for the host)
@@ -610,13 +637,13 @@ u32 JoinHub(const Endpoint& server, const std::string& key, u64 hub, Spliced& ou
     return n >= 4 && type == S_ERROR ? Rd32(buf.data()) : SE_NONE;
 }
 
-bool AttachTicket(const Endpoint& server, const std::string& key, u64 ticket, Spliced& out) {
+bool AttachTicket(const Endpoint& server, const std::string& key, u16 link_version, u64 ticket, Spliced& out) {
     const Sock s = TcpConnect(server, 3000);
     if (s == BadSock) {
         return false;
     }
     std::vector<u8> req(LobbyHeaderSize + 8);
-    const auto header = LobbyHeader(key);
+    const auto header = LobbyHeader(key, link_version);
     std::memcpy(req.data(), header.data(), header.size());
     Wr64(&req[LobbyHeaderSize], ticket);
     SetRecvTimeout(s, 5000);
@@ -643,8 +670,12 @@ void HubListing::Start(const std::vector<std::string>& servers, const std::strin
     info_fn = std::move(info);
     player_fn = std::move(on_player);
     running = true;
+    // The hub is listed under every link version we speak, so MHGURecomp players on either build find it (a hub
+    // server lists a hub only for askers of its own version). Our join code accepts both versions' hellos.
     for (const auto& s : servers) {
-        threads.emplace_back([this, s] { Run(s); });
+        for (const u16 v : LinkVersions) {
+            threads.emplace_back([this, s, v] { Run(s, v); });
+        }
     }
 }
 
@@ -670,7 +701,7 @@ void HubListing::MarkChanged() {
     changes++;
 }
 
-void HubListing::Run(std::string server) {
+void HubListing::Run(std::string server, u16 link_version) {
     using Clock = std::chrono::steady_clock;
     auto wait = [this](int ms) {
         for (int t = 0; t < ms && running; t += 100) {
@@ -682,8 +713,8 @@ void HubListing::Run(std::string server) {
         const auto ep = Resolve(server, LobbyPort);
         const Sock s = ep ? TcpConnect(*ep, 3000) : BadSock;
         if (s == BadSock) {
-            Log("[hub] server %s %s: the room is not listed there (trying again in 30 s)", server.c_str(),
-                ep ? "unreachable" : "not found");
+            Log("[hub] server %s %s: the room is not listed there (v%u, trying again in 30 s)", server.c_str(),
+                ep ? "unreachable" : "not found", static_cast<unsigned>(link_version));
             if (!wait(30000)) {
                 break;
             }
@@ -698,7 +729,7 @@ void HubListing::Run(std::string server) {
             socks.erase(std::remove(socks.begin(), socks.end(), s), socks.end());
             CloseSock(s);
         };
-        const auto header = LobbyHeader(key);
+        const auto header = LobbyHeader(key, link_version);
         u32 seen = changes.load();
         NetInfo info = info_fn();
         std::vector<u8> req(header.begin(), header.end());
@@ -709,15 +740,15 @@ void HubListing::Run(std::string server) {
         int n = FrameSend(s, S_HOST, req) ? FrameRecv(s, type, buf) : -1;
         if (n < 8 || type != S_HOSTED) {
             const bool error = n >= 4 && type == S_ERROR;
-            Log("[hub] server %s: can't list the room (%s); trying again in 30 s", server.c_str(),
-                error ? LobbyErrorText(Rd32(buf.data())) : "no answer");
+            Log("[hub] server %s: can't list the room as v%u (%s); trying again in 30 s", server.c_str(),
+                static_cast<unsigned>(link_version), error ? LobbyErrorText(Rd32(buf.data())) : "no answer");
             forget();
             if (!wait(30000)) {
                 break;
             }
             continue;
         }
-        Log("[hub] room listed on %s", server.c_str());
+        Log("[hub] room listed on %s (link v%u)", server.c_str(), static_cast<unsigned>(link_version));
         SetRecvTimeout(s, 0);
         auto last_rx = Clock::now(), next_ping = last_rx + std::chrono::seconds(15);
         while (running) {
@@ -754,9 +785,9 @@ void HubListing::Run(std::string server) {
                 const Endpoint server_ep = *ep;
                 const std::string k = key;
                 PlayerFn fn = player_fn;
-                std::thread([server_ep, k, ticket, fn] {
+                std::thread([server_ep, k, link_version, ticket, fn] {
                     Spliced sp;
-                    if (AttachTicket(server_ep, k, ticket, sp)) {
+                    if (AttachTicket(server_ep, k, link_version, ticket, sp)) {
                         fn(sp, server_ep);
                     } else {
                         Log("[hub] a player's connection through the hub server failed");

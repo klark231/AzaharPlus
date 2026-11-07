@@ -1200,7 +1200,9 @@
     <string name="mhgu_hub_enabled">MHGU oyuncularıyla oyna</string>
     <string name="mhgu_hub_enabled_description">Yalnızca Monster Hunter XX. Bir odada değilken yerel oyun MHGU\'nun (yerel port) hub sunucuları üzerinden geçer: oluşturduğun odalar MHGU oyuncularına listelenir, onların odaları da aramanda görünür.</string>
     <string name="mhgu_hub_servers">Hub sunucuları</string>
-    <string name="mhgu_hub_servers_description">Boşlukla ayrılmış en fazla 4 sunucu adresi.</string>
+    <string name="mhgu_hub_servers_description">Boşlukla ayrılmış en fazla 8 sunucu adresi.</string>
+    <string name="mhgu_hub_server_hint">Sunucu</string>
+    <string name="mhgu_hub_add_server">Sunucu ekle (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Eşleştirme anahtarı</string>
     <string name="mhgu_hub_key_description">Yalnızca aynı anahtara sahip oyuncular birbirinin odalarını görür. Herkese açık odalar için boş bırak.</string>
     <string name="mhgu_hub_convert">Ağ mesajlarını dönüştür</string>

@@ -315,7 +315,9 @@
     <string name="mhgu_hub_enabled">Joacă cu jucători MHGU</string>
     <string name="mhgu_hub_enabled_description">Doar Monster Hunter XX. Cât timp nu ești într-o cameră, jocul local trece prin serverele hub ale MHGU (port nativ): camerele pe care le creezi apar pentru jucătorii MHGU, iar ale lor apar când cauți.</string>
     <string name="mhgu_hub_servers">Servere hub</string>
-    <string name="mhgu_hub_servers_description">Până la 4 adrese de server, separate prin spații.</string>
+    <string name="mhgu_hub_servers_description">Până la 8 adrese de server, separate prin spații.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Adaugă server (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Cheie de potrivire</string>
     <string name="mhgu_hub_key_description">Doar jucătorii cu aceeași cheie își văd camerele unii altora. Las-o goală pentru camere publice.</string>
     <string name="mhgu_hub_convert">Convertește mesajele de rețea</string>

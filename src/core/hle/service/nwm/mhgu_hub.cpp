@@ -439,7 +439,8 @@ private:
             std::vector<H::ServerState> states(servers.size(), H::ServerState::NoAnswer);
             std::vector<std::thread> ts;
             for (std::size_t i = 0; i < servers.size(); i++) {
-                ts.emplace_back([&, i] { states[i] = H::ListHubs(servers[i], key, 800, found[i]); });
+                // (one thread a server: asks each link version, and the phones' public room when there is no key)
+                ts.emplace_back([&, i] { states[i] = H::ListHubsAll(servers[i], key, 800, found[i]); });
             }
             for (auto& t : ts) {
                 t.join();
@@ -584,14 +585,15 @@ private:
         const std::string name = UsernameOf(my_node);
         std::memcpy(hello.name.data(), name.data(), std::min<std::size_t>(name.size(), 0x20));
         const H::ListedHub hub = sta_hub.hub;
-        const std::string key = Key();
+        const std::string key = hub.key; // (the room it was listed in: not always our own key)
+        hello.version = hub.link_version;
         LOG_INFO(Service_NWM, "[hub] joining {}'s room through {}", NodeName(hub.info, 0), hub.server_name);
         if (join_thread.joinable()) {
             join_thread.join();
         }
         join_thread = std::thread([this, gen, hub, key, hello] {
             H::Spliced sp;
-            const u32 err = H::JoinHub(hub.server, key, hub.id, sp);
+            const u32 err = H::JoinHub(hub.server, key, hub.link_version, hub.id, sp);
             if (err) {
                 Post([this, gen, err] { StationJoinFailed(gen, H::LobbyErrorText(err)); });
                 return;

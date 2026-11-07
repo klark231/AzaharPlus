@@ -624,7 +624,9 @@
     <string name="mhgu_hub_enabled">MHGUのプレイヤーと遊ぶ</string>
     <string name="mhgu_hub_enabled_description">モンスターハンターダブルクロス専用。ルームに入っていない間、ローカル通信はMHGU（ネイティブ移植版）のハブサーバーを通ります。作成した部屋はMHGUのプレイヤーに表示され、相手の部屋は検索に表示されます。</string>
     <string name="mhgu_hub_servers">ハブサーバー</string>
-    <string name="mhgu_hub_servers_description">サーバーアドレスを最大4つ、スペース区切りで指定します。</string>
+    <string name="mhgu_hub_servers_description">サーバーアドレスを最大8つ、スペース区切りで指定します。</string>
+    <string name="mhgu_hub_server_hint">サーバー</string>
+    <string name="mhgu_hub_add_server">サーバーを追加 (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">マッチングキー</string>
     <string name="mhgu_hub_key_description">同じキーのプレイヤー同士だけがお互いの部屋を見られます。公開の部屋にするには空欄のままにします。</string>
     <string name="mhgu_hub_convert">ネットワークメッセージを変換</string>

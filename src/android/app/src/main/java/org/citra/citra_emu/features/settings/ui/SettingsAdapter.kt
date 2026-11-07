@@ -17,6 +17,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.view.ViewGroup
+import android.widget.ScrollView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
@@ -52,6 +54,7 @@ import org.citra.citra_emu.features.settings.model.AbstractStringSetting
 import org.citra.citra_emu.features.settings.model.FloatSetting
 import org.citra.citra_emu.features.settings.model.IntSetting
 import org.citra.citra_emu.features.settings.model.ScaledFloatSetting
+import org.citra.citra_emu.features.settings.model.StringSetting
 import org.citra.citra_emu.features.settings.model.view.DateTimeSetting
 import org.citra.citra_emu.features.settings.model.view.InputBindingSetting
 import org.citra.citra_emu.features.settings.model.view.MultiChoiceSetting
@@ -80,6 +83,9 @@ import org.citra.citra_emu.fragments.AutoMapDialogFragment
 import org.citra.citra_emu.fragments.MessageDialogFragment
 import org.citra.citra_emu.fragments.MotionBottomSheetDialogFragment
 import org.citra.citra_emu.utils.SystemSaveGame
+
+/** Rows in the MHGU hub servers dialog (MaxServers in mhgu_hub_proto.h). */
+private const val HUB_SERVERS_MAX = 8
 
 class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val context: Context) :
     RecyclerView.Adapter<SettingViewHolder?>(),
@@ -526,9 +532,91 @@ class SettingsAdapter(private val fragmentView: SettingsFragmentView, public val
             .show()
     }
 
+    /**
+     * The MHGU hub servers: one row a server, up to HUB_SERVERS_MAX. Stored as the same one string as before,
+     * names separated by spaces (a name starting with "-" is switched off and stays as written).
+     */
+    private fun showHubServersDialog(item: StringInputSetting) {
+        val inflater = LayoutInflater.from(context)
+        val density = context.resources.displayMetrics.density
+        fun dp(n: Int) = (n * density).toInt()
+
+        val rows = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        val addButton = MaterialButton(
+            context, null, androidx.appcompat.R.attr.borderlessButtonStyle
+        )
+
+        fun refreshAddButton() {
+            addButton.text = context.getString(R.string.mhgu_hub_add_server, rows.childCount, HUB_SERVERS_MAX)
+            addButton.isEnabled = rows.childCount < HUB_SERVERS_MAX
+        }
+
+        fun addRow(name: String) {
+            val serverBinding = DialogSoftwareKeyboardBinding.inflate(inflater)
+            serverBinding.root.hint = context.getString(R.string.mhgu_hub_server_hint)
+            serverBinding.root.setPadding(0, dp(8), 0, 0)
+            serverBinding.editTextInput.setText(name)
+
+            val remove = MaterialButton(
+                context, null, androidx.appcompat.R.attr.borderlessButtonStyle
+            ).apply { text = "\u2715" }
+            val row = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(serverBinding.root, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                addView(remove, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
+            remove.setOnClickListener {
+                rows.removeView(row)
+                refreshAddButton()
+            }
+            rows.addView(row)
+            refreshAddButton()
+        }
+
+        item.selectedValue.split(' ', ',', ';', '\t', '\n', '\r')
+            .filter { it.isNotBlank() }
+            .take(HUB_SERVERS_MAX)
+            .forEach { addRow(it) }
+        if (rows.childCount == 0) addRow("")
+        addButton.setOnClickListener { addRow("") }
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(24), dp(8), dp(24), 0)
+            addView(rows)
+            addView(addButton)
+        }
+
+        dialog = MaterialAlertDialogBuilder(context)
+            .setView(ScrollView(context).apply { addView(container) })
+            .setTitle(item.nameId)
+            .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
+                val names = ArrayList<String>()
+                for (i in 0 until rows.childCount) {
+                    val name = ((rows.getChildAt(i) as LinearLayout).getChildAt(0) as ViewGroup)
+                        .findViewById<TextInputEditText>(R.id.edit_text_input).text
+                        ?.toString()?.filter { !it.isWhitespace() } ?: ""
+                    if (name.isNotEmpty()) names.add(name)
+                }
+                val value = names.take(HUB_SERVERS_MAX).joinToString(" ")
+                if (item.selectedValue != value) {
+                    fragmentView?.onSettingChanged()
+                }
+                fragmentView?.putSetting(item.setSelectedValue(value))
+                fragmentView.loadSettingsList()
+                closeDialog()
+            }
+            .setNegativeButton(android.R.string.cancel, defaultCancelListener)
+            .show()
+    }
+
     fun onStringInputClick(item: StringInputSetting, position: Int) {
         if (item.secondSetting != null) {
             showWebApiUrlsDialog(item)
+            return
+        }
+        if (item.setting === StringSetting.MHGU_HUB_SERVERS) {
+            showHubServersDialog(item)
             return
         }
 

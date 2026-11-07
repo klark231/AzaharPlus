@@ -1354,7 +1354,9 @@
     <string name="mhgu_hub_enabled">Gioca con i giocatori di MHGU</string>
     <string name="mhgu_hub_enabled_description">Solo Monster Hunter XX. Quando non sei in una stanza, il gioco locale passa per i server hub di MHGU (port nativo): le stanze che crei sono visibili ai giocatori di MHGU, e le loro compaiono quando cerchi.</string>
     <string name="mhgu_hub_servers">Server hub</string>
-    <string name="mhgu_hub_servers_description">Fino a 4 indirizzi di server, separati da spazi.</string>
+    <string name="mhgu_hub_servers_description">Fino a 8 indirizzi di server, separati da spazi.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Aggiungi server (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Chiave di matchmaking</string>
     <string name="mhgu_hub_key_description">Solo i giocatori con la stessa chiave vedono le stanze degli altri. Lascia vuoto per stanze pubbliche.</string>
     <string name="mhgu_hub_convert">Converti messaggi di rete</string>

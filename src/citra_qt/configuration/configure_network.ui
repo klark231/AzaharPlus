@@ -198,7 +198,7 @@
       <item>
        <widget class="QLabel" name="mhgu_hub_servers_label">
         <property name="toolTip">
-         <string>Up to 4 server addresses, separated by spaces.</string>
+         <string>Up to 8 server addresses.</string>
         </property>
         <property name="text">
          <string>Hub servers:</string>
@@ -206,9 +206,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="mhgu_hub_servers">
-        <property name="toolTip">
-         <string>Up to 4 server addresses, separated by spaces.</string>
+       <layout class="QVBoxLayout" name="mhgu_hub_servers_rows"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="mhgu_hub_add_server">
+        <property name="text">
+         <string>Add server</string>
         </property>
        </widget>
       </item>

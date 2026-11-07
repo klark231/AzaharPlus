@@ -315,7 +315,9 @@
     <string name="mhgu_hub_enabled">Játék MHGU-játékosokkal</string>
     <string name="mhgu_hub_enabled_description">Csak Monster Hunter XX. Amíg nem vagy szobában, a helyi játék az MHGU (natív port) hub szerverein keresztül megy: az általad létrehozott szobák megjelennek az MHGU-játékosoknak, az övéik pedig a keresésedben.</string>
     <string name="mhgu_hub_servers">Hub szerverek</string>
-    <string name="mhgu_hub_servers_description">Legfeljebb 4 szervercím szóközzel elválasztva.</string>
+    <string name="mhgu_hub_servers_description">Legfeljebb 8 szervercím szóközzel elválasztva.</string>
+    <string name="mhgu_hub_server_hint">Szerver</string>
+    <string name="mhgu_hub_add_server">Szerver hozzáadása (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Párosítási kulcs</string>
     <string name="mhgu_hub_key_description">Csak az azonos kulccsal rendelkező játékosok látják egymás szobáit. Nyilvános szobákhoz hagyd üresen.</string>
     <string name="mhgu_hub_convert">Hálózati üzenetek átalakítása</string>

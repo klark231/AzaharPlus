@@ -315,7 +315,9 @@
     <string name="mhgu_hub_enabled">與 MHGU 玩家連線</string>
     <string name="mhgu_hub_enabled_description">僅限魔物獵人XX。不在房間中時，本機通訊會經過 MHGU（原生移植版）的中繼伺服器：你建立的房間會顯示給 MHGU 玩家，他們的房間也會出現在你的搜尋結果中。</string>
     <string name="mhgu_hub_servers">中繼伺服器</string>
-    <string name="mhgu_hub_servers_description">最多 4 個伺服器位址，以空格分隔。</string>
+    <string name="mhgu_hub_servers_description">最多 8 個伺服器位址，以空格分隔。</string>
+    <string name="mhgu_hub_server_hint">伺服器</string>
+    <string name="mhgu_hub_add_server">新增伺服器 (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">配對金鑰</string>
     <string name="mhgu_hub_key_description">只有金鑰相同的玩家才能看到彼此的房間。留空則為公開房間。</string>
     <string name="mhgu_hub_convert">轉換網路訊息</string>

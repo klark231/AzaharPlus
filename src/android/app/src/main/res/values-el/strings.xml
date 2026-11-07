@@ -686,7 +686,9 @@
     <string name="mhgu_hub_enabled">Παιχνίδι με παίκτες του MHGU</string>
     <string name="mhgu_hub_enabled_description">Μόνο Monster Hunter XX. Όσο δεν είσαι σε δωμάτιο, το τοπικό παιχνίδι περνά από τους διακομιστές hub του MHGU (εγγενής μεταφορά): τα δωμάτια που δημιουργείς εμφανίζονται στους παίκτες του MHGU, και τα δικά τους εμφανίζονται όταν κάνεις αναζήτηση.</string>
     <string name="mhgu_hub_servers">Διακομιστές hub</string>
-    <string name="mhgu_hub_servers_description">Έως 4 διευθύνσεις διακομιστών, χωρισμένες με κενά.</string>
+    <string name="mhgu_hub_servers_description">Έως 8 διευθύνσεις διακομιστών, χωρισμένες με κενά.</string>
+    <string name="mhgu_hub_server_hint">Διακομιστής</string>
+    <string name="mhgu_hub_add_server">Προσθήκη διακομιστή (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Κλειδί αντιστοίχισης</string>
     <string name="mhgu_hub_key_description">Μόνο παίκτες με το ίδιο κλειδί βλέπουν ο ένας τα δωμάτια του άλλου. Άφησέ το κενό για δημόσια δωμάτια.</string>
     <string name="mhgu_hub_convert">Μετατροπή μηνυμάτων δικτύου</string>

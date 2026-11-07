@@ -353,7 +353,9 @@
     <string name="mhgu_hub_enabled">Main dengan pemain MHGU</string>
     <string name="mhgu_hub_enabled_description">Hanya Monster Hunter XX. Selama kamu tidak di dalam room, main lokal lewat server hub MHGU (port native): room yang kamu buat muncul bagi pemain MHGU, dan room mereka muncul saat kamu mencari.</string>
     <string name="mhgu_hub_servers">Server hub</string>
-    <string name="mhgu_hub_servers_description">Hingga 4 alamat server, dipisahkan spasi.</string>
+    <string name="mhgu_hub_servers_description">Hingga 8 alamat server, dipisahkan spasi.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Tambah server (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Kunci matchmaking</string>
     <string name="mhgu_hub_key_description">Hanya pemain dengan kunci yang sama yang bisa saling melihat room. Kosongkan untuk room publik.</string>
     <string name="mhgu_hub_convert">Konversi pesan jaringan</string>

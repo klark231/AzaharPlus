@@ -315,7 +315,9 @@
     <string name="mhgu_hub_enabled">Chơi với người chơi MHGU</string>
     <string name="mhgu_hub_enabled_description">Chỉ dành cho Monster Hunter XX. Khi bạn không ở trong phòng nào, chơi cục bộ đi qua máy chủ hub của MHGU (bản port gốc): phòng bạn tạo được hiện cho người chơi MHGU, và phòng của họ hiện khi bạn tìm.</string>
     <string name="mhgu_hub_servers">Máy chủ hub</string>
-    <string name="mhgu_hub_servers_description">Tối đa 4 địa chỉ máy chủ, cách nhau bằng dấu cách.</string>
+    <string name="mhgu_hub_servers_description">Tối đa 8 địa chỉ máy chủ, cách nhau bằng dấu cách.</string>
+    <string name="mhgu_hub_server_hint">Máy chủ</string>
+    <string name="mhgu_hub_add_server">Thêm máy chủ (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Khóa ghép trận</string>
     <string name="mhgu_hub_key_description">Chỉ người chơi có cùng khóa mới thấy phòng của nhau. Để trống cho phòng công khai.</string>
     <string name="mhgu_hub_convert">Chuyển đổi tin nhắn mạng</string>

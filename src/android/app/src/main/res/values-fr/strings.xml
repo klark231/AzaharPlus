@@ -1354,7 +1354,9 @@
     <string name="mhgu_hub_enabled">Jouer avec des joueurs MHGU</string>
     <string name="mhgu_hub_enabled_description">Monster Hunter XX uniquement. Quand vous n\'êtes dans aucun salon, le jeu local passe par les serveurs hub de MHGU (portage natif) : vos salons sont visibles par les joueurs MHGU, et les leurs apparaissent dans votre recherche.</string>
     <string name="mhgu_hub_servers">Serveurs hub</string>
-    <string name="mhgu_hub_servers_description">Jusqu\'à 4 adresses de serveur, séparées par des espaces.</string>
+    <string name="mhgu_hub_servers_description">Jusqu\'à 8 adresses de serveur, séparées par des espaces.</string>
+    <string name="mhgu_hub_server_hint">Serveur</string>
+    <string name="mhgu_hub_add_server">Ajouter un serveur (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Clé de matchmaking</string>
     <string name="mhgu_hub_key_description">Seuls les joueurs ayant la même clé voient leurs salons. Laissez vide pour des salons publics.</string>
     <string name="mhgu_hub_convert">Convertir les messages réseau</string>

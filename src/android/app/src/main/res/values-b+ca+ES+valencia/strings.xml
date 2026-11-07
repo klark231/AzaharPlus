@@ -1356,7 +1356,9 @@ S\'esperen errors gràfics temporals quan estigue activat.</string>
     <string name="mhgu_hub_enabled">Jugar amb jugadors de MHGU</string>
     <string name="mhgu_hub_enabled_description">Només Monster Hunter XX. Mentre no estigues en cap sala, el joc local passa pels servidors hub de MHGU (port natiu): les sales que crees apareixen als jugadors de MHGU, i les seues apareixen quan busques.</string>
     <string name="mhgu_hub_servers">Servidors hub</string>
-    <string name="mhgu_hub_servers_description">Fins a 4 adreces de servidor, separades per espais.</string>
+    <string name="mhgu_hub_servers_description">Fins a 8 adreces de servidor, separades per espais.</string>
+    <string name="mhgu_hub_server_hint">Servidor</string>
+    <string name="mhgu_hub_add_server">Afegeix servidor (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Clau d\'emparellament</string>
     <string name="mhgu_hub_key_description">Només els jugadors amb la mateixa clau veuen les sales dels altres. Deixa-la buida per a sales públiques.</string>
     <string name="mhgu_hub_convert">Convertir missatges de xarxa</string>

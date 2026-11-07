@@ -1355,7 +1355,9 @@
     <string name="mhgu_hub_enabled">Spela med MHGU-spelare</string>
     <string name="mhgu_hub_enabled_description">Endast Monster Hunter XX. När du inte är i ett rum går lokalt spel via hubservrarna för MHGU (native port): rum du skapar visas för MHGU-spelare, och deras rum visas när du söker.</string>
     <string name="mhgu_hub_servers">Hubservrar</string>
-    <string name="mhgu_hub_servers_description">Upp till 4 serveradresser, åtskilda med mellanslag.</string>
+    <string name="mhgu_hub_servers_description">Upp till 8 serveradresser, åtskilda med mellanslag.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Lägg till server (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Matchmaking-nyckel</string>
     <string name="mhgu_hub_key_description">Bara spelare med samma nyckel ser varandras rum. Lämna tomt för offentliga rum.</string>
     <string name="mhgu_hub_convert">Konvertera nätverksmeddelanden</string>

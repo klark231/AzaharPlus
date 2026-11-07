@@ -440,7 +440,9 @@ Vink deze optie in de toekomst nogmaals aan om te zien of er ondersteuning is to
     <string name="mhgu_hub_enabled">Spelen met MHGU-spelers</string>
     <string name="mhgu_hub_enabled_description">Alleen Monster Hunter XX. Zolang je niet in een kamer zit, gaat lokaal spelen via de hubservers van MHGU (native port): kamers die je maakt zijn zichtbaar voor MHGU-spelers, en hun kamers verschijnen als je zoekt.</string>
     <string name="mhgu_hub_servers">Hubservers</string>
-    <string name="mhgu_hub_servers_description">Tot 4 serveradressen, gescheiden door spaties.</string>
+    <string name="mhgu_hub_servers_description">Tot 8 serveradressen, gescheiden door spaties.</string>
+    <string name="mhgu_hub_server_hint">Server</string>
+    <string name="mhgu_hub_add_server">Server toevoegen (%1$d/%2$d)</string>
     <string name="mhgu_hub_key">Matchmakingsleutel</string>
     <string name="mhgu_hub_key_description">Alleen spelers met dezelfde sleutel zien elkaars kamers. Laat leeg voor openbare kamers.</string>
     <string name="mhgu_hub_convert">Netwerkberichten omzetten</string>

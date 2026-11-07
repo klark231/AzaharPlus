@@ -800,6 +800,13 @@ private:
 
 /// Wait for a handle to synchronize, timeout after the specified nanoseconds
 Result SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
+    {
+        static u32 spin_w = 0;
+        if ((++spin_w % 100) == 0) {
+            LOG_WARNING(Kernel_SVC, "[spin] Wait pc={:08x} lr={:08x}",
+                        system.GetRunningCore().GetPC(), system.GetRunningCore().GetReg(14));
+        }
+    }
     auto object = kernel.GetCurrentProcess()->handle_table.Get<WaitObject>(handle);
     Thread* thread = kernel.GetCurrentThreadManager().GetCurrentThread();
     R_UNLESS(object, ResultInvalidHandle);
@@ -1187,6 +1194,20 @@ void SVC::OutputDebugString(VAddr address, s32 len) {
 
     std::string string(len, ' ');
     memory.ReadBlock(*kernel.GetCurrentProcess(), address, string.data(), len);
+    if (len >= 0x1000) { // memory dump: the game asks to log a big buffer
+        static const char* hexd = "0123456789abcdef";
+        for (s32 o = 0; o < len; o += 400) {
+            std::string hex;
+            const s32 end = (o + 400 < len) ? o + 400 : len;
+            for (s32 i = o; i < end; i++) {
+                const u8 c = static_cast<u8>(string[i]);
+                hex += hexd[c >> 4];
+                hex += hexd[c & 15];
+            }
+            LOG_WARNING(Kernel_SVC, "[memdump] size={} off={} {}", len, o, hex);
+        }
+        return;
+    }
     LOG_DEBUG(Debug_Emulated, "{}", string);
 }
 
@@ -1637,6 +1658,13 @@ Result SVC::CancelTimer(Handle handle) {
 
 /// Sleep the current thread
 void SVC::SleepThread(s64 nanoseconds) {
+    {
+        static u32 spin_n = 0;
+        if ((++spin_n % 100) == 0) {
+            LOG_WARNING(Kernel_SVC, "[spin] Sleep pc={:08x} lr={:08x}",
+                        system.GetRunningCore().GetPC(), system.GetRunningCore().GetReg(14));
+        }
+    }
     LOG_TRACE(Kernel_SVC, "called nanoseconds={}", nanoseconds);
 
     ThreadManager& thread_manager = kernel.GetCurrentThreadManager();

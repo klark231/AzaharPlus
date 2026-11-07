@@ -1136,6 +1136,21 @@ std::vector<u8> PiaTranslator::To3ds(std::span<const u8> in) {
     const auto ip_self = IpBytes(self_ip);
     for (auto& m : pk.messages) {
         Learn(m, false);
+        if (m.proto_type == ProtoGame && m.payload.size() >= 0x100) {
+            static u32 pktdump_seq = 0;
+            const u32 pktdump_id = pktdump_seq++;
+            for (std::size_t o = 0; o < m.payload.size(); o += 400) {
+                std::string hex;
+                char b[3];
+                const std::size_t end = std::min<std::size_t>(o + 400, m.payload.size());
+                for (std::size_t i = o; i < end; i++) {
+                    std::snprintf(b, sizeof b, "%02x", m.payload[i]);
+                    hex += b;
+                }
+                Log("[pktdump] #%u size=%zu off=%zu %s", pktdump_id, m.payload.size(), o, hex.c_str());
+            }
+        }
+
         if (has_self && self_ip) {
             SwapAddr(m, ip_self, self_addr);
         }

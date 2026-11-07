@@ -224,7 +224,8 @@ public:
     }
 
 private:
-    void Run(std::string server, u16 link_version);
+    // phone: the phones' public room (PhonePublicKey), for a hub without a key of its own
+    void Run(std::string server, u16 link_version, bool phone);
     std::atomic<bool> running{false};
     std::atomic<u32> changes{0};
     std::string key;

@@ -78,7 +78,7 @@ enum {
 
 // Number of beacons to store before we start dropping the old ones.
 // TODO(Subv): Find a more accurate value for this limit.
-constexpr std::size_t MaxBeaconFrames = 15;
+constexpr std::size_t MaxBeaconFrames = 1024; // was 15; MHGU hub crossplay can list 50+ rooms
 
 // Network node id used when a SecureData packet is addressed to every connected node.
 constexpr u16 BroadcastNetworkNodeId = 0xFFFF;
@@ -766,8 +766,13 @@ void NWM_UDS::RecvBeaconBroadcastData(Kernel::HLERequestContext& ctx) {
     data_reply_header.total_entries = static_cast<u32>(beacons.size());
     data_reply_header.max_output_size = out_buffer_size;
 
-    // Write each of the received beacons into the buffer
+    // Write each of the received beacons into the buffer (as many as fit in the game's buffer)
+    u32 written_entries = 0;
     for (const auto& beacon : beacons) {
+        if (cur_buffer_size + sizeof(BeaconEntryHeader) + beacon.data.size() > out_buffer_size) {
+            break; // the game's buffer is full
+        }
+        written_entries++;
         BeaconEntryHeader entry{};
         // TODO(Subv): Figure out what this size is used for.
         entry.unk_size = static_cast<u32>(sizeof(BeaconEntryHeader) + beacon.data.size());
@@ -785,6 +790,11 @@ void NWM_UDS::RecvBeaconBroadcastData(Kernel::HLERequestContext& ctx) {
         cur_buffer_size += beacon.data.size();
     }
 
+    data_reply_header.total_entries = written_entries;
+    if (MhguBridge::Enabled()) {
+        LOG_INFO(Service_NWM, "[hub] scan: gave the game {} of {} beacons ({} of {} buffer bytes used)",
+                 written_entries, beacons.size(), cur_buffer_size, out_buffer_size);
+    }
     // Update the total size in the structure and write it to the buffer again.
     data_reply_header.total_size = static_cast<u32>(cur_buffer_size);
     out_buffer.Write(&data_reply_header, 0, sizeof(BeaconDataReplyHeader));

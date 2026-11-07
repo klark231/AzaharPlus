@@ -672,10 +672,13 @@ void HubListing::Start(const std::vector<std::string>& servers, const std::strin
     running = true;
     // The hub is listed under every link version we speak, so MHGURecomp players on either build find it (a hub
     // server lists a hub only for askers of its own version). Our join code accepts both versions' hellos.
+    // Without a key of our own it is also listed in the phones' public room under v3, where the MHGURecomp Android
+    // build looks: PCs, phones and this build see each other (3 listings a server; servers limit hubs per IP to 4).
     for (const auto& s : servers) {
         for (const u16 v : LinkVersions) {
-            threads.emplace_back([this, s, v] { Run(s, v); });
+            threads.emplace_back([this, s, v] { Run(s, v, false); });
         }
+        threads.emplace_back([this, s] { Run(s, 3, true); });
     }
 }
 
@@ -701,7 +704,7 @@ void HubListing::MarkChanged() {
     changes++;
 }
 
-void HubListing::Run(std::string server, u16 link_version) {
+void HubListing::Run(std::string server, u16 link_version, bool phone) {
     using Clock = std::chrono::steady_clock;
     auto wait = [this](int ms) {
         for (int t = 0; t < ms && running; t += 100) {
@@ -710,6 +713,13 @@ void HubListing::Run(std::string server, u16 link_version) {
         return running.load();
     };
     while (running) {
+        const std::string room = phone ? std::string(PhonePublicKey) : key;
+        if (phone && key.find_first_not_of(' ') != std::string::npos) {
+            if (!wait(5000)) { // (the phones' room is for a hub without a key of its own)
+                break;
+            }
+            continue;
+        }
         const auto ep = Resolve(server, LobbyPort);
         const Sock s = ep ? TcpConnect(*ep, 3000) : BadSock;
         if (s == BadSock) {
@@ -729,7 +739,7 @@ void HubListing::Run(std::string server, u16 link_version) {
             socks.erase(std::remove(socks.begin(), socks.end(), s), socks.end());
             CloseSock(s);
         };
-        const auto header = LobbyHeader(key, link_version);
+        const auto header = LobbyHeader(room, link_version);
         u32 seen = changes.load();
         NetInfo info = info_fn();
         std::vector<u8> req(header.begin(), header.end());
@@ -740,15 +750,16 @@ void HubListing::Run(std::string server, u16 link_version) {
         int n = FrameSend(s, S_HOST, req) ? FrameRecv(s, type, buf) : -1;
         if (n < 8 || type != S_HOSTED) {
             const bool error = n >= 4 && type == S_ERROR;
-            Log("[hub] server %s: can't list the room as v%u (%s); trying again in 30 s", server.c_str(),
-                static_cast<unsigned>(link_version), error ? LobbyErrorText(Rd32(buf.data())) : "no answer");
+            Log("[hub] server %s: can't list the room as v%u%s (%s); trying again in 30 s", server.c_str(),
+                static_cast<unsigned>(link_version), phone ? " in the phones' room" : "", error ? LobbyErrorText(Rd32(buf.data())) : "no answer");
             forget();
             if (!wait(30000)) {
                 break;
             }
             continue;
         }
-        Log("[hub] room listed on %s (link v%u)", server.c_str(), static_cast<unsigned>(link_version));
+        Log("[hub] room listed on %s (link v%u%s)", server.c_str(), static_cast<unsigned>(link_version),
+            phone ? ", phones' room" : "");
         SetRecvTimeout(s, 0);
         auto last_rx = Clock::now(), next_ping = last_rx + std::chrono::seconds(15);
         while (running) {
@@ -783,7 +794,7 @@ void HubListing::Run(std::string server, u16 link_version) {
             if (type == S_INCOMING && n >= 8) {
                 const u64 ticket = Rd64(buf.data());
                 const Endpoint server_ep = *ep;
-                const std::string k = key;
+                const std::string k = room;
                 PlayerFn fn = player_fn;
                 std::thread([server_ep, k, link_version, ticket, fn] {
                     Spliced sp;

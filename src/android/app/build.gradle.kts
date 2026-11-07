@@ -181,6 +181,18 @@ android {
             dimension = "version"
             versionNameSuffix = "-vanilla"
         }
+        // The same app with another package name: some phones' performance modes know a benchmark by its package.
+        // Its own data folder (Android/data/<package>) and it cannot be installed over the real benchmark.
+        register("antutu") {
+            dimension = "version"
+            applicationId = "com.antutu.ABenchMark"
+            versionNameSuffix = "-antutu"
+        }
+        register("ludashi") {
+            dimension = "version"
+            applicationId = "com.ludashi.benchmark"
+            versionNameSuffix = "-ludashi"
+        }
         register("googlePlay") {
             dimension = "version"
             versionNameSuffix = "-googleplay"

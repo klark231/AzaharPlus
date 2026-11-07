@@ -13,6 +13,8 @@
 #include <cstring>
 #include <deque>
 #include <functional>
+#include <iterator>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <random>
@@ -46,7 +48,10 @@ constexpr u16 BroadcastNode = 0xFFFF;
 constexpr u16 MhxxAttributes = 0x8000; // what MHXX itself sets on the networks it hosts
 constexpr u32 MhxxCommId = 0x00197110;
 constexpr u8 HubChannel = DefaultNetworkChannel;
-constexpr std::size_t MaxBeacons = 14;
+// A hub server answers one search with at most ~18 hubs (a random pick when it has more), so the hubs of
+// several searches are merged and one is kept this long after it was last seen.
+constexpr auto HubMemory = 25s;
+constexpr std::size_t MaxBeacons = 1024; // effectively no limit: every hub is sent; the UDS side stops at the game's buffer size
 
 std::mt19937_64& Rng() {
     static std::mt19937_64 rng{std::random_device{}() ^
@@ -316,10 +321,11 @@ private:
         }
         if (!MhguBridge::Enabled()) {
             listed.clear(); // toggle off or in a room: no hub rooms
+            seen.clear();
             return;
         }
         // Keep the hub list warm while idle so the first in-game search already has results.
-        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 5s) {
+        if (!hosting && sta == Sta::Idle && !list_pending && now - last_list > 3s) {
             RequestList();
         }
         // Pre-fill the game's beacon buffer every tick while it can scan, so the FIRST search
@@ -465,8 +471,18 @@ private:
 
     void OnList(std::vector<H::ListedHub> hubs) {
         list_pending = false;
-        std::vector<Listed> next;
+        const auto now = Clock::now();
         for (auto& h : hubs) {
+            std::array<u8, 6> bssid{};
+            std::memcpy(bssid.data(), &h.info[H::NI::Bssid], 6);
+            seen[bssid] = {h, now};
+        }
+        for (auto it = seen.begin(); it != seen.end();) {
+            it = now - it->second.second > HubMemory ? seen.erase(it) : std::next(it);
+        }
+        std::vector<Listed> next;
+        for (auto& [bssid, entry] : seen) {
+            H::ListedHub h = entry.first;
             if (H::Rd64(&h.info[H::NI::LocalCommId]) != H::MhguLocalCommId || !H::InfoSane(h.info) ||
                 h.info[H::NI::AcceptPolicy] == 1 || h.info[H::NI::NodeCount] >= h.info[H::NI::NodeMax]) {
                 continue;
@@ -1337,6 +1353,7 @@ private:
 
     // scanning
     std::vector<Listed> listed;
+    std::map<std::array<u8, 6>, std::pair<H::ListedHub, Clock::time_point>> seen; // hubs of recent searches
     Clock::time_point last_list{};
     bool list_pending = false;
     std::thread list_thread;

@@ -3,6 +3,9 @@
 // Refer to the LICENSE.txt file included.
 
 #include <algorithm>
+#include <map>
+#include <mutex>
+#include <string>
 #include <array>
 #include <chrono>
 #include <fmt/format.h>
@@ -799,7 +802,31 @@ private:
 };
 
 /// Wait for a handle to synchronize, timeout after the specified nanoseconds
+struct WaitNote {
+    const char* kind = "";
+    u32 a = 0;
+    u32 b = 0;
+    s64 t = 0;
+    u32 pc = 0;
+    u32 lr = 0;
+};
+static std::mutex g_wait_mtx;
+static std::map<u32, WaitNote> g_last_wait;
+static void NoteWait(u32 tid, const WaitNote& n) {
+    std::scoped_lock lock{g_wait_mtx};
+    g_last_wait[tid] = n;
+}
+
 Result SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
+    {
+        WaitNote n;
+        n.kind = "Wait1";
+        n.a = handle;
+        n.t = nano_seconds;
+        n.pc = system.GetRunningCore().GetPC();
+        n.lr = system.GetRunningCore().GetReg(14);
+        NoteWait(kernel.GetCurrentThreadManager().GetCurrentThread()->GetThreadId(), n);
+    }
     {
         static u32 spin_w = 0;
         if ((++spin_w % 100) == 0) {
@@ -841,6 +868,16 @@ Result SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
 /// Wait for the given handles to synchronize, timeout after the specified nanoseconds
 Result SVC::WaitSynchronizationN(s32* out, VAddr handles_address, s32 handle_count, bool wait_all,
                                  s64 nano_seconds) {
+    {
+        WaitNote n;
+        n.kind = "WaitN";
+        n.a = static_cast<u32>(handles_address);
+        n.b = static_cast<u32>(handle_count);
+        n.t = nano_seconds;
+        n.pc = system.GetRunningCore().GetPC();
+        n.lr = system.GetRunningCore().GetReg(14);
+        NoteWait(kernel.GetCurrentThreadManager().GetCurrentThread()->GetThreadId(), n);
+    }
     Thread* thread = kernel.GetCurrentThreadManager().GetCurrentThread();
     R_UNLESS(memory.IsValidVirtualAddress(*kernel.GetCurrentProcess(), handles_address),
              ResultInvalidPointer);
@@ -1136,6 +1173,16 @@ Result SVC::CreateAddressArbiter(Handle* out_handle) {
 
 /// Arbitrate address
 Result SVC::ArbitrateAddress(Handle handle, u32 address, u32 type, u32 value, s64 nanoseconds) {
+    {
+        WaitNote n;
+        n.kind = "Arb";
+        n.a = address;
+        n.b = type;
+        n.t = nanoseconds;
+        n.pc = system.GetRunningCore().GetPC();
+        n.lr = system.GetRunningCore().GetReg(14);
+        NoteWait(kernel.GetCurrentThreadManager().GetCurrentThread()->GetThreadId(), n);
+    }
     LOG_TRACE(Kernel_SVC, "called handle=0x{:08X}, address=0x{:08X}, type=0x{:08X}, value=0x{:08X}",
               handle, address, type, value);
 
@@ -1658,6 +1705,26 @@ Result SVC::CancelTimer(Handle handle) {
 
 /// Sleep the current thread
 void SVC::SleepThread(s64 nanoseconds) {
+    {
+        static u32 dump_n = 0;
+        if ((++dump_n % 3000) == 0) {
+            std::map<u32, WaitNote> snap;
+            {
+                std::scoped_lock lock{g_wait_mtx};
+                snap = g_last_wait;
+            }
+            for (const auto& [tid, n] : snap) {
+                std::string name;
+                if (std::string(n.kind) == "Wait1") {
+                    auto o = kernel.GetCurrentProcess()->handle_table.GetGeneric(n.a);
+                    name = o ? o->GetTypeName() + ":" + o->GetName() : std::string("?");
+                }
+                LOG_WARNING(Kernel_SVC,
+                            "[waits] tid={} {} a={:08x} b={:08x} timeout={} pc={:08x} lr={:08x} {}",
+                            tid, n.kind, n.a, n.b, n.t, n.pc, n.lr, name);
+            }
+        }
+    }
     {
         static u32 spin_n = 0;
         if ((++spin_n % 100) == 0) {
